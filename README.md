@@ -1,36 +1,69 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# 🏛️ DeputyDex
 
-## Getting Started
+> Base de données interactive des députés français
 
-First, run the development server:
+![nextjs](https://img.shields.io/badge/Next.js-16-black)
+![typescript](https://img.shields.io/badge/TypeScript-3178C6)
+![tailwind](https://img.shields.io/badge/TailwindCSS-38BDF8)
+![vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black)
 
+## 📊 Données en temps réel
+
+Les données sont automatiquement mises à jour **chaque jour** via GitHub Actions.
+
+Sources :
+- 🇫🇷 [API Assemblée Nationale](https://data.assemblee-nationale.fr)
+- 👥 [NosDéputés.fr](https://www.nosdeputes.fr)
+
+## 🚀 Stack Technique
+
+- **Framework**: Next.js 16 + TypeScript
+- **Styling**: Tailwind CSS
+- **Data Pipeline**: GitHub Actions + Scripts ETL
+- **Hosting**: Vercel
+- **Data**: API publiques
+
+## 🛠️ Développement Local
 ```bash
+# Installation
+npm install
+
+# Générer les données
+npm run data:generate
+
+# Dev server
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## 📈 Stats du Projet
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+- **XXX députés** référencés
+- **Mise à jour quotidienne** automatique
+- **Open Source** et données publiques
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## 🤝 Contribution
 
-## Learn More
+Les contributions sont les bienvenues ! N'hésite pas à :
+- 🐛 Signaler des bugs
+- 💡 Proposer des features
+- 🔧 Soumettre des PRs
 
-To learn more about Next.js, take a look at the following resources:
+## 📜 License
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+TODO © 2026 TODO
+```
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+---
+### **Vercel détecte automatiquement tes push**
+```
+Push sur main
+↓
+GitHub Actions update data
+↓
+Commit public/data/*.json
+↓
+Vercel détecte le commit
+↓
+Build + Deploy automatique
+↓
+Site à jour ! ✨
