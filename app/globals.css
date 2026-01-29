@@ -1,26 +1,562 @@
 @import "tailwindcss";
 
+/* =========================================================
+   THEME TOKENS
+   ========================================================= */
+/* Light Theme */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* ------------ Core colors ------------ */
+  --background: #f8fafc;
+  --foreground: #0f172a;
+
+  /* ------------ Background ------------ */
+  --bg-card: #bfbfbf;
+
+  /* ------------ Borders ------------ */
+  --border-main: 229 231 235;
+  --border-header: rgba(255, 255, 255, 0.1);
+
+  /* ------------ Primary button ------------ */
+  --btn-primary-bg: #2563eb;
+  --btn-primary-text: #ffffff;
+  --btn-primary-hover: #1d4ed8;
+
+  /* ------------ Secondary button ------------ */
+  --btn-secondary-bg: #64748b;
+  --btn-secondary-text: #ffffff;
+  --btn-secondary-hover: #475569;
+
+  /* ------------ Tertiary button ------------ */
+  --btn-tertiary-bg: #e5e7eb;
+  --btn-tertiary-text: #1f2937;
+  --btn-tertiary-hover: #d1d5db;
+
+  /* ------------ Toggle switch ------------ */
+  --toggle-bg: #e5e7eb;
+  --toggle-bg-active: var(--btn-primary-bg);
+  --toggle-slider-bg: #ffffff;
+  --toggle-border: rgba(0, 0, 0, 0.15);
+  --toggle-focus: #2563eb;
+
+  /* ------------ Span ------------ */
+  --span-clickable: #64748b;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+/* Dark Theme */
+.dark {
+  /* ------------ Core colors ------------ */
+  --background: #1a0066;
+  --foreground: #e5e7eb;
+
+  /* ------------ Background ------------ */
+  --bg-card: #002080;
+
+  /* ------------ Borders ------------ */
+  --border-main: 55 65 81;
+  --border-header: rgba(255, 255, 255, 0.1);
+
+  /* ------------ Button ------------ */
+  /* Primary button */
+  --btn-primary-bg: #3b82f6;
+  --btn-primary-text: #ffffff;
+  --btn-primary-hover: #60a5fa;
+  /* Secondary button */
+  --btn-secondary-bg: #52525b;
+  --btn-secondary-text: #fafafa;
+  --btn-secondary-hover: #71717a;
+  /* Tertiary button */
+  --btn-tertiary-bg: #18181b;
+  --btn-tertiary-text: #d4d4d8;
+  --btn-tertiary-hover: #27272a;
+
+  /* ------------ Toggle switch ------------ */
+  --toggle-bg: #27272a;
+  --toggle-bg-active: var(--btn-primary-bg);
+  --toggle-slider-bg: #fafafa;
+  --toggle-border: rgba(255, 255, 255, 0.2);
+  --toggle-focus: #60a5fa;
+
+  /* ------------ Span ------------ */
+  --span-clickable: #94a3b8;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+/* Accessible Theme - daltonien-friendly */
+.accessible {
+  /* ------------ Core colors ------------ */
+  --background: #f4f4f5;
+  --foreground: #000000;
+
+  /* ------------ Background ------------ */
+  --bg-card: #e6e6e6;
+
+  /* ------------ Borders ------------ */
+  --border-main: 75 85 99;
+  --border-header: #000000;
+
+  /* ------------ Button ------------ */
+  /* Primary button */
+  --btn-primary-bg: #003a8f;
+  --btn-primary-text: #ffffff;
+  --btn-primary-hover: #002766;
+  /* Secondary button */
+  --btn-secondary-bg: #ffb703;
+  --btn-secondary-text: #000000;
+  --btn-secondary-hover: #e09f00;
+  /* Tertiary button */
+  --btn-tertiary-bg: #d4d4d8;
+  --btn-tertiary-text: #000000;
+  --btn-tertiary-hover: #a1a1aa;
+
+  /* ------------ Toggle switch ------------ */
+  --toggle-bg: #9ca3af;
+  --toggle-bg-active: #003a8f;
+  --toggle-slider-bg: #ffffff;
+  --toggle-border: #000000;
+  --toggle-focus: #000000;
+
+  /* ------------ Span ------------ */
+  --span-clickable: #0066cc;
+}
+
+
+@layer utilities {
+  /* =========================================================
+   BASE STYLES
+   ========================================================= */
+  a, button, select {
+    cursor: pointer;
   }
-}
 
-body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  body {
+    background-color: var(--background);
+    color: var(--foreground);
+    font-family: Arial, Helvetica, sans-serif;
+  }
+
+  /* =========================================================
+     TYPOGRAPHY
+     ========================================================= */
+  /* ------------ Title ------------ */
+  h1 {
+    @apply text-3xl md:text-5xl font-bold;
+    color: var(--foreground);
+  }
+
+  h2 {
+    @apply text-2xl md:text-3xl font-bold;
+    color: var(--foreground);
+  }
+
+  h3 {
+    @apply text-xl md:text-2xl font-bold;
+    color: var(--foreground);
+  }
+
+  /* ------------ Subtitle ------------ */
+  .subtitle {
+    @apply text-lg md:text-xl;
+    color: var(--foreground);
+    opacity: 0.8;
+  }
+
+  /* ------------ Paragraph ------------ */
+  p {
+    @apply text-base leading-relaxed;
+    color: var(--foreground);
+  }
+
+  /* =========================================================
+   COMMON
+   ========================================================= */
+  /* ------------ Background ------------ */
+  .bg-main {
+    background-color: var(--background);
+  }
+  .bg-card {
+    background-color: var(--bg-card);
+  }
+
+  /* ------------ Border ------------ */
+  .border-main { border-color: rgb(var(--border-main)); }
+  .border-header { border-color: rgb(var(--border-header)); }
+
+  /* =========================================================
+     COMPONENTS
+     ========================================================= */
+  /* ------------ ButtonLib ------------ */
+  .btn-lib {
+    @apply inline-flex items-center rounded-lg font-medium
+  }
+
+  /* Size */
+  .btn-lib--small {
+    @apply px-3 py-1.5 text-sm;
+  }
+
+  .btn-lib--medium {
+    @apply px-6 py-3 text-base;
+  }
+
+  .btn-lib--large {
+    @apply px-8 py-4 text-lg;
+  }
+
+  /* Color variant */
+  .btn-lib--primary {
+    background-color: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .btn-lib--primary:hover {
+    background-color: var(--btn-primary-hover);
+  }
+
+  .btn-lib--secondary {
+    background-color: var(--btn-secondary-bg);
+    color: var(--btn-secondary-text);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .btn-lib--secondary:hover {
+    background-color: var(--btn-secondary-hover);
+  }
+
+  .btn-lib--tertiary {
+    background-color: var(--btn-tertiary-bg);
+    color: var(--btn-tertiary-text);
+    border: 1px solid rgba(0, 0, 0, 0.1);
+  }
+
+  .btn-lib--tertiary:hover {
+    background-color: var(--btn-tertiary-hover);
+  }
+
+  /* ------------ BadgeLib ------------ */
+  .badge-lib {
+    @apply inline-flex items-center px-3 py-1 text-xs rounded-full;
+  }
+
+  .badge-lib--primary {
+    background-color: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
+  }
+
+  .badge-lib--secondary {
+    background-color: var(--btn-secondary-bg);
+    color: var(--btn-secondary-text);
+  }
+
+  .badge-lib--tertiary {
+    background-color: var(--btn-tertiary-bg);
+    color: var(--btn-tertiary-text);
+  }
+
+  /* ------------ SpanLib ------------ */
+  .span-lib {
+    @apply inline-flex items-center gap-1 text-sm;
+    color: var(--foreground);
+  }
+
+  .span-lib--clickable {
+    @apply cursor-pointer;
+    color: var(--span-clickable);
+  }
+
+  .span-lib--clickable:hover {
+    color: var(--foreground);
+  }
+
+  /* ------------ ToggleSwitchLib ------------ */
+  .toggle-switch-wrapper {
+    @apply flex items-center gap-3;
+  }
+
+  /* Base toggle switch */
+  .toggle-switch {
+    @apply relative inline-block;
+    background-color: var(--toggle-bg);
+    border-radius: 31px;
+    border: none;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+  }
+
+  .toggle-switch__label {
+    @apply text-sm;
+    color: var(--foreground);
+    user-select: none;
+  }
+
+  .toggle-switch:focus-visible {
+    outline: 2px solid var(--toggle-focus);
+    outline-offset: 2px;
+  }
+
+  .toggle-switch--active {
+    background-color: var(--toggle-bg-active);
+  }
+
+  .toggle-switch__slider {
+    @apply absolute top-0.5 left-0.5;
+    background-color: var(--toggle-slider-bg);
+    border-radius: 50%;
+    transition: transform 0.3s ease;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+  }
+
+  /* Size */
+  .toggle-switch--medium {
+    width: 51px;
+    height: 31px;
+  }
+
+  .toggle-switch--medium .toggle-switch__slider {
+    width: 27px;
+    height: 27px;
+  }
+
+  .toggle-switch--medium.toggle-switch--active .toggle-switch__slider {
+    transform: translateX(20px);
+  }
+
+  /* Small */
+  .toggle-switch--small {
+    width: 38px;
+    height: 22px;
+  }
+
+  .toggle-switch--small .toggle-switch__slider {
+    width: 18px;
+    height: 18px;
+  }
+
+  .toggle-switch--small.toggle-switch--active .toggle-switch__slider {
+    transform: translateX(16px);
+  }
+
+  /* ------------ InputLib ------------ */
+  .input-wrapper {
+    @apply flex flex-col gap-2;
+  }
+
+  .input-label {
+    color: var(--foreground);
+  }
+
+  .input-required {
+    color: #ef4444;
+    margin-left: 2px;
+  }
+
+  .input-lib {
+    @apply px-4 py-2 rounded-lg;
+    @apply border;
+    background-color: var(--background);
+    color: var(--foreground);
+    border-color: rgb(var(--border-main));
+  }
+
+  .input-lib::placeholder {
+    color: var(--foreground);
+    opacity: 0.5;
+  }
+
+  .input-lib:focus {
+    outline: 2px solid var(--btn-primary-bg);
+    outline-offset: 0;
+    border-color: transparent;
+  }
+
+  .input-lib:hover {
+    border-color: var(--btn-primary-hover);
+  }
+
+  .input-lib:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Dark theme adjustments */
+  .dark .input-lib {
+    border-color: rgb(var(--border-main));
+  }
+  .dark .input-lib:hover {
+    border-color: var(--btn-primary-hover);
+  }
+
+  /* Accessible theme adjustments */
+  .accessible .input-lib {
+    border-width: 1px;
+    border-color: #000000;
+  }
+  .accessible .input-lib:hover {
+    border-color: var(--btn-primary-hover);
+  }
+
+  /* ------------ SelectLib ------------ */
+  .select-wrapper {
+    @apply flex flex-col gap-2;
+  }
+
+  .select-label {
+    color: var(--foreground);
+  }
+
+  .select-required {
+    color: #ef4444;
+    margin-left: 2px;
+  }
+
+  .select-lib {
+    @apply px-4 py-2 rounded-lg;
+    @apply border;
+    @apply appearance-none;
+    background-color: var(--background);
+    color: var(--foreground);
+    border-color: rgb(var(--border-main));
+    background-repeat: no-repeat;
+    background-position: right 1rem center;
+    padding-right: 2.5rem;
+  }
+
+  .select-lib:focus {
+    outline: 2px solid var(--btn-primary-bg);
+    outline-offset: 0;
+    border-color: transparent;
+  }
+
+  .select-lib:hover {
+    border-color: var(--btn-primary-hover);
+  }
+
+  .select-lib:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+  }
+
+  /* Dark theme adjustments */
+  .dark .select-lib {
+    border-color: rgb(var(--border-main));
+  }
+
+  .dark .select-lib:hover {
+    border-color: var(--btn-primary-hover);
+  }
+
+  /* Accessible theme adjustments */
+  .accessible .select-lib {
+    border-width: 1px;
+    border-color: #000000;
+  }
+
+  .accessible .select-lib:hover {
+    border-color: var(--btn-primary-bg);
+  }
+
+  /* ------------ AvatarLib ------------ */
+  .avatar-lib {
+    @apply relative inline-block overflow-hidden;
+    background: linear-gradient(135deg, var(--btn-primary-bg) 0%, var(--btn-secondary-bg) 100%);
+    flex-shrink: 0;
+  }
+
+  /* Sizes */
+  .avatar-lib--small,
+  .avatar-lib--medium,
+  .avatar-lib--large {
+    @apply rounded-full;
+  }
+
+  .avatar-lib--small {
+    width: 32px;
+    height: 32px;
+  }
+
+  .avatar-lib--medium {
+    width: 48px;
+    height: 48px;
+  }
+
+  .avatar-lib--large {
+    width: 64px;
+    height: 64px;
+  }
+
+  /* Picture size */
+  .avatar-lib--picture {
+    width: 160px;
+    height: 200px;
+    border-radius: 50% / 40%;
+  }
+
+  /* Image */
+  .avatar-lib__image {
+    @apply w-full h-full object-cover;
+  }
+
+  /* Initiales */
+  .avatar-lib__initials {
+    @apply w-full h-full flex items-center justify-center;
+    @apply font-semibold;
+    color: #ffffff;
+    user-select: none;
+  }
+
+  .avatar-lib--small .avatar-lib__initials {
+    @apply text-xs;
+  }
+
+  .avatar-lib--medium .avatar-lib__initials {
+    @apply text-sm;
+  }
+
+  .avatar-lib--large .avatar-lib__initials {
+    @apply text-lg;
+  }
+
+  .avatar-lib--picture .avatar-lib__initials {
+    @apply text-4xl;
+  }
+
+  /* =========================================================
+   COMPONENT LIBRARY CSS
+   ========================================================= */
+  /* ------------ Navigation links ------------ */
+  .nav-link {
+    @apply font-medium transition-all;
+    color: var(--foreground);
+    opacity: 0.7;
+    position: relative;
+  }
+
+  .nav-link:hover {
+    opacity: 1;
+    transform: scale(1.05);
+  }
+
+  .nav-link-active {
+    opacity: 1;
+  }
+
+  .nav-link-active::after {
+    content: '';
+    position: absolute;
+    bottom: -8px;
+    left: 0;
+    right: 0;
+    height: 2px;
+    background-color: var(--btn-primary-bg);
+  }
+
+  /* Theme switch */
+  .theme-close-btn {
+    color: var(--foreground);
+    opacity: 0.7;
+    transition: opacity 0.2s;
+  }
+
+  .theme-close-btn:hover {
+    opacity: 1;
+  }
 }
