@@ -1,3 +1,5 @@
+"use client"
+
 import { PageHeader } from "@/app/component-library/molecules/page-header/page-header";
 
 export const PAGE_HEADER_CODE_BASIC = `<PageHeader

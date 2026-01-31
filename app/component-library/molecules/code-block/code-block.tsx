@@ -1,4 +1,4 @@
-'use client';
+"use client"
 
 import React, { useState } from 'react';
 import { Prism as SyntaxHighlighter } from 'react-syntax-highlighter';
