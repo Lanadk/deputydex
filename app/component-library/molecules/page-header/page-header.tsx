@@ -1,6 +1,6 @@
 import React from 'react';
 
-export interface PageHeaderLibProps {
+export interface PageHeaderProps {
     /** Titre de la page */
     title: string;
     /** Sous-titre/description */
@@ -9,7 +9,7 @@ export interface PageHeaderLibProps {
     className?: string;
 }
 
-export const PageHeaderLib: React.FC<PageHeaderLibProps> = ({
+export const PageHeader: React.FC<PageHeaderProps> = ({
                                                           title,
                                                           subtitle,
                                                           className = '',

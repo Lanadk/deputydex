@@ -1,55 +1,33 @@
 "use client"
 
-import { CodeBlock } from "@/app/component-library/molecules/code-block/code-block"
+import { PageHeader } from "@/app/component-library/molecules/page-header/page-header";
+import { getPageHeaderSections } from "@/app/component-library/molecules/page-header/page-header.constants";
+import {PageContent} from "@/app/component-library/template/page-content/page-content";
 import {
-    PAGE_HEADER_CODE_BASIC,
-    PAGE_HEADER_CODE_USE_CASE
-} from "@/app/component-library/molecules/page-header/page-header-lib.constants";
-import {PageHeaderLib} from "@/app/component-library/molecules/page-header/page-header-lib";
+    ComponentSectionCodeBlock
+} from "@/app/component-library/molecules/component-section/component-section-code-block";
 
-export default function PageHeaderLibPage() {
+export default function PageHeaderPage() {
+    const sections = getPageHeaderSections();
+
     return (
         <div>
-            <PageHeaderLib
+            <PageHeader
                 title="Page Header"
                 subtitle="Composant header de page avec titre et sous-titre pour uniformiser les en-têtes"
             />
 
-            <div className="space-y-8">
-                <div>
-                    <h3>Usage basique</h3>
-                    <div className="mt-4">
-                        <CodeBlock code={PAGE_HEADER_CODE_BASIC}>
-                            <PageHeaderLib
-                                title="Titre de la page"
-                                subtitle="Description ou sous-titre de la page"
-                            />
-                        </CodeBlock>
-                    </div>
-                </div>
-
-                <div>
-                    <h3>Exemples réels (pages de composants)</h3>
-                    <div className="mt-4">
-                        <CodeBlock code={PAGE_HEADER_CODE_USE_CASE}>
-                            <div className="space-y-8">
-                                <PageHeaderLib
-                                    title="Button"
-                                    subtitle="Composant bouton avec différentes variantes et options"
-                                />
-                                <PageHeaderLib
-                                    title="Input"
-                                    subtitle="Composant input pour recherche, filtres et saisie"
-                                />
-                                <PageHeaderLib
-                                    title="Avatar"
-                                    subtitle="Composant avatar rond avec photo ou initiales en fallback"
-                                />
-                            </div>
-                        </CodeBlock>
-                    </div>
-                </div>
-            </div>
+            <PageContent>
+                {sections.map((section, index) => (
+                    <ComponentSectionCodeBlock
+                        key={index}
+                        title={section.title}
+                        code={section.code}
+                    >
+                        {section.component}
+                    </ComponentSectionCodeBlock>
+                ))}
+            </PageContent>
         </div>
     )
 }

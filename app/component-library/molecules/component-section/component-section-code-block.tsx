@@ -1,7 +1,7 @@
 import React from 'react';
 import { CodeBlock } from "@/app/component-library/molecules/code-block/code-block";
 
-export interface ComponentSectionLibProps {
+export interface ComponentSectionCodeBlockProps {
     /** Titre de la section */
     title: string;
     /** Code à afficher */
@@ -10,7 +10,7 @@ export interface ComponentSectionLibProps {
     children: React.ReactNode;
 }
 
-export const ComponentSectionLib: React.FC<ComponentSectionLibProps> = ({
+export const ComponentSectionCodeBlock: React.FC<ComponentSectionCodeBlockProps> = ({
                                                                       title,
                                                                       code,
                                                                       children,

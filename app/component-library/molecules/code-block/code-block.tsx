@@ -17,19 +17,19 @@ export const CodeBlock: React.FC<CodeBlockProps> = ({ code, children }) => {
 
     return (
         <div className="border border-main bg-card rounded-lg p-6 mb-6">
-            {/* Preview du composant */}
+            {/* Preview */}
             <div className="mb-4">
                 {children}
             </div>
 
-            {/* Bouton toggle */}
+            {/* Toggle button */}
             <SpanLib
                 onClick={() => setIsCodeVisible(!isCodeVisible)}
             >
                 {isCodeVisible ? '▼ Hide Code' : '▶ Show Code'}
             </SpanLib>
 
-            {/* Bloc de code */}
+            {/* Code Block */}
             {isCodeVisible && (
                 <div className="rounded-lg overflow-hidden">
                     <SyntaxHighlighter

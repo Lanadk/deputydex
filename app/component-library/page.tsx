@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import {PageHeaderLib} from "@/app/component-library/molecules/page-header/page-header-lib";
+import {PageHeader} from "@/app/component-library/molecules/page-header/page-header";
 
 const components = {
     Atoms: [
@@ -27,7 +27,7 @@ export default function ComponentLibraryPage() {
 
     return (
         <div>
-            <PageHeaderLib
+            <PageHeader
                 title={type}
                 subtitle="Sélectionnez un composant pour voir tous ses variants"
             />

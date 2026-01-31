@@ -8,11 +8,11 @@ export function NavLinks() {
     const pathname = usePathname()
 
     const getActiveType = () => {
-        const typeParam = searchParams.get('type')
-        if (typeParam) return typeParam
-        if (pathname.includes('/atoms')) return 'Atoms'
-        if (pathname.includes('/molecules')) return 'Molecules'
-        return null
+        const typeParam = searchParams.get('type');
+        if (typeParam) return typeParam;
+        if (pathname.includes('/atoms')) return 'Atoms';
+        if (pathname.includes('/molecules')) return 'Molecules';
+        return 'Atoms';
     }
 
     const type = getActiveType()
