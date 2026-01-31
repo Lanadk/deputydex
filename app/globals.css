@@ -177,7 +177,9 @@
   }
 
   /* ------------ Border ------------ */
-  .border-main { border-color: rgb(var(--border-main)); }
+  .border-main {
+    border-color: rgb(var(--border-main));
+  }
   .border-header { border-color: rgb(var(--border-header)); }
 
   /* =========================================================
@@ -483,19 +485,16 @@
     height: 64px;
   }
 
-  /* Picture size */
   .avatar-lib--picture {
     width: 160px;
     height: 200px;
     border-radius: 50% / 40%;
   }
 
-  /* Image */
   .avatar-lib__image {
     @apply w-full h-full object-cover;
   }
 
-  /* Initiales */
   .avatar-lib__initials {
     @apply w-full h-full flex items-center justify-center;
     @apply font-semibold;
@@ -517,6 +516,32 @@
 
   .avatar-lib--picture .avatar-lib__initials {
     @apply text-4xl;
+  }
+
+  /* ------------ Activity calendar ------------ */
+  .react-activity-calendar__tooltip {
+    padding: 0.5rem 0.75rem;
+    border-radius: 0.5rem;
+    background-color: var(--foreground);
+    color: var(--background);
+    font-size: 13px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  .react-activity-calendar__tooltip-arrow {
+    fill: var(--foreground);
+  }
+
+  /* Adaptation aux thèmes */
+  .dark .react-activity-calendar__tooltip {
+    background-color: var(--foreground);
+    color: var(--background);
+  }
+
+  .accessible .react-activity-calendar__tooltip {
+    background-color: #000000;
+    color: #ffffff;
+    border: 2px solid #ffffff;
   }
 
   /* =========================================================
