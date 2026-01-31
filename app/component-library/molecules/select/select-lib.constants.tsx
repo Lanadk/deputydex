@@ -1,3 +1,5 @@
+"use client"
+
 import { SelectLib } from "@/app/component-library/molecules/select/select-lib";
 
 export const SELECT_CODE_BASIC = `const [country, setCountry] = useState('');

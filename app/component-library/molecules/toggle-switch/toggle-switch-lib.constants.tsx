@@ -1,3 +1,5 @@
+"use client"
+
 import { ToggleSwitchLib } from "@/app/component-library/molecules/toggle-switch/toggle-switch-lib";
 
 export const TOGGLE_CODE_SIZES = `const [isSmall, setIsSmall] = useState(false);

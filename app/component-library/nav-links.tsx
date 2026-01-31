@@ -1,9 +1,10 @@
-'use client'
+"use client"
 
 import Link from 'next/link'
 import { useSearchParams, usePathname } from 'next/navigation'
+import { Suspense } from 'react'
 
-export function NavLinks() {
+function NavLinksContent() {
     const searchParams = useSearchParams()
     const pathname = usePathname()
 
@@ -32,5 +33,13 @@ export function NavLinks() {
                 Molecules
             </Link>
         </nav>
+    )
+}
+
+export function NavLinks() {
+    return (
+        <Suspense fallback={<nav className="flex gap-8">Chargement...</nav>}>
+            <NavLinksContent />
+        </Suspense>
     )
 }

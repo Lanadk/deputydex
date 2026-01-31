@@ -1,3 +1,5 @@
+"use client"
+
 import { AvatarLib } from "@/app/component-library/atoms/badge-avatar/avatar-picture-lib";
 
 export const AVATAR_CODE_SIZES = `<div className="flex gap-6 items-center">
