@@ -20,8 +20,6 @@ export interface SelectLibProps {
   disabled?: boolean;
   /** Required field */
   required?: boolean;
-  /** Classes CSS supplémentaires */
-  className?: string;
 }
 
 export const SelectLib: React.FC<SelectLibProps> = ({
@@ -31,11 +29,10 @@ export const SelectLib: React.FC<SelectLibProps> = ({
                                                       onChange,
                                                       placeholder = 'Sélectionner une option',
                                                       disabled = false,
-                                                      required = false,
-                                                      className = '',
+                                                      required = false
                                                     }) => {
   return (
-      <div className={`select-wrapper ${className}`}>
+      <div className={`select-wrapper`}>
         {label && (
             <label className="select-label">
               {label}

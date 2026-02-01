@@ -5,17 +5,15 @@ export interface PageHeaderProps {
     title: string;
     /** Sous-titre/description */
     subtitle: string;
-    /** Classes CSS supplémentaires */
-    className?: string;
+
 }
 
 export const PageHeader: React.FC<PageHeaderProps> = ({
                                                           title,
-                                                          subtitle,
-                                                          className = '',
+                                                          subtitle
                                                       }) => {
     return (
-        <div className={`mb-8 ${className}`}>
+        <div className={`mb-8`}>
             <h2>{title}</h2>
             <p className="subtitle mt-2">{subtitle}</p>
         </div>

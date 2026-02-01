@@ -13,8 +13,6 @@ export interface InputLibProps {
   disabled?: boolean;
   /** Required field */
   required?: boolean;
-  /** Classes CSS supplémentaires */
-  className?: string;
 }
 
 export const InputLib: React.FC<InputLibProps> = ({
@@ -23,11 +21,10 @@ export const InputLib: React.FC<InputLibProps> = ({
                                                     value,
                                                     onChange,
                                                     disabled = false,
-                                                    required = false,
-                                                    className = '',
+                                                    required = false
                                                   }) => {
   return (
-      <div className={`input-wrapper ${className}`}>
+      <div className={`input-wrapper`}>
         {label && (
             <label className="input-label">
               {label}

@@ -8,15 +8,13 @@ export interface AvatarLibProps {
     name: string;
     size?: 'small' | 'medium' | 'large' | 'picture';
     alt?: string;
-    className?: string;
 }
 
 export const AvatarLib: React.FC<AvatarLibProps> = ({
                                                         src,
                                                         name,
                                                         size = 'medium',
-                                                        alt,
-                                                        className = '',
+                                                        alt
                                                     }) => {
     const getInitials = (fullName: string): string => {
         const names = fullName.trim().split(' ');
@@ -40,7 +38,7 @@ export const AvatarLib: React.FC<AvatarLibProps> = ({
     const isSvg = src?.endsWith('.svg');
 
     return (
-        <div className={`avatar-lib avatar-lib--${size} ${className}`}>
+        <div className={`avatar-lib avatar-lib--${size}`}>
             {showInitials ? (
                 <div className="avatar-lib__initials">
                     {initials}
