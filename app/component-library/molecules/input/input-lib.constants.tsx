@@ -17,14 +17,6 @@ export const INPUT_CODE_WITH_LABEL = `<InputLib
   onChange={setName}
 />`;
 
-export const INPUT_CODE_FILTER = `<InputLib
-  className="w-1/2"
-  label="Filtrer par ville"
-  placeholder="Paris, Lyon..."
-  value={filter}
-  onChange={setFilter}
-/>`;
-
 export const INPUT_CODE_DISABLED = `<InputLib
   label="Lecture seule"
   value="Read only value"
@@ -35,8 +27,6 @@ export const INPUT_CODE_DISABLED = `<InputLib
 export const getInputSections = (
     searchValue: string,
     setSearchValue: (value: string) => void,
-    filterValue: string,
-    setFilterValue: (value: string) => void,
     nameValue: string,
     setNameValue: (value: string) => void,
     disabledValue: string
@@ -61,19 +51,6 @@ export const getInputSections = (
                 placeholder="Entrez un nom"
                 value={nameValue}
                 onChange={setNameValue}
-            />
-        )
-    },
-    {
-        title: "Filtre + W1/2",
-        code: INPUT_CODE_FILTER,
-        component: (
-            <InputLib
-                className="w-1/2"
-                label="Filtrer par ville"
-                placeholder="Paris, Lyon..."
-                value={filterValue}
-                onChange={setFilterValue}
             />
         )
     },
