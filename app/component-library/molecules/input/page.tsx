@@ -11,7 +11,6 @@ import {
 export default function InputPage() {
     const [searchValue, setSearchValue] = useState('')
     const [filterValue, setFilterValue] = useState('')
-    const [nameValue, setNameValue] = useState('')
     const [disabledValue] = useState('Read only value')
 
     const sections = getInputSections(
@@ -19,8 +18,6 @@ export default function InputPage() {
         setSearchValue,
         filterValue,
         setFilterValue,
-        nameValue,
-        setNameValue,
         disabledValue
     );
 
