@@ -40,36 +40,18 @@ const templates = {
 }
 `,
 
-    [`${componentName}-lib.constants.ts`]: `export const CONSTANTS = {
-  // Ajoutez vos constantes ici
-};
+    [`${componentName}-lib.constants.ts`]: `// Ajoutez vos constantes ici
 `,
 
-    [`${componentName}-lib.css`]: `.${componentName} {
-  /* Ajoutez vos styles ici */
-}
-`,
+    [`${componentName}-lib.test.tsx`]: ``,
 
-    [`${componentName}-lib.test.tsx`]: `import { render, screen } from '@testing-library/react';
-import { ${toCamelCase(componentName)} } from './${componentName}-lib';
-
-describe('${componentName}', () => {
-  it('should render', () => {
-    render(<${toCamelCase(componentName)} />);
-    // Ajoutez vos tests ici
-  });
-});
-`,
-
-    [`${componentName}-lib.tsx`]: `import './${componentName}-lib.css';
-
-export interface ${toCamelCase(componentName)}Props {
+    [`${componentName}-lib.tsx`]: `interface ${toCamelCase(componentName)}Props {
   // Définissez vos props ici
 }
 
 export function ${toCamelCase(componentName)}(props: ${toCamelCase(componentName)}Props) {
   return (
-    <div className="${componentName}">
+    <div>
       {/* Votre composant ici */}
     </div>
   );

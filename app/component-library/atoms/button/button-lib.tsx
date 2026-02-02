@@ -1,7 +1,7 @@
 import React from 'react';
 import {IconLibType} from "@/app/component-library/const/types";
 
-export interface ButtonLibProps {
+interface ButtonLibProps {
     /** Texte du bouton */
     text?: string;
     /** Icône à gauche du texte (optionnel) */
