@@ -4,12 +4,12 @@
   "private": true,
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1",
-    "build": "next build",
+    "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
     "prisma:generate": "prisma generate",
     "prisma:migrate": "prisma migrate dev --name init",
-    "setup:db": "npm run prisma:generate && npm run prisma:migrate && npm run seed"
+    "setup:db": "npm run prisma:generate && npm run prisma:migrate"
   },
   "dependencies": {
     "@prisma/adapter-pg": "^7.3.0",
