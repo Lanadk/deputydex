@@ -15,6 +15,9 @@
   /* ------------ Borders ------------ */
   --border-main: 229 231 235;
   --border-header: rgba(255, 255, 255, 0.1);
+  --border-accent-1: #ff5c5c;
+  --border-accent-2: #ffcb05;
+  --border-accent-3: #3b4cca;
 
   /* ------------ Primary button ------------ */
   --btn-primary-bg: #2563eb;
@@ -40,6 +43,21 @@
 
   /* ------------ Span ------------ */
   --span-clickable: #64748b;
+
+  /* Card surface (fond) */
+  --card-surface-1: #0f1923; /* tu peux le laisser comme ça ou l'ajuster */
+  --card-surface-2: #091017;
+
+  /* Text */
+  --text-muted: rgba(15, 23, 42, 0.7);
+
+  /* Nameplate (barre du haut) */
+  --plate-1: #f5e6b3;
+  --plate-2: #e0c77a;
+  --plate-3: #bfa14a;
+
+  /* Shadow overlay intensity */
+  --card-shadow-bottom: 0.6;
 }
 
 /* Dark Theme */
@@ -54,6 +72,9 @@
   /* ------------ Borders ------------ */
   --border-main: 55 65 81;
   --border-header: rgba(255, 255, 255, 0.1);
+  --border-accent-1: #7c3aed;
+  --border-accent-2: #22d3ee;
+  --border-accent-3: #f97316;
 
   /* ------------ Button ------------ */
   /* Primary button */
@@ -78,6 +99,17 @@
 
   /* ------------ Span ------------ */
   --span-clickable: #94a3b8;
+
+  --card-surface-1: #0f1923;
+  --card-surface-2: #091017;
+
+  --text-muted: rgba(229, 231, 235, 0.7);
+
+  --plate-1: #c7f9ff;
+  --plate-2: #7dd3fc;
+  --plate-3: #a78bfa;
+
+  --card-shadow-bottom: 0.65;
 }
 
 /* Accessible Theme - daltonien-friendly */
@@ -92,6 +124,9 @@
   /* ------------ Borders ------------ */
   --border-main: 75 85 99;
   --border-header: #000000;
+  --border-accent-1: #000000;
+  --border-accent-2: #000000;
+  --border-accent-3: #000000;
 
   /* ------------ Button ------------ */
   /* Primary button */
@@ -116,6 +151,19 @@
 
   /* ------------ Span ------------ */
   --span-clickable: #0066cc;
+
+  /* On réduit le côté “néon multicolore” (daltonisme-friendly),
+     mais on garde un contour très lisible */
+  --card-surface-1: #111827;
+  --card-surface-2: #0b1220;
+
+  --text-muted: rgba(0, 0, 0, 0.85);
+
+  --plate-1: #ffffff;
+  --plate-2: #e5e7eb;
+  --plate-3: #d1d5db;
+
+  --card-shadow-bottom: 0.75;
 }
 
 
