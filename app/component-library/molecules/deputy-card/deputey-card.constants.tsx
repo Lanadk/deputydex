@@ -5,7 +5,7 @@ import DeputyCard from "@/app/component-library/molecules/deputy-card/deputy-car
 export const DEPUTYCARD_CODE = `<DeputyCard
     parti="LFI"
     nom="toto"
-    image="/tribun/16/photo_deputes_nobg/001_Damien_Abad.png"
+    image="/tribun/16/photos_deputes_nobg/001_Damien_Abad.png"
 />
 `
 
