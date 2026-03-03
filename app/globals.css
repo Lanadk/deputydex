@@ -1,177 +1,413 @@
 @import "tailwindcss";
 
 /* =========================================================
-   THEME TOKENS
+   DESIGN TOKENS
+   Rule: no hardcoded colors outside P1 / P2 palette blocks.
+   All semantic tokens must reference an alias, never a palette directly.
    ========================================================= */
-/* Light Theme */
+
+
+/* =========================================================
+   THEME: LIGHT (default)
+   ========================================================= */
 :root {
-  /* ------------ Core colors ------------ */
-  --background: #f8fafc;
-  --foreground: #0f172a;
 
-  /* ------------ Background ------------ */
-  --bg-card: #bfbfbf;
+  /* -------------------------------------------------------
+     P1 — STRUCTURAL PALETTE
+     Main UI colors: surfaces, text, borders, info.
+     ------------------------------------------------------- */
 
-  /* ------------ Borders ------------ */
-  --border-main: 229 231 235;
-  --border-header: rgba(255, 255, 255, 0.1);
-  --border-accent-1: #ff5c5c;
-  --border-accent-2: #ffcb05;
-  --border-accent-3: #3b4cca;
+  /* Reds — warm / danger scale */
+  --p1-red-1: #fde8e7; /* lightest */
+  --p1-red-2: #f6b7b3; /* light    */
+  --p1-red-3: #c85048; /* base     */
+  --p1-red-4: #a82028; /* deep     */
 
-  /* ------------ Primary button ------------ */
-  --btn-primary-bg: #2563eb;
-  --btn-primary-text: #ffffff;
-  --btn-primary-hover: #1d4ed8;
+  /* Blues — info / primary scale */
+  --p1-blue-1: #e8f4ff; /* lightest */
+  --p1-blue-2: #bfe3ff; /* light    */
+  --p1-blue-3: #70b8f0; /* base     */
+  --p1-blue-4: #2b5aa6; /* deep     */
 
-  /* ------------ Secondary button ------------ */
-  --btn-secondary-bg: #64748b;
-  --btn-secondary-text: #ffffff;
-  --btn-secondary-hover: #475569;
+  /* Whites — surface / paper scale */
+  --p1-white-1: #ffffff; /* pure           */
+  --p1-white-2: #f7f9fc; /* neutral paper  */
+  --p1-white-3: #f0f0f8; /* cool paper     */
+  --p1-white-4: #e7edf6; /* tinted surface */
 
-  /* ------------ Tertiary button ------------ */
-  --btn-tertiary-bg: #e5e7eb;
-  --btn-tertiary-text: #1f2937;
-  --btn-tertiary-hover: #d1d5db;
+  /* Steels — text / border scale */
+  --p1-steel-1: #d7e0ea; /* lightest border */
+  --p1-steel-2: #a8b8c8; /* base            */
+  --p1-steel-3: #5f738a; /* muted text      */
+  --p1-steel-4: #223244; /* main text       */
 
-  /* ------------ Toggle switch ------------ */
-  --toggle-bg: #e5e7eb;
+  /* -------------------------------------------------------
+     P2 — ACCENT PALETTE
+     Expressive / typographic accents only.
+     Not used for UI chrome or surfaces.
+     ------------------------------------------------------- */
+  --p2-1: #ff0000; /* red    */
+  --p2-2: #cc0000; /* red deep */
+  --p2-3: #3b4cca; /* blue   */
+  --p2-4: #ffde00; /* yellow */
+  --p2-5: #b3a125; /* olive  */
+
+  /* -------------------------------------------------------
+     UI ALIASES — P1 → semantic meaning
+     Maps palette shades to functional roles.
+     Use these in semantic tokens, never raw P1 vars.
+     ------------------------------------------------------- */
+
+  --ui-danger:      var(--p1-red-4);
+  --ui-warm:        var(--p1-red-3);
+  --ui-red-light:   var(--p1-red-2);
+
+  --ui-info:        var(--p1-blue-3);
+  --ui-info-soft:   var(--p1-blue-2);
+  --ui-info-strong: var(--p1-blue-4);
+
+  --ui-white:       var(--p1-white-1);
+  --ui-paper:       var(--p1-white-3);
+  --ui-paper-soft:  var(--p1-white-2);
+  --ui-surface:     var(--p1-white-4);
+
+  --ui-steel:       var(--p1-steel-2);
+  --ui-steel-soft:  var(--p1-steel-1);
+  --ui-steel-muted: var(--p1-steel-3);
+  --ui-ink:         var(--p1-steel-4);
+
+  /* -------------------------------------------------------
+     TYPE ALIASES — P2 → semantic meaning
+     ------------------------------------------------------- */
+
+  --type-red:      var(--p2-1);
+  --type-red-deep: var(--p2-2);
+  --type-blue:     var(--p2-3);
+  --type-yellow:   var(--p2-4);
+  --type-olive:    var(--p2-5);
+
+  /* -------------------------------------------------------
+     SEMANTIC TOKENS — consumed by components
+     All values must reference a UI or type alias.
+     ------------------------------------------------------- */
+
+  /* Core */
+  --background: var(--ui-paper);
+  --foreground: var(--ui-ink);
+
+  /* Surfaces */
+  --surface-1:     var(--ui-paper-soft);
+  --surface-2:     var(--ui-white);
+  --surface-3:     var(--ui-surface);
+  --field-surface: var(--surface-1);
+
+  /* Accents */
+  --accent:        var(--ui-info);
+  --accent-warm:   var(--ui-warm);
+  --accent-danger: var(--ui-danger);
+
+  /* Typography */
+  --title-accent:    var(--type-blue);
+  --subtitle-accent: var(--ui-steel-muted);
+  --highlight:       var(--type-yellow);
+
+  /* Card */
+  --bg-card: var(--surface-2);
+
+  /* Borders */
+  --border-main:   var(--ui-steel-soft);
+  --border-header: var(--ui-steel-soft);
+
+  /* Neon accents — frames, gradients */
+  --border-accent-1: var(--type-red);
+  --border-accent-2: var(--highlight);
+  --border-accent-3: var(--title-accent);
+
+  /* Buttons */
+  --btn-primary-bg:    var(--ui-info);
+  --btn-primary-hover: var(--ui-info-strong);
+  --btn-primary-text:  var(--ui-white);
+
+  --btn-secondary-bg:    var(--ui-ink);
+  --btn-secondary-hover: var(--ui-info-strong);
+  --btn-secondary-text:  var(--ui-white);
+
+  --btn-tertiary-bg:    var(--surface-3);
+  --btn-tertiary-hover: var(--surface-1);
+  --btn-tertiary-text:  var(--ui-ink);
+
+  /* Toggle */
+  --toggle-bg:        var(--ui-steel-soft);
   --toggle-bg-active: var(--btn-primary-bg);
-  --toggle-slider-bg: #ffffff;
-  --toggle-border: rgba(0, 0, 0, 0.15);
-  --toggle-focus: #2563eb;
+  --toggle-slider-bg: var(--ui-white);
+  --toggle-border:    var(--border-main);
+  --toggle-focus:     var(--accent);
 
-  /* ------------ Span ------------ */
-  --span-clickable: #64748b;
+  /* Span */
+  --span-clickable: var(--ui-info-strong);
 
-  /* Card surface (fond) */
-  --card-surface-1: #0f1923; /* tu peux le laisser comme ça ou l'ajuster */
-  --card-surface-2: #091017;
+  /* Deputy card */
+  --card-surface-1: var(--ui-ink);
+  --card-surface-2: var(--ui-info-strong);
+  --text-muted:     var(--ui-steel-muted);
 
-  /* Text */
-  --text-muted: rgba(15, 23, 42, 0.7);
+  /* Nameplate */
+  --plate-1: var(--type-yellow);
+  --plate-2: var(--ui-paper);
+  --plate-3: var(--ui-steel);
 
-  /* Nameplate (barre du haut) */
-  --plate-1: #f5e6b3;
-  --plate-2: #e0c77a;
-  --plate-3: #bfa14a;
-
-  /* Shadow overlay intensity */
+  /* Numeric */
   --card-shadow-bottom: 0.6;
 }
 
-/* Dark Theme */
-.dark {
-  /* ------------ Core colors ------------ */
-  --background: #1a0066;
-  --foreground: #e5e7eb;
 
-  /* ------------ Background ------------ */
-  --bg-card: #002080;
+/* =========================================================
+   THEME: DARK
+   Same palette, different semantic mapping.
+   Notable changes: surfaces use ink/blue-strong, accents shift to yellow.
+   ========================================================= */
+:root.dark {
 
-  /* ------------ Borders ------------ */
-  --border-main: 55 65 81;
-  --border-header: rgba(255, 255, 255, 0.1);
-  --border-accent-1: #7c3aed;
-  --border-accent-2: #22d3ee;
-  --border-accent-3: #f97316;
+  /* P1 */
+  --p1-red-1: #fde8e7;
+  --p1-red-2: #f6b7b3;
+  --p1-red-3: #c85048;
+  --p1-red-4: #a82028;
 
-  /* ------------ Button ------------ */
-  /* Primary button */
-  --btn-primary-bg: #3b82f6;
-  --btn-primary-text: #ffffff;
-  --btn-primary-hover: #60a5fa;
-  /* Secondary button */
-  --btn-secondary-bg: #52525b;
-  --btn-secondary-text: #fafafa;
-  --btn-secondary-hover: #71717a;
-  /* Tertiary button */
-  --btn-tertiary-bg: #18181b;
-  --btn-tertiary-text: #d4d4d8;
-  --btn-tertiary-hover: #27272a;
+  --p1-blue-1: #e8f4ff;
+  --p1-blue-2: #bfe3ff;
+  --p1-blue-3: #70b8f0;
+  --p1-blue-4: #2b5aa6;
 
-  /* ------------ Toggle switch ------------ */
-  --toggle-bg: #27272a;
+  --p1-white-1: #ffffff;
+  --p1-white-2: #f7f9fc;
+  --p1-white-3: #f0f0f8;
+  --p1-white-4: #e7edf6;
+
+  --p1-steel-1: #d7e0ea;
+  --p1-steel-2: #a8b8c8;
+  --p1-steel-3: #5f738a;
+  --p1-steel-4: #223244;
+
+  /* P2 */
+  --p2-1: #ff0000;
+  --p2-2: #cc0000;
+  --p2-3: #3b4cca;
+  --p2-4: #ffde00;
+  --p2-5: #b3a125;
+
+  /* UI aliases */
+  --ui-danger:      var(--p1-red-4);
+  --ui-warm:        var(--p1-red-3);
+  --ui-red-light:   var(--p1-red-2);
+
+  --ui-info:        var(--p1-blue-3);
+  --ui-info-soft:   var(--p1-blue-2);
+  --ui-info-strong: var(--p1-blue-4);
+
+  --ui-white:       var(--p1-white-1);
+  --ui-paper:       var(--p1-white-3);
+  --ui-paper-soft:  var(--p1-white-2);
+  --ui-surface:     var(--p1-white-4);
+
+  --ui-steel:       var(--p1-steel-2);
+  --ui-steel-soft:  var(--p1-steel-1);
+  --ui-steel-muted: var(--p1-steel-3);
+  --ui-ink:         var(--p1-steel-4);
+
+  /* Type aliases */
+  --type-red:      var(--p2-1);
+  --type-red-deep: var(--p2-2);
+  --type-blue:     var(--p2-3);
+  --type-yellow:   var(--p2-4);
+  --type-olive:    var(--p2-5);
+
+  /* Semantic tokens */
+  --background: var(--ui-ink);   /* inverted vs light */
+  --foreground: var(--ui-paper);
+
+  --surface-1:     var(--ui-ink);
+  --surface-2:     var(--ui-info-strong); /* card bg is blue-deep in dark */
+  --surface-3:     var(--p1-steel-3);
+  --field-surface: var(--surface-1);
+
+  --accent:        var(--ui-info);
+  --accent-warm:   var(--type-yellow); /* yellow replaces red-warm in dark */
+  --accent-danger: var(--ui-danger);
+
+  --title-accent:    var(--type-yellow); /* yellow titles in dark */
+  --subtitle-accent: var(--ui-steel);
+  --highlight:       var(--type-yellow);
+
+  --bg-card: var(--surface-2);
+
+  --border-main:   var(--ui-steel-muted);
+  --border-header: var(--ui-steel-muted);
+
+  --border-accent-1: var(--type-red);
+  --border-accent-2: var(--type-yellow);
+  --border-accent-3: var(--ui-info);
+
+  --btn-primary-bg:    var(--ui-info);
+  --btn-primary-hover: var(--ui-info-soft);
+  --btn-primary-text:  var(--ui-ink);     /* dark text on light blue */
+
+  --btn-secondary-bg:    var(--p1-steel-3);
+  --btn-secondary-hover: var(--ui-info);
+  --btn-secondary-text:  var(--ui-paper);
+
+  --btn-tertiary-bg:    var(--ui-ink);
+  --btn-tertiary-hover: var(--p1-steel-3);
+  --btn-tertiary-text:  var(--ui-paper);
+
+  --toggle-bg:        var(--p1-steel-3);
   --toggle-bg-active: var(--btn-primary-bg);
-  --toggle-slider-bg: #fafafa;
-  --toggle-border: rgba(255, 255, 255, 0.2);
-  --toggle-focus: #60a5fa;
+  --toggle-slider-bg: var(--ui-paper);
+  --toggle-border:    var(--border-main);
+  --toggle-focus:     var(--accent);
 
-  /* ------------ Span ------------ */
-  --span-clickable: #94a3b8;
+  --span-clickable: var(--ui-info);
 
-  --card-surface-1: #0f1923;
-  --card-surface-2: #091017;
+  --card-surface-1: var(--ui-ink);
+  --card-surface-2: var(--ui-info-strong);
+  --text-muted:     var(--ui-steel);
 
-  --text-muted: rgba(229, 231, 235, 0.7);
-
-  --plate-1: #c7f9ff;
-  --plate-2: #7dd3fc;
-  --plate-3: #a78bfa;
+  --plate-1: var(--type-yellow);
+  --plate-2: var(--ui-info);
+  --plate-3: var(--ui-steel);
 
   --card-shadow-bottom: 0.65;
 }
 
-/* Accessible Theme - daltonien-friendly */
-.accessible {
-  /* ------------ Core colors ------------ */
-  --background: #f4f4f5;
-  --foreground: #000000;
 
-  /* ------------ Background ------------ */
-  --bg-card: #e6e6e6;
+/* =========================================================
+   THEME: ACCESSIBLE
+   Same palette, contrast-first mapping.
+   Notable changes: --ui-info → blue-4 (stronger), --ui-paper → white-1 (pure),
+   borders use ink for max contrast, accent accents reduced to blue + yellow only.
+   ========================================================= */
+:root.accessible {
 
-  /* ------------ Borders ------------ */
-  --border-main: 75 85 99;
-  --border-header: #000000;
-  --border-accent-1: #000000;
-  --border-accent-2: #000000;
-  --border-accent-3: #000000;
+  /* P1 */
+  --p1-red-1: #fde8e7;
+  --p1-red-2: #f6b7b3;
+  --p1-red-3: #c85048;
+  --p1-red-4: #a82028;
 
-  /* ------------ Button ------------ */
-  /* Primary button */
-  --btn-primary-bg: #003a8f;
-  --btn-primary-text: #ffffff;
-  --btn-primary-hover: #002766;
-  /* Secondary button */
-  --btn-secondary-bg: #6c757d;
-  --btn-secondary-text: #ffffff;
-  --btn-secondary-hover: #5a6268;
-  /* Tertiary button */
-  --btn-tertiary-bg: #d4d4d8;
-  --btn-tertiary-text: #000000;
-  --btn-tertiary-hover: #a1a1aa;
+  --p1-blue-1: #e8f4ff;
+  --p1-blue-2: #bfe3ff;
+  --p1-blue-3: #70b8f0;
+  --p1-blue-4: #2b5aa6;
 
-  /* ------------ Toggle switch ------------ */
-  --toggle-bg: #9ca3af;
-  --toggle-bg-active: #003a8f;
-  --toggle-slider-bg: #ffffff;
-  --toggle-border: #000000;
-  --toggle-focus: #000000;
+  --p1-white-1: #ffffff;
+  --p1-white-2: #f7f9fc;
+  --p1-white-3: #f0f0f8;
+  --p1-white-4: #e7edf6;
 
-  /* ------------ Span ------------ */
-  --span-clickable: #0066cc;
+  --p1-steel-1: #d7e0ea;
+  --p1-steel-2: #a8b8c8;
+  --p1-steel-3: #5f738a;
+  --p1-steel-4: #223244;
 
-  /* On réduit le côté “néon multicolore” (daltonisme-friendly),
-     mais on garde un contour très lisible */
-  --card-surface-1: #111827;
-  --card-surface-2: #0b1220;
+  /* P2 */
+  --p2-1: #ff0000;
+  --p2-2: #cc0000;
+  --p2-3: #3b4cca;
+  --p2-4: #ffde00;
+  --p2-5: #b3a125;
 
-  --text-muted: rgba(0, 0, 0, 0.85);
+  /* UI aliases — contrast-first remapping */
+  --ui-danger:      var(--p1-red-4);
+  --ui-warm:        var(--p1-red-3);
+  --ui-red-light:   var(--p1-red-2);
 
-  --plate-1: #ffffff;
-  --plate-2: #e5e7eb;
-  --plate-3: #d1d5db;
+  --ui-info:        var(--p1-blue-4); /* stronger blue for contrast */
+  --ui-info-soft:   var(--p1-blue-2);
+  --ui-info-strong: var(--p1-blue-4);
+
+  --ui-white:       var(--p1-white-1);
+  --ui-paper:       var(--p1-white-1); /* pure white, no tint */
+  --ui-paper-soft:  var(--p1-white-2);
+  --ui-surface:     var(--p1-white-4);
+
+  --ui-steel:       var(--p1-steel-2);
+  --ui-steel-soft:  var(--p1-steel-1);
+  --ui-steel-muted: var(--p1-steel-3);
+  --ui-ink:         var(--p1-steel-4);
+
+  /* Type aliases */
+  --type-red:      var(--p2-1);
+  --type-red-deep: var(--p2-2);
+  --type-blue:     var(--p2-3);
+  --type-yellow:   var(--p2-4);
+  --type-olive:    var(--p2-5);
+
+  /* Semantic tokens */
+  --background: var(--ui-white);
+  --foreground: var(--ui-ink);
+
+  --surface-1:     var(--ui-white);
+  --surface-2:     var(--ui-paper-soft);
+  --surface-3:     var(--ui-surface);
+  --field-surface: var(--surface-1);
+
+  --accent:        var(--ui-info);
+  --accent-warm:   var(--type-yellow);
+  --accent-danger: var(--ui-danger);
+
+  --title-accent:    var(--ui-info);     /* blue only, no red/yellow accent */
+  --subtitle-accent: var(--ui-steel-muted);
+  --highlight:       var(--type-yellow);
+
+  --bg-card: var(--surface-2);
+
+  --border-main:   var(--ui-ink);   /* max contrast borders */
+  --border-header: var(--ui-ink);
+
+  --border-accent-1: var(--ui-info);    /* no red accent in accessible */
+  --border-accent-2: var(--type-yellow);
+  --border-accent-3: var(--ui-info);
+
+  --btn-primary-bg:    var(--ui-info);
+  --btn-primary-hover: var(--p1-blue-3);
+  --btn-primary-text:  var(--ui-white);
+
+  --btn-secondary-bg:    var(--ui-ink);
+  --btn-secondary-hover: var(--ui-info);
+  --btn-secondary-text:  var(--ui-white);
+
+  --btn-tertiary-bg:    var(--surface-3);
+  --btn-tertiary-hover: var(--surface-1);
+  --btn-tertiary-text:  var(--ui-ink);
+
+  --toggle-bg:        var(--ui-ink);
+  --toggle-bg-active: var(--btn-primary-bg);
+  --toggle-slider-bg: var(--ui-white);
+  --toggle-border:    var(--border-main);
+  --toggle-focus:     var(--accent);
+
+  --span-clickable: var(--ui-info);
+
+  --card-surface-1: var(--ui-ink);
+  --card-surface-2: var(--ui-info);
+  --text-muted:     var(--ui-steel-muted);
+
+  --plate-1: var(--type-yellow);
+  --plate-2: var(--ui-paper);
+  --plate-3: var(--ui-steel);
 
   --card-shadow-bottom: 0.75;
 }
 
 
-@layer utilities {
-  /* =========================================================
-   BASE STYLES
+/* =========================================================
+   LAYERS
    ========================================================= */
-  a, button, select {
+
+@layer base {
+  a,
+  button,
+  select {
     cursor: pointer;
   }
 
@@ -181,10 +417,6 @@
     font-family: Arial, Helvetica, sans-serif;
   }
 
-  /* =========================================================
-     TYPOGRAPHY
-     ========================================================= */
-  /* ------------ Title ------------ */
   h1 {
     @apply text-3xl md:text-5xl font-bold;
     color: var(--foreground);
@@ -200,109 +432,102 @@
     color: var(--foreground);
   }
 
-  /* ------------ Subtitle ------------ */
   .subtitle {
     @apply text-lg md:text-xl;
-    color: var(--foreground);
-    opacity: 0.8;
+    color: var(--subtitle-accent);
   }
 
-  /* ------------ Paragraph ------------ */
   p {
     @apply text-base leading-relaxed;
     color: var(--foreground);
   }
+}
 
-  /* =========================================================
-   COMMON
-   ========================================================= */
-  /* ------------ Background ------------ */
-  .bg-main {
-    background-color: var(--background);
-  }
-  .bg-card {
-    background-color: var(--bg-card);
-  }
+@layer utilities {
 
-  /* ------------ Border ------------ */
-  .border-main {
-    border-color: rgb(var(--border-main));
-  }
-  .border-header { border-color: rgb(var(--border-header)); }
+  /* Surfaces */
+  .bg-surface-1 { background-color: var(--surface-1); }
+  .bg-surface-2 { background-color: var(--surface-2); }
+  .bg-surface-3 { background-color: var(--surface-3); }
 
-  /* =========================================================
-     COMPONENTS
-     ========================================================= */
-  /* ------------ ButtonLib ------------ */
+  /* Text */
+  .text-accent        { color: var(--accent); }
+  .text-accent-warm   { color: var(--accent-warm); }
+  .text-accent-danger { color: var(--accent-danger); }
+
+  .text-title-accent    { color: var(--title-accent); }
+  .text-subtitle-accent { color: var(--subtitle-accent); }
+  .text-highlight       { color: var(--highlight); }
+
+  /* Backgrounds */
+  .bg-main         { background-color: var(--background); }
+  .bg-card         { background-color: var(--bg-card); }
+  .bg-accent       { background-color: var(--accent); }
+  .bg-accent-warm  { background-color: var(--accent-warm); }
+  .bg-accent-danger{ background-color: var(--accent-danger); }
+
+  /* Borders */
+  .border-main         { border-color: var(--border-main); }
+  .border-header       { border-color: var(--border-header); }
+  .border-accent       { border-color: var(--accent); }
+  .border-accent-warm  { border-color: var(--accent-warm); }
+  .border-accent-danger{ border-color: var(--accent-danger); }
+
+  /* Focus */
+  .ring-accent:focus-visible {
+    outline: 2px solid var(--toggle-focus);
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+
+  /* -------------------------------------------------------
+     ButtonLib
+     ------------------------------------------------------- */
   .btn-lib {
-    @apply inline-flex items-center rounded-lg font-medium
+    @apply inline-flex items-center rounded-lg font-medium;
   }
 
-  /* Size */
-  .btn-lib--small {
-    @apply px-3 py-1.5 text-sm;
-  }
+  .btn-lib--small  { @apply px-3 py-1.5 text-sm; }
+  .btn-lib--medium { @apply px-6 py-3 text-base; }
+  .btn-lib--large  { @apply px-8 py-4 text-lg; }
 
-  .btn-lib--medium {
-    @apply px-6 py-3 text-base;
-  }
-
-  .btn-lib--large {
-    @apply px-8 py-4 text-lg;
-  }
-
-  /* Color variant */
   .btn-lib--primary {
     background-color: var(--btn-primary-bg);
     color: var(--btn-primary-text);
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-main);
   }
-
-  .btn-lib--primary:hover {
-    background-color: var(--btn-primary-hover);
-  }
+  .btn-lib--primary:hover { background-color: var(--btn-primary-hover); }
 
   .btn-lib--secondary {
     background-color: var(--btn-secondary-bg);
     color: var(--btn-secondary-text);
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-main);
   }
-
-  .btn-lib--secondary:hover {
-    background-color: var(--btn-secondary-hover);
-  }
+  .btn-lib--secondary:hover { background-color: var(--btn-secondary-hover); }
 
   .btn-lib--tertiary {
     background-color: var(--btn-tertiary-bg);
     color: var(--btn-tertiary-text);
-    border: 1px solid rgba(0, 0, 0, 0.1);
+    border: 1px solid var(--border-main);
   }
+  .btn-lib--tertiary:hover { background-color: var(--btn-tertiary-hover); }
 
-  .btn-lib--tertiary:hover {
-    background-color: var(--btn-tertiary-hover);
-  }
-
-  /* ------------ BadgeLib ------------ */
+  /* -------------------------------------------------------
+     BadgeLib
+     ------------------------------------------------------- */
   .badge-lib {
     @apply inline-flex items-center px-3 py-1 text-xs rounded-full;
   }
 
-  .badge-lib--primary {
-    background-color: var(--btn-primary-bg);
-    color: var(--btn-primary-text);
-  }
+  .badge-lib--primary   { background-color: var(--btn-primary-bg);   color: var(--btn-primary-text); }
+  .badge-lib--secondary { background-color: var(--btn-secondary-bg); color: var(--btn-secondary-text); }
+  .badge-lib--tertiary  { background-color: var(--btn-tertiary-bg);  color: var(--btn-tertiary-text); }
 
-  .badge-lib--secondary {
-    background-color: var(--btn-secondary-bg);
-    color: var(--btn-secondary-text);
-  }
-
-  .badge-lib--tertiary {
-    background-color: var(--btn-tertiary-bg);
-    color: var(--btn-tertiary-text);
-  }
-
-  /* ------------ SpanLib ------------ */
+  /* -------------------------------------------------------
+     SpanLib
+     ------------------------------------------------------- */
   .span-lib {
     @apply inline-flex items-center gap-1 text-sm;
     color: var(--foreground);
@@ -313,21 +538,20 @@
     color: var(--span-clickable);
   }
 
-  .span-lib--clickable:hover {
-    color: var(--foreground);
-  }
+  .span-lib--clickable:hover { color: var(--accent); }
 
-  /* ------------ ToggleSwitchLib ------------ */
+  /* -------------------------------------------------------
+     ToggleSwitchLib
+     ------------------------------------------------------- */
   .toggle-switch-wrapper {
     @apply flex items-center gap-3;
   }
 
-  /* Base toggle switch */
   .toggle-switch {
     @apply relative inline-block;
     background-color: var(--toggle-bg);
     border-radius: 31px;
-    border: none;
+    border: 1px solid var(--toggle-border);
     cursor: pointer;
     transition: background-color 0.3s ease;
   }
@@ -343,259 +567,100 @@
     outline-offset: 2px;
   }
 
-  .toggle-switch--active {
-    background-color: var(--toggle-bg-active);
-  }
+  .toggle-switch--active { background-color: var(--toggle-bg-active); }
 
   .toggle-switch__slider {
     @apply absolute top-0.5 left-0.5;
     background-color: var(--toggle-slider-bg);
     border-radius: 50%;
     transition: transform 0.3s ease;
-    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    box-shadow: 0 2px 4px var(--border-main);
   }
 
-  /* Size */
-  .toggle-switch--medium {
-    width: 51px;
-    height: 31px;
-  }
+  .toggle-switch--medium { width: 51px; height: 31px; }
+  .toggle-switch--medium .toggle-switch__slider { width: 27px; height: 27px; }
+  .toggle-switch--medium.toggle-switch--active .toggle-switch__slider { transform: translateX(20px); }
 
-  .toggle-switch--medium .toggle-switch__slider {
-    width: 27px;
-    height: 27px;
-  }
+  .toggle-switch--small { width: 38px; height: 22px; }
+  .toggle-switch--small .toggle-switch__slider { width: 18px; height: 18px; }
+  .toggle-switch--small.toggle-switch--active .toggle-switch__slider { transform: translateX(16px); }
 
-  .toggle-switch--medium.toggle-switch--active .toggle-switch__slider {
-    transform: translateX(20px);
-  }
+  /* -------------------------------------------------------
+     InputLib
+     ------------------------------------------------------- */
+  .input-wrapper { @apply flex flex-col gap-2; }
 
-  /* Small */
-  .toggle-switch--small {
-    width: 38px;
-    height: 22px;
-  }
-
-  .toggle-switch--small .toggle-switch__slider {
-    width: 18px;
-    height: 18px;
-  }
-
-  .toggle-switch--small.toggle-switch--active .toggle-switch__slider {
-    transform: translateX(16px);
-  }
-
-  /* ------------ InputLib ------------ */
-  .input-wrapper {
-    @apply flex flex-col gap-2;
-  }
-
-  .input-label {
-    color: var(--foreground);
-  }
-
-  .input-required {
-    color: #ef4444;
-    margin-left: 2px;
-  }
+  .input-label    { color: var(--foreground); }
+  .input-required { color: var(--accent-danger); margin-left: 2px; }
 
   .input-lib {
-    @apply px-4 py-2 rounded-lg;
-    @apply border;
-    background-color: var(--background);
+    @apply px-4 py-2 rounded-lg border;
+    background-color: var(--field-surface);
     color: var(--foreground);
-    border-color: rgb(var(--border-main));
+    border-color: var(--border-main);
   }
 
-  .input-lib::placeholder {
-    color: var(--foreground);
-    opacity: 0.5;
-  }
+  .input-lib::placeholder { color: var(--text-muted); opacity: 0.9; }
+  .input-lib:focus  { outline: 2px solid var(--toggle-focus); outline-offset: 0; border-color: transparent; }
+  .input-lib:hover  { border-color: var(--accent); }
+  .input-lib:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  .input-lib:focus {
-    outline: 2px solid var(--btn-primary-bg);
-    outline-offset: 0;
-    border-color: transparent;
-  }
+  /* -------------------------------------------------------
+     SelectLib
+     ------------------------------------------------------- */
+  .select-wrapper { @apply flex flex-col gap-2; }
 
-  .input-lib:hover {
-    border-color: var(--btn-primary-hover);
-  }
-
-  .input-lib:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  /* Dark theme adjustments */
-  .dark .input-lib {
-    border-color: rgb(var(--border-main));
-  }
-  .dark .input-lib:hover {
-    border-color: var(--btn-primary-hover);
-  }
-
-  /* Accessible theme adjustments */
-  .accessible .input-lib {
-    border-width: 1px;
-    border-color: #000000;
-  }
-  .accessible .input-lib:hover {
-    border-color: var(--btn-primary-hover);
-  }
-
-  /* ------------ SelectLib ------------ */
-  .select-wrapper {
-    @apply flex flex-col gap-2;
-  }
-
-  .select-label {
-    color: var(--foreground);
-  }
-
-  .select-required {
-    color: #ef4444;
-    margin-left: 2px;
-  }
+  .select-label    { color: var(--foreground); }
+  .select-required { color: var(--accent-danger); margin-left: 2px; }
 
   .select-lib {
-    @apply px-4 py-2 rounded-lg;
-    @apply border;
-    @apply appearance-none;
-    background-color: var(--background);
+    @apply px-4 py-2 rounded-lg border appearance-none;
+    background-color: var(--field-surface) !important;
     color: var(--foreground);
-    border-color: rgb(var(--border-main));
+    border-color: var(--border-main);
     background-repeat: no-repeat;
     background-position: right 1rem center;
     padding-right: 2.5rem;
   }
 
-  .select-lib:focus {
-    outline: 2px solid var(--btn-primary-bg);
-    outline-offset: 0;
-    border-color: transparent;
-  }
+  .select-lib:focus   { outline: 2px solid var(--toggle-focus); outline-offset: 0; border-color: transparent; }
+  .select-lib:hover   { border-color: var(--accent); }
+  .select-lib:disabled { opacity: 0.5; cursor: not-allowed; }
 
-  .select-lib:hover {
-    border-color: var(--btn-primary-hover);
-  }
-
-  .select-lib:disabled {
-    opacity: 0.5;
-    cursor: not-allowed;
-  }
-
-  /* Dark theme adjustments */
-  .dark .select-lib {
-    border-color: rgb(var(--border-main));
-  }
-
-  .dark .select-lib:hover {
-    border-color: var(--btn-primary-hover);
-  }
-
-  /* Accessible theme adjustments */
-  .accessible .select-lib {
-    border-width: 1px;
-    border-color: #000000;
-  }
-
-  .accessible .select-lib:hover {
-    border-color: var(--btn-primary-bg);
-  }
-
-  /* ------------ AvatarLib ------------ */
+  /* -------------------------------------------------------
+     AvatarLib
+     ------------------------------------------------------- */
   .avatar-lib {
     @apply relative inline-block overflow-hidden;
-    background: linear-gradient(135deg, var(--btn-primary-bg) 0%, var(--btn-secondary-bg) 100%);
+    background: linear-gradient(135deg, var(--accent) 0%, var(--accent-warm) 100%);
     flex-shrink: 0;
   }
 
-  /* Sizes */
   .avatar-lib--small,
   .avatar-lib--medium,
-  .avatar-lib--large {
-    @apply rounded-full;
-  }
+  .avatar-lib--large { @apply rounded-full; }
 
-  .avatar-lib--small {
-    width: 32px;
-    height: 32px;
-  }
+  .avatar-lib--small   { width: 32px;  height: 32px; }
+  .avatar-lib--medium  { width: 48px;  height: 48px; }
+  .avatar-lib--large   { width: 64px;  height: 64px; }
+  .avatar-lib--picture { width: 160px; height: 200px; border-radius: 50% / 40%; }
 
-  .avatar-lib--medium {
-    width: 48px;
-    height: 48px;
-  }
-
-  .avatar-lib--large {
-    width: 64px;
-    height: 64px;
-  }
-
-  .avatar-lib--picture {
-    width: 160px;
-    height: 200px;
-    border-radius: 50% / 40%;
-  }
-
-  .avatar-lib__image {
-    @apply w-full h-full object-cover;
-  }
+  .avatar-lib__image { @apply w-full h-full object-cover; }
 
   .avatar-lib__initials {
-    @apply w-full h-full flex items-center justify-center;
-    @apply font-semibold;
-    color: #ffffff;
+    @apply w-full h-full flex items-center justify-center font-semibold;
+    color: var(--btn-primary-text);
     user-select: none;
   }
 
-  .avatar-lib--small .avatar-lib__initials {
-    @apply text-xs;
-  }
+  .avatar-lib--small   .avatar-lib__initials { @apply text-xs; }
+  .avatar-lib--medium  .avatar-lib__initials { @apply text-sm; }
+  .avatar-lib--large   .avatar-lib__initials { @apply text-lg; }
+  .avatar-lib--picture .avatar-lib__initials { @apply text-4xl; }
 
-  .avatar-lib--medium .avatar-lib__initials {
-    @apply text-sm;
-  }
-
-  .avatar-lib--large .avatar-lib__initials {
-    @apply text-lg;
-  }
-
-  .avatar-lib--picture .avatar-lib__initials {
-    @apply text-4xl;
-  }
-
-  /* ------------ Activity calendar ------------ */
-  .react-activity-calendar__tooltip {
-    padding: 0.5rem 0.75rem;
-    border-radius: 0.5rem;
-    background-color: var(--foreground);
-    color: var(--background);
-    font-size: 13px;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-  }
-
-  .react-activity-calendar__tooltip-arrow {
-    fill: var(--foreground);
-  }
-
-  /* Adaptation aux thèmes */
-  .dark .react-activity-calendar__tooltip {
-    background-color: var(--foreground);
-    color: var(--background);
-  }
-
-  .accessible .react-activity-calendar__tooltip {
-    background-color: #000000;
-    color: #ffffff;
-    border: 2px solid #ffffff;
-  }
-
-  /* =========================================================
-   COMPONENT LIBRARY CSS
-   ========================================================= */
-  /* ------------ Navigation links ------------ */
+  /* -------------------------------------------------------
+     Navigation links
+     ------------------------------------------------------- */
   .nav-link {
     @apply font-medium transition-all;
     color: var(--foreground);
@@ -606,23 +671,24 @@
   .nav-link:hover {
     opacity: 1;
     transform: scale(1.05);
+    color: var(--accent);
   }
 
   .nav-link-active {
     opacity: 1;
+    color: var(--accent);
   }
 
   .nav-link-active::after {
-    content: '';
+    content: "";
     position: absolute;
     bottom: -8px;
     left: 0;
     right: 0;
     height: 2px;
-    background-color: var(--btn-primary-bg);
+    background-color: var(--accent);
   }
 
-  /* Theme switch */
   .theme-close-btn {
     color: var(--foreground);
     opacity: 0.7;
@@ -631,5 +697,6 @@
 
   .theme-close-btn:hover {
     opacity: 1;
+    color: var(--accent);
   }
 }
