@@ -11,9 +11,7 @@
     "setup:db": "npm run prisma:init && npm run prisma:generate",
     "prisma:init": "prisma init",
     "prisma:generate": "prisma generate",
-
     "create-component": "node scripts/create-component.mjs",
-
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
@@ -22,18 +20,22 @@
     "@prisma/adapter-pg": "^7.3.0",
     "@prisma/client": "^7.3.0",
     "@types/react-syntax-highlighter": "^15.5.13",
+    "class-variance-authority": "^0.7.1",
+    "clsx": "^2.1.1",
+    "dotenv": "^17.2.4",
     "framer-motion": "^12.34.3",
     "lucide-react": "^0.563.0",
-    "dotenv": "^17.2.4",
     "next": "16.1.6",
     "next-themes": "^0.4.6",
     "pg": "^8.18.0",
     "react": "19.2.3",
     "react-activity-calendar": "^3.1.1",
     "react-dom": "19.2.3",
-    "tsx": "^4.21.0",
     "react-icons": "^5.5.0",
-    "react-syntax-highlighter": "^16.1.0"
+    "react-syntax-highlighter": "^16.1.0",
+    "tailwind-merge": "^3.5.0",
+    "tailwindcss-animate": "^1.0.7",
+    "tsx": "^4.21.0"
   },
   "devDependencies": {
     "@tailwindcss/postcss": "^4",
@@ -53,8 +55,8 @@
     "jest-environment-jsdom": "^30.2.0",
     "prisma": "^7.3.0",
     "tailwindcss": "^4",
-    "tsx": "^4.21.0",
     "ts-jest": "^29.4.6",
+    "tsx": "^4.21.0",
     "typescript": "^5"
   }
 }
