@@ -10,10 +10,28 @@ const config: Config = {
     theme: {
         extend: {
             colors: {
-                foreground: 'var(--foreground)',
                 background: 'var(--background)',
+                foreground: 'var(--foreground)',
+
+                surface: {
+                    1: 'var(--surface-1)',
+                    2: 'var(--surface-2)',
+                    3: 'var(--surface-3)',
+                },
+
+                accent: {
+                    DEFAULT: 'var(--accent)',
+                    warm: 'var(--accent-warm)',
+                    danger: 'var(--accent-danger)',
+                },
+
+                title: {
+                    DEFAULT: 'var(--title-accent)',
+                    subtitle: 'var(--subtitle-accent)',
+                    highlight: 'var(--highlight)',
+                }
             }
-        },
+        }
     },
     plugins: [],
 }

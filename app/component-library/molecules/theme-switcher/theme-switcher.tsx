@@ -12,12 +12,9 @@ export function ThemeSwitcher() {
     const { theme, setTheme } = useTheme()
 
     useEffect(() => {
-
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setMounted(true)
     }, [])
-
-    if (!mounted) return null
 
     return (
         <div className="fixed bottom-4 right-4 z-9999">
@@ -35,19 +32,19 @@ export function ThemeSwitcher() {
                     <div className="flex flex-col gap-2">
                         <ButtonLib
                             text="Light"
-                            variant={theme === 'light' ? 'primary' : 'tertiary'}
+                            variant={mounted && theme === 'light' ? 'primary' : 'tertiary'}
                             icon={FaLightbulb}
                             onClick={() => setTheme('light')}
                         />
                         <ButtonLib
                             text="Dark"
-                            variant={theme === 'dark' ? 'primary' : 'tertiary'}
+                            variant={mounted && theme === 'dark' ? 'primary' : 'tertiary'}
                             icon={FaMoon}
                             onClick={() => setTheme('dark')}
                         />
                         <ButtonLib
                             text="Accessible"
-                            variant={theme === 'accessible' ? 'primary' : 'tertiary'}
+                            variant={mounted && theme === 'accessible' ? 'primary' : 'tertiary'}
                             icon={FaAccessibleIcon}
                             onClick={() => setTheme('accessible')}
                         />

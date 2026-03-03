@@ -2,16 +2,21 @@
 
 import { ActivityCalendar, ThemeInput } from "react-activity-calendar";
 import { useTheme } from "next-themes";
+import { useState, useEffect } from "react";
 import type { Props as ActivityCalendarProps } from "react-activity-calendar";
 
-const getCalendarTheme = (currentTheme?: string): ThemeInput => {
-    if (currentTheme === 'accessible') {
-        return { light: ['#e6e6e6', '#003a8f'] };
-    }
+const getCSSVar = (name: string): string =>
+    getComputedStyle(document.documentElement).getPropertyValue(name).trim();
 
+const getCalendarTheme = (): ThemeInput => {
     return {
-        light: ['#e5e7eb', '#2563eb'],
-        dark: ['#27272a', '#3b82f6'],
+        light: [
+            getCSSVar('--p1-white-3'),
+            getCSSVar('--p1-steel-2'),
+            getCSSVar('--p1-blue-3'),
+            getCSSVar('--p1-blue-4'),
+            getCSSVar('--p1-red-3'),
+        ],
     };
 };
 
@@ -23,9 +28,20 @@ export const ActivityCalendarLib: React.FC<ActivityCalendarLibProps> = ({
                                                                             customTheme,
                                                                             ...props
                                                                         }) => {
-    const { theme } = useTheme();
-    const calendarTheme = customTheme || getCalendarTheme(theme);
-    const colorScheme = theme === 'accessible' ? 'light' : (theme as 'light' | 'dark' | undefined);
+    const { resolvedTheme } = useTheme();
+    const [mounted, setMounted] = useState(false);
+
+    useEffect(() => {
+        // eslint-disable-next-line react-hooks/set-state-in-effect
+        setMounted(true)
+    }, []);
+
+    if (!mounted) {
+        return <div style={{ height: 130 }} />;
+    }
+
+    const calendarTheme = customTheme || getCalendarTheme();
+    const colorScheme = resolvedTheme === 'dark' ? 'dark' : 'light';
 
     return (
         <ActivityCalendar
