@@ -28,13 +28,6 @@ const config: Config = {
                     danger:  'var(--accent-danger)',
                 },
 
-                /* Typography */
-                title: {
-                    DEFAULT:   'var(--title-accent)',
-                    subtitle:  'var(--subtitle-accent)',
-                    highlight: 'var(--highlight)',
-                },
-
                 /* Card */
                 card: {
                     DEFAULT:  'var(--bg-card)',
