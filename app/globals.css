@@ -1033,6 +1033,8 @@
 
     /* Card holo */
     .card-holo-wrapper {
+        --mx: 50%;
+        --my: 50%;
         position: relative;
         isolation: isolate;
         border-radius: 6px;
