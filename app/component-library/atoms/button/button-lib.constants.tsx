@@ -63,6 +63,17 @@ export const getButtonSections = (message: string, setMessage: (msg: string) => 
         component: <ButtonLib text="Profile" icon={FaUser} />
     },
     {
+        title: "With Icon , no text",
+        code: BUTTON_CODE_ON_CLICK,
+        component: (
+            <div className="flex gap-4 items-center flex-wrap">
+                <ButtonLib icon={Plus} size="small" />
+                <ButtonLib icon={FaUser} size="medium" />
+                <ButtonLib icon={Plus} size="large" />
+            </div>
+        )
+    },
+    {
         title: "With onClick",
         code: BUTTON_CODE_ON_CLICK,
         component: (

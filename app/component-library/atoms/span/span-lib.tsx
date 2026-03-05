@@ -9,17 +9,20 @@ export interface SpanLibProps {
     children?: React.ReactNode;
     /** Callback au clic (optionnel) */
     onClick?: () => void;
+    /** Additional classes */
+    className?: string;
 }
 
 export const SpanLib: React.FC<SpanLibProps> = ({
                                                     key,
                                                     children,
-                                                    onClick
+                                                    onClick,
+                                                    className,
                                                 }) => {
     return (
         <span
             key={key}
-            className={`span-lib ${onClick ? 'span-lib--clickable' : ''}`}
+            className={`span-lib ${onClick ? 'span-lib--clickable' : ''} ${className}`}
             onClick={onClick}
         >
             {children}
