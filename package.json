@@ -8,8 +8,6 @@
     "build": "prisma generate && next build",
     "start": "next start",
     "lint": "eslint",
-    "setup:db": "npm run prisma:init && npm run prisma:generate",
-    "prisma:init": "prisma init",
     "prisma:generate": "prisma generate",
     "create-component": "node scripts/create-component.mjs",
     "test": "jest",
