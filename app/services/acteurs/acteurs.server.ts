@@ -1,5 +1,4 @@
 import "server-only";
-
 import { prisma } from "@/app/lib/prisma/prisma";
 import type { FilterBarQuery } from "@/app/component-library/molecules/filter-bar/filter-bar.types";
 import { sanitizeFilterBarQuery } from "@/app/lib/utils/filterbar-sanitize";
@@ -11,18 +10,24 @@ const SANITIZE_OPTIONS = {
     allowedSortFields: ACTEURS_SORT_OPTIONS.map((s) => s.field),
 };
 
-export async function listActeurs() {
-    const acteurs = await prisma.acteurs.findMany();
-    return mapActeursToDTO(acteurs);
-}
-
-export async function searchActeurs(rawQuery: FilterBarQuery) {
+export async function searchActeurs(rawQuery: FilterBarQuery, page = 1, pageSize = 20) {
     const query = sanitizeFilterBarQuery(rawQuery, SANITIZE_OPTIONS);
 
-    const acteurs = await prisma.acteurs.findMany({
-        where: query.where as any,
-        orderBy: query.orderBy as any,
-    });
+    const skip = (page - 1) * pageSize;
+    const take = pageSize;
 
-    return mapActeursToDTO(acteurs);
+    const [items, total] = await Promise.all([
+        prisma.acteurs.findMany({
+            where: query.where as any,
+            orderBy: query.orderBy as any,
+            skip,
+            take,
+        }),
+        prisma.acteurs.count({ where: query.where as any }),
+    ]);
+
+    const dtoItems = mapActeursToDTO(items);
+    const pageCount = Math.max(1, Math.ceil(total / pageSize));
+
+    return { items: dtoItems, total, page, pageSize, pageCount };
 }
