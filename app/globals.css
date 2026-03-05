@@ -1090,6 +1090,315 @@
         mix-blend-mode: screen;
     }
 
+    /* -------------------------------------------------------
+     Filter bar
+     ------------------------------------------------------- */
+    .filter-bar {
+        display: flex;
+        flex-direction: column;
+        gap: 16px;
+    }
+
+    .fb-section {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .fb-section__title {
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--subtitle-accent);
+    }
+
+    /* Sort */
+    .fb-sort {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+    }
+
+    /* -------------------------------------------------------
+       Table
+       ------------------------------------------------------- */
+    .fb-fields {
+        display: flex;
+        flex-direction: column;
+        border: 1px solid var(--border-main);
+        border-radius: 10px;
+        overflow: hidden;
+    }
+
+    .fb-field-row {
+        display: grid;
+        grid-template-columns: 1fr 1fr 2fr 40px;
+        align-items: stretch;
+        border-bottom: 1px solid var(--border-main);
+        background-color: var(--surface-2);
+        transition: background-color 0.1s;
+    }
+
+    /* Important: évite overflow/glitch grid avec inputs/select */
+    .fb-field-row > * {
+        min-width: 0;
+    }
+
+    .fb-field-row:last-child {
+        border-bottom: none;
+    }
+
+    .fb-field-row:hover {
+        background-color: var(--surface-1);
+    }
+
+    /* -------------------------------------------------------
+       Cells
+       ------------------------------------------------------- */
+    /* Label cell */
+    .fb-field-row__label {
+        display: flex;
+        width: 100%;
+        align-items: center;
+
+        padding: 0 14px;
+        font-size: 13px;
+        font-weight: 500;
+        color: var(--foreground);
+        min-height: 44px;
+
+        border-right: 1px solid var(--border-main);
+    }
+
+    /* Operator cell */
+    .fb-field-row__operator {
+        display: flex;
+        align-items: stretch;
+        border-right: 1px solid var(--border-main);
+    }
+
+    .fb-field-row__operator .select-wrapper {
+        width: 100%;
+        height: 100%;
+    }
+
+    /* On enlève le “style input” classique car c'est une cellule de table */
+    .fb-field-row__operator .select-lib {
+        width: 100%;
+        height: 100%;
+        min-height: 44px;
+
+        border: none;
+        border-radius: 0;
+
+        background-color: transparent !important;
+        color: var(--subtitle-accent);
+        font-size: 12px;
+    }
+
+    /* Value cell */
+    .fb-field-row__value {
+        display: flex;
+        align-items: stretch;
+    }
+
+    .fb-field-row__value .input-wrapper,
+    .fb-field-row__value .select-wrapper {
+        width: 100%;
+        height: 100%;
+    }
+
+    .fb-field-row__value .input-lib,
+    .fb-field-row__value .select-lib {
+        width: 100%;
+        height: 100%;
+        min-height: 44px;
+
+        border: none;
+        border-radius: 0;
+
+        background-color: transparent !important;
+        font-size: 13px;
+    }
+
+    /* Remove cell */
+    .fb-field-row__remove {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+
+        border-left: 1px solid var(--border-main);
+        background-color: transparent;
+    }
+
+    .fb-field-row__remove .span-lib {
+        font-size: 16px;
+        color: var(--ui-steel);
+        padding: 0 12px;
+        line-height: 44px;
+    }
+
+    /* -------------------------------------------------------
+       Focus strategy (KEY FIX)
+       On met le focus sur la cellule (pas sur l’input)
+       ------------------------------------------------------- */
+    .fb-field-row__operator:focus-within,
+    .fb-field-row__value:focus-within {
+        background-color: var(--surface-3);
+        outline: 2px solid var(--accent);
+        outline-offset: -2px;
+    }
+
+    /* On désactive le focus interne pour éviter double outline */
+    .fb-field-row__operator .select-lib:focus,
+    .fb-field-row__value .input-lib:focus,
+    .fb-field-row__value .select-lib:focus,
+    .fb-date-input:focus {
+        outline: none;
+        border-color: transparent;
+    }
+
+    /* -------------------------------------------------------
+       Date input
+       ------------------------------------------------------- */
+    .fb-date-input {
+        border: none;
+        height: 100%;
+        min-height: 44px;
+        width: 100%;
+        background-color: transparent !important;
+        padding: 0 12px;
+        color: var(--foreground);
+        font-size: 13px;
+    }
+
+    /* La cellule value gère déjà focus-within, mais on garde ça safe */
+    .fb-field-row__value:focus-within .fb-date-input {
+        background-color: transparent !important;
+    }
+
+    /* -------------------------------------------------------
+       Dropdown
+       ------------------------------------------------------- */
+    .fb-add {
+        position: relative;
+        display: inline-flex;
+    }
+
+    .fb-add__dropdown {
+        position: absolute;
+        top: calc(100% + 6px);
+        left: 0;
+        z-index: 50;
+
+        background-color: var(--surface-2);
+        border: 1px solid var(--border-main);
+        border-radius: 10px;
+
+        box-shadow: 0 4px 20px rgba(0, 0, 0, 0.08);
+        padding: 4px;
+
+        min-width: 220px;
+        display: flex;
+        flex-direction: column;
+        gap: 1px;
+
+        max-height: 280px;
+        overflow-y: auto;
+    }
+
+    .fb-add__item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+
+        padding: 8px 12px;
+        border-radius: 6px;
+
+        cursor: pointer;
+        transition: background 0.1s;
+
+        background: transparent;
+        border: none;
+        width: 100%;
+        text-align: left;
+    }
+
+    .fb-add__item:hover {
+        background-color: var(--surface-3);
+    }
+
+    .fb-add__type {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--subtitle-accent);
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+    }
+
+    /* -------------------------------------------------------
+       Actions button
+       ------------------------------------------------------- */
+    .fb-actions {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        margin-top: 10px;
+    }
+
+    .fb-actions__hint {
+        margin-left: 8px;
+        font-size: 12px;
+        color: var(--subtitle-accent);
+    }
+
+    /* -------------------------------------------------------
+       Responsive
+       ------------------------------------------------------- */
+    @media (max-width: 640px) {
+        .fb-field-row {
+            grid-template-columns: 1fr 40px;
+            grid-template-rows: auto auto auto;
+        }
+
+        .fb-field-row__label {
+            grid-column: 1;
+            grid-row: 1;
+            border-right: none;
+            border-bottom: 1px solid var(--border-main);
+            padding: 10px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--subtitle-accent);
+            min-height: unset;
+        }
+
+        .fb-field-row__remove {
+            grid-column: 2;
+            grid-row: 1 / 4;
+            border-left: 1px solid var(--border-main);
+        }
+
+        .fb-field-row__operator {
+            grid-column: 1;
+            grid-row: 2;
+            border-right: none;
+            border-bottom: 1px solid var(--border-main);
+        }
+
+        .fb-field-row__value {
+            grid-column: 1;
+            grid-row: 3;
+        }
+
+        /* Focus cells en mobile (où operator/value deviennent des rows) */
+        .fb-field-row__operator:focus-within,
+        .fb-field-row__value:focus-within {
+            outline-offset: -2px;
+        }
+    }
+
 
     /* -------------------------------------------------------
        Navigation links
