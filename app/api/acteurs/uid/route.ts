@@ -4,11 +4,12 @@ import {prisma} from "@/app/lib/prisma/prisma";
 // GET /api/acteurs/:uid
 export async function GET(
     request: Request,
-    { params }: { params: { uid: string } }
+    { params }: { params: Promise<{ uid: string }> }
 ) {
+    const { uid } = await params
     try {
         const acteur = await prisma.acteurs.findUnique({
-            where: { uid: params.uid },
+            where: { uid: uid },
             include: {
                 adressesPostales: true,
                 adressesMails: true,
