@@ -18,7 +18,7 @@ type TableActionsProps = {
     hint?: string;
 };
 
-export const TableActions: React.FC<TableActionsProps> = ({
+export const TableExportActions: React.FC<TableActionsProps> = ({
                                                               title,
                                                               exportEnabled = true,
                                                               exporting = false,
@@ -37,14 +37,14 @@ export const TableActions: React.FC<TableActionsProps> = ({
             {exportEnabled && onExportAction && (
                 <div className="table-actions__right">
                     <ButtonLib
-                        text={exporting ? "Export…" : "Exporter CSV"}
+                        text={exporting ? "Export" : "Exporter CSV"}
                         size="small"
                         variant="secondary"
                         type="button"
                         onClick={() => onExportAction("csv")}
                     />
                     <ButtonLib
-                        text={exporting ? "Export…" : "Exporter JSON"}
+                        text={exporting ? "Export" : "Exporter JSON"}
                         size="small"
                         variant="tertiary"
                         type="button"

@@ -8,7 +8,7 @@ import {FilterBar} from "@/app/component-library/molecules/filter-bar/filter-bar
 import {ACTEURS_FILTER_FIELDS, ACTEURS_SORT_OPTIONS} from "@/app/lib/filters/acteurs.filters";
 import {FilterBarQuery} from "@/app/component-library/molecules/filter-bar/filter-bar.types";
 import {applyFilterBarQueryClient} from "@/app/component-library/molecules/filter-bar/filterbar-apply-client";
-import {TableActions} from "@/app/component-library/molecules/table/components/table-actions";
+import {TableExportActions} from "@/app/component-library/molecules/table/components/table-export-actions";
 import {exportRows} from "@/app/lib/utils/export/download-export";
 import {CsvColumn} from "@/app/lib/utils/export/csv";
 
@@ -273,7 +273,7 @@ function TableWithFilterExportAndLocalPaginationExample() {
                 onQueryChange={handleQueryChange}
             />
 
-            <TableActions
+            <TableExportActions
                 title="Acteurs"
                 hint={`Export : ${filtered.length} résultat(s) filtré(s)`}
                 onExportAction={(format) => exportRows(filtered, format, {
