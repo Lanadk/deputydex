@@ -2,6 +2,7 @@ import type {Metadata} from "next";
 import {Geist, Geist_Mono} from "next/font/google";
 import "./globals.css";
 import {ThemeProvider} from "next-themes";
+import {MuiProvider} from "@/app/providers/mui-provider";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -34,7 +35,7 @@ export default function RootLayout({
                 enableSystem={false}
                 themes={['light', 'dark', 'accessible']}
             >
-                {children}
+                <MuiProvider>{children}</MuiProvider>
             </ThemeProvider>
         </body>
         </html>

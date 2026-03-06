@@ -21,6 +21,7 @@ const components = {
         { name: 'Deputy-card', path: '/component-library/molecules/deputy-card' },
         { name: 'Filter-bar', path: '/component-library/molecules/filter-bar' },
         { name: 'Table', path: '/component-library/molecules/table' },
+        { name: 'Chart', path: '/component-library/molecules/chart' },
     ],
 };
 
