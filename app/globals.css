@@ -1356,51 +1356,93 @@
     }
 
     /* -------------------------------------------------------
-       Responsive
+       Table lib
        ------------------------------------------------------- */
-    @media (max-width: 640px) {
-        .fb-field-row {
-            grid-template-columns: 1fr 40px;
-            grid-template-rows: auto auto auto;
-        }
-
-        .fb-field-row__label {
-            grid-column: 1;
-            grid-row: 1;
-            border-right: none;
-            border-bottom: 1px solid var(--border-main);
-            padding: 10px 14px;
-            font-size: 12px;
-            font-weight: 600;
-            color: var(--subtitle-accent);
-            min-height: unset;
-        }
-
-        .fb-field-row__remove {
-            grid-column: 2;
-            grid-row: 1 / 4;
-            border-left: 1px solid var(--border-main);
-        }
-
-        .fb-field-row__operator {
-            grid-column: 1;
-            grid-row: 2;
-            border-right: none;
-            border-bottom: 1px solid var(--border-main);
-        }
-
-        .fb-field-row__value {
-            grid-column: 1;
-            grid-row: 3;
-        }
-
-        /* Focus cells en mobile (où operator/value deviennent des rows) */
-        .fb-field-row__operator:focus-within,
-        .fb-field-row__value:focus-within {
-            outline-offset: -2px;
-        }
+    .table-lib {
+        border: 1px solid var(--border-main);
+        border-radius: 10px;
+        overflow: hidden;
+        background: var(--surface-2);
     }
 
+    .table-lib__wrap {
+        overflow-x: auto;
+    }
+
+    .table-lib__table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+
+    .table-lib__th {
+        padding: 10px 12px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--subtitle-accent);
+        background: var(--surface-1);
+        border-bottom: 1px solid var(--border-main);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    .table-lib__td {
+        padding: 10px 12px;
+        border-bottom: 1px solid var(--border-main);
+        font-size: 13px;
+        color: var(--foreground);
+    }
+
+    .table-lib__tr:last-child .table-lib__td {
+        border-bottom: none;
+    }
+
+    /* -------------------------------------------------------
+       Table pagination lib
+       ------------------------------------------------------- */
+    .table-pagination {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 10px 0;
+    }
+
+    .table-pagination__info {
+        color: var(--subtitle-accent);
+    }
+
+    /* -------------------------------------------------------
+       Table actions buttons lib
+       ------------------------------------------------------- */
+    .table-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 12px;
+        padding: 10px 0;
+    }
+
+    .table-actions__left {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
+    }
+
+    .table-actions__title {
+        font-weight: 700;
+        color: var(--foreground);
+    }
+
+    .table-actions__hint {
+        color: var(--subtitle-accent);
+    }
+
+    .table-actions__right {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        flex-wrap: wrap;
+    }
 
     /* -------------------------------------------------------
        Navigation links
@@ -1442,5 +1484,81 @@
     .theme-close-btn:hover {
         opacity: 1;
         color: var(--accent);
+    }
+
+
+    /* -------------------------------------------------------
+       Responsive
+       ------------------------------------------------------- */
+    @media (max-width: 640px) {
+        /* -------------------------------------------------------
+           Filter bar
+           ------------------------------------------------------- */
+        .fb-field-row {
+            grid-template-columns: 1fr 40px;
+            grid-template-rows: auto auto auto;
+        }
+
+        .fb-field-row__label {
+            grid-column: 1;
+            grid-row: 1;
+            border-right: none;
+            border-bottom: 1px solid var(--border-main);
+            padding: 10px 14px;
+            font-size: 12px;
+            font-weight: 600;
+            color: var(--subtitle-accent);
+            min-height: unset;
+        }
+
+        .fb-field-row__remove {
+            grid-column: 2;
+            grid-row: 1 / 4;
+            border-left: 1px solid var(--border-main);
+        }
+
+        .fb-field-row__operator {
+            grid-column: 1;
+            grid-row: 2;
+            border-right: none;
+            border-bottom: 1px solid var(--border-main);
+        }
+
+        .fb-field-row__value {
+            grid-column: 1;
+            grid-row: 3;
+        }
+
+        /* Focus cells en mobile (où operator/value deviennent des rows) */
+        .fb-field-row__operator:focus-within,
+        .fb-field-row__value:focus-within {
+            outline-offset: -2px;
+        }
+
+        /* -------------------------------------------------------
+           Table action button
+           ------------------------------------------------------- */
+        .table-actions {
+            flex-direction: column;
+            align-items: stretch;
+            gap: 8px;
+        }
+
+        .table-actions__left {
+            flex-direction: row;
+            justify-content: space-between;
+        }
+
+        .table-actions__right {
+            width: 100%;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 8px;
+        }
+
+        .table-actions__right .btn-lib {
+            width: 100%;
+            justify-content: center;
+        }
     }
 }
