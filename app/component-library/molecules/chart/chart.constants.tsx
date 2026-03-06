@@ -101,9 +101,6 @@ const CODE_DONUT_CHART_DEFAULT = `const presenceData = [
 <DonutChartLib
   title="Présence"
   data={presenceData}
-  height={280}
-  innerRadius={70}
-  outerRadius={110}
 />`;
 
 const CODE_DONUT_CHART_PARLIAMENT = `const repartitionSieges = [
@@ -552,9 +549,6 @@ export const getChartSection = () => [
             <DonutChartLib
                 title="Présence"
                 data={presenceData}
-                height={280}
-                innerRadius={70}
-                outerRadius={110}
             />
         ),
     },
