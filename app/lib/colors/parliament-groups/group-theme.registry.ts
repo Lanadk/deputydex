@@ -19,12 +19,12 @@ export const PARLIAMENTARY_GROUP_THEME_REGISTRY: GroupThemeRegistry = {
         key: "EPR",
         label: "Ensemble pour la République",
         bg: ["#ffbe00", "#ff9400", "#ffbe00"],
-        text: "#1a1a1a",
+        text: "#ffffff",
         border: "#ff9400",
         holo: ["#1a0e00", "#3d2200", "#1a0e00"],
         chart: "#ff9400",
         badgeBg: "#ff9400",
-        badgeText: "#1a1a1a",
+        badgeText: "#ffffff",
     },
 
     LFI_NFP: {
