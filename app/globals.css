@@ -56,6 +56,19 @@
     --p2-5: #b3a125; /* olive  */
 
     /* -------------------------------------------------------
+       Charts — categorical palette
+       Dedicated data-viz colors, distinct in all themes.
+       ------------------------------------------------------- */
+    --chart-1: var(--p1-blue-3);
+    --chart-2: var(--p1-red-3);
+    --chart-3: var(--p2-4);
+    --chart-4: var(--p2-3);
+    --chart-5: var(--p1-steel-3);
+    --chart-6: var(--p1-blue-4);
+    --chart-7: var(--p1-red-4);
+    --chart-8: var(--p2-5);
+
+    /* -------------------------------------------------------
        UI ALIASES — P1 → semantic meaning
        Maps palette shades to functional roles.
        Use these in semantic tokens, never raw P1 vars.
@@ -240,6 +253,19 @@
     --p2-4: #ffde00;
     --p2-5: #b3a125;
 
+    /* -------------------------------------------------------
+       Charts — categorical palette
+       Dedicated data-viz colors, dark theme.
+       ------------------------------------------------------- */
+    --chart-1: var(--p1-blue-3);
+    --chart-2: var(--p1-red-3);
+    --chart-3: var(--p2-4);
+    --chart-4: var(--p1-white-4);
+    --chart-5: var(--p1-steel-2);
+    --chart-6: var(--p1-blue-2);
+    --chart-7: var(--p1-red-2);
+    --chart-8: var(--p2-5);
+
     /* UI aliases */
     --ui-danger: var(--p1-red-4);
     --ui-warm: var(--p1-red-3);
@@ -391,6 +417,19 @@
     --p2-3: #3b4cca;
     --p2-4: #ffde00;
     --p2-5: #b3a125;
+
+    /* -------------------------------------------------------
+       Charts — categorical palette
+       Dedicated data-viz colors, accessible theme.
+       ------------------------------------------------------- */
+    --chart-1: var(--p1-blue-4);
+    --chart-2: var(--p1-red-4);
+    --chart-3: var(--p2-4);
+    --chart-4: var(--p1-steel-4);
+    --chart-5: var(--p1-blue-3);
+    --chart-6: var(--p1-red-3);
+    --chart-7: var(--p2-3);
+    --chart-8: var(--p2-5);
 
     /* UI aliases — contrast-first remapping */
     --ui-danger: var(--p1-red-4);
@@ -1442,6 +1481,39 @@
         align-items: center;
         gap: 8px;
         flex-wrap: wrap;
+    }
+
+    /* -------------------------------------------------------
+       Chart container
+       ------------------------------------------------------- */
+    .chart-lib {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        padding: 16px;
+        border: 1px solid var(--border-main);
+        border-radius: 12px;
+        background-color: var(--surface-2);
+    }
+
+    .chart-lib__header {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+    }
+
+    .chart-lib__title {
+        font-size: 16px;
+        font-weight: 700;
+        color: var(--foreground);
+    }
+
+    .chart-lib__subtitle {
+        color: var(--subtitle-accent);
+    }
+
+    .chart-lib__body {
+        width: 100%;
     }
 
     /* -------------------------------------------------------
