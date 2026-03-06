@@ -13,6 +13,10 @@ export async function searchActeurs(
         body: JSON.stringify({ query, page, pageSize }),
     });
 
-    if (!res.ok) throw new Error("Failed to search acteurs");
+    if (!res.ok) {
+        const text = await res.text();
+        throw new Error(`Failed to search acteurs (${res.status}): ${text}`);
+    }
+
     return res.json();
 }

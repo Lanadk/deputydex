@@ -38,7 +38,7 @@ export function TableLib<T>({
                                 key={c.id}
                                 className="table-lib__th"
                                 style={{
-                                    textAlign: c.align ?? "left",
+                                    textAlign: c.align ?? "center",
                                     width: c.width,
                                 }}
                             >
@@ -68,7 +68,7 @@ export function TableLib<T>({
                                     <td
                                         key={c.id}
                                         className="table-lib__td"
-                                        style={{ textAlign: c.align ?? "left" }}
+                                        style={{ textAlign: c.align ?? "center" }}
                                     >
                                         {c.cell(row)}
                                     </td>

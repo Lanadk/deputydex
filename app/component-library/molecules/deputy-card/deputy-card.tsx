@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import {CardBody, CardContainer, CardItem} from "@/app/component-library/external/3d-card";
+import {CardBody, CardContainer, CardItem} from "@/app/component-library/external/3d-card/3d-card";
 
 //TODO change this a static lib + link this to badge component colors
 const PARTI_THEMES: Record<string, {
