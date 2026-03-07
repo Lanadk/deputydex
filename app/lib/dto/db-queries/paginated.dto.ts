@@ -1,4 +1,4 @@
-import {FilterBarQuery} from "@/app/component-library/molecules/filter-bar/filter-bar.types";
+import {FilterBarQuery} from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar.types";
 
 export type PaginatedResult<T> = {
     items: T[];

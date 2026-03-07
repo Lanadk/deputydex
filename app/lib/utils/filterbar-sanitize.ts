@@ -1,5 +1,5 @@
 // app/lib/utils/filterbar-sanitize.ts
-import type { FilterBarQuery } from "@/app/component-library/molecules/filter-bar/filter-bar.types";
+import type { FilterBarQuery } from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar.types";
 
 const DEFAULT_ALLOWED_OPERATORS = new Set([
     "contains",
