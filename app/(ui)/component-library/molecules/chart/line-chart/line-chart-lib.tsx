@@ -8,7 +8,7 @@ import {
     getSingleSeriesGroupColor,
     isParliamentGroupVariant,
     mapSeriesToGroupColors,
-} from "@/app/lib/colors/parliament-groups/group-theme.helpers";
+} from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
 import {
     axisTextColor,
     cartesianChartSx,

@@ -2,7 +2,7 @@
 
 import React from "react";
 import { CardBody, CardContainer, CardItem } from "@/app/(ui)/component-library/external/3d-card/3d-card";
-import {getGroupCardTheme} from "@/app/lib/colors/parliament-groups/group-theme.helpers";
+import {getGroupCardTheme} from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
 
 const HexRF = ({ cx, cy, size }: { cx: number; cy: number; size: number }) => {
     const s = size / 220;
