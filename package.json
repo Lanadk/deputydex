@@ -9,7 +9,6 @@
     "start": "next start",
     "lint": "eslint",
     "prisma:generate": "prisma generate",
-    "create-component": "node scripts/create-component.mjs",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
