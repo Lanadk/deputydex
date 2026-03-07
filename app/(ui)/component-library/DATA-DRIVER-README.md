@@ -66,8 +66,8 @@ sections.map(section => <ComponentSectionCodeBlock {...section} />)
 ### 1. Templates (structure de page)
 
 ```tsx
-// templates/page-content/page-content.tsx
-export const PageContent = ({ children }) => (
+// templates/page-content/page-content-lib.tsx
+export const PageContentLib = ({ children }) => (
   <div className="space-y-8">
     {children}
   </div>
@@ -144,7 +144,7 @@ export default function ButtonPage() {
         subtitle="Composant bouton avec différentes variantes et options"
       />
 
-      <PageContent>
+      <PageContentLib>
         {sections.map((section, index) => (
           <ComponentSectionCodeBlock
             key={index}
@@ -154,7 +154,7 @@ export default function ButtonPage() {
             {section.component}
           </ComponentSectionCodeBlock>
         ))}
-      </PageContent>
+      </PageContentLib>
     </div>
   );
 }

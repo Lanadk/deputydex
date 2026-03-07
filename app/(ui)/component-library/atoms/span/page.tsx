@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { PageHeaderLib } from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
 import { getSpanSections } from "@/app/(ui)/component-library/atoms/span/span-lib.constants";
-import {PageContent} from "@/app/(ui)/component-library/template/page-content/page-content";
+import {PageContentLib} from "@/app/(ui)/component-library/template/page-content/page-content-lib";
 import {
     ComponentSectionCodeBlockLib
 } from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block-lib";
@@ -19,7 +19,7 @@ export default function SpanPage() {
                 subtitle="Composant span inline avec support de texte, children et icônes"
             />
 
-            <PageContent>
+            <PageContentLib>
                 {sections.map((section, index) => (
                     <ComponentSectionCodeBlockLib
                         key={index}
@@ -29,7 +29,7 @@ export default function SpanPage() {
                         {section.component}
                     </ComponentSectionCodeBlockLib>
                 ))}
-            </PageContent>
+            </PageContentLib>
         </div>
     );
 }

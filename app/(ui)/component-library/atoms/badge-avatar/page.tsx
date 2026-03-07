@@ -4,7 +4,7 @@ import { getAvatarSections } from "@/app/(ui)/component-library/atoms/badge-avat
 import {
     ComponentSectionCodeBlockLib
 } from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block-lib";
-import {PageContent} from "@/app/(ui)/component-library/template/page-content/page-content";
+import {PageContentLib} from "@/app/(ui)/component-library/template/page-content/page-content-lib";
 import {PageHeaderLib} from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
 
 export default function AvatarPage() {
@@ -17,7 +17,7 @@ export default function AvatarPage() {
                 subtitle="Composant avatar rond avec photo ou initiales en fallback"
             />
 
-            <PageContent>
+            <PageContentLib>
                 {sections.map((section, index) => (
                     <ComponentSectionCodeBlockLib
                         key={index}
@@ -27,7 +27,7 @@ export default function AvatarPage() {
                         {section.component}
                     </ComponentSectionCodeBlockLib>
                 ))}
-            </PageContent>
+            </PageContentLib>
         </div>
     );
 }

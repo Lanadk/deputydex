@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { PageHeaderLib } from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
 import { getInputSections } from "@/app/(ui)/component-library/molecules/input/input-lib.constants";
-import {PageContent} from "@/app/(ui)/component-library/template/page-content/page-content";
+import {PageContentLib} from "@/app/(ui)/component-library/template/page-content/page-content-lib";
 import {
     ComponentSectionCodeBlockLib
 } from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block-lib";
@@ -28,7 +28,7 @@ export default function InputPage() {
                 subtitle="Composant input pour recherche, filtres et saisie"
             />
 
-            <PageContent>
+            <PageContentLib>
                 {sections.map((section, index) => (
                     <ComponentSectionCodeBlockLib
                         key={index}
@@ -38,7 +38,7 @@ export default function InputPage() {
                         {section.component}
                     </ComponentSectionCodeBlockLib>
                 ))}
-            </PageContent>
+            </PageContentLib>
         </div>
     )
 }

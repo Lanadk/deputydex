@@ -3,7 +3,7 @@
 import { useState } from "react";
 import { PageHeaderLib } from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
 import { getToggleSwitchSections } from "@/app/(ui)/component-library/molecules/toggle-switch/toggle-switch-lib.constants";
-import {PageContent} from "@/app/(ui)/component-library/template/page-content/page-content";
+import {PageContentLib} from "@/app/(ui)/component-library/template/page-content/page-content-lib";
 import {
     ComponentSectionCodeBlockLib
 } from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block-lib";
@@ -35,7 +35,7 @@ export default function ToggleSwitchPage() {
                 subtitle="Composant toggle switch style iOS pour activer/désactiver des options"
             />
 
-            <PageContent>
+            <PageContentLib>
                 {sections.map((section, index) => (
                     <ComponentSectionCodeBlockLib
                         key={index}
@@ -45,7 +45,7 @@ export default function ToggleSwitchPage() {
                         {section.component}
                     </ComponentSectionCodeBlockLib>
                 ))}
-            </PageContent>
+            </PageContentLib>
         </div>
     );
 }

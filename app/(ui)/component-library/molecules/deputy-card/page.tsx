@@ -1,7 +1,7 @@
 "use client"
 
 import {PageHeaderLib} from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
-import {PageContent} from "@/app/(ui)/component-library/template/page-content/page-content";
+import {PageContentLib} from "@/app/(ui)/component-library/template/page-content/page-content-lib";
 import {
     ComponentSectionCodeBlockLib
 } from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block-lib";
@@ -18,7 +18,7 @@ export default function DeputyCardPage() {
                 subtitle="Carte de députés avec parti politique, nom et photo"
             />
 
-            <PageContent>
+            <PageContentLib>
                 {sections.map((section, index) => (
                     <ComponentSectionCodeBlockLib
                         key={index}
@@ -28,7 +28,7 @@ export default function DeputyCardPage() {
                         {section.component}
                     </ComponentSectionCodeBlockLib>
                 ))}
-            </PageContent>
+            </PageContentLib>
         </div>
     );
 }

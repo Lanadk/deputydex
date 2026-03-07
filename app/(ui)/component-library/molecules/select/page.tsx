@@ -3,7 +3,7 @@
 import { useState } from 'react'
 import { PageHeaderLib } from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
 import { getSelectSections } from "@/app/(ui)/component-library/molecules/select/select-lib.constants";
-import {PageContent} from "@/app/(ui)/component-library/template/page-content/page-content";
+import {PageContentLib} from "@/app/(ui)/component-library/template/page-content/page-content-lib";
 import {
     ComponentSectionCodeBlockLib
 } from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block-lib";
@@ -29,7 +29,7 @@ export default function SelectPage() {
                 subtitle="Composant select avec options dynamiques pour filtres et sélection"
             />
 
-            <PageContent>
+            <PageContentLib>
                 {sections.map((section, index) => (
                     <ComponentSectionCodeBlockLib
                         key={index}
@@ -39,7 +39,7 @@ export default function SelectPage() {
                         {section.component}
                     </ComponentSectionCodeBlockLib>
                 ))}
-            </PageContent>
+            </PageContentLib>
         </div>
     )
 }

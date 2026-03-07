@@ -3,7 +3,7 @@
 import { PageHeaderLib } from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
 import { ComponentSectionCodeBlockLib } from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block-lib";
 import { getBadgeSections } from "@/app/(ui)/component-library/atoms/badge/badge-lib.constants";
-import {PageContent} from "@/app/(ui)/component-library/template/page-content/page-content";
+import {PageContentLib} from "@/app/(ui)/component-library/template/page-content/page-content-lib";
 
 export default function BadgePage() {
     const sections = getBadgeSections();
@@ -15,7 +15,7 @@ export default function BadgePage() {
                 subtitle="Composant badge pour afficher des labels, tags ou statuts"
             />
 
-            <PageContent>
+            <PageContentLib>
                 {sections.map((section, index) => (
                     <ComponentSectionCodeBlockLib
                         key={index}
@@ -25,7 +25,7 @@ export default function BadgePage() {
                         {section.component}
                     </ComponentSectionCodeBlockLib>
                 ))}
-            </PageContent>
+            </PageContentLib>
         </div>
     );
 }

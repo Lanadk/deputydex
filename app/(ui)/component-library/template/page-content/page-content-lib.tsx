@@ -7,7 +7,7 @@ export interface PageContentProps {
     children: React.ReactNode;
 }
 
-export const PageContent: React.FC<PageContentProps> = ({ children }) => {
+export const PageContentLib: React.FC<PageContentProps> = ({ children }) => {
     return (
         <div className="space-y-8">
             {children}

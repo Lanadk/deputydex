@@ -2,7 +2,7 @@
 
 import { PageHeaderLib } from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
 import { getActivityCalendarSections } from "@/app/(ui)/component-library/molecules/activity-calendar/activity-calendar.constants-lib";
-import {PageContent} from "@/app/(ui)/component-library/template/page-content/page-content";
+import {PageContentLib} from "@/app/(ui)/component-library/template/page-content/page-content-lib";
 import {
     ComponentSectionCodeBlockLib
 } from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block-lib";
@@ -17,7 +17,7 @@ export default function ActivityCalendarPage() {
                 subtitle="Calendrier d'activité type GitHub pour visualiser les contributions"
             />
 
-            <PageContent>
+            <PageContentLib>
                 {sections.map((section, index) => (
                     <ComponentSectionCodeBlockLib
                         key={index}
@@ -27,7 +27,7 @@ export default function ActivityCalendarPage() {
                         {section.component}
                     </ComponentSectionCodeBlockLib>
                 ))}
-            </PageContent>
+            </PageContentLib>
         </div>
     );
 }

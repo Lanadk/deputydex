@@ -1,5 +1,5 @@
 import {PageHeaderLib} from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
-import {PageContent} from "@/app/(ui)/component-library/template/page-content/page-content";
+import {PageContentLib} from "@/app/(ui)/component-library/template/page-content/page-content-lib";
 import {
     ComponentSectionCodeBlockLib
 } from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block-lib";
@@ -16,7 +16,7 @@ export default function FilterBarPage() {
                 subtitle="Tous les composants de  visualisation des données"
             />
 
-            <PageContent>
+            <PageContentLib>
                 {sections.map((section, index) => (
                     <ComponentSectionCodeBlockLib
                         key={index}
@@ -26,7 +26,7 @@ export default function FilterBarPage() {
                         {section.component}
                     </ComponentSectionCodeBlockLib>
                 ))}
-            </PageContent>
+            </PageContentLib>
         </div>
     )
 }
