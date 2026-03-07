@@ -1,5 +1,5 @@
 import {ActeurDTO} from "@/app/domains/acteurs/dto/acteur.dto";
-import {toISODateOnly} from "@/app/lib/utils/utils";
+import {toISODateOnly} from "@/app/_shared/utils/date";
 
 
 export function mapActeurToDTO(a: any): ActeurDTO {
