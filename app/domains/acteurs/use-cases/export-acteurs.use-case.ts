@@ -1,4 +1,3 @@
-// app/domains/acteurs/use-cases/export-acteurs.use-case.ts
 import "server-only";
 
 import type { FilterBarQuery } from "@/app/_shared/filtering/filter-bar.types";

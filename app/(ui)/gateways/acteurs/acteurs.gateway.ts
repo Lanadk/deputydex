@@ -1,6 +1,6 @@
-import {ActeursGateway} from "@/app/domains/acteurs/gateways/Iacteurs.gateway";
+import {IActeursGateway} from "@/app/domains/acteurs/gateways/IActeurs.gateway";
 
-export const acteursGateway: ActeursGateway = {
+export const acteursGateway: IActeursGateway = {
     async search(query, page = 1, pageSize = 20) {
         const res = await fetch("/api/acteurs", {
             method: "POST",

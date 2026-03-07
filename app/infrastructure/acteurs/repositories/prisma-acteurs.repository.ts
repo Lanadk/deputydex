@@ -1,4 +1,3 @@
-// app/infrastructure/acteurs/repositories/prisma-acteurs.repository.ts
 import "server-only";
 
 import { prisma } from "@/app/infrastructure/db/prisma/prisma";
