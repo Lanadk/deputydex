@@ -135,8 +135,8 @@ Les implémentations techniques.
 Contient :
 - Prisma
 - repositories concrets
-- mappers DB -> DTO
 - sanitization serveur orientée usage backend
+- autres helpers techniques si non partagé avec l'app
 
 ---
 
@@ -146,8 +146,9 @@ Le partagé neutre.
 Contient :
 - types transverses
 - pagination
-- CSV pur
-- helpers génériques de date
+- utils partagé
+- helpers génériques
+- brique d'architecture technique
 
 Ne contient pas :
 - logique métier `acteurs`
