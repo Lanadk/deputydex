@@ -1,0 +1,41 @@
+import React from 'react';
+import {IconLibType} from "@/app/(ui)/component-library/const/types";
+
+interface ButtonLibProps {
+    /** Texte du bouton */
+    text?: string;
+    /** Icône à gauche du texte (optionnel) */
+    icon?: IconLibType;
+    /** Variante visuelle du bouton */
+    variant?: 'primary' | 'secondary' | 'tertiary';
+    /** Taille du bouton */
+    size?: 'small' | 'medium' | 'large';
+    /** Callback au clic */
+    onClick?: () => void;
+    /** Button type */
+    type?: "button" | "submit" | "reset";
+    /** Disabled mode */
+    disabled?: boolean;
+}
+
+export const ButtonLib: React.FC<ButtonLibProps> = ({
+                                                        text,
+                                                        icon: Icon,
+                                                        variant = 'primary',
+                                                        size = 'medium',
+                                                        onClick,
+                                                        type="button",
+                                                        disabled = false,
+                                                    }) => {
+    return (
+        <button
+            type={type}
+            className={`gap-2 btn-lib btn-lib--${variant} btn-lib--${size}`}
+            onClick={onClick}
+            disabled={disabled}
+        >
+            {Icon && <span><Icon size={size === 'small' ? 16 : size === 'large' ? 24 : 20}/></span>}
+            {text && <span>{text}</span>}
+        </button>
+    );
+};
