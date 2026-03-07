@@ -1,6 +1,6 @@
 import type { FilterBarQuery } from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar.types";
 import type { ActeurDTO } from "@/app/lib/dto/acteur.dto";
-import {PaginatedResult} from "@/app/lib/dto/db-queries/paginated.dto";
+import {PaginatedResult} from "@/app/_shared/pagination/paginated-result";
 
 export async function searchActeurs(
     query: FilterBarQuery,
