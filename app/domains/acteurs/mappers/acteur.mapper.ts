@@ -1,8 +1,9 @@
 import {ActeurDTO} from "@/app/domains/acteurs/dto/acteur.dto";
 import {toISODateOnly} from "@/app/_shared/utils/date";
+import {ActeurEntity} from "@/app/domains/acteurs/entities/acteurs.entity";
 
 
-export function mapActeurToDTO(a: any): ActeurDTO {
+export function mapActeurToDTO(a: ActeurEntity): ActeurDTO {
     return {
         id: String(a.uid),
         prenom: a.prenom ?? null,
@@ -12,6 +13,6 @@ export function mapActeurToDTO(a: any): ActeurDTO {
     };
 }
 
-export function mapActeursToDTO(list: any[]): ActeurDTO[] {
+export function mapActeursToDTO(list: ActeurEntity[]): ActeurDTO[] {
     return list.map(mapActeurToDTO);
 }
