@@ -3,8 +3,8 @@
 import React from "react";
 import { ButtonLib } from "@/app/(ui)/component-library/atoms/button/button-lib";
 import { SpanLib } from "@/app/(ui)/component-library/atoms/span/span-lib";
+import {ExportFormat} from "@/app/_shared/export/export.types";
 
-export type TableExportFormat = "csv" | "json";
 
 type TableActionsProps = {
     title?: string;
@@ -12,7 +12,7 @@ type TableActionsProps = {
     exportEnabled?: boolean;
     exporting?: boolean;
 
-    onExportAction?: (format: TableExportFormat) => void;
+    onExportAction?: (format: ExportFormat) => void;
 
     // optionnel: afficher un hint (ex: "Export: tous les résultats filtrés")
     hint?: string;

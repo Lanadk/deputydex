@@ -1,10 +1,11 @@
 import { NextResponse } from "next/server";
 import type { FilterBarQuery } from "@/app/_shared/filtering/filter-bar.types";
-import { exportActeurs, type ExportFormat } from "@/app/services/acteurs/acteurs.export.server";
+import { exportActeurs } from "@/app/services/acteurs/acteurs.export.server";
+import {ExportFormat} from "@/app/_shared/export/export.types";
 
 type Body = {
     query?: FilterBarQuery;
-    format?: ExportFormat; // "csv" | "json"
+    format?: ExportFormat;
     maxRows?: number;
     delimiter?: string;
 };

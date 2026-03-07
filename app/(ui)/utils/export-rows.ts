@@ -1,4 +1,5 @@
-import {CsvColumn, toCsv} from "@/app/lib/utils/export/csv";
+import {CsvColumn, toCsv} from "@/app/_shared/export/csv";
+import {ExportFormat} from "@/app/_shared/export/export.types";
 
 type ExportOptions<T> = {
     /** base sans extension (ex: "acteurs_export") */
@@ -17,8 +18,6 @@ type ExportOptions<T> = {
     /** json: pretty print */
     jsonPretty?: boolean; // default true
 };
-
-export type ExportFormat = "csv" | "json";
 
 export function exportRows<T>(
     rows: T[],
