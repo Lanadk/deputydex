@@ -1,4 +1,3 @@
-// app/lib/utils/filterbar-sanitize.ts
 import type { FilterBarQuery } from "@/app/_shared/filtering/filter-bar.types";
 
 const DEFAULT_ALLOWED_OPERATORS = new Set([

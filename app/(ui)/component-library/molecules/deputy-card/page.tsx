@@ -5,7 +5,7 @@ import {PageContent} from "@/app/(ui)/component-library/template/page-content/pa
 import {
     ComponentSectionCodeBlock
 } from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block";
-import {getDeputyCardSections} from "@/app/(ui)/component-library/molecules/deputy-card/deputey-card.constants";
+import {getDeputyCardSections} from "@/app/(ui)/component-library/molecules/deputy-card/deputey-card-lib.constants";
 
 export default function DeputyCardPage() {
 

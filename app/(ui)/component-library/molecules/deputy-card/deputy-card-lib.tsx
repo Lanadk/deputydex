@@ -38,7 +38,7 @@ interface DeputyCardProps {
     role?: string;
 }
 
-export default function DeputyCard({
+export default function DeputyCardLib({
                                        nom,
                                        groupe,
                                        image,
