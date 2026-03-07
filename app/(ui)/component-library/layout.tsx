@@ -1,6 +1,6 @@
 import Link from 'next/link'
 import { NavLinks } from './nav-links'
-import { ThemeSwitcher } from "@/app/(ui)/component-library/molecules/theme-switcher/theme-switcher"
+import { ThemeSwitcherLib } from "@/app/(ui)/component-library/molecules/theme-switcher/theme-switcher-lib"
 
 export default function ComponentLibraryLayout({ children }: { children: React.ReactNode }) {
     return (
@@ -21,7 +21,7 @@ export default function ComponentLibraryLayout({ children }: { children: React.R
             <main className="max-w-7xl mx-auto px-8 py-8">
                 {children}
             </main>
-            <ThemeSwitcher/>
+            <ThemeSwitcherLib/>
         </div>
     )
 }

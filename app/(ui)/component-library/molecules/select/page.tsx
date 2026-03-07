@@ -1,12 +1,12 @@
 "use client"
 
 import { useState } from 'react'
-import { PageHeader } from "@/app/(ui)/component-library/molecules/page-header/page-header";
+import { PageHeaderLib } from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
 import { getSelectSections } from "@/app/(ui)/component-library/molecules/select/select-lib.constants";
 import {PageContent} from "@/app/(ui)/component-library/template/page-content/page-content";
 import {
-    ComponentSectionCodeBlock
-} from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block";
+    ComponentSectionCodeBlockLib
+} from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block-lib";
 
 export default function SelectPage() {
     const [country, setCountry] = useState('')
@@ -24,20 +24,20 @@ export default function SelectPage() {
 
     return (
         <div>
-            <PageHeader
+            <PageHeaderLib
                 title="Select"
                 subtitle="Composant select avec options dynamiques pour filtres et sélection"
             />
 
             <PageContent>
                 {sections.map((section, index) => (
-                    <ComponentSectionCodeBlock
+                    <ComponentSectionCodeBlockLib
                         key={index}
                         title={section.title}
                         code={section.code}
                     >
                         {section.component}
-                    </ComponentSectionCodeBlock>
+                    </ComponentSectionCodeBlockLib>
                 ))}
             </PageContent>
         </div>

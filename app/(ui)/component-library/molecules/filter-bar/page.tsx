@@ -1,10 +1,10 @@
 "use client"
 
-import {PageHeader} from "@/app/(ui)/component-library/molecules/page-header/page-header";
+import {PageHeaderLib} from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
 import {PageContent} from "@/app/(ui)/component-library/template/page-content/page-content";
 import {
-    ComponentSectionCodeBlock
-} from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block";
+    ComponentSectionCodeBlockLib
+} from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block-lib";
 import {getFilterBarSections} from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib.constants";
 
 export default function FilterBarPage() {
@@ -13,20 +13,20 @@ export default function FilterBarPage() {
 
     return (
         <div>
-            <PageHeader
+            <PageHeaderLib
                 title= "Filter Bar"
                 subtitle="Barre de filtre"
             />
 
             <PageContent>
                 {sections.map((section, index) => (
-                    <ComponentSectionCodeBlock
+                    <ComponentSectionCodeBlockLib
                         key={index}
                         title={section.title}
                         code={section.code}
                     >
                         {section.component}
-                    </ComponentSectionCodeBlock>
+                    </ComponentSectionCodeBlockLib>
                 ))}
             </PageContent>
         </div>

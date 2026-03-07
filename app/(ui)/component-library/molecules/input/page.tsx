@@ -1,12 +1,12 @@
 "use client"
 
 import { useState } from 'react'
-import { PageHeader } from "@/app/(ui)/component-library/molecules/page-header/page-header";
+import { PageHeaderLib } from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
 import { getInputSections } from "@/app/(ui)/component-library/molecules/input/input-lib.constants";
 import {PageContent} from "@/app/(ui)/component-library/template/page-content/page-content";
 import {
-    ComponentSectionCodeBlock
-} from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block";
+    ComponentSectionCodeBlockLib
+} from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block-lib";
 
 export default function InputPage() {
     const [searchValue, setSearchValue] = useState('')
@@ -23,20 +23,20 @@ export default function InputPage() {
 
     return (
         <div>
-            <PageHeader
+            <PageHeaderLib
                 title="Input"
                 subtitle="Composant input pour recherche, filtres et saisie"
             />
 
             <PageContent>
                 {sections.map((section, index) => (
-                    <ComponentSectionCodeBlock
+                    <ComponentSectionCodeBlockLib
                         key={index}
                         title={section.title}
                         code={section.code}
                     >
                         {section.component}
-                    </ComponentSectionCodeBlock>
+                    </ComponentSectionCodeBlockLib>
                 ))}
             </PageContent>
         </div>

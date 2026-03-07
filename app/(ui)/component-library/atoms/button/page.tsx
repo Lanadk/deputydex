@@ -1,12 +1,12 @@
 "use client"
 
 import { useState } from "react";
-import { PageHeader } from "@/app/(ui)/component-library/molecules/page-header/page-header";
+import { PageHeaderLib } from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
 import { getButtonSections } from "@/app/(ui)/component-library/atoms/button/button-lib.constants";
 import {PageContent} from "@/app/(ui)/component-library/template/page-content/page-content";
 import {
-    ComponentSectionCodeBlock
-} from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block";
+    ComponentSectionCodeBlockLib
+} from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block-lib";
 
 export default function ButtonPage() {
     const [message, setMessage] = useState('');
@@ -14,20 +14,20 @@ export default function ButtonPage() {
 
     return (
         <div>
-            <PageHeader
+            <PageHeaderLib
                 title="Button"
                 subtitle="Composant bouton avec différentes variantes et options"
             />
 
             <PageContent>
                 {sections.map((section, index) => (
-                    <ComponentSectionCodeBlock
+                    <ComponentSectionCodeBlockLib
                         key={index}
                         title={section.title}
                         code={section.code}
                     >
                         {section.component}
-                    </ComponentSectionCodeBlock>
+                    </ComponentSectionCodeBlockLib>
                 ))}
             </PageContent>
         </div>

@@ -1,7 +1,7 @@
 "use client"
 
 import { cloneElement } from 'react';
-import {ActivityCalendarLib} from "@/app/(ui)/component-library/molecules/activity-calendar/activity-calendar";
+import {ActivityCalendarLib} from "@/app/(ui)/component-library/molecules/activity-calendar/activity-calendar-lib";
 
 export const sampleData = [
     { date: '2024-01-01', count: 0, level: 0 }, // Début année
@@ -147,7 +147,7 @@ export const getActivityCalendarSections = () => [
                     }}
                 />
                 <p className="text-sm opacity-70">
-                    Visualisation des votes et participations du député au fil de l'année
+                    Visualisation des votes et participations du député au fil de l&apos;année
                 </p>
             </div>
         )

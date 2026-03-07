@@ -6,7 +6,7 @@ import { ButtonLib } from "@/app/(ui)/component-library/atoms/button/button-lib"
 import { FaAccessibleIcon, FaLightbulb, FaMoon } from "react-icons/fa"
 import { X, Palette } from "lucide-react"
 
-export function ThemeSwitcher() {
+export function ThemeSwitcherLib() {
     const [mounted, setMounted] = useState(false)
     const [isOpen, setIsOpen] = useState(false)
     const { theme, setTheme } = useTheme()

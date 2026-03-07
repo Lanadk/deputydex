@@ -12,7 +12,7 @@ interface CodeBlockProps {
     children: React.ReactNode;
 }
 
-export const CodeBlock: React.FC<CodeBlockProps> = ({ code, children }) => {
+export const CodeBlockLib: React.FC<CodeBlockProps> = ({ code, children }) => {
     const [isCodeVisible, setIsCodeVisible] = useState(false);
 
     return (

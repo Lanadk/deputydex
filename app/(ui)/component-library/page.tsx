@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { PageHeader } from "@/app/(ui)/component-library/molecules/page-header/page-header";
+import { PageHeaderLib } from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
 import { Suspense } from 'react';
 
 const components = {
@@ -32,7 +32,7 @@ function ComponentGrid() {
 
     return (
         <>
-            <PageHeader
+            <PageHeaderLib
                 title={type}
                 subtitle="Sélectionnez un composant pour voir tous ses variants"
             />

@@ -1,12 +1,12 @@
 "use client"
 
 import { useState } from "react";
-import { PageHeader } from "@/app/(ui)/component-library/molecules/page-header/page-header";
+import { PageHeaderLib } from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
 import { getSpanSections } from "@/app/(ui)/component-library/atoms/span/span-lib.constants";
 import {PageContent} from "@/app/(ui)/component-library/template/page-content/page-content";
 import {
-    ComponentSectionCodeBlock
-} from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block";
+    ComponentSectionCodeBlockLib
+} from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block-lib";
 
 export default function SpanPage() {
     const [clickCount, setClickCount] = useState(0);
@@ -14,20 +14,20 @@ export default function SpanPage() {
 
     return (
         <div>
-            <PageHeader
+            <PageHeaderLib
                 title="Span"
                 subtitle="Composant span inline avec support de texte, children et icônes"
             />
 
             <PageContent>
                 {sections.map((section, index) => (
-                    <ComponentSectionCodeBlock
+                    <ComponentSectionCodeBlockLib
                         key={index}
                         title={section.title}
                         code={section.code}
                     >
                         {section.component}
-                    </ComponentSectionCodeBlock>
+                    </ComponentSectionCodeBlockLib>
                 ))}
             </PageContent>
         </div>

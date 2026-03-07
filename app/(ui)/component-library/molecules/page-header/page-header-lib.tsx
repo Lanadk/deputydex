@@ -8,7 +8,7 @@ export interface PageHeaderProps {
 
 }
 
-export const PageHeader: React.FC<PageHeaderProps> = ({
+export const PageHeaderLib: React.FC<PageHeaderProps> = ({
                                                           title,
                                                           subtitle
                                                       }) => {

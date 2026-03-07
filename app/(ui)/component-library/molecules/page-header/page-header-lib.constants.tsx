@@ -1,6 +1,6 @@
 "use client"
 
-import { PageHeader } from "@/app/(ui)/component-library/molecules/page-header/page-header";
+import { PageHeaderLib } from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
 
 export const PAGE_HEADER_CODE_BASIC = `<PageHeader
   title="Titre de la page"
@@ -30,7 +30,7 @@ export const getPageHeaderSections = () => [
         title: "Usage basique",
         code: PAGE_HEADER_CODE_BASIC,
         component: (
-            <PageHeader
+            <PageHeaderLib
                 title="Titre de la page"
                 subtitle="Description ou sous-titre de la page"
             />
@@ -41,15 +41,15 @@ export const getPageHeaderSections = () => [
         code: PAGE_HEADER_CODE_USE_CASE,
         component: (
             <div className="space-y-8">
-                <PageHeader
+                <PageHeaderLib
                     title="Button"
                     subtitle="Composant bouton avec différentes variantes et options"
                 />
-                <PageHeader
+                <PageHeaderLib
                     title="Input"
                     subtitle="Composant input pour recherche, filtres et saisie"
                 />
-                <PageHeader
+                <PageHeaderLib
                     title="Avatar"
                     subtitle="Composant avatar rond avec photo ou initiales en fallback"
                 />

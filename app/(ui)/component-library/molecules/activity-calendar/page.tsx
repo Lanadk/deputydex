@@ -1,31 +1,31 @@
 "use client"
 
-import { PageHeader } from "@/app/(ui)/component-library/molecules/page-header/page-header";
-import { getActivityCalendarSections } from "@/app/(ui)/component-library/molecules/activity-calendar/activity-calendar.constants";
+import { PageHeaderLib } from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
+import { getActivityCalendarSections } from "@/app/(ui)/component-library/molecules/activity-calendar/activity-calendar.constants-lib";
 import {PageContent} from "@/app/(ui)/component-library/template/page-content/page-content";
 import {
-    ComponentSectionCodeBlock
-} from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block";
+    ComponentSectionCodeBlockLib
+} from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block-lib";
 
 export default function ActivityCalendarPage() {
     const sections = getActivityCalendarSections();
 
     return (
         <div>
-            <PageHeader
+            <PageHeaderLib
                 title="Activity Calendar"
                 subtitle="Calendrier d'activité type GitHub pour visualiser les contributions"
             />
 
             <PageContent>
                 {sections.map((section, index) => (
-                    <ComponentSectionCodeBlock
+                    <ComponentSectionCodeBlockLib
                         key={index}
                         title={section.title}
                         code={section.code}
                     >
                         {section.component}
-                    </ComponentSectionCodeBlock>
+                    </ComponentSectionCodeBlockLib>
                 ))}
             </PageContent>
         </div>

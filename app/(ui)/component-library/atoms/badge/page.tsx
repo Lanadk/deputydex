@@ -1,7 +1,7 @@
 "use client"
 
-import { PageHeader } from "@/app/(ui)/component-library/molecules/page-header/page-header";
-import { ComponentSectionCodeBlock } from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block";
+import { PageHeaderLib } from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
+import { ComponentSectionCodeBlockLib } from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block-lib";
 import { getBadgeSections } from "@/app/(ui)/component-library/atoms/badge/badge-lib.constants";
 import {PageContent} from "@/app/(ui)/component-library/template/page-content/page-content";
 
@@ -10,20 +10,20 @@ export default function BadgePage() {
 
     return (
         <div>
-            <PageHeader
+            <PageHeaderLib
                 title="Badge"
                 subtitle="Composant badge pour afficher des labels, tags ou statuts"
             />
 
             <PageContent>
                 {sections.map((section, index) => (
-                    <ComponentSectionCodeBlock
+                    <ComponentSectionCodeBlockLib
                         key={index}
                         title={section.title}
                         code={section.code}
                     >
                         {section.component}
-                    </ComponentSectionCodeBlock>
+                    </ComponentSectionCodeBlockLib>
                 ))}
             </PageContent>
         </div>
