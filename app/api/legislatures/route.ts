@@ -3,15 +3,20 @@ import {
     prismaLegislaturesRepository
 } from "@/app/infrastructure/legislatures/repositories/prisma-legislatures.repository";
 import {NextResponse} from "next/server";
+import {isOk} from "@/app/_shared/result-pattern/result";
 
 
-export async function GET() {
+export async function GET(): Promise<Response> {
     try {
         const result = await getAllLegislaturesUseCase(prismaLegislaturesRepository);
 
-        return NextResponse.json(result);
+        if (isOk(result)) {
+            return NextResponse.json(result.data);
+        }
+
+        return NextResponse.json({ error: "Failed to fetch all legislatures" }, { status: 500 });
     } catch (e) {
         console.error(e);
-        return new Response(JSON.stringify({ error: "Failed to fetch all legislatures" }), { status: 500 });
+        return NextResponse.json({ error: "Failed to fetch all legislatures" }, { status: 500 });
     }
 }
