@@ -11,6 +11,8 @@ export interface IActeursRepository {
         total: number;
     }>;
 
+    getById(id: string): Promise<ActeurEntity | null>;
+
     findManyForExport(
         query: FilterBarQuery,
         maxRows: number

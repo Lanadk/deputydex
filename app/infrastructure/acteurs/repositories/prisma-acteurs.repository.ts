@@ -29,6 +29,12 @@ export const prismaActeursRepository: IActeursRepository = {
         return { items, total };
     },
 
+    async getById(id: string): Promise<ActeurEntity | null> {
+        return prisma.acteurs.findUnique({
+            where: { uid: id },
+        });
+    },
+
     async findManyForExport(query: FilterBarQuery, maxRows: number
     ): Promise<ActeurEntity[]> {
         return prisma.acteurs.findMany({

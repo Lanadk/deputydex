@@ -10,4 +10,6 @@ export interface IActeursGateway {
     ): Promise<PaginatedResult<ActeurDTO>>;
 
     getById(id: string): Promise<ActeurDTO | null>;
+
+    //TODO export if necessary in the future
 }
