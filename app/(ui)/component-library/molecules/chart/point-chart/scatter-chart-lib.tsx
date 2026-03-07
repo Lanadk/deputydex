@@ -11,7 +11,7 @@ import {
     axisTextColor,
     cartesianChartSx,
 } from "@/app/(ui)/theme/charts/chart.config";
-import {defaultChartColors} from "@/app/(ui)/component-library/molecules/chart/chart-theme";
+import {defaultChartColors} from "@/app/(ui)/theme/charts/chart-default-theme";
 
 export type ScatterPoint = {
     id: string | number;

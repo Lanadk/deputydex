@@ -8,7 +8,7 @@ import {
     mapSeriesToGroupColors,
 } from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
 import {polarChartSx} from "@/app/(ui)/theme/charts/chart.config";
-import {defaultChartColors} from "@/app/(ui)/component-library/molecules/chart/chart-theme";
+import {defaultChartColors} from "@/app/(ui)/theme/charts/chart-default-theme";
 
 export type PieChartDatum = {
     label: string;
