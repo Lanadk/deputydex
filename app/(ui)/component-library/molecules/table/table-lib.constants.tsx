@@ -5,12 +5,12 @@ import type {ColumnDef} from "@/app/(ui)/component-library/molecules/table/table
 import {TableLib} from "@/app/(ui)/component-library/molecules/table/table-lib";
 import {TablePaginationLib} from "@/app/(ui)/component-library/molecules/table/components/table-pagination-lib";
 import {FilterBarLib} from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib";
-import {ACTEURS_FILTER_FIELDS, ACTEURS_SORT_OPTIONS} from "@/app/lib/filters/acteurs.filters";
+import {ACTEURS_FILTER_FIELDS, ACTEURS_SORT_OPTIONS} from "@/app/domains/acteurs/filters/acteurs.filters";
 import {FilterBarQuery} from "@/app/_shared/filtering/filter-bar.types";
 import {applyFilterBarQueryClient} from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib.client-query";
 import {TableExportActions} from "@/app/(ui)/component-library/molecules/table/components/table-export-actions";
-import {exportRows} from "@/app/lib/utils/export/download-export";
-import {CsvColumn} from "@/app/lib/utils/export/csv";
+import {exportRows} from "@/app/(ui)/utils/export-rows";
+import {CsvColumn} from "@/app/_shared/export/csv";
 
 type MockActeur = {
     id: string;

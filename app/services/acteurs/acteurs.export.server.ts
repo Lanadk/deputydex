@@ -3,22 +3,21 @@ import "server-only";
 import { prisma } from "@/app/infrastructure/db/prisma/prisma";
 import type { FilterBarQuery } from "@/app/_shared/filtering/filter-bar.types";
 import { sanitizeFilterBarQuery } from "@/app/infrastructure/filtering/filter-bar-sanitize";
-import { ACTEURS_FILTER_FIELDS, ACTEURS_SORT_OPTIONS } from "@/app/lib/filters/acteurs.filters";
+import { ACTEURS_FILTER_FIELDS, ACTEURS_SORT_OPTIONS } from "@/app/domains/acteurs/filters/acteurs.filters";
 import { mapActeursToDTO } from "@/app/infrastructure/acteurs/mappers/acteur.mapper";
-import { toCsv, type CsvColumn } from "@/app/lib/utils/export/csv";
+import { toCsv, type CsvColumn } from "@/app/_shared/export/csv";
 import type { ActeurDTO } from "@/app/domains/acteurs/dto/acteur.dto";
+import {ExportFormat} from "@/app/_shared/export/export.types";
 
 const SANITIZE_OPTIONS = {
     allowedFilterFields: ACTEURS_FILTER_FIELDS.map((f) => f.field),
     allowedSortFields: ACTEURS_SORT_OPTIONS.map((s) => s.field),
 };
 
-export type ExportFormat = "csv" | "json";
-
 type ExportOpts = {
     format: ExportFormat;
-    maxRows?: number;     // sécurité
-    delimiter?: string;   // pour CSV
+    maxRows?: number;
+    delimiter?: string;
 };
 
 export async function exportActeurs(rawQuery: FilterBarQuery, opts: ExportOpts) {

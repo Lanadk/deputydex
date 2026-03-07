@@ -3,7 +3,7 @@
 import { FilterBarLib } from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib";
 import { FilterBarLibDebug } from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib-debug";
 import { useEffect, useState } from "react";
-import { ACTEURS_FILTER_FIELDS, ACTEURS_SORT_OPTIONS } from "@/app/lib/filters/acteurs.filters";
+import { ACTEURS_FILTER_FIELDS, ACTEURS_SORT_OPTIONS } from "@/app/domains/acteurs/filters/acteurs.filters";
 import { FilterBarQuery } from "@/app/_shared/filtering/filter-bar.types";
 import { ActeurDTO } from "@/app/domains/acteurs/dto/acteur.dto";
 import { acteursGateway } from "@/app/(ui)/gateways/acteurs/acteurs.gateway";
