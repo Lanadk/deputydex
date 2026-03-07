@@ -1,13 +1,14 @@
 import "server-only";
 
 import type { FilterBarQuery } from "@/app/_shared/filtering/filter-bar.types";
-import type { ExportFormat } from "@/app/_shared/export/export.types";
+import {ExportFormat, ExportResult} from "@/app/_shared/export/export.types";
 import { toCsv, type CsvColumn } from "@/app/_shared/export/csv";
 import { sanitizeFilterBarQuery } from "@/app/infrastructure/filtering/filter-bar-sanitize";
 import { ACTEURS_FILTER_FIELDS, ACTEURS_SORT_OPTIONS } from "@/app/domains/acteurs/filters/acteurs.filters";
 import type { ActeurDTO } from "@/app/domains/acteurs/dto/acteur.dto";
 import { mapActeursToDTO } from "@/app/domains/acteurs/mappers/acteur.mapper";
-import {IActeursRepository} from "@/app/domains/acteurs/repositories/IActeursRepository";
+import { IActeursRepository } from "@/app/domains/acteurs/repositories/IActeursRepository";
+import { Result, ok } from "@/app/_shared/result-pattern/result";
 
 const SANITIZE_OPTIONS = {
     allowedFilterFields: ACTEURS_FILTER_FIELDS.map((f) => f.field),
@@ -24,7 +25,7 @@ export async function exportActeursUseCase(
     repository: IActeursRepository,
     rawQuery: FilterBarQuery,
     opts: ExportOpts
-) {
+): Promise<Result<ExportResult, never>> {
     const query = sanitizeFilterBarQuery(rawQuery, SANITIZE_OPTIONS);
 
     const maxRows = Math.min(Math.max(1, opts.maxRows ?? 5000), 20000);
@@ -34,11 +35,11 @@ export async function exportActeursUseCase(
 
     if (opts.format === "json") {
         const filename = `acteurs_export_${new Date().toISOString().slice(0, 10)}.json`;
-        return {
+        return ok({
             contentType: "application/json; charset=utf-8",
             filename,
             body: JSON.stringify(dto, null, 2),
-        };
+        });
     }
 
     const columns: CsvColumn<ActeurDTO>[] = [
@@ -53,9 +54,9 @@ export async function exportActeursUseCase(
     const csv = toCsv(dto, columns, { delimiter, includeBom: true });
     const filename = `acteurs_export_${new Date().toISOString().slice(0, 10)}.csv`;
 
-    return {
+    return ok({
         contentType: "text/csv; charset=utf-8",
         filename,
         body: csv,
-    };
+    });
 }

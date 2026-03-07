@@ -1,13 +1,14 @@
 import {ILegislaturesRepository} from "@/app/domains/legislatures/repositories/ILegislaturesRepository";
+import {LegislatureDTO} from "@/app/domains/legislatures/dto/legislature.dto";
+import {err, ok, Result} from "@/app/_shared/result-pattern/result";
+import {mapLegislatureToDTO} from "@/app/domains/legislatures/mappers/legislature.mapper";
 
 export async function getCurrentLegislatureUseCase(
     repository: ILegislaturesRepository
-) {
-    const currentLegislature = await repository.getCurrent();
+): Promise<Result<LegislatureDTO, "NOT_FOUND">> {
+    const entity = await repository.getCurrent();
 
-    if (!currentLegislature) {
-        throw new Error("Aucune législature en cours trouvée");
-    }
+    if (!entity) return err("NOT_FOUND");
 
-    return currentLegislature;
+    return ok(mapLegislatureToDTO(entity));
 }
