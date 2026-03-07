@@ -6,7 +6,7 @@ import { useEffect, useState } from "react";
 import { ACTEURS_FILTER_FIELDS, ACTEURS_SORT_OPTIONS } from "@/app/lib/filters/acteurs.filters";
 import { FilterBarQuery } from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar.types";
 import { ActeurDTO } from "@/app/lib/dto/acteur.dto";
-import { searchActeurs } from "@/app/services/acteurs/acteurs.client";
+import { acteursGateway } from "@/app/(ui)/gateways/acteurs/acteurs.gateway";
 
 const CODE_BASIC_SORT = `import { FilterBar } from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar";
 
@@ -103,7 +103,7 @@ export function ActeursWithPaginationExample() {
         (async () => {
             setLoading(true);
             try {
-                const res = await searchActeurs(query, page, pageSize);
+                const res = await acteursGateway.search(query, page, pageSize);
                 if (!cancelled) {
                     setItems(res.items);
                     setPageCount(res.pageCount);
