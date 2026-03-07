@@ -1,4 +1,4 @@
-import {ActeurDTO} from "@/app/lib/dto/acteur.dto";
+import {ActeurDTO} from "@/app/domains/acteurs/dto/acteur.dto";
 import {toISODateOnly} from "@/app/lib/utils/utils";
 
 
@@ -7,8 +7,8 @@ export function mapActeurToDTO(a: any): ActeurDTO {
         id: String(a.uid),
         prenom: a.prenom ?? null,
         nom: a.nom ?? null,
-        profession_categorie: a.profession_categorie ?? null,
-        date_naissance: toISODateOnly(a.date_naissance),
+        professionCategorie: a.profession_categorie ?? null,
+        dateNaissance: toISODateOnly(a.date_naissance),
     };
 }
 

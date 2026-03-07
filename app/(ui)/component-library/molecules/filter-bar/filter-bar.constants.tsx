@@ -5,7 +5,7 @@ import { FilterBarDebug } from "@/app/(ui)/component-library/molecules/filter-ba
 import { useEffect, useState } from "react";
 import { ACTEURS_FILTER_FIELDS, ACTEURS_SORT_OPTIONS } from "@/app/lib/filters/acteurs.filters";
 import { FilterBarQuery } from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar.types";
-import { ActeurDTO } from "@/app/lib/dto/acteur.dto";
+import { ActeurDTO } from "@/app/domains/acteurs/dto/acteur.dto";
 import { acteursGateway } from "@/app/(ui)/gateways/acteurs/acteurs.gateway";
 
 const CODE_BASIC_SORT = `import { FilterBar } from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar";
@@ -159,7 +159,7 @@ export function ActeursWithPaginationExample() {
                     <tr key={a.id}>
                         <td>{a.prenom}</td>
                         <td>{a.nom}</td>
-                        <td>{a.profession_categorie}</td>
+                        <td>{a.professionCategorie}</td>
                     </tr>
                 ))}
                 </tbody>

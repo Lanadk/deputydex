@@ -6,7 +6,7 @@ import { sanitizeFilterBarQuery } from "@/app/lib/utils/filterbar-sanitize";
 import { ACTEURS_FILTER_FIELDS, ACTEURS_SORT_OPTIONS } from "@/app/lib/filters/acteurs.filters";
 import { mapActeursToDTO } from "@/app/lib/mappers/acteur.mapper";
 import { toCsv, type CsvColumn } from "@/app/lib/utils/export/csv";
-import type { ActeurDTO } from "@/app/lib/dto/acteur.dto";
+import type { ActeurDTO } from "@/app/domains/acteurs/dto/acteur.dto";
 
 const SANITIZE_OPTIONS = {
     allowedFilterFields: ACTEURS_FILTER_FIELDS.map((f) => f.field),
@@ -43,8 +43,8 @@ export async function exportActeurs(rawQuery: FilterBarQuery, opts: ExportOpts) 
         { header: "id", value: (a) => a.id },
         { header: "prenom", value: (a) => a.prenom ?? "" },
         { header: "nom", value: (a) => a.nom ?? "" },
-        { header: "profession_categorie", value: (a) => a.profession_categorie ?? "" },
-        { header: "date_naissance", value: (a) => a.date_naissance ?? "" },
+        { header: "profession_categorie", value: (a) => a.professionCategorie ?? "" },
+        { header: "date_naissance", value: (a) => a.dateNaissance ?? "" },
     ];
 
     const delimiter = opts.delimiter ?? ";";
