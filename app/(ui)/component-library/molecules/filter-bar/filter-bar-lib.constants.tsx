@@ -1,23 +1,23 @@
 'use client';
 
-import { FilterBar } from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar";
-import { FilterBarDebug } from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-debug";
+import { FilterBarLib } from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib";
+import { FilterBarLibDebug } from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib-debug";
 import { useEffect, useState } from "react";
 import { ACTEURS_FILTER_FIELDS, ACTEURS_SORT_OPTIONS } from "@/app/lib/filters/acteurs.filters";
-import { FilterBarQuery } from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar.types";
+import { FilterBarQuery } from "@/app/_shared/filtering/filter-bar.types";
 import { ActeurDTO } from "@/app/domains/acteurs/dto/acteur.dto";
 import { acteursGateway } from "@/app/(ui)/gateways/acteurs/acteurs.gateway";
 
-const CODE_BASIC_SORT = `import { FilterBar } from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar";
+const CODE_BASIC_SORT = `import { FilterBarLib } from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib";
 
-<FilterBar
+<FilterBarLib
   sortOptions={ACTEURS_SORT_OPTIONS}
   onQueryChange={(query) => console.log(query)}
 />`;
 
-const CODE_AND_SORT = `import { FilterBar } from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar";
+const CODE_AND_SORT = `import { FilterBarLib } from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib";
 
-<FilterBar
+<FilterBarLib
   sortOptions={ACTEURS_SORT_OPTIONS}
   filterFields={ACTEURS_FILTER_FIELDS}
   onQueryChange={(query) => console.log(query)}
@@ -61,8 +61,8 @@ function BasicSort() {
 
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-            <FilterBar sortOptions={ACTEURS_SORT_OPTIONS} onQueryChange={setQuery} />
-            <FilterBarDebug query={query} />
+            <FilterBarLib sortOptions={ACTEURS_SORT_OPTIONS} onQueryChange={setQuery} />
+            <FilterBarLibDebug query={query} />
         </div>
     );
 }
@@ -72,12 +72,12 @@ function AndSort() {
 
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-            <FilterBar
+            <FilterBarLib
                 sortOptions={ACTEURS_SORT_OPTIONS}
                 filterFields={ACTEURS_FILTER_FIELDS}
                 onQueryChange={setQuery}
             />
-            <FilterBarDebug query={query} />
+            <FilterBarLibDebug query={query} />
         </div>
     );
 }
@@ -121,7 +121,7 @@ export function ActeursWithPaginationExample() {
 
     return (
         <div style={{ display: "flex", flexDirection: "column", gap: 16 }}>
-            <FilterBar
+            <FilterBarLib
                 sortOptions={ACTEURS_SORT_OPTIONS}
                 filterFields={ACTEURS_FILTER_FIELDS}
                 applyMode="manual"

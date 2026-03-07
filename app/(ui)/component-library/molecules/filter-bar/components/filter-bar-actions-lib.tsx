@@ -3,7 +3,7 @@
 import React from "react";
 import { ButtonLib } from "@/app/(ui)/component-library/atoms/button/button-lib";
 import { SpanLib } from "@/app/(ui)/component-library/atoms/span/span-lib";
-import { ApplyMode } from "../filter-bar.types";
+import { ApplyMode } from "../../../../../_shared/filtering/filter-bar.types";
 
 interface FilterBarActionsProps {
     applyMode: ApplyMode;
@@ -16,7 +16,7 @@ interface FilterBarActionsProps {
     resetLabel?: string;
 }
 
-export const FilterBarActions: React.FC<FilterBarActionsProps> = ({
+export const FilterBarActionsLib: React.FC<FilterBarActionsProps> = ({
                                                                       applyMode,
                                                                       hasPendingChanges,
                                                                       onApply,

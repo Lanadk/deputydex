@@ -1,4 +1,4 @@
-import {FilterField, SortOption} from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar.types";
+import {FilterField, SortOption} from "@/app/_shared/filtering/filter-bar.types";
 
 export const ACTEURS_FILTER_FIELDS: FilterField[] = [
     { field: 'nom',                   label: 'Nom',                  type: 'string' },

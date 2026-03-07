@@ -2,17 +2,17 @@
 
 import React from "react";
 import { ButtonLib } from "@/app/(ui)/component-library/atoms/button/button-lib";
-import { FilterBarSection } from "./components/filter-bar-section";
-import { FilterFieldsTable } from "./components/filter-fields-table";
-import { useFilterBar } from "./use-filter-bar.hook";
-import { AddFieldDropdown } from "./components/add-filter-dropdown";
+import { FilterBarSectionLib } from "./components/filter-bar-section-lib";
+import { FilterFieldsTableLib } from "./components/filter-fields-table-lib";
+import { useFilterBar } from "./use-filter-bar-lib.hook";
+import { AddFieldDropdownLib } from "./components/add-filter-dropdown";
 import {
     ApplyMode,
     FilterBarQuery,
     FilterField,
     SortOption
-} from "./filter-bar.types";
-import { FilterBarActions } from "./components/filter-bar-actions";
+} from "@/app/_shared/filtering/filter-bar.types";
+import { FilterBarActionsLib } from "./components/filter-bar-actions-lib";
 
 export interface FilterBarProps {
     sortOptions?: SortOption[];
@@ -26,7 +26,7 @@ export interface FilterBarProps {
     onDraftChange?: (query: FilterBarQuery) => void;
 }
 
-export const FilterBar: React.FC<FilterBarProps> = (props) => {
+export const FilterBarLib: React.FC<FilterBarProps> = (props) => {
     const {
         activeId,
         activeFieldFilters,
@@ -50,7 +50,7 @@ export const FilterBar: React.FC<FilterBarProps> = (props) => {
     return (
         <div className="filter-bar">
             {sortOptions.length > 0 && (
-                <FilterBarSection title="Tri">
+                <FilterBarSectionLib title="Tri">
                     <div className="fb-sort">
                         {sortOptions.map((option: SortOption) => (
                             <ButtonLib
@@ -63,26 +63,26 @@ export const FilterBar: React.FC<FilterBarProps> = (props) => {
                             />
                         ))}
                     </div>
-                </FilterBarSection>
+                </FilterBarSectionLib>
             )}
 
             {filterFields.length > 0 && (
-                <FilterBarSection title="Filtres">
-                    <FilterFieldsTable
+                <FilterBarSectionLib title="Filtres">
+                    <FilterFieldsTableLib
                         fields={visibleFieldDefs}
                         activeFieldFilters={activeFieldFilters}
                         onChangeAction={handleFieldChange}
                         onRemoveAction={handleRemoveField}
                     />
 
-                    <AddFieldDropdown
+                    <AddFieldDropdownLib
                         fields={filterFields}
                         activeFields={visibleFields}
                         onAdd={handleAddField}
                     />
 
                     {showActions && (
-                        <FilterBarActions
+                        <FilterBarActionsLib
                             applyMode={applyMode}
                             hasPendingChanges={hasPendingChanges}
                             onApply={apply}
@@ -91,7 +91,7 @@ export const FilterBar: React.FC<FilterBarProps> = (props) => {
                             resetLabel={props.resetLabel}
                         />
                     )}
-                </FilterBarSection>
+                </FilterBarSectionLib>
             )}
         </div>
     );

@@ -5,7 +5,7 @@ import {PageContent} from "@/app/(ui)/component-library/template/page-content/pa
 import {
     ComponentSectionCodeBlock
 } from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block";
-import {getFilterBarSections} from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar.constants";
+import {getFilterBarSections} from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib.constants";
 
 export default function FilterBarPage() {
 

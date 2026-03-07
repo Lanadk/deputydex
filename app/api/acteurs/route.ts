@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import type { FilterBarQuery } from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar.types";
+import type { FilterBarQuery } from "@/app/_shared/filtering/filter-bar.types";
 import { searchActeurs } from "@/app/services/acteurs/acteurs.server";
 
 type SearchBody = { query?: FilterBarQuery; page?: number; pageSize?: number };

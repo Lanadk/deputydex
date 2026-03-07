@@ -1,9 +1,9 @@
 "use client";
 
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
-import type { ActiveFieldFilter, FilterBarQuery, FilterField } from "./filter-bar.types";
-import { buildQuery } from "./filter-bar.query";
-import {FilterBarProps} from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar";
+import type { ActiveFieldFilter, FilterBarQuery, FilterField } from "@/app/_shared/filtering/filter-bar.types";
+import { buildQuery } from "./filter-bar-lib.query";
+import {FilterBarProps} from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib";
 
 
 const EMPTY_QUERY: FilterBarQuery = { orderBy: [], where: {} };

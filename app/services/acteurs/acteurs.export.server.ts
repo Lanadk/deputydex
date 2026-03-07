@@ -1,8 +1,8 @@
 import "server-only";
 
 import { prisma } from "@/app/infrastructure/db/prisma/prisma";
-import type { FilterBarQuery } from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar.types";
-import { sanitizeFilterBarQuery } from "@/app/lib/utils/filterbar-sanitize";
+import type { FilterBarQuery } from "@/app/_shared/filtering/filter-bar.types";
+import { sanitizeFilterBarQuery } from "@/app/infrastructure/filtering/filter-bar-sanitize";
 import { ACTEURS_FILTER_FIELDS, ACTEURS_SORT_OPTIONS } from "@/app/lib/filters/acteurs.filters";
 import { mapActeursToDTO } from "@/app/infrastructure/acteurs/mappers/acteur.mapper";
 import { toCsv, type CsvColumn } from "@/app/lib/utils/export/csv";

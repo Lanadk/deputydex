@@ -4,10 +4,10 @@ import React, {useMemo, useState} from "react";
 import type {ColumnDef} from "@/app/(ui)/component-library/molecules/table/table-lib";
 import {TableLib} from "@/app/(ui)/component-library/molecules/table/table-lib";
 import {TablePaginationLib} from "@/app/(ui)/component-library/molecules/table/components/table-pagination-lib";
-import {FilterBar} from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar";
+import {FilterBarLib} from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib";
 import {ACTEURS_FILTER_FIELDS, ACTEURS_SORT_OPTIONS} from "@/app/lib/filters/acteurs.filters";
-import {FilterBarQuery} from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar.types";
-import {applyFilterBarQueryClient} from "@/app/(ui)/component-library/molecules/filter-bar/filterbar-apply-client";
+import {FilterBarQuery} from "@/app/_shared/filtering/filter-bar.types";
+import {applyFilterBarQueryClient} from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib.client-query";
 import {TableExportActions} from "@/app/(ui)/component-library/molecules/table/components/table-export-actions";
 import {exportRows} from "@/app/lib/utils/export/download-export";
 import {CsvColumn} from "@/app/lib/utils/export/csv";
@@ -168,7 +168,7 @@ function TableWithFilterNoPaginationExample() {
 
     return (
         <div style={{display: "flex", flexDirection: "column", gap: 16}}>
-            <FilterBar
+            <FilterBarLib
                 sortOptions={ACTEURS_SORT_OPTIONS}
                 filterFields={ACTEURS_FILTER_FIELDS}
                 applyMode="manual"
@@ -207,7 +207,7 @@ function TableWithFilterAndLocalPaginationExample() {
 
     return (
         <div style={{display: "flex", flexDirection: "column", gap: 16}}>
-            <FilterBar
+            <FilterBarLib
                 sortOptions={ACTEURS_SORT_OPTIONS}
                 filterFields={ACTEURS_FILTER_FIELDS}
                 applyMode="auto"
@@ -266,7 +266,7 @@ function TableWithFilterExportAndLocalPaginationExample() {
 
     return (
         <div style={{display: "flex", flexDirection: "column", gap: 16}}>
-            <FilterBar
+            <FilterBarLib
                 sortOptions={ACTEURS_SORT_OPTIONS}
                 filterFields={ACTEURS_FILTER_FIELDS}
                 applyMode="auto"

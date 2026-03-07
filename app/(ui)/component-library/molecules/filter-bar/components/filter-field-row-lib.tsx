@@ -4,10 +4,10 @@ import React from "react";
 import { SpanLib } from "@/app/(ui)/component-library/atoms/span/span-lib";
 import { InputLib } from "@/app/(ui)/component-library/molecules/input/input-lib";
 import { SelectLib } from "@/app/(ui)/component-library/molecules/select/select-lib";
-import type { ActiveFieldFilter, FilterField } from "../filter-bar.types";
-import { OPERATORS } from "../filter-bar.operators";
+import type { ActiveFieldFilter, FilterField } from "@/app/_shared/filtering/filter-bar.types";
+import { OPERATORS } from "../filter-bar-lib.operators";
 
-export function FilterFieldRow({
+export function FilterFieldRowLib({
                                    field,
                                    active,
                                    onChangeAction,

@@ -1,4 +1,4 @@
-import type { FilterBarQuery, SortDirection, SortOption, ActiveFieldFilter } from "./filter-bar.types";
+import type { FilterBarQuery, SortDirection, SortOption, ActiveFieldFilter } from "@/app/_shared/filtering/filter-bar.types";
 
 export function buildQuery(
     activeId: string | null,

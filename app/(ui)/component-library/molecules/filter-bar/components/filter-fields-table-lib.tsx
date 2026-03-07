@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import type { ActiveFieldFilter, FilterField } from "../filter-bar.types";
-import { FilterFieldRow } from "./filter-field-row";
+import type { ActiveFieldFilter, FilterField } from "@/app/_shared/filtering/filter-bar.types";
+import { FilterFieldRowLib } from "./filter-field-row-lib";
 
-export function FilterFieldsTable({
+export function FilterFieldsTableLib({
                                       fields,
                                       activeFieldFilters,
                                       onChangeAction,
@@ -20,7 +20,7 @@ export function FilterFieldsTable({
     return (
         <div className="fb-fields">
             {fields.map((field) => (
-                <FilterFieldRow
+                <FilterFieldRowLib
                     key={field.field}
                     field={field}
                     active={activeFieldFilters[field.field]}

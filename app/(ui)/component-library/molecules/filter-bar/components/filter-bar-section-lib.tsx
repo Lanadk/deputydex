@@ -3,7 +3,7 @@
 import React from "react";
 import { SpanLib } from "@/app/(ui)/component-library/atoms/span/span-lib";
 
-export function FilterBarSection({
+export function FilterBarSectionLib({
                                      title,
                                      children,
                                  }: {

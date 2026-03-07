@@ -3,9 +3,9 @@
 import React, { useEffect, useRef, useState } from "react";
 import { ButtonLib } from "@/app/(ui)/component-library/atoms/button/button-lib";
 import { SpanLib } from "@/app/(ui)/component-library/atoms/span/span-lib";
-import type { FilterField } from "../filter-bar.types";
+import type { FilterField } from "@/app/_shared/filtering/filter-bar.types";
 
-export function AddFieldDropdown({
+export function AddFieldDropdownLib({
                                      fields,
                                      activeFields,
                                      onAdd,

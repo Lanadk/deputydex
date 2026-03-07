@@ -1,4 +1,4 @@
-import type { FilterBarQuery } from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar.types";
+import type { FilterBarQuery } from "@/app/_shared/filtering/filter-bar.types";
 
 type AnyRow = Record<string, any>;
 

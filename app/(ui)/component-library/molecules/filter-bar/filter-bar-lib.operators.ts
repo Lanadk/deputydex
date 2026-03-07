@@ -1,4 +1,4 @@
-import type { FilterField } from "./filter-bar.types";
+import type { FilterField } from "@/app/_shared/filtering/filter-bar.types";
 
 export const OPERATORS: Record<
     FilterField["type"],
