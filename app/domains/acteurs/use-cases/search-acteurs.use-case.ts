@@ -3,7 +3,7 @@ import "server-only";
 import type { FilterBarQuery } from "@/app/_shared/filtering/filter-bar.types";
 import { sanitizeFilterBarQuery } from "@/app/infrastructure/filtering/filter-bar-sanitize";
 import { ACTEURS_FILTER_FIELDS, ACTEURS_SORT_OPTIONS } from "@/app/domains/acteurs/filters/acteurs.filters";
-import { mapActeursToDTO } from "@/app/infrastructure/acteurs/mappers/acteur.mapper";
+import { mapActeursToDTO } from "@/app/domains/acteurs/mappers/acteur.mapper";
 import {IActeursRepository} from "@/app/domains/acteurs/repositories/IActeursRepository";
 
 

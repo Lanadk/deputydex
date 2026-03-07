@@ -6,7 +6,7 @@ import { toCsv, type CsvColumn } from "@/app/_shared/export/csv";
 import { sanitizeFilterBarQuery } from "@/app/infrastructure/filtering/filter-bar-sanitize";
 import { ACTEURS_FILTER_FIELDS, ACTEURS_SORT_OPTIONS } from "@/app/domains/acteurs/filters/acteurs.filters";
 import type { ActeurDTO } from "@/app/domains/acteurs/dto/acteur.dto";
-import { mapActeursToDTO } from "@/app/infrastructure/acteurs/mappers/acteur.mapper";
+import { mapActeursToDTO } from "@/app/domains/acteurs/mappers/acteur.mapper";
 import {IActeursRepository} from "@/app/domains/acteurs/repositories/IActeursRepository";
 
 const SANITIZE_OPTIONS = {
