@@ -6,8 +6,8 @@ import { ChartContainerLib } from "@/app/(ui)/component-library/molecules/chart/
 import {
     isParliamentGroupVariant,
     mapSeriesToGroupColors,
-} from "@/app/lib/colors/parliament-groups/group-theme.helpers";
-import {polarChartSx} from "@/app/lib/colors/chart-config/color-config";
+} from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
+import {polarChartSx} from "@/app/(ui)/theme/charts/chart.config";
 import {defaultChartColors} from "@/app/(ui)/component-library/molecules/chart/chart-theme";
 
 export type PieChartDatum = {

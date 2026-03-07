@@ -6,7 +6,7 @@ import { BarChart } from "@mui/x-charts/BarChart";
 import {
     axisTextColor,
     cartesianChartSx,
-} from "@/app/lib/colors/chart-config/color-config";
+} from "@/app/(ui)/theme/charts/chart.config";
 import {defaultChartColors} from "@/app/(ui)/component-library/molecules/chart/chart-theme";
 
 export type StackedBarDatum = {
