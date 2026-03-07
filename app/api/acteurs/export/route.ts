@@ -1,7 +1,8 @@
 import { NextResponse } from "next/server";
 import type { FilterBarQuery } from "@/app/_shared/filtering/filter-bar.types";
-import { exportActeurs } from "@/app/services/acteurs/acteurs.export.server";
-import {ExportFormat} from "@/app/_shared/export/export.types";
+import type { ExportFormat } from "@/app/_shared/export/export.types";
+import { exportActeursUseCase } from "@/app/domains/acteurs/use-cases/export-acteurs.use-case";
+import { prismaActeursRepository } from "@/app/infrastructure/acteurs/repositories/prisma-acteurs.repository";
 
 type Body = {
     query?: FilterBarQuery;
@@ -17,11 +18,15 @@ export async function POST(req: Request) {
         const rawQuery = body?.query ?? { orderBy: [], where: {} };
         const format: ExportFormat = body?.format ?? "csv";
 
-        const result = await exportActeurs(rawQuery, {
-            format,
-            maxRows: body?.maxRows ?? 5000,
-            delimiter: body?.delimiter ?? ";",
-        });
+        const result = await exportActeursUseCase(
+            prismaActeursRepository,
+            rawQuery,
+            {
+                format,
+                maxRows: body?.maxRows ?? 5000,
+                delimiter: body?.delimiter ?? ";",
+            }
+        );
 
         return new NextResponse(result.body, {
             status: 200,

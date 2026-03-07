@@ -1,13 +1,14 @@
+// app/domains/acteurs/use-cases/export-acteurs.use-case.ts
 import "server-only";
 
-import { prisma } from "@/app/infrastructure/db/prisma/prisma";
 import type { FilterBarQuery } from "@/app/_shared/filtering/filter-bar.types";
+import type { ExportFormat } from "@/app/_shared/export/export.types";
+import { toCsv, type CsvColumn } from "@/app/_shared/export/csv";
 import { sanitizeFilterBarQuery } from "@/app/infrastructure/filtering/filter-bar-sanitize";
 import { ACTEURS_FILTER_FIELDS, ACTEURS_SORT_OPTIONS } from "@/app/domains/acteurs/filters/acteurs.filters";
-import { mapActeursToDTO } from "@/app/infrastructure/acteurs/mappers/acteur.mapper";
-import { toCsv, type CsvColumn } from "@/app/_shared/export/csv";
 import type { ActeurDTO } from "@/app/domains/acteurs/dto/acteur.dto";
-import {ExportFormat} from "@/app/_shared/export/export.types";
+import { mapActeursToDTO } from "@/app/infrastructure/acteurs/mappers/acteur.mapper";
+import {IActeursRepository} from "@/app/domains/acteurs/repositories/IActeursRepository";
 
 const SANITIZE_OPTIONS = {
     allowedFilterFields: ACTEURS_FILTER_FIELDS.map((f) => f.field),
@@ -20,22 +21,25 @@ type ExportOpts = {
     delimiter?: string;
 };
 
-export async function exportActeurs(rawQuery: FilterBarQuery, opts: ExportOpts) {
+export async function exportActeursUseCase(
+    repository: IActeursRepository,
+    rawQuery: FilterBarQuery,
+    opts: ExportOpts
+) {
     const query = sanitizeFilterBarQuery(rawQuery, SANITIZE_OPTIONS);
 
     const maxRows = Math.min(Math.max(1, opts.maxRows ?? 5000), 20000);
 
-    const acteurs = await prisma.acteurs.findMany({
-        where: query.where as any,
-        orderBy: query.orderBy as any,
-        take: maxRows,
-    });
-
-    const dto = mapActeursToDTO(acteurs);
+    const rows = await repository.findManyForExport(query, maxRows);
+    const dto = mapActeursToDTO(rows as any[]);
 
     if (opts.format === "json") {
         const filename = `acteurs_export_${new Date().toISOString().slice(0, 10)}.json`;
-        return { contentType: "application/json; charset=utf-8", filename, body: JSON.stringify(dto, null, 2) };
+        return {
+            contentType: "application/json; charset=utf-8",
+            filename,
+            body: JSON.stringify(dto, null, 2),
+        };
     }
 
     const columns: CsvColumn<ActeurDTO>[] = [
@@ -48,7 +52,11 @@ export async function exportActeurs(rawQuery: FilterBarQuery, opts: ExportOpts) 
 
     const delimiter = opts.delimiter ?? ";";
     const csv = toCsv(dto, columns, { delimiter, includeBom: true });
-
     const filename = `acteurs_export_${new Date().toISOString().slice(0, 10)}.csv`;
-    return { contentType: "text/csv; charset=utf-8", filename, body: csv };
+
+    return {
+        contentType: "text/csv; charset=utf-8",
+        filename,
+        body: csv,
+    };
 }
