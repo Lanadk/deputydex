@@ -9,11 +9,10 @@
 
 ## 📊 Données en temps réel
 
-Les données sont automatiquement mises à jour **chaque jour** via GitHub Actions.
+Les données sont automatiquement mises à jour **chaque jour**.
 
 Sources :
 - 🇫🇷 [API Assemblée Nationale](https://data.assemblee-nationale.fr)
-- 👥 [NosDéputés.fr](https://www.nosdeputes.fr)
 
 ## 🚀 Stack Technique
 
