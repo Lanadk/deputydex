@@ -1,6 +1,6 @@
 import type { FilterBarQuery } from "@/app/_shared/filtering/filter-bar.types";
 
-type AnyRow = Record<string, any>;
+export type AnyRow = Record<string, any>;
 
 function getFirstOrderBy(orderBy: FilterBarQuery["orderBy"]) {
     if (!Array.isArray(orderBy) || orderBy.length === 0) return null;
