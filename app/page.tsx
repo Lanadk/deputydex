@@ -9,7 +9,7 @@ export default function Home() {
                 <Link href="/deputydex">
                     <ButtonLib text="DeputeDex" variant="primary" size="large" />
                 </Link>
-                <Link href="/globaldb/deputies">
+                <Link href="/db/deputies">
                     <ButtonLib text="Global DB" variant="secondary" size="large" />
                 </Link>
             </div>

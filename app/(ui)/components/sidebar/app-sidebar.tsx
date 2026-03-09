@@ -3,28 +3,20 @@
 import {useEffect, useState} from "react";
 import Link from "next/link";
 import {usePathname} from "next/navigation";
-import {Users, Vote, BarChart3, Layers, Sword, PanelLeftOpen, PanelLeftClose, Menu, Component} from "lucide-react";
+import {PanelLeftOpen, PanelLeftClose, Menu} from "lucide-react";
 import {useSidebar} from "@/app/(ui)/providers/sidebar-provider";
 import {ButtonLib} from "@/app/(ui)/component-library/atoms/button/button-lib";
 import {SpanLib} from "@/app/(ui)/component-library/atoms/span/span-lib";
 import Tooltip from "@mui/material/Tooltip";
+import {NAVITEMS} from "@/app/(ui)/components/sidebar/nave-items";
 
-
-const NAV = [
-    {label: "DeputeDex", href: "/deputydex", icon: Sword, section: "deputydex"},
-    {label: "Députés", href: "/globaldb/deputies", icon: Users, section: "globaldb"},
-    {label: "Groupes", href: "/globaldb/groups", icon: Layers, section: "globaldb"},
-    {label: "Votes", href: "/globaldb/votes", icon: Vote, section: "globaldb"},
-    {label: "Statistiques", href: "/globaldb/statistics", icon: BarChart3, section: "globaldb"},
-    {label: "Lib component", href: "/component-library", icon: Component, section: "component-library"},
-];
 
 export default function AppSidebar() {
     const pathname = usePathname();
     const [isMobile, setIsMobile] = useState<boolean | null>(null);
     const {isOpen, toggle} = useSidebar();
     const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
-    const activeItem = NAV.find(item => pathname.startsWith(item.href));
+    const activeItem = NAVITEMS.find(item => pathname.startsWith(item.href));
     const sectionLabel = activeItem?.label ?? "DeputeDex";
 
     useEffect(() => {
@@ -34,6 +26,7 @@ export default function AppSidebar() {
         return () => window.removeEventListener("resize", check);
     }, []);
 
+    //TODO a voir si on veut se comportement
     useEffect(() => {
         if (isMobile && isOpen) toggle();
     }, [isMobile]);
@@ -73,11 +66,11 @@ export default function AppSidebar() {
                 </div>
 
                 {/* Nav */}
-                <nav className="flex flex-col gap-1 p-2 flex-1 pt-3">
-                    {NAV.map((item, i) => {
+                <nav className="flex flex-col gap-1 p-2 pt-3 flex-1 overflow-y-auto min-h-0">
+                    {NAVITEMS.map((item, i) => {
                         const Icon = item.icon;
                         const isActive = pathname.startsWith(item.href);
-                        const showSeparator = i > 0 && NAV[i - 1].section !== item.section;
+                        const showSeparator = i > 0 && NAVITEMS[i - 1].section !== item.section;
 
                         return (
                             <div key={item.href}>
