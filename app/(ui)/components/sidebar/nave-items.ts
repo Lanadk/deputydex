@@ -1,7 +1,7 @@
-import {BarChart3, Component, Layers, Sword, Users, Vote, HandHelping, MessageCircleMore, Database} from "lucide-react";
+import {BarChart3, Component, Layers, Grid3x3, Users, Vote, HandHelping, MessageCircleMore, Database} from "lucide-react";
 
 export const NAVITEMS = [
-    {label: "DeputeDex", href: "/deputydex", icon: Sword, section: "deputydex"},
+    {label: "DeputeDex", href: "/deputydex", icon: Grid3x3, section: "deputydex"},
     {label: "Députés", href: "/db/deputies", icon: Users, section: "db"},
     {label: "Groupes", href: "/db/groups", icon: Layers, section: "db"},
     {label: "Votes", href: "/db/votes", icon: Vote, section: "db"},
