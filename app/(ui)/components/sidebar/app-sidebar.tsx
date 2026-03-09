@@ -26,6 +26,8 @@ export default function AppSidebar() {
         return () => window.removeEventListener("resize", check);
     }, []);
 
+    //TODO garder le state de la side bar dans les cookies ou jsp , comme ca lors d'un refresh ou d'une navigation entre les pages on garde le même comportement (open ou close)
+
     //TODO a voir si on veut se comportement
     useEffect(() => {
         if (isMobile && isOpen) toggle();
