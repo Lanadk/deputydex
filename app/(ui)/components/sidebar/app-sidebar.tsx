@@ -50,17 +50,16 @@ export default function AppSidebar() {
                       transition-[width,transform] duration-300 ease-in-out flex flex-col
                       ${isOpen ? "w-56 shadow-2xl translate-x-0" : "w-14 -translate-x-full lg:translate-x-0"}`}>
                 {/* Bouton toggle */}
-                <div className="h-14 flex items-center shrink-0 border-b border-main px-2">
-                    <ButtonLib
-                        icon={isOpen ? PanelLeftClose : PanelLeftOpen}
-                        variant="tertiary"
-                        size="small"
-                        onClick={toggle}
-                    />
+                <div className="h-14 flex items-center shrink-0 border-b border-main">
+                    <div className="w-14 flex items-center justify-center shrink-0">
+                        <SpanLib onClick={toggle}>
+                            {isOpen ? <PanelLeftClose/> : <PanelLeftOpen/>}
+                        </SpanLib>
+                    </div>
                     {isOpen && (
                         <SpanLib
-                            className="flex-1 font-bold text-sm tracking-widest uppercase px-2"
-                            style={{ animation: "fadeIn 0.15s ease 0.15s both" }}
+                            className="font-bold text-sm tracking-widest uppercase"
+                            style={{animation: "fadeIn 0.15s ease 0.15s both"}}
                         >
                             DeputyDex
                         </SpanLib>
