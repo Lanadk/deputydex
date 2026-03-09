@@ -5,7 +5,7 @@ import { ThemeSwitcherLib } from "@/app/(ui)/component-library/molecules/theme-s
 export default function ComponentLibraryLayout({ children }: { children: React.ReactNode }) {
     return (
         <div className="min-h-screen">
-            <header className="border-b border-main bg-main sticky top-0 z-50">
+            <header className="border-b border-main bg-main sticky top-0">
                 <div className="max-w-7xl mx-auto px-8 py-4">
                     <div className="flex items-center justify-between">
                         <Link href="/component-library">

@@ -3,6 +3,9 @@ import {Geist, Geist_Mono} from "next/font/google";
 import "./globals.css";
 import {ThemeProvider} from "next-themes";
 import {MuiProvider} from "@/app/(ui)/providers/mui-provider";
+import AppSidebar from "@/app/(ui)/components/sidebar/app-sidebar";
+import {SidebarProvider} from "@/app/(ui)/providers/sidebar-provider";
+import {ThemeSwitcherLib} from "@/app/(ui)/component-library/molecules/theme-switcher/theme-switcher-lib";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -35,7 +38,17 @@ export default function RootLayout({
                 enableSystem={false}
                 themes={['light', 'dark', 'accessible']}
             >
-                <MuiProvider>{children}</MuiProvider>
+                <MuiProvider>
+                    <SidebarProvider>
+                        <div className="flex min-h-screen">
+                            <AppSidebar />
+                            <main className="flex-1 pt-14 lg:pt-0">
+                                {children}
+                            </main>
+                            <ThemeSwitcherLib/>
+                        </div>
+                    </SidebarProvider>
+                </MuiProvider>
             </ThemeProvider>
         </body>
         </html>
