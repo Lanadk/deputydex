@@ -862,15 +862,14 @@
        Tooltip - MUI overrides
        ------------------------------------------------------- */
     .tooltip-lib {
-        padding: 6px 10px !important;
-        border-radius: 6px !important;
-        font-size: 12px !important;
         background-color: var(--surface-1) !important;
         color: var(--foreground) !important;
         border: 1px solid var(--border-main) !important;
         box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
+        font-size: 12px !important;
+        padding: 6px 10px !important;
+        border-radius: 6px !important;
     }
-
     /* -------------------------------------------------------
        InputLib
        ------------------------------------------------------- */

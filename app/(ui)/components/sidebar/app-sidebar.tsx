@@ -3,7 +3,7 @@
 import {useEffect, useState} from "react";
 import Link from "next/link";
 import {usePathname} from "next/navigation";
-import {Users, Vote, BarChart3, Layers, Sword, PanelLeftOpen, PanelLeftClose, Menu} from "lucide-react";
+import {Users, Vote, BarChart3, Layers, Sword, PanelLeftOpen, PanelLeftClose, Menu, Component} from "lucide-react";
 import {useSidebar} from "@/app/(ui)/providers/sidebar-provider";
 import {ButtonLib} from "@/app/(ui)/component-library/atoms/button/button-lib";
 import {SpanLib} from "@/app/(ui)/component-library/atoms/span/span-lib";
@@ -16,7 +16,7 @@ const NAV = [
     {label: "Groupes", href: "/globaldb/groups", icon: Layers, section: "globaldb"},
     {label: "Votes", href: "/globaldb/votes", icon: Vote, section: "globaldb"},
     {label: "Statistiques", href: "/globaldb/statistics", icon: BarChart3, section: "globaldb"},
-    {label: "Lib component", href: "/component-library", icon: BarChart3, section: "component-library"},
+    {label: "Lib component", href: "/component-library", icon: Component, section: "component-library"},
 ];
 
 export default function AppSidebar() {
@@ -33,6 +33,10 @@ export default function AppSidebar() {
         window.addEventListener("resize", check);
         return () => window.removeEventListener("resize", check);
     }, []);
+
+    useEffect(() => {
+        if (isMobile && isOpen) toggle();
+    }, [isMobile]);
 
     return (
         <>
@@ -51,7 +55,15 @@ export default function AppSidebar() {
                       transition-[width,transform] duration-300 ease-in-out flex flex-col
                       ${isOpen ? "w-56 shadow-2xl translate-x-0" : "w-14 -translate-x-full lg:translate-x-0"}`}>
                 {/* Bouton toggle */}
-                <div className="h-14 flex items-center justify-center shrink-0 border-b border-main">
+                <div className="h-14 flex items-center shrink-0 border-b border-main px-2">
+                    {isOpen && (
+                        <SpanLib
+                            className="flex-1 font-bold text-sm tracking-widest uppercase px-2"
+                            style={{ animation: "fadeIn 0.15s ease 0.15s both" }}
+                        >
+                            DeputyDex
+                        </SpanLib>
+                    )}
                     <ButtonLib
                         icon={isOpen ? PanelLeftClose : PanelLeftOpen}
                         variant="tertiary"
@@ -91,7 +103,6 @@ export default function AppSidebar() {
                                         className={`flex items-center gap-3 px-2.5 py-2.5 rounded-lg sidebar-link
                                                 ${isActive ? "sidebar-link--active" : ""}`}
                                     >
-
                                         <Icon className="w-5 h-5 shrink-0"/>
 
                                         {isOpen && (
