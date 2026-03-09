@@ -27,18 +27,6 @@ export const PARLIAMENTARY_GROUP_THEME_REGISTRY: GroupThemeRegistry = {
         badgeText: "#ffffff",
     },
 
-    LFI_NFP: {
-        key: "LFI_NFP",
-        label: "La France insoumise - NFP",
-        bg: ["#cc0000", "#ff0000", "#cc0000"],
-        text: "#ffffff",
-        border: "#ff0000",
-        holo: ["#1a0000", "#3d0000", "#1a0000"],
-        chart: "#ff0000",
-        badgeBg: "#ff0000",
-        badgeText: "#ffffff",
-    },
-
     SOC: {
         key: "SOC",
         label: "Socialistes et apparentés",
@@ -78,13 +66,13 @@ export const PARLIAMENTARY_GROUP_THEME_REGISTRY: GroupThemeRegistry = {
     DEM: {
         key: "DEM",
         label: "Les Démocrates",
-        bg: ["#ff8c00", "#cc6600", "#ff8c00"],
-        text: "#ffffff",
-        border: "#ff8c00",
-        holo: ["#1a0900", "#331200", "#1a0900"],
-        chart: "#ff8c00",
-        badgeBg: "#ff8c00",
-        badgeText: "#ffffff",
+        bg: ["#ffe44d", "#ffd000", "#ffe44d"],
+        text: "#1a1a00",
+        border: "#ffd000",
+        holo: ["#1a1500", "#332900", "#1a1500"],
+        chart: "#ffd000",
+        badgeBg: "#ffd000",
+        badgeText: "#1a1a00",
     },
 
     HOR: {
@@ -111,9 +99,9 @@ export const PARLIAMENTARY_GROUP_THEME_REGISTRY: GroupThemeRegistry = {
         badgeText: "#ffffff",
     },
 
-    GDR: {
-        key: "GDR",
-        label: "Gauche Démocrate et Républicaine",
+    LFI_NFP: {
+        key: "LFI_NFP",
+        label: "La France insoumise - NFP",
         bg: ["#b71c1c", "#8b0000", "#b71c1c"],
         text: "#ffffff",
         border: "#b71c1c",
@@ -122,6 +110,19 @@ export const PARLIAMENTARY_GROUP_THEME_REGISTRY: GroupThemeRegistry = {
         badgeBg: "#b71c1c",
         badgeText: "#ffffff",
     },
+
+    GDR: {
+        key: "GDR",
+        label: "Gauche Démocrate et Républicaine",
+        bg: ["#cc0000", "#ff0000", "#cc0000"],
+        text: "#ffffff",
+        border: "#ff0000",
+        holo: ["#1a0000", "#3d0000", "#1a0000"],
+        chart: "#ff0000",
+        badgeBg: "#ff0000",
+        badgeText: "#ffffff",
+    },
+
 
     UDDPLR: {
         key: "UDDPLR",
@@ -138,12 +139,12 @@ export const PARLIAMENTARY_GROUP_THEME_REGISTRY: GroupThemeRegistry = {
     DEFAULT: {
         key: "DEFAULT",
         label: "Autre groupe",
-        bg: ["#a82028", "#ffde00", "#2b5aa6"],
+        bg: ["#6b7280", "#4b5563", "#6b7280"],
         text: "#ffffff",
-        border: "#ffde00",
-        holo: ["#0d1a2e", "#152238", "#0d1a2e"],
-        chart: "#2b5aa6",
-        badgeBg: "#223244",
+        border: "#9ca3af",
+        holo: ["#1f2937", "#374151", "#1f2937"],
+        chart: "#9ca3af",
+        badgeBg: "#4b5563",
         badgeText: "#ffffff",
     },
 };

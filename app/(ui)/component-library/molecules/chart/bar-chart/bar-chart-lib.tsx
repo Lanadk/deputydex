@@ -5,7 +5,7 @@ import {BarChart} from "@mui/x-charts/BarChart";
 import {ChartContainerLib} from "@/app/(ui)/component-library/molecules/chart/wrapper/chart-container-lib";
 import {
     type ChartColorVariant,
-    getGroupChartColor,
+    getCanonicalGroupChartColor,
     isParliamentGroupVariant,
     mapSeriesToGroupColors,
 } from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
@@ -76,7 +76,7 @@ export const BarChartLib: React.FC<BarChartLibProps> = ({
                     colorMap: {
                         type: "ordinal" as const,
                         values: data.map((item) => String(item.label)),
-                        colors: data.map((item) => getGroupChartColor(String(item.label))),
+                        colors: data.map((item) => getCanonicalGroupChartColor(String(item.label))),
                         unknownColor: "var(--chart-1)",
                     },
                 },

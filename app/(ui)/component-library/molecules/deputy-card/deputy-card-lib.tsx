@@ -2,7 +2,7 @@
 
 import React from "react";
 import { CardBody, CardContainer, CardItem } from "@/app/(ui)/component-library/external/3d-card/3d-card";
-import {getGroupCardTheme} from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
+import {getCanonicalGroupCode, getGroupCardTheme} from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
 
 const HexRF = ({ cx, cy, size }: { cx: number; cy: number; size: number }) => {
     const s = size / 220;
@@ -44,7 +44,7 @@ export default function DeputyCardLib({
                                        image,
                                        role = "Député",
                                    }: DeputyCardProps) {
-    const groupTheme = getGroupCardTheme(groupe);
+    const groupTheme = getGroupCardTheme(getCanonicalGroupCode(groupe));
 
     return (
         <CardContainer className="inter-var">

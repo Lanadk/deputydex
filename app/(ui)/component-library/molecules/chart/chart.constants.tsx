@@ -330,6 +330,9 @@ const votesParGroupe = [
     { label: "RN", value: 88 },
     { label: "EPR", value: 96 },
     { label: "SOC", value: 41 },
+    { label: "LR", value: 41 },
+    { label: "ECOS", value: 41 },
+    { label: "LIOT", value: 41 },
 ];
 
 const monthlyVotes = [
