@@ -6,6 +6,7 @@ import {MuiProvider} from "@/app/(ui)/providers/mui-provider";
 import AppSidebar from "@/app/(ui)/components/sidebar/app-sidebar";
 import {SidebarProvider} from "@/app/(ui)/providers/sidebar-provider";
 import {ThemeSwitcherLib} from "@/app/(ui)/component-library/molecules/theme-switcher/theme-switcher-lib";
+import {LegislatureProvider} from "@/app/(ui)/providers/legislature-provider";
 
 const geistSans = Geist({
     variable: "--font-geist-sans",
@@ -40,6 +41,7 @@ export default function RootLayout({
             >
                 <MuiProvider>
                     <SidebarProvider>
+                        <LegislatureProvider>
                         <div className="flex min-h-screen">
                             <AppSidebar />
                             <main className="flex-1 pt-14 lg:pt-0">
@@ -47,6 +49,7 @@ export default function RootLayout({
                             </main>
                             <ThemeSwitcherLib/>
                         </div>
+                        </LegislatureProvider>
                     </SidebarProvider>
                 </MuiProvider>
             </ThemeProvider>
