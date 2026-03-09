@@ -51,6 +51,12 @@ export default function AppSidebar() {
                       ${isOpen ? "w-56 shadow-2xl translate-x-0" : "w-14 -translate-x-full lg:translate-x-0"}`}>
                 {/* Bouton toggle */}
                 <div className="h-14 flex items-center shrink-0 border-b border-main px-2">
+                    <ButtonLib
+                        icon={isOpen ? PanelLeftClose : PanelLeftOpen}
+                        variant="tertiary"
+                        size="small"
+                        onClick={toggle}
+                    />
                     {isOpen && (
                         <SpanLib
                             className="flex-1 font-bold text-sm tracking-widest uppercase px-2"
@@ -59,12 +65,6 @@ export default function AppSidebar() {
                             DeputyDex
                         </SpanLib>
                     )}
-                    <ButtonLib
-                        icon={isOpen ? PanelLeftClose : PanelLeftOpen}
-                        variant="tertiary"
-                        size="small"
-                        onClick={toggle}
-                    />
                 </div>
 
                 {/* Nav */}
