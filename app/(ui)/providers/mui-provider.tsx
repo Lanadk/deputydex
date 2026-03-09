@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useMemo } from "react";
-import { ThemeProvider, createTheme } from "@mui/material/styles";
+import { ThemeProvider, createTheme, StyledEngineProvider } from "@mui/material/styles";
 import type {} from "@mui/x-charts/themeAugmentation";
 
 type Props = {
@@ -17,5 +17,9 @@ export function MuiProvider({ children }: Props) {
         });
     }, []);
 
-    return <ThemeProvider theme={theme}>{children}</ThemeProvider>;
+    return (
+        <StyledEngineProvider injectFirst>
+            <ThemeProvider theme={theme}>{children}</ThemeProvider>
+        </StyledEngineProvider>
+    );
 }
