@@ -22,7 +22,12 @@ export function LegislatureSelector() {
                             <Landmark className="text-subtitle-accent" />
                             <SpanLib className="font-semibold">Législature</SpanLib>
                         </div>
-                        <ButtonLib icon={X} variant="tertiary" size="small" onClick={() => setIsOpen(false)} />
+                        <button
+                            onClick={() => setIsOpen(false)}
+                            className="theme-close-btn"
+                        >
+                            <X size={16} />
+                        </button>
                     </div>
 
                     <div className="flex flex-col gap-1">

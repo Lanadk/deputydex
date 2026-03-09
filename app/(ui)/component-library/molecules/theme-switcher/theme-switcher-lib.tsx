@@ -19,12 +19,12 @@ export function ThemeSwitcherLib() {
     return (
         <div className="fixed bottom-4 right-4 z-9999">
             {isOpen ? (
-                <div className="bg-card p-4 rounded-lg shadow-lg">
+                <div className="bg-card p-4 rounded-lg shadow-lg border border-main">
                     <div className="flex items-center justify-between mb-3">
                         <h3 className="text-sm font-semibold">Thème</h3>
                         <button
                             onClick={() => setIsOpen(false)}
-                            className="theme-close-btn p-1 rounded hover:bg-opacity-10"
+                            className="theme-close-btn"
                         >
                             <X size={16} />
                         </button>
@@ -53,7 +53,7 @@ export function ThemeSwitcherLib() {
             ) : (
                 <button
                     onClick={() => setIsOpen(true)}
-                    className="bg-card p-3 rounded-full shadow-lg"
+                    className="bg-card p-3 rounded-full shadow-lg border border-main"
                 >
                     <Palette size={20} />
                 </button>
