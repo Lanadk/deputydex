@@ -1,5 +1,5 @@
 import React from 'react';
-import {IconLibType} from "@/app/(ui)/component-library/types/types";
+import {IconLibType} from "@/app/(ui)/component-library/types/icons.types";
 
 interface ButtonLibProps {
     /** Texte du bouton */
