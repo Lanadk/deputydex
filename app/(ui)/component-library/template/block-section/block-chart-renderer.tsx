@@ -20,7 +20,7 @@ export function BlockChartRenderer({ config, legislature }: BlockChartRenderer) 
     const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        setLoading(true);
+        setLoading(true); //TODO fix
         config.gatewayFn(legislature)
             .then(setChart)
             .finally(() => setLoading(false));

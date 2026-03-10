@@ -9,12 +9,12 @@ import {TableConfig} from "@/app/(ui)/component-library/template/block-section/t
 
 export type ColSpan = 1 | 2 | 3 | 4;
 export type ParagraphItem =
-    | { type: "text";      content: string                                          }
-    | { type: "highlight"; content: string                                          }
-    | { type: "list";      items: string[]                                          }
-    | { type: "kpi";       label: string; value: string; trend?: "up" | "down" | "neutral"; trendLabel?: string }
+    | { type: "text"; content: string }
+    | { type: "highlight"; content: string }
+    | { type: "list"; items: string[] }
+    | { type: "kpi"; label: string; value: string; trend?: "up" | "down" | "neutral"; trendLabel?: string }
 
-// ── Blocks ────────────────────────────────────────────────────────────────────
+//Blocks
 
 export type SectionBlock<TRow = unknown> =
     | {

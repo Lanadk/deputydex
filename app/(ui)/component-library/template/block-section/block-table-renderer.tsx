@@ -26,18 +26,18 @@ interface BlockTableRendererProps {
 export function BlockTableRenderer({ config, legislature }: BlockTableRendererProps) {
     const pageSize = config.pagination?.pageSize ?? 10;
 
-    // ── Données brutes ────────────────────────────────────────────────────────
+    //Données brutes
     const [allRows, setAllRows] = useState<AnyRow[]>([]);
     const [loading, setLoading]  = useState(true);
 
     useEffect(() => {
-        setLoading(true);
+        setLoading(true); //TODO fix
         config.gatewayFn(legislature)
             .then((rows) => setAllRows(rows as Record<string, unknown>[]))
             .finally(() => setLoading(false));
     }, [legislature, config.id]);
 
-    // ── Filtre ────────────────────────────────────────────────────────────────
+    //Filtre
     const [query, setQuery] = useState<FilterBarQuery>({ orderBy: [], where: {} });
     const [page,  setPage]  = useState(1);
 
@@ -51,7 +51,7 @@ export function BlockTableRenderer({ config, legislature }: BlockTableRendererPr
         setQuery(q);
     };
 
-    // ── Pagination ────────────────────────────────────────────────────────────
+    //Pagination
     const pageCount = Math.max(1, Math.ceil(filteredRows.length / pageSize));
 
     const pageRows = useMemo(() => {
