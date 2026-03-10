@@ -1,12 +1,26 @@
 import { Users, GraduationCap, Briefcase, Vote, ActivitySquare, ArrowLeftRight, BarChart3 } from "lucide-react";
-import { STATS_REGISTRY } from "./statistics-charts.registry";
+import { STATISTICS_CHARTS_REGISTRY } from "./statistics-charts.registry";
 import {AnchorSection} from "@/app/(ui)/component-library/template/anchor-section/anchor.types";
 import {SectionBlock} from "@/app/(ui)/component-library/template/block-section/block-section-renderer";
+import {STATISTICS_TABLE_REGISTRY} from "@/app/(ui)/(views)/db/statistics/statistics-tables.registry";
+import {TableConfig} from "@/app/(ui)/component-library/template/block-section/table-config.types";
+import {ChartConfig} from "@/app/(ui)/component-library/template/block-section/chart-config.types";
+import {FilterField, SortOption} from "@/app/_shared/filtering/filter-bar.types";
 
-//Helper pour retrouver un StatConfig par id
-const stat = (id: string) => {
-    const found = STATS_REGISTRY.find((s) => s.id === id);
+
+//TODO VOIR 5.API-CACHE-STRATEGY.md
+
+//Helper pour retrouver un ChartConfig par id
+const stat = (id: string): ChartConfig => {
+    const found = STATISTICS_CHARTS_REGISTRY.find((s) => s.id === id);
     if (!found) throw new Error(`StatConfig introuvable : ${id}`);
+    return found;
+};
+
+//Helper
+export const table = (id: string): TableConfig => {
+    const found = STATISTICS_TABLE_REGISTRY.find((t) => t.id === id);
+    if (!found) throw new Error(`TableConfig introuvable : ${id}`);
     return found;
 };
 
@@ -16,9 +30,26 @@ export interface StatisticsSection extends AnchorSection {
     blocks: SectionBlock[];
 }
 
+//temporaire :
+export const PROFESSIONS_SORT_OPTIONS: SortOption[] = [
+    { id: "nom-asc",        label: "Nom A→Z",          field: "nom",       direction: "asc"  },
+    { id: "nom-desc",       label: "Nom Z→A",          field: "nom",       direction: "desc" },
+    { id: "famille-asc",    label: "Famille A→Z",      field: "famille",   direction: "asc"  },
+    { id: "famille-desc",   label: "Famille Z→A",      field: "famille",   direction: "desc" },
+    { id: "groupe-asc",     label: "Groupe A→Z",       field: "groupe",    direction: "asc"  },
+    { id: "groupe-desc",    label: "Groupe Z→A",       field: "groupe",    direction: "desc" },
+    { id: "profession-asc",    label: "Profession A→Z",       field: "groupe",    direction: "asc" },
+    { id: "profession-desc",    label: "Profession Z→A",       field: "groupe",    direction: "desc" },
+];
+
+export const PROFESSIONS_FILTER_FIELDS: FilterField[] = [
+    { field: "nom",       label: "Nom",       type: "string" },
+    { field: "famille",   label: "Famille",   type: "enum",  enumValues: ["Juristes", "Enseignants", "Médecins", "Entrepreneurs", "Fonctionnaires"] },
+    { field: "groupe",    label: "Groupe",    type: "enum",  enumValues: ["EPR", "SOC", "RN", "LFI-NFP"] },
+    { field: "profession",  label: "Profession",    type: "enum",  enumValues: ["Professeure", "Cheffe d'ent.", "Fonctionnaire", "Avocat", "Médecin"] },
+];
 
 export const STATISTICS_SECTIONS: StatisticsSection[] = [
-
     //Démographie
     {
         id: "demographie",
@@ -49,6 +80,63 @@ export const STATISTICS_SECTIONS: StatisticsSection[] = [
             { type: "stat", config: stat("genre-par-groupe"),        colSpan: 2        },
             { type: "stat", config: stat("geo-regions"),         colSpan: 1 },
             { type: "stat", config: stat("geo-regions"),         colSpan: 3 },
+        ],
+    },
+    //Test tables
+    {
+        id: "test-tables",
+        label: "Test — Tableaux",
+        icon: BarChart3,
+        description: "Démonstration des 4 configurations de tableau disponibles.",
+        cols: 2,
+        blocks: [
+
+            // Pagination seule
+            {
+                type: "table" as const,
+                colSpan: 2,
+                ...table("reelection-16-17"),
+                title: "Réélection 16e → 17e — pagination seule",
+                subtitle: "Pas de filtre, pas d'export",
+                filter: undefined,
+                export: undefined,
+            },
+
+            // Filtre seul
+            {
+                type: "table" as const,
+                colSpan: 2,
+                ...table("activite-deputes"),
+                id: "activite-deputes-filter",
+                title: "Activité parlementaire — filtre seul",
+                subtitle: "Pas de pagination, pas d'export",
+                pagination: undefined,
+                export: undefined,
+            },
+
+            // Export seul
+            {
+                type: "table" as const,
+                colSpan: 2,
+                ...table("professions-deputes"),
+                id: "professions-export",
+                title: "Professions déclarées — export seul",
+                subtitle: "Pas de filtre, pas de pagination",
+                pagination: undefined,
+                filter: undefined,
+            },
+
+            // Tout combiné
+            {
+                type: "table" as const,
+                colSpan: 2,
+                ...table("professions-deputes"),
+                filter: {
+                    sortOptions: PROFESSIONS_SORT_OPTIONS,
+                    filterFields: PROFESSIONS_FILTER_FIELDS,
+                    applyMode: "auto",
+                },
+            },
         ],
     },
 

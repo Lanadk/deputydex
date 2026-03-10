@@ -1,7 +1,7 @@
 import { ChartConfig } from "../../../component-library/template/block-section/chart-config.types";
 
 /**
- * STATS_REGISTRY
+ * STATISTICS_CHARTS_REGISTRY
  * Source of truth des statistiques affichées sur la page /statistiques.
  * Chaque entrée est un StatConfig branché sur une gatewayFn async.
  *
@@ -10,7 +10,7 @@ import { ChartConfig } from "../../../component-library/template/block-section/c
  *  - theme     : doit correspondre à un StatisticsSectionConfig.id
  *  - gatewayFn : remplacer les données mock par un vrai appel API Next.js
  */
-export const STATS_REGISTRY: ChartConfig[] = [
+export const STATISTICS_CHARTS_REGISTRY: ChartConfig[] = [
 
     // ══════════════════════════════════════════════════════════════════════════
     // DÉMOGRAPHIE

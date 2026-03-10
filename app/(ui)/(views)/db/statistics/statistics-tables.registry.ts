@@ -4,8 +4,7 @@ import {
 } from "@/app/domains/acteurs/filters/acteurs.filters";
 import {TableConfig} from "@/app/(ui)/component-library/template/block-section/table-config.types";
 
-// ── Types métier ──────────────────────────────────────────────────────────────
-
+//Types métier
 type ProfessionRow = {
     id: string;
     nom: string;
@@ -32,18 +31,9 @@ type ReelectionRow = {
     score: number;
 };
 
-// ── Helper ────────────────────────────────────────────────────────────────────
-
-export const table = (id: string): TableConfig => {
-    const found = TABLE_REGISTRY.find((t) => t.id === id);
-    if (!found) throw new Error(`TableConfig introuvable : ${id}`);
-    return found;
-};
-
-// ── Registry ──────────────────────────────────────────────────────────────────
-
-export const TABLE_REGISTRY: TableConfig<any>[] = [
-    // ── Professions ───────────────────────────────────────────────────────────
+//Registry
+export const STATISTICS_TABLE_REGISTRY: TableConfig<any>[] = [
+    //Professions
     {
         id: "professions-deputes",
         title: "Professions déclarées",
@@ -59,8 +49,8 @@ export const TABLE_REGISTRY: TableConfig<any>[] = [
             ] as ProfessionRow[];
         },
         columns: [
-            { id: "nom",        header: "Député",             align: "left",   cell: (r: ProfessionRow) => r.nom        },
-            { id: "profession", header: "Profession déclarée",align: "left",   cell: (r: ProfessionRow) => r.profession },
+            { id: "nom",        header: "Député",             align: "center",   cell: (r: ProfessionRow) => r.nom        },
+            { id: "profession", header: "Profession déclarée",align: "center",   cell: (r: ProfessionRow) => r.profession },
             { id: "famille",    header: "Famille",            align: "center", cell: (r: ProfessionRow) => r.famille    },
             { id: "groupe",     header: "Groupe",             align: "center", cell: (r: ProfessionRow) => r.groupe     },
         ],
@@ -83,7 +73,7 @@ export const TABLE_REGISTRY: TableConfig<any>[] = [
         },
     } as TableConfig<ProfessionRow>,
 
-    // ── Activité parlementaire ────────────────────────────────────────────────
+    //Activité parlementaire
     {
         id: "activite-deputes",
         title: "Activité parlementaire",
@@ -99,7 +89,7 @@ export const TABLE_REGISTRY: TableConfig<any>[] = [
             ] as DeputeActiviteRow[];
         },
         columns: [
-            { id: "nom",          header: "Député",         align: "left",   cell: (r: DeputeActiviteRow) => r.nom                    },
+            { id: "nom",          header: "Député",         align: "center",   cell: (r: DeputeActiviteRow) => r.nom                    },
             { id: "groupe",       header: "Groupe",         align: "center", cell: (r: DeputeActiviteRow) => r.groupe                  },
             { id: "presence",     header: "Présence (%)",   align: "center", cell: (r: DeputeActiviteRow) => `${r.presence} %`         },
             { id: "amendements",  header: "Amendements",    align: "center", cell: (r: DeputeActiviteRow) => r.amendements             },
@@ -125,7 +115,7 @@ export const TABLE_REGISTRY: TableConfig<any>[] = [
         },
     } as TableConfig<DeputeActiviteRow>,
 
-    // ── Réélection ────────────────────────────────────────────────────────────
+    //Réélection
     {
         id: "reelection-16-17",
         title: "Réélection 16e → 17e",
@@ -141,7 +131,7 @@ export const TABLE_REGISTRY: TableConfig<any>[] = [
             ] as ReelectionRow[];
         },
         columns: [
-            { id: "nom",     header: "Député",    align: "left",   cell: (r: ReelectionRow) => r.nom                                    },
+            { id: "nom",     header: "Député",    align: "center",   cell: (r: ReelectionRow) => r.nom                                    },
             { id: "groupe",  header: "Groupe",    align: "center", cell: (r: ReelectionRow) => r.groupe                                 },
             { id: "mandats", header: "Mandats",   align: "center", cell: (r: ReelectionRow) => r.mandats                                },
             { id: "reelu",   header: "Réélu",     align: "center", cell: (r: ReelectionRow) => r.reelu ? "✓" : "✗"                      },
