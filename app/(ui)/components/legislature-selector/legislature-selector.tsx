@@ -34,7 +34,10 @@ export function LegislatureSelector() {
                         {legislatures.map(l => (
                             <button
                                 key={l.id}
-                                onClick={() => setLegislature(l)}
+                                onClick={() => {
+                                    setLegislature(l);
+                                    setIsOpen(false)
+                                }}
                                 className={`flex items-center justify-between px-3 py-2 rounded-lg gap-2 sidebar-link ${legislature?.id === l.id ? "sidebar-link--active" : ""}`}
                             >
                                 <SpanLib>{l.number} ème législature</SpanLib>
@@ -51,6 +54,7 @@ export function LegislatureSelector() {
                     icon={Landmark}
                     text={`${legislature?.number}ème`}
                     variant="tertiary"
+                    size="small"
                     onClick={() => setIsOpen(true)}
                 />
             )}

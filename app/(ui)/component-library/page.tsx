@@ -23,6 +23,8 @@ const components = {
         { name: 'Table', path: '/component-library/molecules/table' },
         { name: 'Chart', path: '/component-library/molecules/chart' },
     ],
+    Templates: [
+    ],
 };
 
 function ComponentGrid() {

@@ -5,15 +5,17 @@ export interface PageHeaderProps {
     title: string;
     /** Sous-titre/description */
     subtitle: string;
-
+    /** (optionnel) Classe CSS supplémentaire pour personnaliser le style du header */
+    className?: string;
 }
 
 export const PageHeaderLib: React.FC<PageHeaderProps> = ({
                                                           title,
-                                                          subtitle
+                                                          subtitle,
+                                                          className
                                                       }) => {
     return (
-        <div className={`mb-8`}>
+        <div className={`mb-8 ${className}`}>
             <h2>{title}</h2>
             <p className="subtitle mt-2">{subtitle}</p>
         </div>
