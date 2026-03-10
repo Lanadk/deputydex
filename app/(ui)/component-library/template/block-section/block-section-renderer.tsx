@@ -4,8 +4,8 @@ import React from "react";
 import {BlockChartRenderer} from "@/app/(ui)/component-library/template/block-section/block-chart-renderer";
 import {BlockParagraphRenderer} from "@/app/(ui)/component-library/template/block-section/block-paragraph-renderer";
 import {BlockTableRenderer} from "@/app/(ui)/component-library/template/block-section/block-table-renderer";
-import {ChartConfig} from "@/app/(ui)/component-library/template/block-section/chart-config.types";
-import {TableConfig} from "@/app/(ui)/component-library/template/block-section/table-config.types";
+import {ChartConfig} from "@/app/(ui)/component-library/types/chart-config.types";
+import {TableConfig} from "@/app/(ui)/component-library/types/table-config.types";
 
 export type ColSpan = 1 | 2 | 3 | 4;
 export type ParagraphItem =

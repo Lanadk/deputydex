@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChartDataWrapper, ChartConfig } from "./chart-config.types";
+import { ChartDataWrapper, ChartConfig } from "../../types/chart-config.types";
 import { BarChartLib } from "@/app/(ui)/component-library/molecules/chart/bar-chart/bar-chart-lib";
 import { LineChartLib } from "@/app/(ui)/component-library/molecules/chart/line-chart/line-chart-lib";
 import { DashedLineChartLib } from "@/app/(ui)/component-library/molecules/chart/line-chart/dashed-line-chart-lib";

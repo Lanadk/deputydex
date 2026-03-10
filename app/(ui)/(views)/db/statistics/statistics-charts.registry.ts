@@ -1,4 +1,4 @@
-import { ChartConfig } from "../../../component-library/template/block-section/chart-config.types";
+import { ChartConfig } from "../../../component-library/types/chart-config.types";
 
 /**
  * STATISTICS_CHARTS_REGISTRY

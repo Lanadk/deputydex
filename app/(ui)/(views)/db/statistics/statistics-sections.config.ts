@@ -3,8 +3,8 @@ import { STATISTICS_CHARTS_REGISTRY } from "./statistics-charts.registry";
 import {AnchorSection} from "@/app/(ui)/component-library/template/anchor-section/anchor.types";
 import {SectionBlock} from "@/app/(ui)/component-library/template/block-section/block-section-renderer";
 import {STATISTICS_TABLE_REGISTRY} from "@/app/(ui)/(views)/db/statistics/statistics-tables.registry";
-import {TableConfig} from "@/app/(ui)/component-library/template/block-section/table-config.types";
-import {ChartConfig} from "@/app/(ui)/component-library/template/block-section/chart-config.types";
+import {TableConfig} from "@/app/(ui)/component-library/types/table-config.types";
+import {ChartConfig} from "@/app/(ui)/component-library/types/chart-config.types";
 import {FilterField, SortOption} from "@/app/_shared/filtering/filter-bar.types";
 
 

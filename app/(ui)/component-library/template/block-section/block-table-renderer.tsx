@@ -5,7 +5,7 @@ import { TableLib } from "@/app/(ui)/component-library/molecules/table/table-lib
 import { FilterBarLib } from "../../molecules/filter-bar/filter-bar-lib";
 import {TableExportActions} from "@/app/(ui)/component-library/molecules/table/components/table-export-actions";
 import {exportRows} from "@/app/(ui)/utils/export-rows";
-import {TableConfig} from "@/app/(ui)/component-library/template/block-section/table-config.types";
+import {TableConfig} from "@/app/(ui)/component-library/types/table-config.types";
 import {FilterBarQuery} from "@/app/_shared/filtering/filter-bar.types";
 import {
     AnyRow,

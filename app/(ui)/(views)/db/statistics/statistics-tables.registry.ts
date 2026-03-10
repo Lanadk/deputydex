@@ -2,7 +2,7 @@ import {
     ACTEURS_FILTER_FIELDS,
     ACTEURS_SORT_OPTIONS,
 } from "@/app/domains/acteurs/filters/acteurs.filters";
-import {TableConfig} from "@/app/(ui)/component-library/template/block-section/table-config.types";
+import {TableConfig} from "@/app/(ui)/component-library/types/table-config.types";
 
 //Types métier
 type ProfessionRow = {

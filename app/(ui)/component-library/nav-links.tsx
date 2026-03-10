@@ -13,6 +13,7 @@ function NavLinksContent() {
         if (typeParam) return typeParam;
         if (pathname.includes('/atoms')) return 'Atoms';
         if (pathname.includes('/molecules')) return 'Molecules';
+        if (pathname.includes('/templates')) return 'Templates';
         return 'Atoms';
     }
 
@@ -31,6 +32,12 @@ function NavLinksContent() {
                 className={`nav-link ${type === 'Molecules' ? 'nav-link-active' : ''}`}
             >
                 Molecules
+            </Link>
+            <Link
+                href="/component-library?type=Templates"
+                className={`nav-link ${type === 'Templates' ? 'nav-link-active' : ''}`}
+            >
+                Templates
             </Link>
         </nav>
     )
