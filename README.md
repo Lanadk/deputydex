@@ -12,7 +12,7 @@
 Les données sont automatiquement mises à jour **chaque jour**.
 
 Sources :
-- 🇫🇷 [API Assemblée Nationale](https://data.assemblee-nationale.fr)
+- 🇫🇷 [Assemblée Nationale](https://data.assemblee-nationale.fr)
 
 ## 🚀 Stack Technique
 
