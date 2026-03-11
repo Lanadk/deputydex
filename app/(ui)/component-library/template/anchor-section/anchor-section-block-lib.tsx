@@ -26,12 +26,12 @@ const GRID_COLS_CLASS: Record<GridCols, string> = {
 };
 
 /**
- * AnchorSectionBlock
+ * AnchorSectionBlockLib
  * Bloc de section réutilisable pour toutes les pages /statistiques/*.
  * Fournit : ancre HTML, header (icône + titre + description), grille responsive.
  * Les enfants sont des composants chart/table/card autonomes.
  */
-export const AnchorSectionBlock: React.FC<AnchorSectionBlockProps> = ({
+export const AnchorSectionBlockLib: React.FC<AnchorSectionBlockProps> = ({
                                                                                   id,
                                                                                   title,
                                                                                   description,

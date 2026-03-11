@@ -4,7 +4,7 @@ import React from "react";
 import { PageContentLib } from "@/app/(ui)/component-library/template/page-content/page-content-lib";
 import { STATISTICS_SECTIONS } from "@/app/(ui)/(views)/db/statistics/statistics-sections.config";
 import { useLegislature } from "@/app/(ui)/providers/legislature-provider";
-import {AnchorSectionBlock} from "@/app/(ui)/component-library/template/anchor-section/anchor-section-block";
+import {AnchorSectionBlockLib} from "@/app/(ui)/component-library/template/anchor-section/anchor-section-block-lib";
 import {BlockSectionRenderer} from "@/app/(ui)/component-library/template/block-section/block-section-renderer";
 
 export default function StatistiquesPage() {
@@ -14,7 +14,7 @@ export default function StatistiquesPage() {
     return (
         <PageContentLib>
             {STATISTICS_SECTIONS.map((section) => (
-                <AnchorSectionBlock
+                <AnchorSectionBlockLib
                     key={section.id}
                     id={section.id}
                     title={section.label}
@@ -29,7 +29,7 @@ export default function StatistiquesPage() {
                             legislature={legislatureNum}
                         />
                     ))}
-                </AnchorSectionBlock>
+                </AnchorSectionBlockLib>
             ))}
         </PageContentLib>
     );

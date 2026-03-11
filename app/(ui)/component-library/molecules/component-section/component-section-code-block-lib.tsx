@@ -10,16 +10,20 @@ export interface ComponentSectionCodeBlockProps {
     code: string;
     /** Preview du composant */
     children: React.ReactNode;
+    /** Description */
+    description?: string;
 }
 
 export const ComponentSectionCodeBlockLib: React.FC<ComponentSectionCodeBlockProps> = ({
                                                                       title,
                                                                       code,
                                                                       children,
+                                                                      description = ""
                                                                   }) => {
     return (
         <div>
             <h3>{title}</h3>
+            <p>{description}</p>
             <div className="mt-4">
                 <CodeBlockLib code={code}>
                     {children}
