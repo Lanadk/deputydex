@@ -287,9 +287,10 @@ const CODE_BLOCK_SECTION_RENDERER = `// Tous les types de blocks dans une sectio
 }`;
 
 const CODE_CHART_BLOCK = `// Dans sections.config.ts
-{ type: "chart", config: stat("age-distribution"),    colSpan: 1 },
-{ type: "chart", config: stat("genre"),               colSpan: 1 },
-{ type: "chart", config: stat("age-evolution-groupe"),colSpan: 4 },
+{ type: "chart", config: stat("age-distribution"),     colSpan: 1 },
+{ type: "chart", config: stat("genre"),                colSpan: 1 },
+{ type: "chart", config: stat("age-evolution-groupe"), colSpan: 1 },
+{ type: "chart", config: stat("age-evolution"),        colSpan: 3 },
 
 // Dans stats.registry.ts
 {
