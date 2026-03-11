@@ -13,7 +13,7 @@ function NavLinksContent() {
         if (typeParam) return typeParam;
         if (pathname.includes('/atoms')) return 'Atoms';
         if (pathname.includes('/molecules')) return 'Molecules';
-        if (pathname.includes('/templates')) return 'Templates';
+        if (pathname.includes('/template')) return 'Templates';
         return 'Atoms';
     }
 
