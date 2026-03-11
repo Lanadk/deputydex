@@ -24,6 +24,8 @@ const components = {
         { name: 'Chart', path: '/component-library/molecules/chart' },
     ],
     Templates: [
+        { name: 'BlockSection', path: '/component-library/template/block-section' },
+        { name: 'AnchorSection', path: '/component-library/template/anchor-section' },
     ],
 };
 
