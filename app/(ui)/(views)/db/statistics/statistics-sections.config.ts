@@ -3,8 +3,8 @@ import { STATISTICS_CHARTS_REGISTRY } from "./statistics-charts.registry";
 import {AnchorSection} from "@/app/(ui)/component-library/template/anchor-section/anchor.types";
 import {SectionBlock} from "@/app/(ui)/component-library/template/block-section/block-section-renderer";
 import {STATISTICS_TABLE_REGISTRY} from "@/app/(ui)/(views)/db/statistics/statistics-tables.registry";
-import {TableConfig} from "@/app/(ui)/component-library/types/table-config.types";
-import {ChartConfig} from "@/app/(ui)/component-library/types/chart-config.types";
+import {TableConfig} from "@/app/(ui)/component-library/template/block-section/table-config.types";
+import {ChartConfig} from "@/app/(ui)/component-library/template/block-section/chart-config.types";
 import {FilterField, SortOption} from "@/app/_shared/filtering/filter-bar.types";
 
 
@@ -74,12 +74,12 @@ export const STATISTICS_SECTIONS: StatisticsSection[] = [
                 ],
             },
             // Charts
-            { type: "stat", config: stat("age-distribution"),   colSpan: 2 },
-            { type: "stat", config: stat("age-evolution-groupe"), colSpan: 4 },
-            { type: "stat", config: stat("genre")                 , colSpan:    2   },
-            { type: "stat", config: stat("genre-par-groupe"),        colSpan: 2        },
-            { type: "stat", config: stat("geo-regions"),         colSpan: 1 },
-            { type: "stat", config: stat("geo-regions"),         colSpan: 3 },
+            { type: "chart", config: stat("age-distribution"),   colSpan: 2 },
+            { type: "chart", config: stat("age-evolution-groupe"), colSpan: 4 },
+            { type: "chart", config: stat("genre")                 , colSpan:    2   },
+            { type: "chart", config: stat("genre-par-groupe"),        colSpan: 2        },
+            { type: "chart", config: stat("geo-regions"),         colSpan: 1 },
+            { type: "chart", config: stat("geo-regions"),         colSpan: 3 },
         ],
     },
     //Test tables
@@ -167,9 +167,9 @@ export const STATISTICS_SECTIONS: StatisticsSection[] = [
                     },
                 ],
             },
-            { type: "stat", config: stat("formation-niveau")          },
-            { type: "stat", config: stat("formation-type")            },
-            { type: "stat", config: stat("formation-grandes-ecoles"), colSpan: 2 },
+            { type: "chart", config: stat("formation-niveau")          },
+            { type: "chart", config: stat("formation-type")            },
+            { type: "chart", config: stat("formation-grandes-ecoles"), colSpan: 2 },
         ],
     },
 
@@ -196,11 +196,11 @@ export const STATISTICS_SECTIONS: StatisticsSection[] = [
                     { type: "kpi", label: "Ouvriers / Employés", value: "3,1 %",  trend: "up",      trendLabel: "+0,6 pts" },
                 ],
             },
-            { type: "stat", config: stat("profession-familles"),        colSpan: 2 },
-            { type: "stat", config: stat("profession-vs-population"),   colSpan: 2 },
-            { type: "stat", config: stat("profession-par-groupe"),      colSpan: 2 },
-            { type: "stat", config: stat("profession-evolution"),       colSpan: 2 },
-            { type: "stat", config: stat("profession-activite-croise")             },
+            { type: "chart", config: stat("profession-familles"),        colSpan: 2 },
+            { type: "chart", config: stat("profession-vs-population"),   colSpan: 2 },
+            { type: "chart", config: stat("profession-par-groupe"),      colSpan: 2 },
+            { type: "chart", config: stat("profession-evolution"),       colSpan: 2 },
+            { type: "chart", config: stat("profession-activite-croise")             },
             {
                 type: "table" as const,
                 colSpan: 2,
@@ -232,10 +232,10 @@ export const STATISTICS_SECTIONS: StatisticsSection[] = [
         description: "Scores au scrutin, primo-députés, taux de réélection et mandats cumulés.",
         cols: 2,
         blocks: [
-            { type: "stat", config: stat("election-scores-2eme-tour"),  colSpan: 2 },
-            { type: "stat", config: stat("election-primo-deputes")                 },
-            { type: "stat", config: stat("election-mandats-consecutifs")           },
-            { type: "stat", config: stat("election-taux-reelection"),   colSpan: 2 },
+            { type: "chart", config: stat("election-scores-2eme-tour"),  colSpan: 2 },
+            { type: "chart", config: stat("election-primo-deputes")                 },
+            { type: "chart", config: stat("election-mandats-consecutifs")           },
+            { type: "chart", config: stat("election-taux-reelection"),   colSpan: 2 },
         ],
     },
 
@@ -254,11 +254,11 @@ export const STATISTICS_SECTIONS: StatisticsSection[] = [
                     { type: "kpi", label: "Cohésion de vote",  value: "88 %", trend: "neutral"                     },
                 ],
             },
-            { type: "stat", config: stat("activite-votes-par-groupe")              },
-            { type: "stat", config: stat("activite-presence"),          colSpan: 2 },
-            { type: "stat", config: stat("activite-presence-evolution"),colSpan: 2 },
-            { type: "stat", config: stat("activite-cohesion")                      },
-            { type: "stat", config: stat("activite-amendements-par-groupe")        },
+            { type: "chart", config: stat("activite-votes-par-groupe")              },
+            { type: "chart", config: stat("activite-presence"),          colSpan: 2 },
+            { type: "chart", config: stat("activite-presence-evolution"),colSpan: 2 },
+            { type: "chart", config: stat("activite-cohesion")                      },
+            { type: "chart", config: stat("activite-amendements-par-groupe")        },
         ],
     },
 
@@ -270,8 +270,8 @@ export const STATISTICS_SECTIONS: StatisticsSection[] = [
         description: "Changements de groupe et cumul de mandats locaux.",
         cols: 2,
         blocks: [
-            { type: "stat", config: stat("mobilite-cumul")                      },
-            { type: "stat", config: stat("mobilite-changements-groupe")         },
+            { type: "chart", config: stat("mobilite-cumul")                      },
+            { type: "chart", config: stat("mobilite-changements-groupe")         },
         ],
     },
 
@@ -294,11 +294,11 @@ export const STATISTICS_SECTIONS: StatisticsSection[] = [
                     { type: "kpi", label: "Taux de renouvellement", value: "52 %", trend: "up", trendLabel: "+12 pts" },
                 ],
             },
-            { type: "stat", config: stat("comparaison-sieges"),          colSpan: 2 },
-            { type: "stat", config: stat("comparaison-parite"),          colSpan: 2 },
-            { type: "stat", config: stat("comparaison-age-moyen")                   },
-            { type: "stat", config: stat("comparaison-primo")                       },
-            { type: "stat", config: stat("comparaison-profession-delta"),colSpan: 2 },
+            { type: "chart", config: stat("comparaison-sieges"),          colSpan: 2 },
+            { type: "chart", config: stat("comparaison-parite"),          colSpan: 2 },
+            { type: "chart", config: stat("comparaison-age-moyen")                   },
+            { type: "chart", config: stat("comparaison-primo")                       },
+            { type: "chart", config: stat("comparaison-profession-delta"),colSpan: 2 },
         ],
     },
 ];

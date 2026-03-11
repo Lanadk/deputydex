@@ -1,11 +1,11 @@
 "use client";
 
 import React from "react";
-import {BlockChartRenderer} from "@/app/(ui)/component-library/template/block-section/block-chart-renderer";
-import {BlockParagraphRenderer} from "@/app/(ui)/component-library/template/block-section/block-paragraph-renderer";
-import {BlockTableRenderer} from "@/app/(ui)/component-library/template/block-section/block-table-renderer";
-import {ChartConfig} from "@/app/(ui)/component-library/types/chart-config.types";
-import {TableConfig} from "@/app/(ui)/component-library/types/table-config.types";
+import {BlockChartRenderer} from "@/app/(ui)/component-library/template/block-section/_renderers/block-chart-renderer";
+import {BlockParagraphRenderer} from "@/app/(ui)/component-library/template/block-section/_renderers/block-paragraph-renderer";
+import {BlockTableRenderer} from "@/app/(ui)/component-library/template/block-section/_renderers/block-table-renderer";
+import {ChartConfig} from "@/app/(ui)/component-library/template/block-section/chart-config.types";
+import {TableConfig} from "@/app/(ui)/component-library/template/block-section/table-config.types";
 
 export type ColSpan = 1 | 2 | 3 | 4;
 export type ParagraphItem =
@@ -18,7 +18,7 @@ export type ParagraphItem =
 
 export type SectionBlock<TRow = unknown> =
     | {
-    type: "stat";
+    type: "chart";
     /** Occupe 2 colonnes dans la grille (défaut: 1) */
     colSpan?: ColSpan;
     config: ChartConfig;
@@ -55,7 +55,7 @@ export const BlockSectionRenderer: React.FC<BlockSectionRendererProps> = ({
 
     const rendered = (() => {
         switch (block.type) {
-            case "stat":
+            case "chart":
                 return (
                     <BlockChartRenderer
                         config={block.config}
