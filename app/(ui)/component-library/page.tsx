@@ -26,6 +26,7 @@ const components = {
     Templates: [
         { name: 'BlockSection', path: '/component-library/template/block-section' },
         { name: 'AnchorSection', path: '/component-library/template/anchor-section' },
+        { name: 'AnchorDeputySection', path: '/component-library/template/anchor-deputy-section' },
     ],
 };
 

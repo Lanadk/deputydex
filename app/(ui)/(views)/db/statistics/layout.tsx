@@ -6,12 +6,14 @@ import {AnchorLayoutLib} from "@/app/(ui)/component-library/template/anchor-sect
 
 export default function StatisticsLayout({ children }: { children: React.ReactNode }) {
     return (
-        <AnchorLayoutLib
-            title="Statistiques parlementaires"
-            subtitle="Découvrez les données clés sur l'activité parlementaire : lois, amendements, interventions, et plus encore. Explorez les tendances et les chiffres marquants de la législature en cours."
-            sections={STATISTICS_SECTIONS}
-        >
-            {children}
-        </AnchorLayoutLib>
+        <>
+                <AnchorLayoutLib
+                    title="Statistiques parlementaires"
+                    subtitle="Découvrez les données clés sur l'activité parlementaire : lois, amendements, interventions, et plus encore. Explorez les tendances et les chiffres marquants de la législature en cours."
+                    sections={STATISTICS_SECTIONS}
+                >
+                    {children}
+                </AnchorLayoutLib>
+        </>
     );
 }

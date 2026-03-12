@@ -1,5 +1,6 @@
 import {IActeursGateway} from "@/app/domains/acteurs/gateways/IActeurs.gateway";
 import {ActeurDTO} from "@/app/domains/acteurs/dto/acteur.dto";
+import {FicheDeputeDTO} from "@/app/domains/acteurs/dto/fiche-depute.dto";
 import type {PaginatedResult} from "@/app/_shared/pagination/paginated-result";
 
 export const acteursGateway: IActeursGateway = {
@@ -20,4 +21,11 @@ export const acteursGateway: IActeursGateway = {
         if (!res.ok) throw new Error("Failed to get acteur");
         return res.json();
     },
+
+    async getFicheDepute(id: string, legislature: number): Promise<FicheDeputeDTO | null> {
+        const res = await fetch(`/api/acteurs/${id}/fiche?legislature=${legislature}`);
+        if (res.status === 404) return null;
+        if (!res.ok) throw new Error("Failed to get fiche depute");
+        return res.json();
+    }
 };

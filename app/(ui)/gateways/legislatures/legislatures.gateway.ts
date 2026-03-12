@@ -11,7 +11,7 @@ export const legislaturesGateway: ILegislaturesGateway = {
     },
 
     async getAll(): Promise<LegislatureDTO[]> {
-        const res = await fetch("/api/legislatures");
+        const res = await fetch("/api/legislatures/");
         if (!res.ok) throw new Error("Failed to get legislatures");
         return res.json() as Promise<LegislatureDTO[]>;
     }

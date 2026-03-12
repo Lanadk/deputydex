@@ -2,7 +2,7 @@ import {BarChart3, Component, Layers, Grid3x3, Users, Vote, HandHelping, Message
 
 export const NAVITEMS = [
     {label: "DeputeDex", href: "/deputydex", icon: Grid3x3, section: "deputydex"},
-    {label: "Députés", href: "/db/deputies", icon: Users, section: "db"},
+    {label: "Députés", href: "/db/deputy", icon: Users, section: "db"},
     {label: "Groupes", href: "/db/groups", icon: Layers, section: "db"},
     {label: "Votes", href: "/db/votes", icon: Vote, section: "db"},
     {label: "Statistiques", href: "/db/statistics", icon: BarChart3, section: "db"},

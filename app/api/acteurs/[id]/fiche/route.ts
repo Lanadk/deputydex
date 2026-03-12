@@ -1,7 +1,7 @@
-import {NextResponse} from "next/server";
-import {getActeurByIdUseCase} from "@/app/domains/acteurs/use-cases/get-acteur-by-id.use-case";
-import {prismaActeursRepository} from "@/app/infrastructure/acteurs/repositories/prisma-acteurs.repository";
 import {isOk} from "@/app/_shared/result-pattern/result";
+import {NextResponse} from "next/server";
+import {getFicheDeputeUseCase} from "@/app/domains/acteurs/use-cases/get-fiche-depute.use-case";
+import {prismaFicheDeputeRepository} from "@/app/infrastructure/acteurs/repositories/prisma-fiche-depute.repository";
 
 
 export async function GET(
@@ -9,8 +9,11 @@ export async function GET(
     { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
     const { id } = await params;
+    const legislature = new URL(_req.url).searchParams.get("legislature") ?? "17";
+    const legislatureNumber = parseInt(legislature, 10);
+
     try {
-        const result = await getActeurByIdUseCase(prismaActeursRepository, id);
+        const result = await getFicheDeputeUseCase(prismaFicheDeputeRepository, id, legislatureNumber);
 
         if(isOk(result)) {
             return NextResponse.json(result.data);
@@ -26,4 +29,3 @@ export async function GET(
         return NextResponse.json({error: "Failed to get acteur"}, {status: 500});
     }
 }
-
