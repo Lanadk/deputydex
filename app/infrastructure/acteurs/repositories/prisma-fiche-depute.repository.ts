@@ -9,12 +9,21 @@ export const prismaFicheDeputeRepository: IFicheDeputeRepository = {
         return prisma.acteurs.findUnique({
             where: { uid: id },
             include: {
-                mandats: {
-                    where: {  type_organe: "ASSEMBLEE" },
-                },
+                mandats: true,
                 photos: {
                     where: { acteurUid: id },
                 },
+                groupes: {
+                    orderBy: { date_debut: 'desc' },
+                    take: 1,
+                    include: {
+                        groupe: {
+                            include: {
+                                partis: true,
+                            }
+                        }
+                    }
+                }
             },
         });
     },

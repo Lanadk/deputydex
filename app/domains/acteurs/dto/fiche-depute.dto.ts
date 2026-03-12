@@ -1,3 +1,5 @@
+import {MandatDTO} from "@/app/domains/mandats/dto/mandats.dto";
+
 export type FicheDeputeDTO = {
     uid: string;
     civilite: string | null;
@@ -13,13 +15,18 @@ export type FicheDeputeDTO = {
     professionCategorie: string | null;
     professionFamille: string | null;
 
+    groupePolitiqueCode: string | null;
+    groupePolitiqueLibelle: string | null;
+
+    mandats: MandatDTO[];
+
+    enExercice: boolean;
     circonscription: string | null;
     departement: string | null;
     region: string | null;
     premiereElection: boolean | null;
     dateDebutMandat: string | null;
     mandatsCount: number;
-    legislature: number;
 
     uriHatvp: string | null;
     urlAssemblee: string;

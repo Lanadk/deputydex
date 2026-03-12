@@ -30,7 +30,7 @@ export default function DeputePage() {
     });
 
     useEffect(() => {
-        DEPUTE_CONFIG.gatewayFn(id, legislatureNum)
+        DEPUTE_CONFIG.gatewayFn(id)
             .then((data) => {
                 if (!data) return;
                 setState({
@@ -56,8 +56,8 @@ export default function DeputePage() {
             sections={sections}
             card={
                 <DeputyCardLib
-                    nom={deputy.nom ?? ""}
-                    groupe="LR"
+                    nom={deputy.prenom + " " + deputy.nom }
+                    groupe={deputy.groupePolitiqueCode ?? ""}
                     image={deputy.image ?? ""}
                 />
             }
