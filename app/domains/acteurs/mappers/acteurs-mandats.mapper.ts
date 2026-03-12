@@ -4,7 +4,6 @@ import {ActeurWithMandatsEntity} from "@/app/domains/acteurs/entities/acteurs-ma
 
 export const toFicheDeputeDTO = (
     acteur: ActeurWithMandatsEntity,
-    legislature: number
 ): FicheDeputeDTO => {
     const mandat = acteur.mandats[0] ?? null;
 
@@ -29,7 +28,6 @@ export const toFicheDeputeDTO = (
         premiereElection: mandat?.mandature_premiere_election ?? null,
         dateDebutMandat: mandat?.date_debut?.toISOString() ?? null,
         mandatsCount: acteur.mandats.length,
-        legislature,
 
         uriHatvp: acteur.uri_hatvp ?? null,
         urlAssemblee: `https://www.assemblee-nationale.fr/dyn/deputes/${acteur.uid}`,
