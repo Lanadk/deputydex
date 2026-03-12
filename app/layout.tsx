@@ -41,7 +41,6 @@ export default function RootLayout({
             >
                 <MuiProvider>
                     <SidebarProvider>
-                        <LegislatureProvider>
                         <div className="flex min-h-screen">
                             <AppSidebar />
                             <main className="flex-1 pt-14 lg:pt-0">
@@ -49,7 +48,6 @@ export default function RootLayout({
                             </main>
                             <ThemeSwitcherLib/>
                         </div>
-                        </LegislatureProvider>
                     </SidebarProvider>
                 </MuiProvider>
             </ThemeProvider>

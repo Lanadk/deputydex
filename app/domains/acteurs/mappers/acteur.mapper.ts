@@ -1,9 +1,9 @@
 import {ActeurDTO} from "@/app/domains/acteurs/dto/acteur.dto";
 import {toISODateOnly} from "@/app/_shared/utils/date";
-import {ActeurEntity} from "@/app/domains/acteurs/entities/acteurs.entity";
+import {Acteurs} from "@/app/infrastructure/db/generated/prisma";
 
 
-export function mapActeurToDTO(a: ActeurEntity): ActeurDTO {
+export function mapActeurToDTO(a: Acteurs): ActeurDTO {
     return {
         id: String(a.uid),
         prenom: a.prenom ?? null,
@@ -13,6 +13,6 @@ export function mapActeurToDTO(a: ActeurEntity): ActeurDTO {
     };
 }
 
-export function mapActeursToDTO(list: ActeurEntity[]): ActeurDTO[] {
+export function mapActeursToDTO(list: Acteurs[]): ActeurDTO[] {
     return list.map(mapActeurToDTO);
 }
