@@ -12,12 +12,12 @@ export interface DeputeSection extends AnchorSection {
 }
 
 export interface DeputeConfig {
-    gatewayFn: (id: string, legislature: number) => Promise<FicheDeputeDTO | null>;
+    gatewayFn: (id: string) => Promise<FicheDeputeDTO | null>;
     sections: DeputeSection[];
 }
 
 export const DEPUTE_CONFIG: DeputeConfig = {
-    gatewayFn: (id, legislature) => acteursGateway.getFicheDepute(id, legislature),
+    gatewayFn: (id) => acteursGateway.getFicheDepute(id),
     sections: [
         {
             id: "identite",

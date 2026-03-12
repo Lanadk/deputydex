@@ -9,11 +9,9 @@ export async function GET(
     { params }: { params: Promise<{ id: string }> }
 ): Promise<Response> {
     const { id } = await params;
-    const legislature = new URL(_req.url).searchParams.get("legislature") ?? "17";
-    const legislatureNumber = parseInt(legislature, 10);
 
     try {
-        const result = await getFicheDeputeUseCase(prismaFicheDeputeRepository, id, legislatureNumber);
+        const result = await getFicheDeputeUseCase(prismaFicheDeputeRepository, id);
 
         if(isOk(result)) {
             return NextResponse.json(result.data);

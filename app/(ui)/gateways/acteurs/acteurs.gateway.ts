@@ -22,8 +22,8 @@ export const acteursGateway: IActeursGateway = {
         return res.json();
     },
 
-    async getFicheDepute(id: string, legislature: number): Promise<FicheDeputeDTO | null> {
-        const res = await fetch(`/api/acteurs/${id}/fiche?legislature=${legislature}`);
+    async getFicheDepute(id: string): Promise<FicheDeputeDTO | null> {
+        const res = await fetch(`/api/acteurs/${id}/fiche`);
         if (res.status === 404) return null;
         if (!res.ok) throw new Error("Failed to get fiche depute");
         return res.json();

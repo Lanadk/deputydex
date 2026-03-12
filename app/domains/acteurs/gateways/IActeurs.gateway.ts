@@ -12,6 +12,6 @@ export interface IActeursGateway {
 
     getById(id: string): Promise<ActeurDTO | null>;
 
-    getFicheDepute(id: string, legislature: number): Promise<FicheDeputeDTO | null>
+    getFicheDepute(id: string): Promise<FicheDeputeDTO | null>
     //TODO export if necessary in the future
 }

@@ -7,16 +7,15 @@ import {toFicheDeputeDTO} from "@/app/domains/acteurs/mappers/acteurs-mandats.ma
 export const getFicheDeputeUseCase = async (
     repository: IFicheDeputeRepository,
     id: string,
-    legislature: number
 ): Promise<Result<FicheDeputeDTO, "NOT_FOUND">> => {
 
-    const fiche = await repository.findByIdAndLegislature(id, legislature);
+    const fiche = await repository.findByIdAndLegislature(id);
 
     if (!fiche) {
         return err("NOT_FOUND")
     }
 
-    return ok(toFicheDeputeDTO(fiche, legislature));
+    return ok(toFicheDeputeDTO(fiche));
 };
 
 
