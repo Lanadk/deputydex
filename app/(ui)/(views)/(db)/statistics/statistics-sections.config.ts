@@ -259,6 +259,7 @@ export const STATISTICS_SECTIONS: StatisticsSection[] = [
             { type: "chart", config: stat("activite-presence-evolution"),colSpan: 2 },
             { type: "chart", config: stat("activite-cohesion")                      },
             { type: "chart", config: stat("activite-amendements-par-groupe")        },
+            { type: "chart", config: stat("activite-participation-evolution"), colSpan: 2 },
         ],
     },
 
