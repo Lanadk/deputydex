@@ -44,7 +44,7 @@ export default function DeputyCard({
                                        nom,
                                        groupe,
                                        image,
-                                       role = "Député",
+                                       role = "",
                                    }: DeputyCardProps) {
 
     const groupTheme = getGroupCardTheme(getCanonicalGroupCode(groupe));
