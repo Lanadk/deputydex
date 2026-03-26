@@ -501,7 +501,7 @@ export const STATISTICS_CHARTS_REGISTRY: ChartConfig[] = [
             data: [
                 { label: 'Oct. 2024', value: 49.22 },
                 { label: 'Nov. 2024', value: 49.24 },
-                { label: 'Déc. 2024', value: 34.72 },
+                { label: 'Déc. 2024', value: 51.39 },
                 { label: 'Jan. 2025', value: 33.96 },
                 { label: 'Fév. 2025', value: 40.85 },
                 { label: 'Mars 2025', value: 34.51 },
