@@ -15,16 +15,28 @@ export const PARLIAMENTARY_GROUP_THEME_REGISTRY: GroupThemeRegistry = {
         badgeText: "#ffffff",
     },
 
+    HOR: {
+        key: "HOR",
+        label: "Horizons & Indépendants",
+        bg: ["#7c3aed", "#5b21b6", "#7c3aed"], // violet
+        text: "#ffffff",
+        border: "#7c3aed",
+        holo: ["#140a2e", "#2a145a", "#140a2e"],
+        chart: "#7c3aed",
+        badgeBg: "#7c3aed",
+        badgeText: "#ffffff",
+    },
+
     EPR: {
         key: "EPR",
         label: "Ensemble pour la République",
-        bg: ["#ffbe00", "#ff9400", "#ffbe00"],
-        text: "#ffffff",
-        border: "#ff9400",
-        holo: ["#1a0e00", "#3d2200", "#1a0e00"],
-        chart: "#ff9400",
-        badgeBg: "#ff9400",
-        badgeText: "#ffffff",
+        bg: ["#facc15", "#facc15", "#facc15"],
+        text: "#1a1a1a",
+        border: "#facc15", // jaune
+        holo: ["#1a1a1a", "#333333", "#1a1a1a"],
+        chart: "#facc15",
+        badgeBg: "#facc15",
+        badgeText: "#1a1a1a",
     },
 
     SOC: {
@@ -66,36 +78,24 @@ export const PARLIAMENTARY_GROUP_THEME_REGISTRY: GroupThemeRegistry = {
     DEM: {
         key: "DEM",
         label: "Les Démocrates",
-        bg: ["#ffe44d", "#ffd000", "#ffe44d"],
-        text: "#1a1a00",
-        border: "#ffd000",
-        holo: ["#1a1500", "#332900", "#1a1500"],
-        chart: "#ffd000",
-        badgeBg: "#ffd000",
-        badgeText: "#1a1a00",
-    },
-
-    HOR: {
-        key: "HOR",
-        label: "Horizons & Indépendants",
-        bg: ["#00b4d8", "#0077b6", "#00b4d8"],
+        bg: ["#ff8c00", "#ff6a00", "#ff8c00"],
         text: "#ffffff",
-        border: "#00b4d8",
-        holo: ["#001a26", "#003347", "#001a26"],
-        chart: "#00b4d8",
-        badgeBg: "#00b4d8",
+        border: "#ff6a00",
+        holo: ["#1a0a00", "#3d1600", "#1a0a00"],
+        chart: "#ff6a00",
+        badgeBg: "#ff6a00",
         badgeText: "#ffffff",
     },
 
     LIOT: {
         key: "LIOT",
         label: "Libertés, Indépendants, Outre-mer et Territoires",
-        bg: ["#00a0e3", "#0077b6", "#00a0e3"],
+        bg: ["#00b4d8", "#0077b6", "#00b4d8"],
         text: "#ffffff",
-        border: "#00a0e3",
+        border: "#00b4d8",
         holo: ["#001a26", "#003347", "#001a26"],
-        chart: "#00a0e3",
-        badgeBg: "#00a0e3",
+        chart: "#00b4d8",
+        badgeBg: "#00b4d8",
         badgeText: "#ffffff",
     },
 

@@ -97,18 +97,18 @@ const WireframeAnchorSectionBlock = () => (
 const CODE_ANCHOR_LAYOUT = `
 "use client";
 
-import { AnchorLayoutLib } from "@/app/(ui)/component-library/template/anchor-section/anchor-layout-lib";
+import { AnchorLayout } from "@/app/(ui)/component-library/template/anchor-section/anchor-layout";
 import { STATISTICS_SECTIONS } from "./sections.config";
 
 export default function StatisticsLayout({ children }: { children: React.ReactNode }) {
     return (
-        <AnchorLayoutLib
+        <AnchorLayout
             title="Statistiques parlementaires"
             subtitle="Découvrez les données clés..."
             sections={STATISTICS_SECTIONS}
         >
             {children}
-        </AnchorLayoutLib>
+        </AnchorLayout>
     );
 }`;
 

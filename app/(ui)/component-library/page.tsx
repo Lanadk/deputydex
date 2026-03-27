@@ -22,6 +22,7 @@ const components = {
         { name: 'Filter-bar', path: '/component-library/molecules/filter-bar' },
         { name: 'Table', path: '/component-library/molecules/table' },
         { name: 'Chart', path: '/component-library/molecules/chart' },
+        { name: 'Group-card', path: '/component-library/molecules/group-card' },
     ],
     Templates: [
         { name: 'BlockSection', path: '/component-library/template/block-section' },
