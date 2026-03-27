@@ -57,7 +57,7 @@ function useMockGroupes(legislature: number | null): Groupe[] {
                 libelle: "Horizons et Indépendants",
                 nb_membres: 35,
                 president: "Laurent Marcangeli",
-                position: "Centre droit"
+                position: "Centre"
             },
             {code: "DEM", libelle: "Les Démocrates", nb_membres: 36, president: "Jean-Paul Mattei", position: "Centre"},
             {

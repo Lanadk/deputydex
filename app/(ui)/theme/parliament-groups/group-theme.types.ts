@@ -9,6 +9,7 @@ export type GroupTheme = {
 
     chart: string;
     badgeBg: string;
+    badgeBgDeep?: string;
     badgeText: string;
 };
 
