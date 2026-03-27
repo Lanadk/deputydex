@@ -1,7 +1,4 @@
 export type GroupTheme = {
-    key: string;
-    label: string;
-
     bg: [string, string, string];
     text: string;
     border: string;

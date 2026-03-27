@@ -1,17 +1,17 @@
 "use client";
 
-import React from "react";
-import { FilterBarLib } from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib";
-import { SpanLib } from "@/app/(ui)/component-library/atoms/span/span-lib";
-import type { FilterBarQuery } from "@/app/_shared/filtering/filter-bar.types";
-import { GROUPS_FILTER_FIELDS, GROUPS_SORT_OPTIONS } from "@/app/domains/groupes/filters/groupes.filters";
+import React, {useMemo} from "react";
+import {FilterBarLib} from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib";
+import {SpanLib} from "@/app/(ui)/component-library/atoms/span/span-lib";
+import type {FilterBarQuery} from "@/app/_shared/filtering/filter-bar.types";
+import {GROUPS_FILTER_FIELDS, GROUPS_SORT_OPTIONS} from "@/app/domains/groupes/filters/groupes.filters";
 
-type Props = {
+type GroupFilterProps = {
     count: number;
-    onQueryChange: (q: FilterBarQuery) => void;
+    onQueryChangeAction: (q: FilterBarQuery) => void;
 };
 
-export const GroupFilter: React.FC<Props> = ({ count, onQueryChange }) => {
+export const GroupFilter: React.FC<GroupFilterProps> = ({count, onQueryChangeAction}) => {
     return (
         <div className="flex w-full flex-col overflow-visible rounded-xl border border-main bg-surface-1 shadow-sm">
             <div className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left">
@@ -36,7 +36,14 @@ export const GroupFilter: React.FC<Props> = ({ count, onQueryChange }) => {
                     sortOptions={GROUPS_SORT_OPTIONS}
                     filterFields={GROUPS_FILTER_FIELDS}
                     applyMode="auto"
-                    onQueryChange={onQueryChange}
+                    onQueryChange={onQueryChangeAction}
+                    defaultQuery={useMemo<FilterBarQuery>(
+                        () => ({
+                            orderBy: [{groupeCountMembers: "desc"}],
+                            where: {},
+                        }),
+                        []
+                    )}
                 />
             </div>
         </div>

@@ -1,7 +1,7 @@
 import {FilterField, SortOption} from "@/app/_shared/filtering/filter-bar.types";
 
 export const GROUPS_FILTER_FIELDS: FilterField[] = [
-    { field: "position", label: "Position", type: "select",
+    { field: "groupePosition", label: "Position", type: "select",
         selectOptions: [
             { value: "Gauche", label: "Gauche" },
             { value: "Centre", label: "Centre" },
@@ -11,8 +11,8 @@ export const GROUPS_FILTER_FIELDS: FilterField[] = [
 ];
 
 export const GROUPS_SORT_OPTIONS: SortOption[] = [
-    { id: "libelle_asc", label: "Libellé (A → Z)", field: "libelle", direction: "asc"},
-    { id: "libelle_desc", label: "Libellé (Z → A)", field: "libelle", direction: "desc" },
-    { id: "nb_membres_asc", label: "Nombre de membres ↑", field: "nb_membres", direction: "asc" },
-    { id: "nb_membres_desc", label: "Nombre de membres ↓", field: "nb_membres", direction: "desc" },
+    { id: "libelle_asc", label: "Libellé (A → Z)", field: "groupeLabel", direction: "asc"},
+    { id: "libelle_desc", label: "Libellé (Z → A)", field: "groupeLabel", direction: "desc" },
+    { id: "nb_membres_asc", label: "Nombre de membres ↑", field: "groupeCountMembers", direction: "asc" },
+    { id: "nb_membres_desc", label: "Nombre de membres ↓", field: "groupeCountMembers", direction: "desc" },
 ];

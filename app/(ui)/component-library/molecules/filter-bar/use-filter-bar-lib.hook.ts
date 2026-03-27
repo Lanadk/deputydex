@@ -8,6 +8,56 @@ import {FilterBarProps} from "@/app/(ui)/component-library/molecules/filter-bar/
 
 const EMPTY_QUERY: FilterBarQuery = { orderBy: [], where: {} };
 
+function parseDefaultQuery(
+    defaultQuery: FilterBarQuery,
+    sortOptions: FilterBarProps["sortOptions"] = [],
+) {
+    let activeId: string | null = null;
+    const activeFieldFilters: Record<string, ActiveFieldFilter> = {};
+    const visibleFields: string[] = [];
+
+    const firstOrder = defaultQuery.orderBy?.[0];
+    if (firstOrder) {
+        const field = Object.keys(firstOrder)[0];
+        const direction = firstOrder[field as keyof typeof firstOrder];
+
+        const foundSort = sortOptions.find(
+            (option) =>
+                option.field === field && option.direction === direction
+        );
+
+        if (foundSort) {
+            activeId = foundSort.id;
+        }
+    }
+
+    const where = defaultQuery.where as any;
+    const conditions = Array.isArray(where?.AND) ? where.AND : where && Object.keys(where).length > 0 ? [where] : [];
+
+    for (const condition of conditions) {
+        const field = Object.keys(condition ?? {})[0];
+        if (!field) continue;
+
+        const operation = condition[field];
+        const operator = Object.keys(operation ?? {})[0];
+        const value = operation?.[operator];
+
+        if (!operator) continue;
+
+        activeFieldFilters[field] = { operator, value };
+
+        if (!visibleFields.includes(field)) {
+            visibleFields.push(field);
+        }
+    }
+
+    return {
+        activeId,
+        activeFieldFilters,
+        visibleFields,
+    };
+}
+
 export function useFilterBar(props: FilterBarProps) {
     const {
         sortOptions = [],
@@ -18,11 +68,16 @@ export function useFilterBar(props: FilterBarProps) {
         defaultQuery = EMPTY_QUERY,
     } = props;
 
-    const [activeId, setActiveId] = useState<string | null>(null);
-    const [activeFieldFilters, setActiveFieldFilters] = useState<Record<string, ActiveFieldFilter>>(
-        {}
+    const initialState = useMemo(
+        () => parseDefaultQuery(defaultQuery, sortOptions),
+        [defaultQuery, sortOptions]
     );
-    const [visibleFields, setVisibleFields] = useState<string[]>([]);
+
+    const [activeId, setActiveId] = useState<string | null>(initialState.activeId);
+    const [activeFieldFilters, setActiveFieldFilters] = useState<Record<string, ActiveFieldFilter>>(
+        initialState.activeFieldFilters
+    );
+    const [visibleFields, setVisibleFields] = useState<string[]>(initialState.visibleFields);
 
     // seulement utile pour le mode manual (mais on garde le state toujours, sans l'updater en effect)
     const [appliedQuery, setAppliedQuery] = useState<FilterBarQuery>(defaultQuery);
