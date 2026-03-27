@@ -4,7 +4,7 @@ import React, {useMemo, useState} from "react";
 import {PARLIAMENTARY_GROUP_THEME_REGISTRY} from "@/app/(ui)/theme/parliament-groups/group-theme.registry";
 import {useLegislature} from "@/app/(ui)/providers/legislature-provider";
 import {GroupTheme} from "@/app/(ui)/theme/parliament-groups/group-theme.types";
-import {GroupCard} from "@/app/(ui)/components/group-card/group-card";
+import {GroupCard} from "@/app/(ui)/components/groups/group-card";
 import {PageHeaderLib} from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
 import {FilterBarLib} from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib";
 import type {
@@ -13,6 +13,8 @@ import type {
 import {applyFilterBarQueryClient} from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib.client-query";
 import {GROUPS_FILTER_FIELDS, GROUPS_SORT_OPTIONS} from "@/app/domains/groupes/filters/groupes.filters";
 import {SpanLib} from "@/app/(ui)/component-library/atoms/span/span-lib";
+import {GroupIntro} from "@/app/(ui)/components/groups/group-intro";
+import {GroupFilter} from "@/app/(ui)/components/groups/group-filters";
 
 export type Groupe = {
     code: string;
@@ -151,50 +153,12 @@ export default function GroupesPage() {
 
             <main className="flex flex-col gap-8">
                 <div className="relative z-30 grid w-full grid-cols-1 gap-6 lg:grid-cols-2 items-start">
-                    <div className="flex h-full w-full flex-col rounded-xl border border-main bg-surface-1 p-5 shadow-sm">
-                        <p className="text-sm font-semibold text-main">
-                            Comprendre les groupes politiques
-                        </p>
+                    <GroupIntro />
 
-                        <p className="mt-2 text-sm leading-6 text-subtitle-accent">
-                            Les groupes parlementaires rassemblent les députés selon leurs affinités politiques.
-                            Ils structurent les débats, organisent la prise de parole et jouent un rôle central
-                            dans le travail législatif à l’Assemblée nationale.
-                        </p>
-
-                        <p className="mt-3 text-sm leading-6 text-subtitle-accent">
-                            Explorer les groupes permet de mieux lire les équilibres politiques, les alliances
-                            et les rapports de force au sein de l’Assemblée, et ainsi de mieux comprendre les dynamiques législatives.
-                        </p>
-                    </div>
-
-                    <div className="flex w-full flex-col overflow-visible rounded-xl border border-main bg-surface-1 shadow-sm">
-                        <div className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left">
-                            <div className="min-w-0">
-                                <p className="text-sm font-semibold text-main">
-                                    Trier et filtrer les groupes
-                                </p>
-                                <p className="text-xs text-subtitle-accent">
-                                    Affinez l’affichage par orientation politique ou ordre de lecture.
-                                </p>
-                            </div>
-
-                            <div className="flex shrink-0 items-center gap-3">
-                                <SpanLib className="text-subtitle-accent">
-                                    {filteredGroupes.length} résultat{filteredGroupes.length > 1 ? "s" : ""}
-                                </SpanLib>
-                            </div>
-                        </div>
-
-                        <div className="px-5 py-4">
-                            <FilterBarLib
-                                sortOptions={GROUPS_SORT_OPTIONS}
-                                filterFields={GROUPS_FILTER_FIELDS}
-                                applyMode="auto"
-                                onQueryChange={handleQueryChange}
-                            />
-                        </div>
-                    </div>
+                    <GroupFilter
+                        count={filteredGroupes.length}
+                        onQueryChange={handleQueryChange}
+                    />
                 </div>
 
                 <div className="relative z-0 grid grid-cols-1 gap-6 sm:grid-cols-3 lg:grid-cols-4">
