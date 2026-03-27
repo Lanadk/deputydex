@@ -6,15 +6,13 @@ import {useLegislature} from "@/app/(ui)/providers/legislature-provider";
 import {GroupTheme} from "@/app/(ui)/theme/parliament-groups/group-theme.types";
 import {GroupCard} from "@/app/(ui)/components/groups/group-card";
 import {PageHeaderLib} from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
-import {FilterBarLib} from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib";
 import type {
     FilterBarQuery,
 } from "@/app/_shared/filtering/filter-bar.types";
 import {applyFilterBarQueryClient} from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib.client-query";
-import {GROUPS_FILTER_FIELDS, GROUPS_SORT_OPTIONS} from "@/app/domains/groupes/filters/groupes.filters";
-import {SpanLib} from "@/app/(ui)/component-library/atoms/span/span-lib";
 import {GroupIntro} from "@/app/(ui)/components/groups/group-intro";
 import {GroupFilter} from "@/app/(ui)/components/groups/group-filters";
+import {GroupResume} from "@/app/(ui)/components/groups/group-resume";
 
 export type Groupe = {
     code: string;
@@ -151,14 +149,19 @@ export default function GroupesPage() {
                 />
             </div>
 
-            <main className="flex flex-col gap-8">
-                <div className="relative z-30 grid w-full grid-cols-1 gap-6 lg:grid-cols-2 items-start">
+            <main className="flex flex-col gap-6">
+                <div className="relative z-30 grid w-full grid-cols-1 gap-2 lg:grid-cols-2 items-start">
                     <GroupIntro />
-
-                    <GroupFilter
-                        count={filteredGroupes.length}
-                        onQueryChange={handleQueryChange}
+                    <GroupResume
+                        legislature={legislatureNumber}
+                        activeGroupsCount={groupes.length}
                     />
+                    <div className="lg:col-span-2">
+                        <GroupFilter
+                            count={filteredGroupes.length}
+                            onQueryChange={handleQueryChange}
+                        />
+                    </div>
                 </div>
 
                 <div className="relative z-0 grid grid-cols-1 gap-6 sm:grid-cols-3 lg:grid-cols-4">

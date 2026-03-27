@@ -31,7 +31,7 @@ export const GroupFilter: React.FC<Props> = ({ count, onQueryChange }) => {
                 </div>
             </div>
 
-            <div className="px-5 py-4">
+            <div className="px-5 pb-4">
                 <FilterBarLib
                     sortOptions={GROUPS_SORT_OPTIONS}
                     filterFields={GROUPS_FILTER_FIELDS}
