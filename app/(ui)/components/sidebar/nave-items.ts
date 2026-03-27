@@ -2,7 +2,6 @@ import {BarChart3, Component, Layers, Grid3x3, Vote, HandHelping, MessageCircleM
 
 export const NAVITEMS = [
     {label: "DeputeDex", href: "/deputydex", icon: Grid3x3, section: "deputydex"},
-    {label: "Statistiques", href: "/db/statistics", icon: BarChart3, section: "db"},
     {label: "Groupes", href: "/groupes", icon: Layers, section: "db"},
     {label: "Votes", href: "/votes", icon: Vote, section: "db"},
     {label: "Statistiques", href: "/statistics", icon: BarChart3, section: "db"},
