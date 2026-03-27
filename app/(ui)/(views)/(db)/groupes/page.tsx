@@ -54,7 +54,7 @@ export default function GroupesPage() {
                     <GroupIntro/>
                     <GroupResume
                         legislature={legislatureNumber}
-                        activeGroupsCount={groupes.length}
+                        activeGroupsCount={groupes.length - 1} // on ne compte pas les NI donc -1
                     />
                     <div className="lg:col-span-2">
                         <GroupFilter
@@ -77,6 +77,7 @@ export default function GroupesPage() {
                                     president={groupe.groupePresidentFullName}
                                     sexPresidentType={groupe.groupeQualitySexLabel}
                                     position={groupe.groupePosition}
+                                    image={groupe.groupeImg}
                                     href={groupe.groupeHref}
                                     theme={theme}
                                 />
@@ -84,7 +85,6 @@ export default function GroupesPage() {
                         );
                     })}
                 </div>
-
             </main>
         </>
     );

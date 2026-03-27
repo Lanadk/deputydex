@@ -9,7 +9,7 @@ export function mapGroupeCardRowEntityToGroupeCardDTO(legislature: number, row: 
         groupeQualitySexLabel: row.groupe_label_type_sex,
         groupeCountMembers: Number(row.groupe_count_members),
         groupeHref: `/groupes/${row.groupe_code}`,
-        groupeImg: `/tribun/${legislature}/logos_groupes/${row.groupe_code}.png`,
+        groupeImg: row.groupe_code.includes('NI') ? null : `/tribun/${legislature}/logos_groupes/${row.groupe_code}.png`,
         // TODO color + position
     }
 }

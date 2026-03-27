@@ -7,7 +7,7 @@ export type GroupeCardDTO = {
     groupeQualitySexLabel: string;
     groupeCountMembers: number;
     groupeColor?: string;
-    groupeImg?: string;
+    groupeImg?: string | null;
     groupeHref: string;
     groupePosition?: 'Droite' | 'Centre' | 'Gauche';
 }

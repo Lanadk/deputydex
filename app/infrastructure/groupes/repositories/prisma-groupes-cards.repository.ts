@@ -13,6 +13,7 @@ type GroupeCardRow = {
 export const prismaGroupesCardsRepository: IGroupesCardsRepository = {
 
     async getGroupeCardsUseCase(legislature: number): Promise<any[]> {
+        //TODO surement faire un check de ce qu'on veut recupere , car on fetch les groupes ayant existé mais le fetch remonté des nb_acteurs à 0
         try {
             return await prisma.$queryRaw<GroupeCardRow[]>`
                 select
@@ -21,17 +22,16 @@ export const prismaGroupesCardsRepository: IGroupesCardsRepository = {
                     rg.libelle as groupe_label,
                     trim(concat(coalesce(mgp.prenom, ''), ' ', coalesce(mgp.nom, ''))) as groupe_president_full_name,
                     mgp.lib_qualite_sex as groupe_label_type_sex,
-                    coalesce(agec.nb_acteurs, 0) as groupe_count_members
+                    coalesce(agec.nb_acteurs_photo, 0) as groupe_count_members
                 from ref_groupes rg
                 left join mv_groupes_presidents mgp
                     on mgp.groupe_id = rg.groupe_id
                    and mgp.legislature = rg.groupe_legislature
-                left join agg_groupes_effectifs_current agec
+                left join agg_groupes_effectifs_legislature agec
                     on agec.groupe_id = rg.groupe_id
                    and agec.legislature = rg.groupe_legislature
                 where rg.groupe_legislature = ${legislature}
-                and agec.nb_acteurs > 0
-                and rg.code != 'TBD'
+                and rg.code not in ('TBD', 'NI')
                 order by rg.code asc nulls last, rg.libelle asc nulls last
             `;
         } catch (error) {

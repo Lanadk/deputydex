@@ -13,6 +13,7 @@ export type GroupCardProps = {
     sexPresidentType?: string;
     position?: string;
     href?: string;
+    image?: string | null;
     theme?: GroupTheme;
 };
 
@@ -64,11 +65,18 @@ export const GroupCard: React.FC<GroupCardProps> = (props) => {
                             rounded-[14px] border-[2.5px] border-white/95 bg-white
                             shadow-[0_4px_16px_rgba(0,0,0,0.38)]"
                         >
-                            <img
-                                src={`/tribun/17/logos_groupes/${props.code}.png`}
-                                alt={props.libelle}
-                                className="h-16.5 w-16.5 object-contain"
-                            />
+                            {props.image ? (
+                                <img
+                                    src={props.image}
+                                    alt={props.libelle}
+                                    className="h-16.5 w-16.5 object-contain"
+                                />
+                            ) : (
+                                <div className="h-16.5 w-16.5 flex items-center justify-center rounded-xl bg-muted text-sm font-semibold">
+                                    {props.code}
+                                </div>
+                            )}
+
                         </CardItem>
                     </div>
 
