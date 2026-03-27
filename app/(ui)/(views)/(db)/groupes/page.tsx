@@ -1,10 +1,18 @@
 "use client";
 
+import React, {useMemo, useState} from "react";
 import {PARLIAMENTARY_GROUP_THEME_REGISTRY} from "@/app/(ui)/theme/parliament-groups/group-theme.registry";
 import {useLegislature} from "@/app/(ui)/providers/legislature-provider";
 import {GroupTheme} from "@/app/(ui)/theme/parliament-groups/group-theme.types";
-import {GroupCardLib} from "@/app/(ui)/component-library/molecules/group-card/group-card-lib";
+import {GroupCard} from "@/app/(ui)/components/group-card/group-card";
 import {PageHeaderLib} from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
+import {FilterBarLib} from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib";
+import type {
+    FilterBarQuery,
+} from "@/app/_shared/filtering/filter-bar.types";
+import {applyFilterBarQueryClient} from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib.client-query";
+import {GROUPS_FILTER_FIELDS, GROUPS_SORT_OPTIONS} from "@/app/domains/groupes/filters/groupes.filters";
+import {SpanLib} from "@/app/(ui)/component-library/atoms/span/span-lib";
 
 export type Groupe = {
     code: string;
@@ -29,75 +37,86 @@ function useMockGroupes(legislature: number | null): Groupe[] {
                 libelle: "Rassemblement National",
                 nb_membres: 122,
                 president: "Marine Le Pen",
-                position: "Droite"
+                position: "Droite",
             },
             {
                 code: "UDDPLR",
                 libelle: "Union des droites pour la République",
                 nb_membres: 17,
                 president: "Éric Ciotti",
-                position: "Droite"
+                position: "Droite",
             },
             {
                 code: "DR",
                 libelle: "Droite Républicaine",
                 nb_membres: 49,
                 president: "Olivier Marleix",
-                position: "Droite"
+                position: "Droite",
             },
             {
                 code: "LIOT",
                 libelle: "Libertés, Indépendants, Outre-mer et Territoires",
                 nb_membres: 22,
                 president: "Bertrand Pancher",
-                position: "Centre"
+                position: "Centre",
             },
             {
                 code: "HOR",
                 libelle: "Horizons et Indépendants",
                 nb_membres: 35,
                 president: "Laurent Marcangeli",
-                position: "Centre"
+                position: "Centre",
             },
-            {code: "DEM", libelle: "Les Démocrates", nb_membres: 36, president: "Jean-Paul Mattei", position: "Centre"},
+            {
+                code: "DEM",
+                libelle: "Les Démocrates",
+                nb_membres: 36,
+                president: "Jean-Paul Mattei",
+                position: "Centre",
+            },
             {
                 code: "EPR",
                 libelle: "Ensemble pour la République",
                 nb_membres: 91,
                 president: "Gabriel Attal",
-                position: "Centre"
+                position: "Centre",
             },
             {
                 code: "SOC",
                 libelle: "Socialistes et apparentés",
                 nb_membres: 69,
                 president: "Boris Vallaud",
-                position: "Gauche"
+                position: "Gauche",
             },
             {
                 code: "ECOS",
                 libelle: "Écologiste et Social",
                 nb_membres: 38,
                 president: "Cyrielle Chatelain",
-                position: "Gauche"
+                position: "Gauche",
             },
             {
                 code: "GDR",
                 libelle: "Gauche Démocrate et Républicaine",
                 nb_membres: 17,
                 president: "André Chassaigne",
-                position: "Gauche"
+                position: "Gauche",
             },
             {
                 code: "LFI_NFP",
                 libelle: "La France insoumise - NFP",
                 nb_membres: 71,
                 president: "Mathilde Panot",
-                position: "Gauche"
+                position: "Gauche",
             },
-            {code: "NI", libelle: "Non inscrit", nb_membres: 7},
+            {
+                code: "NI",
+                libelle: "Non inscrit",
+                nb_membres: 7,
+            },
         ];
     }
+
     return [];
 }
 
@@ -106,25 +125,87 @@ export default function GroupesPage() {
     const legislatureNumber = legislature?.number ?? 0;
     const groupes = useMockGroupes(legislatureNumber);
 
+    const [query, setQuery] = useState<FilterBarQuery>({
+        orderBy: [],
+        where: {},
+    });
+
+    const filteredGroupes = useMemo(
+        () => applyFilterBarQueryClient(groupes, query),
+        [groupes, query]
+    );
+
+    const handleQueryChange = (q: FilterBarQuery) => {
+        setQuery(q);
+    };
+
     return (
         <>
-            <div className="border-b border-main pb-6 mb-8">
+            <div className="mb-8 border-b border-main pb-6">
                 <PageHeaderLib
                     title="Groupes parlementaires"
-                    subtitle="Explorez les groupes parlementaires de la législature en cours."
+                    subtitle="Explorez les groupes parlementaires de l'assemblée nationale, découvrez leurs membres, leurs présidents et leurs positions politiques.
+                    Plongez dans l'univers des groupes parlementaires pour mieux comprendre la dynamique politique de l'Assemblée nationale."
                 />
             </div>
 
-            <main>
-                <div className="grid grid-cols-1 gap-6 sm:grid-cols-3 lg:grid-cols-4">
-                    {groupes.map((groupe) => {
+            <main className="flex flex-col gap-8">
+                <div className="relative z-30 grid w-full grid-cols-1 gap-6 lg:grid-cols-2 items-start">
+                    <div className="flex h-full w-full flex-col rounded-xl border border-main bg-surface-1 p-5 shadow-sm">
+                        <p className="text-sm font-semibold text-main">
+                            Comprendre les groupes politiques
+                        </p>
+
+                        <p className="mt-2 text-sm leading-6 text-subtitle-accent">
+                            Les groupes parlementaires rassemblent les députés selon leurs affinités politiques.
+                            Ils structurent les débats, organisent la prise de parole et jouent un rôle central
+                            dans le travail législatif à l’Assemblée nationale.
+                        </p>
+
+                        <p className="mt-3 text-sm leading-6 text-subtitle-accent">
+                            Explorer les groupes permet de mieux lire les équilibres politiques, les alliances
+                            et les rapports de force au sein de l’Assemblée, et ainsi de mieux comprendre les dynamiques législatives.
+                        </p>
+                    </div>
+
+                    <div className="flex w-full flex-col overflow-visible rounded-xl border border-main bg-surface-1 shadow-sm">
+                        <div className="flex w-full items-center justify-between gap-4 px-5 py-4 text-left">
+                            <div className="min-w-0">
+                                <p className="text-sm font-semibold text-main">
+                                    Trier et filtrer les groupes
+                                </p>
+                                <p className="text-xs text-subtitle-accent">
+                                    Affinez l’affichage par orientation politique ou ordre de lecture.
+                                </p>
+                            </div>
+
+                            <div className="flex shrink-0 items-center gap-3">
+                                <SpanLib className="text-subtitle-accent">
+                                    {filteredGroupes.length} résultat{filteredGroupes.length > 1 ? "s" : ""}
+                                </SpanLib>
+                            </div>
+                        </div>
+
+                        <div className="px-5 py-4">
+                            <FilterBarLib
+                                sortOptions={GROUPS_SORT_OPTIONS}
+                                filterFields={GROUPS_FILTER_FIELDS}
+                                applyMode="auto"
+                                onQueryChange={handleQueryChange}
+                            />
+                        </div>
+                    </div>
+                </div>
+
+                <div className="relative z-0 grid grid-cols-1 gap-6 sm:grid-cols-3 lg:grid-cols-4">
+                    {filteredGroupes.map((groupe) => {
                         const theme: GroupTheme =
                             PARLIAMENTARY_GROUP_THEME_REGISTRY[groupe.code] ??
                             PARLIAMENTARY_GROUP_THEME_REGISTRY.DEFAULT;
 
                         return (
                             <div key={groupe.code}>
-                                <GroupCardLib
+                                <GroupCard
                                     code={groupe.code}
                                     libelle={groupe.libelle}
                                     nb_membres={groupe.nb_membres}
@@ -139,7 +220,5 @@ export default function GroupesPage() {
                 </div>
             </main>
         </>
-
-
     );
 }

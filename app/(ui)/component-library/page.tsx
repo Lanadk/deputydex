@@ -18,11 +18,9 @@ const components = {
         { name: 'Select', path: '/component-library/molecules/select' },
         { name: 'Page-Header', path: '/component-library/molecules/page-header' },
         { name: 'Activity-calendar', path: '/component-library/molecules/activity-calendar' },
-        { name: 'Deputy-card', path: '/component-library/molecules/deputy-card' },
         { name: 'Filter-bar', path: '/component-library/molecules/filter-bar' },
         { name: 'Table', path: '/component-library/molecules/table' },
         { name: 'Chart', path: '/component-library/molecules/chart' },
-        { name: 'Group-card', path: '/component-library/molecules/group-card' },
     ],
     Templates: [
         { name: 'BlockSection', path: '/component-library/template/block-section' },

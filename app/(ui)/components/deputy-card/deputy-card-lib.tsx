@@ -47,7 +47,7 @@ export default function DeputyCardLib({
     const groupTheme = getGroupCardTheme(getCanonicalGroupCode(groupe));
 
     return (
-        <CardContainer className="inter-var">
+        <CardContainer>
             <CardBody
                 className="deputy-card-shell relative group/card w-full aspect-5/7 rounded-xl p-3 cursor-pointer flex flex-col justify-between"
                 style={{
