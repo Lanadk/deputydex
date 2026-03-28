@@ -9,6 +9,7 @@ export const getFicheDeputeUseCase = async (
     id: string,
 ): Promise<Result<FicheDeputeDTO, "NOT_FOUND">> => {
 
+    //TODO a la limite on devrait mettre la logique metier ici et pas dans le mapper  / ni dans le repo.
     const fiche = await repository.findByIdAndLegislature(id);
 
     if (!fiche) {

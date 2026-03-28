@@ -1,6 +1,7 @@
 import {FicheDeputeDTO} from "@/app/domains/acteurs/dto/fiche-depute.dto";
 import {ActeurWithMandatsEntity} from "@/app/domains/acteurs/entities/acteurs-mandats.entity";
 
+//TODO PAS du tout optimisé, on filtre 2 fois + ya de la logique metier dans le mapper , on en veut pas
 export const toFicheDeputeDTO = (
     acteur: ActeurWithMandatsEntity,
 ): FicheDeputeDTO => {
