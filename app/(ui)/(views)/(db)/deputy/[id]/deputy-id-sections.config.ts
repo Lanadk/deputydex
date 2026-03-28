@@ -80,16 +80,16 @@ export const DEPUTE_CONFIG: DeputeConfig = {
                     gatewayFn: async () => depute.mandats,
                     columns: [
                         {
-                            id: "typeOrgane",
-                            header: "Type",
-                            align: "center",
-                            cell: (r: unknown) => (r as MandatDTO).typeOrgane
-                        },
-                        {
                             id: "libQualite",
                             header: "Fonction",
                             align: "center",
                             cell: (r: unknown) => (r as MandatDTO).libQualite
+                        },
+                        {
+                            id: "typeOrgane",
+                            header: "Type",
+                            align: "center",
+                            cell: (r: unknown) => (r as MandatDTO).typeOrgane
                         },
                         {
                             id: "legislature",
