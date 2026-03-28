@@ -3,12 +3,12 @@ import "server-only";
 import { prisma } from "@/app/infrastructure/db/prisma/prisma";
 import type { FilterBarQuery } from "@/app/_shared/filtering/filter-bar.types";
 import {IActeursRepository} from "@/app/domains/acteurs/repositories/IActeursRepository";
-import {ActeurEntity} from "@/app/domains/acteurs/entities/acteurs.entity";
+import {ActeursEntity} from "@/app/domains/acteurs/entities/acteurs.entity";
 
 export const prismaActeursRepository: IActeursRepository = {
     async search(query: FilterBarQuery, page: number, pageSize: number
     ): Promise<{
-        items: ActeurEntity[];
+        items: ActeursEntity[];
         total: number;
     }> {
         const skip = (page - 1) * pageSize;
@@ -29,14 +29,14 @@ export const prismaActeursRepository: IActeursRepository = {
         return { items, total };
     },
 
-    async getById(id: string): Promise<ActeurEntity | null> {
+    async getById(id: string): Promise<ActeursEntity | null> {
         return prisma.acteurs.findUnique({
             where: { uid: id },
         });
     },
 
     async findManyForExport(query: FilterBarQuery, maxRows: number
-    ): Promise<ActeurEntity[]> {
+    ): Promise<ActeursEntity[]> {
         return prisma.acteurs.findMany({
             where: query.where as any,
             orderBy: query.orderBy as any,

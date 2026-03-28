@@ -26,7 +26,10 @@ export const prismaFicheDeputeRepository: IFicheDeputeRepository = {
                         groupe: {
                             include: {
                                 refGroupes: {
-
+                                    select: {
+                                        code: true,
+                                        libelle: true,
+                                    }
                                 }
                             }
                         }
