@@ -5,8 +5,9 @@ import { PageHeaderLib } from "@/app/(ui)/component-library/molecules/page-heade
 import {AnchorSectionProvider} from "@/app/(ui)/component-library/template/anchor-section/anchor-section-provider";
 import {AnchorSection} from "@/app/(ui)/component-library/template/anchor-section/anchor.types";
 import {AnchorNavLib} from "@/app/(ui)/component-library/template/anchor-section/anchor-nav-lib";
+import {BaseLayout} from "@/app/(ui)/component-library/template/base-layout/base-layout-lib";
 
-interface AnchorLayoutLibProps {
+interface AnchorLayoutProps {
     /** Titre affiché dans le PageHeaderLib */
     title: string;
     /** Sous-titre affiché dans le PageHeaderLib */
@@ -31,37 +32,34 @@ interface AnchorLayoutLibProps {
  *     {children}
  *   </AnchorLayoutLib>
  */
-export const AnchorLayoutLib: React.FC<AnchorLayoutLibProps> = ({
+export const AnchorLayout: React.FC<AnchorLayoutProps> = ({
                                                                     title,
                                                                     subtitle,
                                                                     sections,
                                                                     navLabel,
                                                                     children,
-                                                                }: AnchorLayoutLibProps) => {
+                                                                }: AnchorLayoutProps) => {
     return (
         <AnchorSectionProvider initialId={sections[0]?.id}>
-            <div className="min-h-screen bg-background">
-                <div className="max-w-screen-2xl mx-auto px-4 sm:px-6 lg:px-8 py-6 lg:py-10">
-
-                    {/* ── Header pleine largeur ── */}
-                    <div className="border-b border-main pb-6 mb-8">
-                        <PageHeaderLib title={title} subtitle={subtitle} />
-                    </div>
-
-                    {/* ── Two-column : nav ancre sticky + contenu ── */}
-                    <div className="flex gap-8 items-start">
-
-                        <aside className="hidden xl:block w-52 shrink-0 sticky top-8 self-start">
-                            <AnchorNavLib sections={sections} label={navLabel} />
-                        </aside>
-
-                        <main className="flex-1 min-w-0">
-                            {children}
-                        </main>
-
-                    </div>
+            <BaseLayout>
+                {/* ── Header pleine largeur ── */}
+                <div className="border-b border-main pb-6 mb-8">
+                    <PageHeaderLib title={title} subtitle={subtitle} />
                 </div>
-            </div>
+
+                {/* ── Two-column : nav ancre sticky + contenu ── */}
+                <div className="flex gap-8 items-start">
+
+                    <aside className="hidden xl:block w-52 shrink-0 sticky top-8 self-start">
+                        <AnchorNavLib sections={sections} label={navLabel} />
+                    </aside>
+
+                    <main className="flex-1 min-w-0">
+                        {children}
+                    </main>
+
+                </div>
+            </BaseLayout>
         </AnchorSectionProvider>
     );
 };

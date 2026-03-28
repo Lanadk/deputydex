@@ -3,6 +3,7 @@
 import React from "react";
 import { CardBody, CardContainer, CardItem } from "@/app/(ui)/component-library/external/3d-card/3d-card";
 import {getCanonicalGroupCode, getGroupCardTheme} from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
+import {CardHoloOverlay} from "@/app/(ui)/components/holo-effect/card-holo-overlay";
 
 const HexRF = ({ cx, cy, size }: { cx: number; cy: number; size: number }) => {
     const s = size / 220;
@@ -38,23 +39,25 @@ interface DeputyCardProps {
     role?: string;
 }
 
-export default function DeputyCardLib({
+export default function DeputyCard({
                                        nom,
                                        groupe,
                                        image,
                                        role = "Député",
                                    }: DeputyCardProps) {
+
     const groupTheme = getGroupCardTheme(getCanonicalGroupCode(groupe));
 
     return (
-        <CardContainer className="inter-var">
+        <CardContainer>
             <CardBody
-                className="deputy-card-shell relative group/card w-full aspect-5/7 rounded-xl p-3 cursor-pointer flex flex-col justify-between"
+                className="deputy-card-shell card-holo-host relative group/card w-full aspect-5/7 rounded-xl p-3 cursor-pointer flex flex-col justify-between"
                 style={{
                     border: `4px solid ${groupTheme.border}`,
                     background: `linear-gradient(135deg, ${groupTheme.holo[0]} 0%, ${groupTheme.holo[1]} 50%, ${groupTheme.holo[2]} 100%)`,
                 }}
             >
+                <CardHoloOverlay/>
                 <CardItem translateZ="0" className="absolute inset-0 w-full h-full pointer-events-none">
                     <svg viewBox="0 0 192 280" className="w-full h-full" preserveAspectRatio="xMidYMid slice">
                         <HexRF cx={96} cy={140} size={220} />

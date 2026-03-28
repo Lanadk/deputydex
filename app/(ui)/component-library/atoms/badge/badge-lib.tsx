@@ -1,24 +1,43 @@
 import React from "react";
 
-export interface BadgeLibProps {
+export type BaseProps = {
     /** Identificateur */
     key?: string;
     /** Texte du badge */
     text: string;
-    /** Variante visuelle du bouton */
-    variant?: 'primary' | 'secondary' | 'tertiary' ;
-}
+};
+
+export type VariantProps = BaseProps & {
+    variant?: "primary" | "secondary" | "tertiary";
+    className?: never;
+    style?: never;
+};
+
+export type CustomProps = BaseProps & {
+    style?: React.CSSProperties;
+    variant?: never;
+};
+
+export type BadgeLibProps = VariantProps | CustomProps;
 
 
 export const BadgeLib: React.FC<BadgeLibProps> = ({
                                                       key,
                                                       text,
-                                                      variant = 'primary',
+                                                      variant = '',
+                                                      style,
                                                   }) => {
+    const isCustom = !!style && !!variant;
+
     return (
         <span
             key={key}
-            className={`badge-lib badge-lib--${variant}`}
+            className={
+                isCustom
+                    ? `badge-lib`
+                    : `badge-lib badge-lib--${variant}`
+            }
+            style={style}
         >
             {text}
         </span>

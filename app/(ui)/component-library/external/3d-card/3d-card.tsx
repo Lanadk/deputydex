@@ -46,10 +46,9 @@ export const CardContainer = ({
                 {/* Wrapper holo = taille de la card */}
                 <div
                     ref={wrapperRef}
-                    className="card-holo-wrapper relative block w-full"
-                    style={{perspective: "1000px"}}
+                    className={cn("relative block w-full", containerClassName)}
+                    style={{ perspective: "1000px" }}
                 >
-                    {/* Élément qui tourne */}
                     <div
                         ref={containerRef}
                         onMouseEnter={handleMouseEnter}
@@ -59,7 +58,7 @@ export const CardContainer = ({
                             "relative transition-all duration-200 ease-linear",
                             className
                         )}
-                        style={{transformStyle: "preserve-3d"}}
+                        style={{ transformStyle: "preserve-3d" }}
                     >
                         {children}
                     </div>

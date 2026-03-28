@@ -4,8 +4,6 @@ export const DEFAULT_GROUP_THEME_KEY = "DEFAULT";
 
 export const PARLIAMENTARY_GROUP_THEME_REGISTRY: GroupThemeRegistry = {
     RN: {
-        key: "RN",
-        label: "Rassemblement National",
         bg: ["#003189", "#003189", "#003189"],
         text: "#ffffff",
         border: "#003189",
@@ -15,21 +13,27 @@ export const PARLIAMENTARY_GROUP_THEME_REGISTRY: GroupThemeRegistry = {
         badgeText: "#ffffff",
     },
 
-    EPR: {
-        key: "EPR",
-        label: "Ensemble pour la République",
-        bg: ["#ffbe00", "#ff9400", "#ffbe00"],
+    HOR: {
+        bg: ["#7c3aed", "#5b21b6", "#7c3aed"],
         text: "#ffffff",
-        border: "#ff9400",
-        holo: ["#1a0e00", "#3d2200", "#1a0e00"],
-        chart: "#ff9400",
-        badgeBg: "#ff9400",
+        border: "#7c3aed",
+        holo: ["#140a2e", "#2a145a", "#140a2e"],
+        chart: "#7c3aed",
+        badgeBg: "#7c3aed",
         badgeText: "#ffffff",
     },
 
+    EPR: {
+        bg: ["#facc15", "#facc15", "#facc15"],
+        text: "#1a1a1a",
+        border: "#facc15",
+        holo: ["#1a1a1a", "#333333", "#1a1a1a"],
+        chart: "#facc15",
+        badgeBg: "#facc15",
+        badgeText: "#1a1a1a",
+    },
+
     SOC: {
-        key: "SOC",
-        label: "Socialistes et apparentés",
         bg: ["#ff69b4", "#e91e8c", "#ff69b4"],
         text: "#ffffff",
         border: "#e91e8c",
@@ -40,8 +44,6 @@ export const PARLIAMENTARY_GROUP_THEME_REGISTRY: GroupThemeRegistry = {
     },
 
     DR: {
-        key: "DR",
-        label: "Droite Républicaine",
         bg: ["#0066cc", "#003f8a", "#0066cc"],
         text: "#ffffff",
         border: "#0066cc",
@@ -52,8 +54,6 @@ export const PARLIAMENTARY_GROUP_THEME_REGISTRY: GroupThemeRegistry = {
     },
 
     ECOS: {
-        key: "ECOS",
-        label: "Écologiste et Social",
         bg: ["#2d9b2d", "#1a7a1a", "#2d9b2d"],
         text: "#ffffff",
         border: "#2d9b2d",
@@ -64,20 +64,16 @@ export const PARLIAMENTARY_GROUP_THEME_REGISTRY: GroupThemeRegistry = {
     },
 
     DEM: {
-        key: "DEM",
-        label: "Les Démocrates",
-        bg: ["#ffe44d", "#ffd000", "#ffe44d"],
-        text: "#1a1a00",
-        border: "#ffd000",
-        holo: ["#1a1500", "#332900", "#1a1500"],
-        chart: "#ffd000",
-        badgeBg: "#ffd000",
-        badgeText: "#1a1a00",
+        bg: ["#ff8c00", "#ff6a00", "#ff8c00"],
+        text: "#ffffff",
+        border: "#ff6a00",
+        holo: ["#1a0a00", "#3d1600", "#1a0a00"],
+        chart: "#ff6a00",
+        badgeBg: "#ff6a00",
+        badgeText: "#ffffff",
     },
 
-    HOR: {
-        key: "HOR",
-        label: "Horizons & Indépendants",
+    LIOT: {
         bg: ["#00b4d8", "#0077b6", "#00b4d8"],
         text: "#ffffff",
         border: "#00b4d8",
@@ -87,21 +83,7 @@ export const PARLIAMENTARY_GROUP_THEME_REGISTRY: GroupThemeRegistry = {
         badgeText: "#ffffff",
     },
 
-    LIOT: {
-        key: "LIOT",
-        label: "Libertés, Indépendants, Outre-mer et Territoires",
-        bg: ["#00a0e3", "#0077b6", "#00a0e3"],
-        text: "#ffffff",
-        border: "#00a0e3",
-        holo: ["#001a26", "#003347", "#001a26"],
-        chart: "#00a0e3",
-        badgeBg: "#00a0e3",
-        badgeText: "#ffffff",
-    },
-
-    LFI_NFP: {
-        key: "LFI_NFP",
-        label: "La France insoumise - NFP",
+    LFI: {
         bg: ["#b71c1c", "#8b0000", "#b71c1c"],
         text: "#ffffff",
         border: "#b71c1c",
@@ -112,8 +94,6 @@ export const PARLIAMENTARY_GROUP_THEME_REGISTRY: GroupThemeRegistry = {
     },
 
     GDR: {
-        key: "GDR",
-        label: "Gauche Démocrate et Républicaine",
         bg: ["#cc0000", "#ff0000", "#cc0000"],
         text: "#ffffff",
         border: "#ff0000",
@@ -125,8 +105,6 @@ export const PARLIAMENTARY_GROUP_THEME_REGISTRY: GroupThemeRegistry = {
 
 
     UDDPLR: {
-        key: "UDDPLR",
-        label: "Union des droites pour la République",
         bg: ["#1f4b99", "#173b7a", "#1f4b99"],
         text: "#ffffff",
         border: "#1f4b99",
@@ -137,8 +115,6 @@ export const PARLIAMENTARY_GROUP_THEME_REGISTRY: GroupThemeRegistry = {
     },
 
     DEFAULT: {
-        key: "DEFAULT",
-        label: "Autre groupe",
         bg: ["#6b7280", "#4b5563", "#6b7280"],
         text: "#ffffff",
         border: "#9ca3af",

@@ -2,7 +2,7 @@ import {
     DEFAULT_GROUP_THEME_KEY,
     PARLIAMENTARY_GROUP_THEME_REGISTRY,
 } from "./group-theme.registry";
-import type { GroupTheme } from "./group-theme.types";
+import type {GroupTheme} from "./group-theme.types";
 
 export type ChartColorVariant = "default" | "parliament-group";
 
@@ -11,14 +11,15 @@ const GROUP_ALIASES: Record<string, string> = {
     RN: "RN",
     EPR: "EPR",
     RE: "EPR",
-    LFI_NFP: "LFI_NFP",
-    LFI_NUPES: "LFI_NFP",
+    LFI_NFP: "LFI",
+    LFI_NUPES: "LFI",
     SOC: "SOC",
     SOC_NUPES: "SOC",
     DR: "DR",
     LR: "DR",
     ECOS: "ECOS",
     ECOLO: "ECOS",
+    ECOLO_NUPES: "ECOS",
     DEM: "DEM",
     HOR: "HOR",
     LIOT: "LIOT",
@@ -58,24 +59,28 @@ const GROUP_ALIASES: Record<string, string> = {
 };
 
 export const GROUP_COMPOSITION_MAP: Record<string, string> = {
-    "LFI-NFP":    "LFI-NFP",
-    "LFI-NUPES":  "LFI-NFP",
+    "LFI-NFP": "LFI",
+    "LFI-NUPES": "LFI",
+    "LFI_NUPES": "LFI",
+    "LFI_NFP": "LFI",
 
-    "SOC":        "SOC",
-    "SOC-NUPES":  "SOC",
+    "SOC": "SOC",
+    "SOC_NUPES": "SOC",
+    "SOC-NUPES": "SOC",
 
-    "UDR":        "UDDPLR",
-    "UDDPLR":     "UDDPLR",
+    "UDR": "UDDPLR",
+    "UDDPLR": "UDDPLR",
 
-    "ECOS":       "ECOS",
-    "ECOLO-NUPES":"ECOS",
+    "ECOS": "ECOS",
+    "ECOS_NUPES": "ECOS",
+    "ECOLO-NUPES": "ECOS",
 
-    "EPR":        "EPR",
-    "RE":         "EPR",
+    "EPR": "EPR",
+    "RE": "EPR",
 
-    "NI":         "DEFAULT",
-    "NI-16":      "DEFAULT",
-    "NI-17":      "DEFAULT",
+    "NI": "DEFAULT",
+    "NI-16": "DEFAULT",
+    "NI-17": "DEFAULT",
 };
 
 export function getCanonicalGroupCode(code: string | null | undefined): string {

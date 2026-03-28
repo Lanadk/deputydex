@@ -1,7 +1,4 @@
 export type GroupTheme = {
-    key: string;
-    label: string;
-
     bg: [string, string, string];
     text: string;
     border: string;
@@ -9,6 +6,7 @@ export type GroupTheme = {
 
     chart: string;
     badgeBg: string;
+    badgeBgDeep?: string;
     badgeText: string;
 };
 

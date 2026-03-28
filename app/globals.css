@@ -4,16 +4,10 @@
 
 @custom-variant dark (&:is(.dark *));
 
-/* =========================================================
-   DESIGN TOKENS
-   Rule: no hardcoded colors outside P1 / P2 palette blocks.
-   All semantic tokens must reference an alias, never a palette directly.
-   ========================================================= */
-
-/* =========================================================
-   THEME: LIGHT (default)
-   ========================================================= */
 :root {
+
+
+
 
     /* -------------------------------------------------------
        P1 — STRUCTURAL PALETTE
@@ -173,7 +167,12 @@
     --plate-3: var(--ui-steel);
 
     /* Numeric */
+    --card-radius: 1rem;
+    --card-radius-lg: 1.25rem;
     --card-shadow-bottom: 0.6;
+    --card-shadow-soft: 0 6px 18px rgba(34, 50, 68, 0.08);
+    --card-shadow-hover: 0 12px 28px rgba(34, 50, 68, 0.14);
+    --card-border: var(--ui-steel-soft);
 
     /* Backgrounds */
     --deputy-card-bg-start: var(--p1-steel-4); /* #223244 — dark navy */
@@ -217,6 +216,15 @@
     --deputy-card-dot-2: var(--p2-4);
     --deputy-card-dot-3: var(--p1-blue-4);
 }
+
+/* =========================================================
+   DESIGN TOKENS
+   Rule: no hardcoded colors outside P1 / P2 palette blocks.
+   All semantic tokens must reference an alias, never a palette directly.
+   ========================================================= */
+/* =========================================================
+   THEME: LIGHT (default)
+   ========================================================= */
 
 /* =========================================================
    THEME: DARK
@@ -1119,14 +1127,27 @@
         z-index: 1;
     }
 
-    .card-holo-wrapper::before,
-    .card-holo-wrapper::after {
+    .card-holo-overlay {
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        overflow: hidden;
+        pointer-events: none;
+        z-index: 2;
+    }
+
+    .card-holo-overlay::before,
+    .card-holo-overlay::after {
         content: "";
         position: absolute;
         inset: 0;
-        pointer-events: none;
+        border-radius: inherit;
         opacity: 0;
         transition: opacity 0.3s ease;
+        pointer-events: none;
+    }
+
+    .card-holo-overlay::before {
         background: radial-gradient(
                 ellipse at var(--mx, 50%) var(--my, 50%),
                 rgba(255, 255, 255, 0.18) 0%,
@@ -1134,35 +1155,31 @@
                 transparent 70%
         );
         mix-blend-mode: screen;
-        overflow: hidden;
     }
 
-    .card-holo-wrapper:hover::before,
-    .card-holo-wrapper:hover::after {
-        opacity: 1;
-    }
-
-    /* Reflet  */
-    .card-holo-wrapper::after {
-        z-index: 3;
-
-        background: radial-gradient(
-                700px 500px at var(--mx, 50%) var(--my, 50%),
-                rgba(255, 255, 255, .28) 0%,
-                rgba(255, 255, 255, .10) 28%,
-                rgba(255, 255, 255, 0) 60%
-        ),
-        linear-gradient(
-                120deg,
-                rgba(255, 255, 255, 0) 0%,
-                rgba(255, 255, 255, .18) 22%,
-                rgba(255, 255, 255, 0) 45%
-        );
-
-        background-position: center,
-        calc(var(--mx, 50%) * 0.6) calc(var(--my, 50%) * 0.6);
-
+    .card-holo-overlay::after {
+        background:
+                radial-gradient(
+                        700px 500px at var(--mx, 50%) var(--my, 50%),
+                        rgba(255, 255, 255, 0.28) 0%,
+                        rgba(255, 255, 255, 0.10) 28%,
+                        rgba(255, 255, 255, 0) 60%
+                ),
+                linear-gradient(
+                        120deg,
+                        rgba(255, 255, 255, 0) 0%,
+                        rgba(255, 255, 255, 0.18) 22%,
+                        rgba(255, 255, 255, 0) 45%
+                );
+        background-position:
+                center,
+                calc(var(--mx, 50%) * 0.6) calc(var(--my, 50%) * 0.6);
         mix-blend-mode: screen;
+    }
+
+    .card-holo-host:hover .card-holo-overlay::before,
+    .card-holo-host:hover .card-holo-overlay::after {
+        opacity: 1;
     }
 
     /* -------------------------------------------------------
@@ -1665,6 +1682,14 @@
         .table-actions__right .btn-lib {
             width: 100%;
             justify-content: center;
+        }
+
+        /* -------------------------------------------------------
+           GroupCardLib
+           ------------------------------------------------------- */
+        .group-card-lib {
+            min-height: 17rem;
+            border-radius: 0.875rem;
         }
     }
 }
