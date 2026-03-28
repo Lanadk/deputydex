@@ -9,7 +9,7 @@ export async function getGroupesCardsUseCase(
     legislature: number
 ): Promise<Result<GroupeCardDTO[] , "ERROR">> {
 
-    const entity = await groupesCardsRepository.getGroupeCardsUseCase(legislature);
+    const entity = await groupesCardsRepository.getGroupesCards(legislature);
 
     if (!entity) {
         return err("ERROR")

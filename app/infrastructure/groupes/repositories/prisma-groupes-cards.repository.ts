@@ -12,7 +12,7 @@ type GroupeCardRow = {
 
 export const prismaGroupesCardsRepository: IGroupesCardsRepository = {
 
-    async getGroupeCardsUseCase(legislature: number): Promise<any[]> {
+    async getGroupesCards(legislature: number): Promise<any[]> {
         //TODO surement faire un check de ce qu'on veut recupere , car on fetch les groupes ayant existé mais le fetch remonté des nb_acteurs à 0
         try {
             return await prisma.$queryRaw<GroupeCardRow[]>`

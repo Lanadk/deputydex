@@ -1,4 +1,4 @@
 
 export interface IGroupesCardsRepository {
-    getGroupeCardsUseCase(legislature: number): Promise<any[]>;
+    getGroupesCards(legislature: number): Promise<any[]>;
 }
