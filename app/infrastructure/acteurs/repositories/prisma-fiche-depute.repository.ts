@@ -19,7 +19,9 @@ export const prismaFicheDeputeRepository: IFicheDeputeRepository = {
                     include: {
                         groupe: {
                             include: {
-                                partis: true,
+                                refGroupes: {
+
+                                }
                             }
                         }
                     }

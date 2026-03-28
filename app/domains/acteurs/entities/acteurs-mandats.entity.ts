@@ -3,7 +3,7 @@ import {
     ActeursGroupes,
     GroupesParlementaires,
     Mandats,
-    RefActeursPhotos, RefPartisPolitiques
+    RefActeursPhotos, RefGroupes,
 } from "@/app/infrastructure/db/generated/prisma";
 
 export type ActeurWithMandatsEntity = Acteurs & {
@@ -11,7 +11,7 @@ export type ActeurWithMandatsEntity = Acteurs & {
     photos: RefActeursPhotos[];
     groupes: (ActeursGroupes & {
         groupe: GroupesParlementaires & {
-            partis: RefPartisPolitiques[];
+            refGroupes: RefGroupes[];
         };
     })[];
 };

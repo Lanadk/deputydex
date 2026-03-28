@@ -6,7 +6,7 @@ export const toFicheDeputeDTO = (
 ): FicheDeputeDTO => {
     const mandat = acteur.mandats.find(m => m.type_organe === 'ASSEMBLEE') ?? null;
     const groupeActuel = acteur.groupes?.[0];
-    const parti = groupeActuel?.groupe?.partis?.[0];
+    const parti = groupeActuel?.groupe?.refGroupes?.[0];
     const enExercice = acteur.mandats.some(
         m => m.type_organe === 'ASSEMBLEE' && m.date_fin === null
     );

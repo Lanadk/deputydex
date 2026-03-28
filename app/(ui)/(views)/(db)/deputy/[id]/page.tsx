@@ -10,7 +10,7 @@ import {BlockSectionRenderer} from "@/app/(ui)/component-library/template/block-
 import {
     AnchorDeputeTemplateLib
 } from "@/app/(ui)/component-library/template/anchor-deputy-section/anchor-deputy-layout-lib";
-import DeputyCardLib from "@/app/(ui)/component-library/molecules/deputy-card/deputy-card-lib";
+import DeputyCard from "@/app/(ui)/components/deputy/deputy-card";
 
 export default function DeputePage() {
     const params = useParams();
@@ -55,7 +55,7 @@ export default function DeputePage() {
             subtitle={`${deputy.circonscription ?? ""} - ${deputy.region ?? ""}`}
             sections={sections}
             card={
-                <DeputyCardLib
+                <DeputyCard
                     nom={deputy.prenom + " " + deputy.nom }
                     groupe={deputy.groupePolitiqueCode ?? ""}
                     image={deputy.image ?? ""}
