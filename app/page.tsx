@@ -39,7 +39,7 @@ export default function Home() {
                 <Link href="/deputydex">
                     <ButtonLib text="DeputeDex" variant="primary" size="large" />
                 </Link>
-                <Link href="/db/deputies">
+                <Link href="/groupes">
                     <ButtonLib text="Global DB" variant="secondary" size="large" />
                 </Link>
             </div>
