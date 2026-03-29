@@ -1,0 +1,44 @@
+import {err, ok, Result} from "@/app/_shared/result-pattern/result";
+import {FicheDeputeDTO} from "@/app/domains/acteurs/dto/fiche-depute.dto";
+import {IFicheDeputeRepository} from "@/app/domains/acteurs/repositories/IFIcheDeputeRepository";
+import {toFicheDeputeDTO} from "@/app/domains/acteurs/mappers/acteurs-mandats.mapper";
+
+
+export const getFicheDeputeUseCase = async (
+    repository: IFicheDeputeRepository,
+    id: string,
+): Promise<Result<FicheDeputeDTO, "NOT_FOUND">> => {
+
+    //TODO a la limite on devrait mettre la logique metier ici et pas dans le mapper  / ni dans le repo.
+    const fiche = await repository.findByIdAndLegislature(id);
+
+    if (!fiche) {
+        return err("NOT_FOUND")
+    }
+
+    return ok(toFicheDeputeDTO(fiche));
+};
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

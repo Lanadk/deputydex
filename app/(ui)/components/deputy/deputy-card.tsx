@@ -39,11 +39,12 @@ interface DeputyCardProps {
     role?: string;
 }
 
+//TODO ajouter un onClick to renvoi vers /db/deputy/[id] du deputy
 export default function DeputyCard({
                                        nom,
                                        groupe,
                                        image,
-                                       role = "Député",
+                                       role = "",
                                    }: DeputyCardProps) {
 
     const groupTheme = getGroupCardTheme(getCanonicalGroupCode(groupe));

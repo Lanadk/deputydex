@@ -1,11 +1,11 @@
 "use client";
 
 import {useState} from "react";
-import {useLegislature} from "@/app/(ui)/providers/legislature-provider";
 import {ButtonLib} from "@/app/(ui)/component-library/atoms/button/button-lib";
 import {SpanLib} from "@/app/(ui)/component-library/atoms/span/span-lib";
 import {Landmark, X} from "lucide-react";
 import {BadgeLib} from "@/app/(ui)/component-library/atoms/badge/badge-lib";
+import {useLegislature} from "@/app/(ui)/providers/legislature-provider";
 
 export function LegislatureSelector() {
     const {legislature, legislatures, setLegislature, loading} = useLegislature();

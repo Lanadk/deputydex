@@ -30,7 +30,7 @@ async function generateData() {
     const outputDir = path.join(process.cwd(), 'public/data');
     await fs.mkdir(outputDir, { recursive: true });
 
-    const outputPath = path.join(outputDir, 'deputies.json');
+    const outputPath = path.join(outputDir, 'deputy.json');
     await fs.writeFile(outputPath, JSON.stringify(deputies, null, 2));
 
     console.log(`Fichier créé: ${outputPath}`);

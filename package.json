@@ -9,6 +9,8 @@
     "start": "next start",
     "lint": "eslint",
     "prisma:generate": "prisma generate",
+    "generate:photos": "ts-node scripts/generate-photos-list.ts",
+    "generate:photos-sql": "ts-node scripts/generate-photos-sql.ts",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage"
