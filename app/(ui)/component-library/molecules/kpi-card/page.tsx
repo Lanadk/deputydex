@@ -3,7 +3,7 @@ import {PageContentLib} from "@/app/(ui)/component-library/template/page-content
 import {
     ComponentSectionCodeBlockLib
 } from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block-lib";
-import {getKpiCardSections} from "@/app/(ui)/component-library/atoms/kpi-card/kpi-card.constants";
+import {getKpiCardSections} from "@/app/(ui)/component-library/molecules/kpi-card/kpi-card.constants";
 
 
 export default function KpiCardPage() {

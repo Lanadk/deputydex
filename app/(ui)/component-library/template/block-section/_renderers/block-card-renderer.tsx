@@ -1,7 +1,7 @@
 import {useEffect, useState} from "react";
 import {BarChartLib} from "@/app/(ui)/component-library/molecules/chart/bar-chart/bar-chart-lib";
 import {CardConfig, CardDataWrapper} from "@/app/(ui)/component-library/template/block-section/card-config.types";
-import {KpiCardLib} from "@/app/(ui)/component-library/atoms/kpi-card/kpi-card-lib";
+import {KpiCardLib} from "@/app/(ui)/component-library/molecules/kpi-card/kpi-card-lib";
 
 type BlockCardRendererProps = {
     config: CardConfig;
@@ -20,13 +20,9 @@ export function BlockCardRenderer({config, gatewayParam}: BlockCardRendererProps
             .finally(() => setLoading(false));
     }, [gatewayParam, config.id]);
 
-    const base = {title: config.title, subtitle: config.subtitle, loading};
 
     if (!card && !loading) return null;
-
-    if (!card) {
-        return <BarChartLib {...base} data={[]}/>;
-    }
+    if (!card) return null;
 
     switch (card.type) {
         case 'kpi-card':

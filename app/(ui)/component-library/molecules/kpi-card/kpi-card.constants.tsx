@@ -1,4 +1,4 @@
-import {KpiCardLib} from "@/app/(ui)/component-library/atoms/kpi-card/kpi-card-lib";
+import {KpiCardLib} from "@/app/(ui)/component-library/molecules/kpi-card/kpi-card-lib";
 
 const KPI_CODE_SIMPLE_USAGE = `<KpiCardLib
     kpiValue="88"
