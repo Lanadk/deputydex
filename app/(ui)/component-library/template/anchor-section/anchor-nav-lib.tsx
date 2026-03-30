@@ -69,13 +69,13 @@ export const AnchorNavLib: React.FC<AnchorNavLibProps> = ({
                                 onClick={(e) => handleClick(e, id)}
                                 className={`
                                     flex items-center gap-2.5 px-2.5 py-2 rounded-lg
-                                    text-sm font-medium transition-all duration-150
+                                    text-sm font-medium transition-transform duration-150
                                     sidebar-link
                                     ${isActive ? "sidebar-link--active" : ""}
                                 `}
                             >
                                 <span
-                                    className="w-0.5 h-4 rounded-full shrink-0 transition-all duration-200"
+                                    className="w-0.5 h-4 rounded-full shrink-0 transition-transform duration-200"
                                     style={{
                                         backgroundColor: isActive ? "var(--accent)" : "transparent",
                                         opacity: isActive ? 1 : 0,
