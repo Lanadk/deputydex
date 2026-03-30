@@ -36,26 +36,29 @@ export default function GroupePageClient({code}: { code: string }) {
             }
             sections={GROUPES_SECTIONS}
         >
-            <PageContentLib>
-                {GROUPES_SECTIONS.map((section) => (
-                    <AnchorSectionBlockLib
-                        key={section.id}
-                        id={section.id}
-                        title={section.label}
-                        description={section.description}
-                        icon={section.icon}
-                        cols={section.cols}
-                    >
-                        {section.blocks.map((block, i) => (
-                            <BlockSectionRenderer
-                                key={i}
-                                block={block}
-                                legislature={legislatureNum}
-                            />
-                        ))}
-                    </AnchorSectionBlockLib>
-                ))}
-            </PageContentLib>
+            <div className="mt-4">
+                <PageContentLib>
+                    {GROUPES_SECTIONS.map((section) => (
+                        <AnchorSectionBlockLib
+                            key={section.id}
+                            id={section.id}
+                            title={section.label}
+                            description={section.description}
+                            icon={section.icon}
+                            cols={section.cols}
+                        >
+                            {section.blocks.map((block, i) => (
+                                <BlockSectionRenderer
+                                    key={i}
+                                    block={block}
+                                    legislature={legislatureNum}
+                                />
+                            ))}
+                        </AnchorSectionBlockLib>
+                    ))}
+                </PageContentLib>
+            </div>
+
         </AnchorLayout>
     );
 }
