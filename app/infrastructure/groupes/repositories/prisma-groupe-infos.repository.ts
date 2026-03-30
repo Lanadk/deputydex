@@ -2,24 +2,29 @@ import {IGroupeInfosRepository} from "@/app/domains/groupes/repositories/IGroupe
 import {prisma} from "@/app/infrastructure/db/prisma/prisma";
 
 export type GroupeInfosRow = {
-        groupe_label: string;
-        groupe_code: string;
-        groupe_position: 'Droite' | 'Centre' | 'Gauche';
-        groupe_count_members: number;
-        groupe_rank: number;
-        groupe_year_of_creation: string;
-        groupe_web_site: string;
-        groupe_president_full_name: string;
-        groupe_label_type_sex: string;
-        groupe_seats_share_percent: number;
+    legislature: number;
+    groupe_id: string;
+    groupe_label: string;
+    groupe_code: string;
+    groupe_position: 'Droite' | 'Centre' | 'Gauche';
+    groupe_count_members: number;
+    groupe_rank: number;
+    groupe_year_of_creation: string;
+    groupe_web_site: string;
+    groupe_president_full_name: string;
+    groupe_quality_sex_label: string;
+    groupe_seats_share_percent: number;
 }
 
-export const  prismaGroupeInfosRepository: IGroupeInfosRepository = {
+export const prismaGroupeInfosRepository: IGroupeInfosRepository = {
 
-    async getGroupeInfos(code: string, legislature: number): Promise<any> {
+    async getGroupeInfos(code: string, legislature: number): Promise<GroupeInfosRow[]> {
         try {
-            return await prisma.$queryRaw<GroupeInfosRow>`
-                
+            return await prisma.$queryRaw<GroupeInfosRow[]>`
+                SELECT *
+                FROM agg_groupes_fiche_infos
+                WHERE legislature = ${legislature}
+                  AND groupe_code = ${code}
             `;
 
         } catch (error) {

@@ -1,4 +1,5 @@
 export type GroupeInfosDTO = {
+    legislature: number;
     groupeLabel: string;
     groupeCode: string;
     groupePosition?: 'Droite' | 'Centre' | 'Gauche';
@@ -7,7 +8,7 @@ export type GroupeInfosDTO = {
     groupeYearOfCreation: string,
     groupeWebSite: string;
     groupeColor?: string;
-    groupeImg?: string | null;
+    groupeImg: string | "";
     groupePresidentFullName: string;
     groupeQualitySexLabel: string;
     groupeSeatsSharePercent: number;
