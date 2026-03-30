@@ -64,9 +64,9 @@ export const BlockSectionRenderer: React.FC<BlockSectionRendererProps> = ({
                                                                               legislature,
                                                                           }) => {
     const colSpanClass =
-        block.colSpan === 2 ? "md:col-span-2" :
-            block.colSpan === 3 ? "md:col-span-3" :
-                block.colSpan === 4 ? "md:col-span-4" :
+        block.colSpan === 2 ? "sm:col-span-2" :
+            block.colSpan === 3 ? "sm:col-span-2 xl:col-span-3" :
+                block.colSpan === 4 ? "sm:col-span-2 xl:col-span-4" :
                     "";
 
     const rendered = (() => {
