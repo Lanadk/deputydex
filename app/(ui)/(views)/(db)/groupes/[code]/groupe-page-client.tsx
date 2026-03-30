@@ -6,11 +6,11 @@ import {AnchorLayout} from "@/app/(ui)/component-library/template/anchor-section
 import {PageContentLib} from "@/app/(ui)/component-library/template/page-content/page-content-lib";
 import {AnchorSectionBlockLib} from "@/app/(ui)/component-library/template/anchor-section/anchor-section-block-lib";
 import {BlockSectionRenderer} from "@/app/(ui)/component-library/template/block-section/block-section-renderer";
-import {GROUPES_SECTIONS} from "@/app/(ui)/(views)/(db)/groupes/[code]/groupes-sections.config";
 import {GroupeHeader} from "@/app/(ui)/components/groups/fiche/groupe-header";
 import {GroupeInfosDTO} from "@/app/domains/groupes/dto/groupe-infos.dto";
 import {groupesGateways} from "@/app/(ui)/gateways/groupes/groupes.gateway";
 import {GroupeHeaderSkeleton} from "@/app/(ui)/components/groups/fiche/groupe-header-skeleton";
+import {GROUPES_SECTIONS} from "@/app/(ui)/(views)/(db)/groupes/[code]/config";
 
 export default function GroupePageClient({code}: { code: string }) {
     const {legislature} = useLegislature();
