@@ -1,26 +1,8 @@
 import {AnchorSection} from "@/app/(ui)/component-library/template/anchor-section/anchor.types";
 import {SectionBlock} from "@/app/(ui)/component-library/template/block-section/block-section-renderer";
 import {CalendarDays, Users} from "lucide-react";
-import {GROUPES_KPI_REGISTRY} from "@/app/(ui)/(views)/(db)/groupes/[code]/groupes-kpi-card.registry";
-import {CardConfig} from "@/app/(ui)/component-library/template/block-section/card-config.types";
-import {
-    ActivityCalendarConfig
-} from "@/app/(ui)/component-library/template/block-section/activity-calendar-config.types";
-import {GROUPES_ACTIVITY_CALENDAR} from "@/app/(ui)/(views)/(db)/groupes/[code]/groupes-activity-calendar.registry";
-
-
-const card = (id: string): CardConfig => {
-    const found = GROUPES_KPI_REGISTRY.find((s) => s.id === id);
-    if (!found) throw new Error(`StatConfig introuvable : ${id}`);
-    return found;
-};
-
-const activityCalendar = (id: string): ActivityCalendarConfig => {
-    const found = GROUPES_ACTIVITY_CALENDAR.find((s) => s.id === id);
-    if (!found) throw new Error(`StatConfig introuvable : ${id}`);
-    return found;
-}
-
+import {MdOutlineGroups2} from "react-icons/md";
+import {activityCalendar, card, table} from "@/app/(ui)/(views)/(db)/groupes/[code]/registry";
 
 export interface GroupesSection extends AnchorSection {
     description: string;
@@ -73,5 +55,24 @@ export const GROUPES_SECTIONS: GroupesSection[] = [
                 config: card('kpi-deputy-seniority')
             },
         ],
-    }
+    },
+    //membres du groupe
+    {
+        id: 'groupe-members',
+        label: 'Members du groupe',
+        icon: MdOutlineGroups2,
+        description: 'Parcourer la liste de tous les membres du groupe parlementaire',
+        cols: 4,
+        blocks: [
+            {
+                type: "table" as const,
+                colSpan: 4,
+                ...table("groupe-members-table"),
+                title: "Membre du groupe",
+                subtitle: "Cliquer sur un député pour voir sa fiche",
+                filter: undefined,
+                export: undefined,
+            }
+        ]
+    },
 ];

@@ -1,5 +1,6 @@
 import React from "react";
 import { LucideIcon } from "lucide-react";
+import {IconType} from "react-icons";
 
 type GridCols = 1 | 2 | 3 | 4;
 
@@ -11,7 +12,7 @@ interface AnchorSectionBlockProps {
     /** Description courte */
     description?: string;
     /** Icône Lucide */
-    icon: LucideIcon;
+    icon: LucideIcon | IconType;
     /** Nombre de colonnes de la grille de contenu (défaut: 2) */
     cols?: GridCols;
     /** Composants charts / tables / etc. */
