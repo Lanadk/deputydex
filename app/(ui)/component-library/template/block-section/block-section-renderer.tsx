@@ -32,26 +32,22 @@ export type SectionBlock<TRow = unknown> =
     /** Occupe 2 colonnes dans la grille (défaut: 1) */
     colSpan?: ColSpan;
     config: ChartConfig;
-}
-    | {
+} | {
     type: "paragraph";
     colSpan?: ColSpan;
     items: ParagraphItem[];
-}
-    | {
-    type: "table";
-    colSpan?: ColSpan;
-} & TableConfig<TRow>
-    | {
+} | {
     type: "card"
     colSpan?: ColSpan;
     config: CardConfig;
-}
-    | {
+} | {
     type: "activity-calendar";
     colSpan?: ColSpan;
     config: ActivityCalendarConfig;
-}
+} | {
+    type: "table";
+    colSpan?: ColSpan;
+} & TableConfig<TRow>
 
 interface BlockSectionRendererProps {
     block: SectionBlock;
