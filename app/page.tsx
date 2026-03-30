@@ -26,8 +26,8 @@ export default function Home() {
                                 : "/assets/imgs/ASS_DEX_ACC.svg"
                         }
                         alt="ASS DEX"
-                        width={140}
-                        height={140}
+                        width={250}
+                        height={250}
                         priority
                     />
                 )}

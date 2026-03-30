@@ -9,9 +9,11 @@ import {BaseLayout} from "@/app/(ui)/component-library/template/base-layout/base
 
 interface AnchorLayoutProps {
     /** Titre affiché dans le PageHeaderLib */
-    title: string;
+    title?: string;
     /** Sous-titre affiché dans le PageHeaderLib */
-    subtitle: string;
+    subtitle?: string;
+    /** Header custom */
+    header?: React.ReactNode;
     /** Sections pour la nav ancre */
     sections: AnchorSection[];
     /** Label au-dessus de la nav (défaut : "Sections") */
@@ -36,20 +38,22 @@ export const AnchorLayout: React.FC<AnchorLayoutProps> = ({
                                                                     title,
                                                                     subtitle,
                                                                     sections,
+                                                                    header,
                                                                     navLabel,
                                                                     children,
                                                                 }: AnchorLayoutProps) => {
     return (
         <AnchorSectionProvider initialId={sections[0]?.id}>
             <BaseLayout>
-                {/* ── Header pleine largeur ── */}
-                <div className="border-b border-main pb-6 mb-8">
-                    <PageHeaderLib title={title} subtitle={subtitle} />
-                </div>
+                {/* Header — soit custom, soit PageHeaderLib */}
+                {header ?? (
+                    <div className="border-b border-main pb-6 mb-8">
+                        <PageHeaderLib title={title!} subtitle={subtitle!} />
+                    </div>
+                )}
 
                 {/* ── Two-column : nav ancre sticky + contenu ── */}
                 <div className="flex gap-8 items-start">
-
                     <aside className="hidden xl:block w-52 shrink-0 sticky top-8 self-start">
                         <AnchorNavLib sections={sections} label={navLabel} />
                     </aside>
@@ -57,7 +61,6 @@ export const AnchorLayout: React.FC<AnchorLayoutProps> = ({
                     <main className="flex-1 min-w-0">
                         {children}
                     </main>
-
                 </div>
             </BaseLayout>
         </AnchorSectionProvider>
