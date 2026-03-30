@@ -10,7 +10,8 @@ const components = {
         { name: 'Button', path: '/component-library/atoms/button' },
         { name: 'Span', path: '/component-library/atoms/span' },
         { name: 'Badge', path: '/component-library/atoms/badge' },
-        { name: 'Badge-avatar', path: '/component-library/atoms/badge-avatar' }
+        { name: 'Badge-avatar', path: '/component-library/atoms/badge-avatar' },
+        { name: 'Kpi-card', path: '/component-library/atoms/kpi-card' }
     ],
     Molecules: [
         { name: 'ToggleSwitch', path: '/component-library/molecules/toggle-switch' },
