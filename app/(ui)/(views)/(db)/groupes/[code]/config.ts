@@ -2,7 +2,7 @@ import {AnchorSection} from "@/app/(ui)/component-library/template/anchor-sectio
 import {SectionBlock} from "@/app/(ui)/component-library/template/block-section/block-section-renderer";
 import {CalendarDays, Users, Vote} from "lucide-react";
 import {MdOutlineGroups2} from "react-icons/md";
-import {activityCalendar, card, table} from "@/app/(ui)/(views)/(db)/groupes/[code]/registry";
+import {activityCalendar, card, chart, table} from "@/app/(ui)/(views)/(db)/groupes/[code]/registry";
 
 export interface GroupesSection extends AnchorSection {
     description: string;
@@ -55,6 +55,8 @@ export const GROUPES_SECTIONS: GroupesSection[] = [
             {type: 'card', colSpan: 1, config: card('kpi-deputy-seniority')},
             {type: 'card', colSpan: 2, config: card('kpi-deputy-parity')},
             {type: 'card', colSpan: 2, config: card('kpi-deputy-location-from')},
+            {type: 'chart', colSpan: 4, config: chart('chart-groupe-professions-familles')},
+            {type: 'chart', colSpan: 4, config: chart('chart-groupe-professions-gaterorie')}
         ],
     },
     //groupe Votes & Cohésion section
