@@ -10,6 +10,12 @@ import {ChartConfig} from "@/app/(ui)/component-library/template/block-section/c
 import {TableConfig} from "@/app/(ui)/component-library/template/block-section/table-config.types";
 import {CardConfig} from "@/app/(ui)/component-library/template/block-section/card-config.types";
 import {BlockCardRenderer} from "@/app/(ui)/component-library/template/block-section/_renderers/block-card-renderer";
+import {
+    ActivityCalendarConfig
+} from "@/app/(ui)/component-library/template/block-section/activity-calendar-config.types";
+import {
+    BlockActivityCalendarRenderer
+} from "@/app/(ui)/component-library/template/block-section/_renderers/block-activity-calendar-renderer";
 
 export type ColSpan = 1 | 2 | 3 | 4;
 export type ParagraphItem =
@@ -40,6 +46,11 @@ export type SectionBlock<TRow = unknown> =
     type: "card"
     colSpan?: ColSpan;
     config: CardConfig;
+}
+    | {
+    type: "activity-calendar";
+    colSpan?: ColSpan;
+    config: ActivityCalendarConfig;
 }
 
 interface BlockSectionRendererProps {
@@ -86,6 +97,14 @@ export const BlockSectionRenderer: React.FC<BlockSectionRendererProps> = ({
             case "card":
                 return (
                     <BlockCardRenderer
+                        config={block.config}
+                        legislature={legislature}
+                    />
+                );
+
+            case "activity-calendar":
+                return (
+                    <BlockActivityCalendarRenderer
                         config={block.config}
                         legislature={legislature}
                     />
