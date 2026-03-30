@@ -2,10 +2,14 @@
 
 import React from "react";
 import {BlockChartRenderer} from "@/app/(ui)/component-library/template/block-section/_renderers/block-chart-renderer";
-import {BlockParagraphRenderer} from "@/app/(ui)/component-library/template/block-section/_renderers/block-paragraph-renderer";
+import {
+    BlockParagraphRenderer
+} from "@/app/(ui)/component-library/template/block-section/_renderers/block-paragraph-renderer";
 import {BlockTableRenderer} from "@/app/(ui)/component-library/template/block-section/_renderers/block-table-renderer";
 import {ChartConfig} from "@/app/(ui)/component-library/template/block-section/chart-config.types";
 import {TableConfig} from "@/app/(ui)/component-library/template/block-section/table-config.types";
+import {CardConfig} from "@/app/(ui)/component-library/template/block-section/card-config.types";
+import {BlockCardRenderer} from "@/app/(ui)/component-library/template/block-section/_renderers/block-card-renderer";
 
 export type ColSpan = 1 | 2 | 3 | 4;
 export type ParagraphItem =
@@ -32,6 +36,11 @@ export type SectionBlock<TRow = unknown> =
     type: "table";
     colSpan?: ColSpan;
 } & TableConfig<TRow>
+    | {
+    type: "card"
+    colSpan?: ColSpan;
+    config: CardConfig;
+}
 
 interface BlockSectionRendererProps {
     block: SectionBlock;
@@ -70,6 +79,14 @@ export const BlockSectionRenderer: React.FC<BlockSectionRendererProps> = ({
                 return (
                     <BlockTableRenderer
                         config={block}
+                        legislature={legislature}
+                    />
+                );
+
+            case "card":
+                return (
+                    <BlockCardRenderer
+                        config={block.config}
                         legislature={legislature}
                     />
                 );
