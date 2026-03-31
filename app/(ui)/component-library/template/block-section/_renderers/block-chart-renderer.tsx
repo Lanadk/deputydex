@@ -1,59 +1,68 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { ChartDataWrapper, ChartConfig } from "../chart-config.types";
-import { BarChartLib } from "@/app/(ui)/component-library/molecules/chart/bar-chart/bar-chart-lib";
-import { LineChartLib } from "@/app/(ui)/component-library/molecules/chart/line-chart/line-chart-lib";
-import { DashedLineChartLib } from "@/app/(ui)/component-library/molecules/chart/line-chart/dashed-line-chart-lib";
-import { PieChartLib } from "@/app/(ui)/component-library/molecules/chart/pie-chart/pie-chart-lib";
-import { DonutChartLib } from "@/app/(ui)/component-library/molecules/chart/pie-chart/donut-chart-lib";
-import { StackedBarChartLib } from "@/app/(ui)/component-library/molecules/chart/bar-chart/stacked-bar-chart-lib";
-import { ScatterChartLib } from "@/app/(ui)/component-library/molecules/chart/point-chart/scatter-chart-lib";
+import {
+    ChartDataWrapper,
+    ChartConfig,
+    SimpleDatum,
+    MultiDatum,
+    SeriesConfig,
+    ScatterSeries
+} from "../chart-config.types";
+import {BarChartLib} from "@/app/(ui)/component-library/molecules/chart/bar-chart/bar-chart-lib";
+import {LineChartLib} from "@/app/(ui)/component-library/molecules/chart/line-chart/line-chart-lib";
+import {DashedLineChartLib} from "@/app/(ui)/component-library/molecules/chart/line-chart/dashed-line-chart-lib";
+import {PieChartLib} from "@/app/(ui)/component-library/molecules/chart/pie-chart/pie-chart-lib";
+import {DonutChartLib} from "@/app/(ui)/component-library/molecules/chart/pie-chart/donut-chart-lib";
+import {StackedBarChartLib} from "@/app/(ui)/component-library/molecules/chart/bar-chart/stacked-bar-chart-lib";
+import {ScatterChartLib} from "@/app/(ui)/component-library/molecules/chart/point-chart/scatter-chart-lib";
 
-type BlockChartRenderer = {
+type BlockChartRendererProps = {
     config: ChartConfig;
-    legislature: number;
+    data: ChartDataWrapper | null;
+    loading: boolean;
 };
 
-export function BlockChartRenderer({ config, legislature }: BlockChartRenderer) {
-    const [chart, setChart] = useState<ChartDataWrapper | null>(null);
-    const [loading, setLoading] = useState(true);
+export function BlockChartRenderer({config, data, loading}: BlockChartRendererProps) {
+    const base = {title: config.title, subtitle: config.subtitle, loading};
 
-    useEffect(() => {
-        setLoading(true); //TODO fix
-        config.gatewayFn(legislature)
-            .then(setChart)
-            .finally(() => setLoading(false));
-    }, [legislature, config.id]);
+    if (!data && !loading) return null;
+    if (!data) return <BarChartLib {...base} data={[]}/>;
 
-    const base = { title: config.title, subtitle: config.subtitle, loading };
-
-    if (!chart && !loading) return null;
-
-    if (!chart) {
-        return <BarChartLib {...base} data={[]} />;
-    }
-
-    switch (chart.type) {
+    switch (config.displayType) {
         case 'bar':
-            return <BarChartLib {...base} data={chart.data} variant={chart.variant} />;
-        case 'bar-multi':
-            return <BarChartLib {...base} data={chart.data} series={chart.series} variant={chart.variant} />;
-        case 'stacked-bar':
-            return <StackedBarChartLib {...base} data={chart.data as never} />;
-        case 'line':
-            return <LineChartLib {...base} data={chart.data} variant={chart.variant} groupLabel={chart.groupLabel} />;
-        case 'line-multi':
-            return <LineChartLib {...base} data={chart.data} series={chart.series} variant={chart.variant} />;
-        case 'line-dashed':
-            return <DashedLineChartLib {...base} data={chart.data} variant={chart.variant} groupLabel={chart.groupLabel} />;
-        case 'line-dashed-multi':
-            return <DashedLineChartLib {...base} data={chart.data} series={chart.series} variant={chart.variant} />;
         case 'pie':
-            return <PieChartLib {...base} data={chart.data} variant={chart.variant} />;
-        case 'donut':
-            return <DonutChartLib {...base} data={chart.data.map(d => ({ ...d, id: d.label }))} variant={chart.variant} />;
-        case 'scatter':
-            return <ScatterChartLib {...base} series={chart.series} xLabel={chart.xLabel} yLabel={chart.yLabel} variant={chart.variant} />;
+        case 'donut': {
+            const d = data as { data: SimpleDatum[] };
+            if (config.displayType === 'donut')
+                return <DonutChartLib {...base} data={d.data.map(x => ({...x, id: x.label}))}
+                                      variant={config.variant}/>;
+            if (config.displayType === 'pie')
+                return <PieChartLib {...base} data={d.data} variant={config.variant}/>;
+            return <BarChartLib {...base} data={d.data} variant={config.variant}/>;
+        }
+        case 'bar-multi':
+        case 'stacked-bar':
+        case 'line-multi':
+        case 'line-dashed-multi': {
+            const d = data as { data: MultiDatum[]; series: SeriesConfig[] };
+            if (config.displayType === 'stacked-bar')
+                return <StackedBarChartLib {...base} data={d.data as never}/>;
+            if (config.displayType === 'line-multi')
+                return <LineChartLib {...base} data={d.data} series={d.series} variant={config.variant}/>;
+            if (config.displayType === 'line-dashed-multi')
+                return <DashedLineChartLib {...base} data={d.data} series={d.series} variant={config.variant}/>;
+            return <BarChartLib {...base} data={d.data} series={d.series} variant={config.variant}/>;
+        }
+        case 'line':
+        case 'line-dashed': {
+            const d = data as { data: SimpleDatum[]; groupLabel?: string };
+            if (config.displayType === 'line-dashed')
+                return <DashedLineChartLib {...base} data={d.data} variant={config.variant} groupLabel={d.groupLabel}/>;
+            return <LineChartLib {...base} data={d.data} variant={config.variant} groupLabel={d.groupLabel}/>;
+        }
+        case 'scatter': {
+            const d = data as { series: ScatterSeries[]; xLabel?: string; yLabel?: string };
+            return <ScatterChartLib {...base} series={d.series} xLabel={d.xLabel} yLabel={d.yLabel}/>;
+        }
     }
 }

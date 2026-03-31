@@ -29,18 +29,22 @@ export type SummaryListItem =
 export type SummaryListCardData = {
     title?: string;
     items: SummaryListItem[];
-}
-
+};
 
 export type CardDataWrapper =
-    | { type: 'kpi-card'; data: KpiCardData; variant?: ChartColorVariant }
-    | { type: 'kpi-bar-card'; data: KpiBarCardData }
-    | { type: 'summary-list-card', data: SummaryListCardData};
+    | { data: KpiCardData }
+    | { data: KpiBarCardData }
+    | { data: SummaryListCardData };
 
-export type CardConfig = {
+type CardConfigBase = {
     id: string;
+    variant?: ChartColorVariant;
     title?: string;
     subtitle?: string;
     theme?: string;
-    gatewayFn: (legislature: number) => Promise<CardDataWrapper>;
-}
+};
+
+export type CardConfig =
+    | CardConfigBase & { displayType: 'kpi-card' }
+    | CardConfigBase & { displayType: 'kpi-bar-card' }
+    | CardConfigBase & { displayType: 'summary-list-card' };

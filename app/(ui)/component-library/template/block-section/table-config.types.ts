@@ -27,8 +27,6 @@ export type TableConfig<TRow = unknown> = {
     id: string;
     title?: string;
     subtitle?: string;
-    /** Fetch des données selon la législature */
-    gatewayFn: (legislature: number) => Promise<TRow[]>;
     columns: ColumnDef<TRow>[];
     getRowKey: (row: TRow) => string;
     /** Activer la pagination locale */

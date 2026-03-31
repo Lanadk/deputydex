@@ -1,47 +1,42 @@
-import { useEffect, useState } from "react";
-import { SectionBlock } from "@/app/(ui)/component-library/template/block-section/block-section-renderer";
+import {useEffect, useReducer} from "react";
+import {
+    BlockDataWrapper,
+} from "@/app/(ui)/component-library/template/block-section/block-section-renderer";
 
-type BlockData = Record<string, unknown> | unknown[];
 
-/**
-export function useSectionData(blocks: SectionBlock[], legislature: number) {
-    const [dataMap, setDataMap] = useState<Record<string, BlockData>>({});
-    const [loading, setLoading] = useState(true);
+type State = {
+    dataMap: Record<string, BlockDataWrapper>;
+    loading: boolean;
+};
+
+type Action =
+    | { type: "FETCH_START" }
+    | { type: "FETCH_SUCCESS"; payload: Record<string, BlockDataWrapper> };
+
+function reducer(state: State, action: Action): State {
+    switch (action.type) {
+        case "FETCH_START":
+            return { dataMap: {}, loading: true };
+        case "FETCH_SUCCESS":
+            return { dataMap: action.payload, loading: false };
+    }
+}
+
+export function useFetchSectionData(
+    gatewayFn: ((legislature: number) => Promise<Record<string, BlockDataWrapper>>) | undefined,
+    legislature: number
+) {
+    const [{ dataMap, loading }, dispatch] = useReducer(reducer, { dataMap: {}, loading: false });
 
     useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setLoading(true);
-
-        // Collecte tous les blocks qui ont une gatewayFn
-        const fetchables = blocks.flatMap((block) => {
-            switch (block.type) {
-                case "chart":
-                    return [{ id: block.config.id, fn: () => block.config.gatewayFn(legislature) }];
-                case "card":
-                    return [{ id: block.config.id, fn: () => block.config.gatewayFn(legislature) }];
-                case "activity-calendar":
-                    return [{ id: block.config.id, fn: () => block.config.gatewayFn(legislature) }];
-                case "table":
-                    return [{ id: block.id, fn: () => block.gatewayFn(legislature) }];
-                default:
-                    return [];
-            }
-        });
-
-        // Un seul Promise.all par section
-        Promise.all(
-            fetchables.map(({ id, fn }) =>
-                fn().then((data) => ({ id, data }))
-            )
-        )
-            .then((results) => {
-                const map: Record<string, BlockData> = {};
-                results.forEach(({ id, data }) => { map[id] = data; });
-                setDataMap(map);
-            })
-            .finally(() => setLoading(false));
-
+        if (!gatewayFn) {
+            dispatch({ type: "FETCH_SUCCESS", payload: {} });
+            return;
+        }
+        dispatch({ type: "FETCH_START" });
+        gatewayFn(legislature)
+            .then((payload) => dispatch({ type: "FETCH_SUCCESS", payload }));
     }, [legislature]);
 
     return { dataMap, loading };
-} */
+}

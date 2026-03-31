@@ -1,14 +1,21 @@
-export type ActivityCalendarDataWrapper =
-    | { type: 'activity-calendar'; data: any}
-    | { type: 'activity-calendar-tooltip'; data: any}
-    | { type: 'activity-calendar-tooltip-and-href'; data: any}
+export type ActivityCalendarDay = {
+    date: string;
+    count: number;
+    level: number;
+};
 
+export type ActivityCalendarDisplayType =
+    | 'basic'
+    | 'tooltip'
+    | 'tooltip-and-href';
 
+export type ActivityCalendarDataWrapper = {
+    data: ActivityCalendarDay[];
+};
 
 export type ActivityCalendarConfig = {
     id: string;
+    displayType: ActivityCalendarDisplayType;
     title?: string;
     subtitle?: string;
-    theme?: string;
-    gatewayFn: (legislature: number) => Promise<ActivityCalendarDataWrapper>;
-}
+};

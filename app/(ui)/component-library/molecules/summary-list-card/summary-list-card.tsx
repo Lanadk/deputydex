@@ -7,7 +7,7 @@ type SummaryListCardLibProps = {
     items: SummaryListItem[];
 };
 
-export const SummaryListCardLib: React.FC<SummaryListCardLibProps> = ({ title, items }) => (
+export const SummaryListCardLib: React.FC<SummaryListCardLibProps> = ({title, items}) => (
     <div className="chart-lib border border-main rounded-lg bg-surface p-5">
         {title && (
             <h3 className="text-xs font-bold uppercase tracking-wide text-secondary mb-4">

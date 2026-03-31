@@ -26,7 +26,6 @@ export default function StatistiquesPage() {
                         <BlockSectionRenderer
                             key={i}
                             block={block}
-                            legislature={legislatureNum}
                         />
                     ))}
                 </AnchorSectionBlockLib>

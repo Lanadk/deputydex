@@ -1,59 +1,41 @@
-import {useEffect, useState} from "react";
-import {CardConfig, CardDataWrapper} from "@/app/(ui)/component-library/template/block-section/card-config.types";
+import {
+    CardConfig,
+    CardDataWrapper, KpiBarCardData,
+    KpiCardData, SummaryListCardData
+} from "@/app/(ui)/component-library/template/block-section/card-config.types";
 import {KpiCardLib} from "@/app/(ui)/component-library/molecules/kpi-card/kpi-card-lib";
 import {KpiBarCardLib} from "@/app/(ui)/component-library/molecules/kpi-bar-card/kpi-bar-card-lib";
 import {SummaryListCardLib} from "@/app/(ui)/component-library/molecules/summary-list-card/summary-list-card";
 
 type BlockCardRendererProps = {
-    config: CardConfig;
-    legislature: number;
-    gatewayParam?: any;
+    config: CardConfig
+    data: CardDataWrapper | null;
+    loading: boolean;
 };
 
-export function BlockCardRenderer({config, gatewayParam}: BlockCardRendererProps) {
-    const [card, setCard] = useState<CardDataWrapper | null>(null);
-    const [loading, setLoading] = useState(true);
+export function BlockCardRenderer({config, data, loading}: BlockCardRendererProps) {
+    if (!data || loading) return null;
 
-    useEffect(() => {
-        setLoading(true); //TODO fix
-        config.gatewayFn(gatewayParam)
-            .then(setCard)
-            .finally(() => setLoading(false));
-    }, [gatewayParam, config.id]);
-
-
-    if (!card && !loading) return null;
-    if (!card) return null;
-
-    switch (card.type) {
-        case 'kpi-card':
-            return (
-                <KpiCardLib
-                    kpiValue={card.data.value}
-                    kpiLabel={card.data.label}
-                />
-            );
-
-        case "kpi-bar-card":
+    switch (config.displayType) {
+        case 'kpi-card': {
+            const d = data as { data: KpiCardData };
+            return <KpiCardLib kpiValue={d.data.value} kpiLabel={d.data.label}/>;
+        }
+        case 'kpi-bar-card': {
+            const d = data as { data: KpiBarCardData };
             return (
                 <KpiBarCardLib
-                    title={card.data.title}
-                    items={card.data.items}
-                    maxValue={card.data.maxValue}
-                    footer={card.data.footer}
-                    showFooterDivider={card.data.showFooterDivider}
+                    title={d.data.title}
+                    items={d.data.items}
+                    maxValue={d.data.maxValue}
+                    footer={d.data.footer}
+                    showFooterDivider={d.data.showFooterDivider}
                 />
             );
-
-        case "summary-list-card":
-            return (
-                <SummaryListCardLib
-                    title={card.data.title}
-                    items={card.data.items}
-                />
-            );
-
-        default:
-            return null;
+        }
+        case 'summary-list-card': {
+            const d = data as { data: SummaryListCardData };
+            return <SummaryListCardLib title={d.data.title} items={d.data.items}/>;
+        }
     }
 }

@@ -1,36 +1,26 @@
 import {
-    ActivityCalendarConfig, ActivityCalendarDataWrapper
+    ActivityCalendarConfig,
+    ActivityCalendarDataWrapper
 } from "@/app/(ui)/component-library/template/block-section/activity-calendar-config.types";
-import {cloneElement, useEffect, useState} from "react";
+import {cloneElement} from "react";
 import {ActivityCalendarLib} from "@/app/(ui)/component-library/molecules/activity-calendar/activity-calendar-lib";
 
 type BlockActivityCalendarRendererProps = {
     config: ActivityCalendarConfig;
-    legislature: number;
-    gatewayParam?: any;
+    data: ActivityCalendarDataWrapper | null;
+    loading: boolean;
 }
 
+export function BlockActivityCalendarRenderer({config, data, loading}: BlockActivityCalendarRendererProps) {
 
-export function BlockActivityCalendarRenderer({config, gatewayParam}: BlockActivityCalendarRendererProps) {
+    if (!data && !loading) return null;
+    if (!data) return null;
 
-    const [activityCalendar, setActivityCalendar] = useState<ActivityCalendarDataWrapper | null>(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        setLoading(true); //TODO fix
-        config.gatewayFn(gatewayParam)
-            .then(setActivityCalendar)
-            .finally(() => setLoading(false));
-    }, [gatewayParam, config.id]);
-
-    if (!activityCalendar && !loading) return null;
-    if (!activityCalendar) return null;
-
-    switch (activityCalendar.type) {
-        case 'activity-calendar-tooltip-and-href':
+    switch (config.displayType) {
+        case 'tooltip-and-href':
             return (
                 <ActivityCalendarLib
-                    data={activityCalendar.data}
+                    data={data.data}
                     tooltips={{
                         activity: {
                             text: activity => `${activity.level} activities on ${activity.date}`,

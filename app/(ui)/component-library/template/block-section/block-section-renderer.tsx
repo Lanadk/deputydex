@@ -6,12 +6,12 @@ import {
     BlockParagraphRenderer
 } from "@/app/(ui)/component-library/template/block-section/_renderers/block-paragraph-renderer";
 import {BlockTableRenderer} from "@/app/(ui)/component-library/template/block-section/_renderers/block-table-renderer";
-import {ChartConfig} from "@/app/(ui)/component-library/template/block-section/chart-config.types";
+import {ChartConfig, ChartDataWrapper} from "@/app/(ui)/component-library/template/block-section/chart-config.types";
 import {TableConfig} from "@/app/(ui)/component-library/template/block-section/table-config.types";
-import {CardConfig} from "@/app/(ui)/component-library/template/block-section/card-config.types";
+import {CardConfig, CardDataWrapper} from "@/app/(ui)/component-library/template/block-section/card-config.types";
 import {BlockCardRenderer} from "@/app/(ui)/component-library/template/block-section/_renderers/block-card-renderer";
 import {
-    ActivityCalendarConfig
+    ActivityCalendarConfig, ActivityCalendarDataWrapper
 } from "@/app/(ui)/component-library/template/block-section/activity-calendar-config.types";
 import {
     BlockActivityCalendarRenderer
@@ -49,9 +49,16 @@ export type SectionBlock<TRow = unknown> =
     colSpan?: ColSpan;
 } & TableConfig<TRow>
 
+export type BlockDataWrapper =
+    | ChartDataWrapper
+    | CardDataWrapper
+    | ActivityCalendarDataWrapper
+    | unknown[]; // table rows
+
 interface BlockSectionRendererProps {
     block: SectionBlock;
-    legislature: number;
+    dataMap: Record<string, BlockDataWrapper>;
+    loading: boolean;
 }
 
 /**
@@ -61,7 +68,8 @@ interface BlockSectionRendererProps {
  */
 export const BlockSectionRenderer: React.FC<BlockSectionRendererProps> = ({
                                                                               block,
-                                                                              legislature,
+                                                                              dataMap,
+                                                                              loading
                                                                           }) => {
     const colSpanClass =
         block.colSpan === 2 ? "sm:col-span-2" :
@@ -75,7 +83,8 @@ export const BlockSectionRenderer: React.FC<BlockSectionRendererProps> = ({
                 return (
                     <BlockChartRenderer
                         config={block.config}
-                        legislature={legislature}
+                        data={dataMap[block.config.id] as ChartDataWrapper ?? null}
+                        loading={loading}
                     />
                 );
 
@@ -86,7 +95,8 @@ export const BlockSectionRenderer: React.FC<BlockSectionRendererProps> = ({
                 return (
                     <BlockTableRenderer
                         config={block}
-                        legislature={legislature}
+                        data={dataMap[block.id] as unknown[] ?? []}
+                        loading={loading}
                     />
                 );
 
@@ -94,7 +104,8 @@ export const BlockSectionRenderer: React.FC<BlockSectionRendererProps> = ({
                 return (
                     <BlockCardRenderer
                         config={block.config}
-                        legislature={legislature}
+                        data={dataMap[block.config.id] as CardDataWrapper ?? null}
+                        loading={loading}
                     />
                 );
 
@@ -102,7 +113,8 @@ export const BlockSectionRenderer: React.FC<BlockSectionRendererProps> = ({
                 return (
                     <BlockActivityCalendarRenderer
                         config={block.config}
-                        legislature={legislature}
+                        data={dataMap[block.config.id] as ActivityCalendarDataWrapper ?? null}
+                        loading={loading}
                     />
                 );
         }
