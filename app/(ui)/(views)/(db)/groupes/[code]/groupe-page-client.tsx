@@ -1,47 +1,22 @@
 "use client";
 
 import {useLegislature} from "@/app/(ui)/providers/legislature-provider";
-import React, {useEffect, useState} from "react";
+import React, {useCallback, useEffect, useMemo, useState} from "react";
 import {AnchorLayout} from "@/app/(ui)/component-library/template/anchor-section/anchor-layout";
 import {PageContentLib} from "@/app/(ui)/component-library/template/page-content/page-content-lib";
-import {AnchorSectionBlockLib} from "@/app/(ui)/component-library/template/anchor-section/anchor-section-block-lib";
-import {BlockSectionRenderer} from "@/app/(ui)/component-library/template/block-section/block-section-renderer";
 import {GroupeHeader} from "@/app/(ui)/components/groups/fiche/groupe-header";
 import {GroupeInfosDTO} from "@/app/domains/groupes/dto/groupe-infos.dto";
 import {groupesGateways} from "@/app/(ui)/gateways/groupes/groupes.gateway";
 import {GroupeHeaderSkeleton} from "@/app/(ui)/components/groups/fiche/groupe-header-skeleton";
-import {GROUPES_SECTIONS, GroupesSection} from "@/app/(ui)/(views)/(db)/groupes/[code]/config";
-import {useFetchSectionData} from "@/app/(ui)/_shared/hook/useSectionData";
-
-// Composant isolé pour que chaque section ait son propre hook, infine plus tard le cache va gerer les perfs + si sections lourds, lazyloading
-function GroupeSection({ section, legislatureNum }: { section: GroupesSection; legislatureNum: number }) {
-    const {dataMap, loading} = useFetchSectionData(section.gatewayFn, legislatureNum);
-
-    return (
-        <AnchorSectionBlockLib
-            id={section.id}
-            title={section.label}
-            description={section.description}
-            icon={section.icon}
-            cols={section.cols}
-        >
-            {section.blocks.map((block, i) => (
-                <BlockSectionRenderer
-                    key={i}
-                    block={block}
-                    dataMap={dataMap}
-                    loading={loading}
-                />
-            ))}
-        </AnchorSectionBlockLib>
-    );
-}
+import {GROUPES_SECTIONS} from "@/app/(ui)/(views)/(db)/groupes/[code]/config";
+import {SpinnerLib} from "@/app/(ui)/component-library/molecules/spinner/spinner-lib";
+import {SectionBlockLoader} from "@/app/(ui)/component-library/template/block-section/_loader/section-block-loader";
 
 export default function GroupePageClient({code}: { code: string }) {
+    const [readyCount, setReadyCount] = useState(0);
+    const [groupeInfos, setGroupeInfos] = useState<GroupeInfosDTO>();
     const {legislature} = useLegislature();
     const legislatureNum = legislature?.number ?? 17;
-
-    const [groupeInfos, setGroupeInfos] = useState<GroupeInfosDTO>();
 
     useEffect(() => {
         groupesGateways.getGroupeInfos(code, legislatureNum)
@@ -49,21 +24,42 @@ export default function GroupePageClient({code}: { code: string }) {
             .catch(console.error);
     }, [code, legislatureNum]);
 
+    const sectionsToAwait = useMemo(
+        () => GROUPES_SECTIONS.filter(s => s.gatewayFn && !s.lazy),
+        []
+    );
+    const allReady = readyCount >= sectionsToAwait.length;
+    const noopReady = useCallback(() => {}, []);
+    const handleReady = useCallback(() => {
+        setReadyCount(c => c + 1);
+    }, []);
+
+    console.log('[Page] allReady:', allReady, 'readyCount:', readyCount, 'sectionsToAwait:', sectionsToAwait.length);
+
     return (
         <AnchorLayout
             header={groupeInfos ? <GroupeHeader groupeInfos={groupeInfos}/> : <GroupeHeaderSkeleton/>}
             sections={GROUPES_SECTIONS}
         >
             <div className="mt-4">
-                <PageContentLib>
-                    {GROUPES_SECTIONS.map((section) => (
-                        <GroupeSection
-                            key={section.id}
-                            section={section}
-                            legislatureNum={legislatureNum}
-                        />
-                    ))}
-                </PageContentLib>
+                {!allReady && (
+                    <div className="flex items-center justify-center h-64">
+                        <SpinnerLib />
+                    </div>
+                )}
+
+                <div className={allReady ? "" : "hidden"}>
+                    <PageContentLib>
+                        {GROUPES_SECTIONS.map((section) => (
+                            <SectionBlockLoader
+                                key={section.id}
+                                section={section}
+                                legislatureNum={legislatureNum}
+                                onReady={section.gatewayFn && !section.lazy ? handleReady : noopReady}
+                            />
+                        ))}
+                    </PageContentLib>
+                </div>
             </div>
         </AnchorLayout>
     );

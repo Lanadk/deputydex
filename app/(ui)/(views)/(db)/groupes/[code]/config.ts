@@ -1,22 +1,9 @@
-import {AnchorSection} from "@/app/(ui)/component-library/template/anchor-section/anchor.types";
-import {
-    BlockDataWrapper,
-    SectionBlock
-} from "@/app/(ui)/component-library/template/block-section/block-section-renderer";
 import {CalendarDays, Users, Vote} from "lucide-react";
 import {MdOutlineGroups2} from "react-icons/md";
 import {activityCalendar, card, chart, table} from "@/app/(ui)/(views)/(db)/groupes/[code]/registry";
 import {ScrutinResultDTO} from "@/app/domains/scrutins/dto/scrtins-result.dto";
-import {positionToBadge} from "@/app/(ui)/_shared/adapter/summary-list-card.adapter";
 import {CardDataWrapper, SummaryListItem} from "@/app/(ui)/component-library/template/block-section/card-config.types";
-
-export interface GroupesSection extends AnchorSection {
-    description: string;
-    cols: 1 | 2 | 3 | 4;
-    blocks: SectionBlock[];
-    gatewayFn?: (legislature: number) => Promise<Record<string, BlockDataWrapper>>;
-    lazy?: boolean;
-}
+import {PageSection} from "@/app/(ui)/component-library/template/anchor-section/anchor.types";
 
 export const sampleData = [
     {date: '2024-01-01', count: 0, level: 0}, // Début année
@@ -45,7 +32,7 @@ const scrutins: ScrutinResultDTO[] = [
     { label: 'Budget sécu. — art. 3',         position: 'pour'       },
 ];
 
-export const GROUPES_SECTIONS: GroupesSection[] = [
+export const GROUPES_SECTIONS: PageSection[] = [
     //activity calendar section
     {
         id: 'groupe-activity',
@@ -53,6 +40,7 @@ export const GROUPES_SECTIONS: GroupesSection[] = [
         icon: CalendarDays,
         description: "Consulter l'activité du groupe parlementaire sur la derniere année",
         cols: 4,
+        lazy: false,
         gatewayFn: async (_legislature) => ({
             'groupe-activity-calendar': {
                 data: sampleData, // TODO: groupesGateways.getActivity(legislature)
@@ -69,7 +57,7 @@ export const GROUPES_SECTIONS: GroupesSection[] = [
         icon: MdOutlineGroups2,
         description: 'Parcourer la liste de tous les membres du groupe parlementaire',
         cols: 4,
-        lazy: true, // tableau lourd → chargé au scroll
+        lazy: false,
         gatewayFn: async (_legislature) => ({
             'groupe-members-table': [
                 {id: "1", nom: "Jean Dupont", groupe: "EPR", presence: 92, amendements: 34, propositions: 5},
@@ -103,6 +91,7 @@ export const GROUPES_SECTIONS: GroupesSection[] = [
         // → retourne: kpi-actif-members, kpi-age-average, kpi-femmes-percent,
         //             kpi-deputy-seniority, kpi-deputy-parity, kpi-deputy-location-from,
         //             chart-groupe-professions-familles, chart-groupe-professions-gaterorie
+        lazy: false,
         gatewayFn: async (legislature) => ({
             'kpi-actif-members': {
                 data: legislature === 17 ? {label: 'membres actifs', value: 122} : {label: 'membres actifs', value: 91}
@@ -183,6 +172,7 @@ export const GROUPES_SECTIONS: GroupesSection[] = [
         description: 'Comment le groupe vote-t-il ?',
         icon: Vote,
         cols: 4,
+        lazy: false,
         gatewayFn: async (legislature) => ({
             'kpi-groupe-vote-cohesion': {
                 data: legislature === 17 ? {
@@ -237,6 +227,7 @@ export const GROUPES_SECTIONS: GroupesSection[] = [
         description: 'Comment le groupe vote-t-il ?',
         icon: Vote,
         cols: 4,
+        lazy: false,
         blocks: []
     },
 
