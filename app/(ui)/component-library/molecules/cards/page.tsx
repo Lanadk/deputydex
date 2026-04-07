@@ -1,13 +1,7 @@
 import {PageHeaderLib} from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
-import {PageContentLib} from "@/app/(ui)/component-library/template/page-content/page-content-lib";
-import {
-    ComponentSectionCodeBlockLib
-} from "@/app/(ui)/component-library/template/sections/code-block-section/component-section-code-block-lib";
-import {getKpiCardSections} from "@/app/(ui)/component-library/molecules/cards/kpi-card/kpi-card-lib.constants";
-
-
+import {getCardsSections} from "@/app/(ui)/component-library/molecules/cards/cards-lib.constants";
 export default function KpiCardPage() {
-    const sections = getKpiCardSections();
+    const sections = getCardsSections();
     return (
         <div>
             <PageHeaderLib
@@ -29,3 +23,9 @@ export default function KpiCardPage() {
         </div>
     );
 }
+import {
+    ComponentSectionCodeBlockLib
+} from "@/app/(ui)/component-library/template/sections/code-block-section/component-section-code-block-lib";
+
+
+import {PageContentLib} from "@/app/(ui)/component-library/template/page-content/page-content-lib";
