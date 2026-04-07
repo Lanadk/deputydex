@@ -3,8 +3,8 @@
 import React from "react";
 import { PageContentLib } from "@/app/(ui)/component-library/template/page-content/page-content-lib";
 import { useLegislature } from "@/app/(ui)/providers/legislature-provider";
-import {AnchorSectionBlockLib} from "@/app/(ui)/component-library/template/anchor-section/anchor-section-block-lib";
-import {BlockSectionRenderer} from "@/app/(ui)/component-library/template/block-section/block-section-renderer";
+import {AnchorSectionBlockLib} from "@/app/(ui)/component-library/template/sections/anchor-section/anchor-section-block-lib";
+import {BlockSectionRenderer} from "@/app/(ui)/component-library/template/sections/block-section/block-section-renderer";
 import {STATISTICS_SECTIONS} from "@/app/(ui)/(views)/(db)/statistics/statistics-sections.config";
 
 export default function StatistiquesPage() {

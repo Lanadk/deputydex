@@ -1,11 +1,11 @@
 "use client";
 
-import { PageHeaderLib } from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
+import { PageHeaderLib } from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
 import { PageContentLib } from "@/app/(ui)/component-library/template/page-content/page-content-lib";
-import { ComponentSectionCodeBlockLib } from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block-lib";
+import { ComponentSectionCodeBlockLib } from "@/app/(ui)/component-library/template/sections/code-block-section/component-section-code-block-lib";
 import {
     getAnchorSectionLibSections
-} from "@/app/(ui)/component-library/template/anchor-section/anchor-section-lib.constants";
+} from "@/app/(ui)/component-library/template/sections/anchor-section/anchor-section-lib.constants";
 
 
 export default function AnchorSectionLibPage() {

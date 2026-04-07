@@ -3,7 +3,7 @@
 import React, {useEffect, useMemo, useState} from "react";
 import {useLegislature} from "@/app/(ui)/providers/legislature-provider";
 import {GroupCard} from "@/app/(ui)/components/groups/group-card";
-import {PageHeaderLib} from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
+import {PageHeaderLib} from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
 import type {FilterBarQuery} from "@/app/_shared/filtering/filter-bar.types";
 import {applyFilterBarQueryClient} from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib.client-query";
 import {GroupIntro} from "@/app/(ui)/components/groups/group-intro";

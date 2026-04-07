@@ -1,10 +1,10 @@
 "use client";
 
 import React from "react";
-import { PageHeaderLib } from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
-import {AnchorSectionProvider} from "@/app/(ui)/component-library/template/anchor-section/anchor-section-provider";
-import {AnchorSection} from "@/app/(ui)/component-library/template/anchor-section/anchor.types";
-import {AnchorNavLib} from "@/app/(ui)/component-library/template/anchor-section/anchor-nav-lib";
+import { PageHeaderLib } from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
+import {AnchorSectionProvider} from "@/app/(ui)/component-library/template/sections/anchor-section/anchor-section-provider";
+import {AnchorSection} from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
+import {AnchorNavLib} from "@/app/(ui)/component-library/template/sections/anchor-section/anchor-nav-lib";
 import {BaseLayout} from "@/app/(ui)/component-library/template/base-layout/base-layout-lib";
 
 interface AnchorLayoutProps {

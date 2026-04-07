@@ -2,7 +2,7 @@
 
 import React from "react";
 import { TrendingUp, TrendingDown, Minus } from "lucide-react";
-import {ParagraphItem} from "@/app/(ui)/component-library/template/block-section/block-section-renderer";
+import {ParagraphItem} from "@/app/(ui)/component-library/template/sections/block-section/block-section-renderer";
 
 interface BlockParagraphRendererProps {
     items: ParagraphItem[];

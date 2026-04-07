@@ -1,21 +1,21 @@
 "use client";
 
 import React from "react";
-import {BlockChartRenderer} from "@/app/(ui)/component-library/template/block-section/_renderers/block-chart-renderer";
+import {BlockChartRenderer} from "@/app/(ui)/component-library/template/sections/block-section/_renderers/block-chart-renderer";
 import {
     BlockParagraphRenderer
-} from "@/app/(ui)/component-library/template/block-section/_renderers/block-paragraph-renderer";
-import {BlockTableRenderer} from "@/app/(ui)/component-library/template/block-section/_renderers/block-table-renderer";
-import {ChartConfig, ChartDataWrapper} from "@/app/(ui)/component-library/template/block-section/chart-config.types";
-import {TableConfig} from "@/app/(ui)/component-library/template/block-section/table-config.types";
-import {CardConfig, CardDataWrapper} from "@/app/(ui)/component-library/template/block-section/card-config.types";
-import {BlockCardRenderer} from "@/app/(ui)/component-library/template/block-section/_renderers/block-card-renderer";
+} from "@/app/(ui)/component-library/template/sections/block-section/_renderers/block-paragraph-renderer";
+import {BlockTableRenderer} from "@/app/(ui)/component-library/template/sections/block-section/_renderers/block-table-renderer";
+import {ChartConfig, ChartDataWrapper} from "@/app/(ui)/component-library/template/sections/block-section/chart-config.types";
+import {TableConfig} from "@/app/(ui)/component-library/template/sections/block-section/table-config.types";
+import {CardConfig, CardDataWrapper} from "@/app/(ui)/component-library/template/sections/block-section/card-config.types";
+import {BlockCardRenderer} from "@/app/(ui)/component-library/template/sections/block-section/_renderers/block-card-renderer";
 import {
     ActivityCalendarConfig, ActivityCalendarDataWrapper
-} from "@/app/(ui)/component-library/template/block-section/activity-calendar-config.types";
+} from "@/app/(ui)/component-library/template/sections/block-section/activity-calendar-config.types";
 import {
     BlockActivityCalendarRenderer
-} from "@/app/(ui)/component-library/template/block-section/_renderers/block-activity-calendar-renderer";
+} from "@/app/(ui)/component-library/template/sections/block-section/_renderers/block-activity-calendar-renderer";
 
 export type ColSpan = 1 | 2 | 3 | 4;
 export type ParagraphItem =

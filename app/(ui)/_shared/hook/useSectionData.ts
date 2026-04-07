@@ -1,7 +1,7 @@
 import {useEffect, useReducer} from "react";
 import {
     BlockDataWrapper,
-} from "@/app/(ui)/component-library/template/block-section/block-section-renderer";
+} from "@/app/(ui)/component-library/template/sections/block-section/block-section-renderer";
 
 
 type State = {

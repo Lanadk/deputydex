@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { PageHeaderLib } from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
+import { PageHeaderLib } from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
 import { Suspense } from 'react';
 
 const components = {
@@ -24,8 +24,8 @@ const components = {
         { name: 'Chart', path: '/component-library/molecules/chart' },
     ],
     Templates: [
-        { name: 'BlockSection', path: '/component-library/template/block-section' },
-        { name: 'AnchorSection', path: '/component-library/template/anchor-section' },
+        { name: 'BlockSection', path: '/component-library/template/sections/block-section' },
+        { name: 'AnchorSection', path: '/component-library/template/sections/anchor-section' },
     ],
 };
 

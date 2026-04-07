@@ -1,4 +1,4 @@
-import {KpiBarCardItem} from "@/app/(ui)/component-library/template/block-section/card-config.types";
+import {KpiBarCardItem} from "@/app/(ui)/component-library/template/sections/block-section/card-config.types";
 
 type KpiBarCardLibProps = {
     title?: string;

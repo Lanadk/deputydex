@@ -1,6 +1,6 @@
 import React from "react";
 import {BadgeLib} from "@/app/(ui)/component-library/atoms/badge/badge-lib";
-import {SummaryListItem} from "@/app/(ui)/component-library/template/block-section/card-config.types";
+import {SummaryListItem} from "@/app/(ui)/component-library/template/sections/block-section/card-config.types";
 
 type SummaryListCardLibProps = {
     title?: string;

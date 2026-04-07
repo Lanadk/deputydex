@@ -1,6 +1,6 @@
 import {BadgeLib} from "@/app/(ui)/component-library/atoms/badge/badge-lib";
 import {GroupeInfosDTO} from "@/app/domains/groupes/dto/groupe-infos.dto";
-import {KpiCardLib} from "@/app/(ui)/component-library/molecules/kpi-card/kpi-card-lib";
+import {KpiCardLib} from "@/app/(ui)/component-library/molecules/cards/kpi-card/kpi-card-lib";
 
 export type GroupeHeaderProps = {
     groupeInfos: GroupeInfosDTO;

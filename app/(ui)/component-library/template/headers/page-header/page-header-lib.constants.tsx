@@ -1,6 +1,6 @@
 "use client"
 
-import { PageHeaderLib } from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
+import { PageHeaderLib } from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
 
 export const PAGE_HEADER_CODE_BASIC = `<PageHeader
   title="Titre de la page"

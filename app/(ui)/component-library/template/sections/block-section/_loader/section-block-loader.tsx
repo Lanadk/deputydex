@@ -1,10 +1,10 @@
 "use client";
 
 import React, {useEffect, useRef} from "react";
-import {AnchorSectionBlockLib} from "@/app/(ui)/component-library/template/anchor-section/anchor-section-block-lib";
-import {BlockSectionRenderer} from "@/app/(ui)/component-library/template/block-section/block-section-renderer";
+import {AnchorSectionBlockLib} from "@/app/(ui)/component-library/template/sections/anchor-section/anchor-section-block-lib";
+import {BlockSectionRenderer} from "@/app/(ui)/component-library/template/sections/block-section/block-section-renderer";
 import {useFetchSectionData} from "@/app/(ui)/_shared/hook/useSectionData";
-import {PageSection} from "@/app/(ui)/component-library/template/anchor-section/anchor.types";
+import {PageSection} from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
 
 interface SectionBlockLoaderProps {
     section: PageSection;

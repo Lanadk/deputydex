@@ -1,8 +1,8 @@
-import {PageHeaderLib} from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
+import {PageHeaderLib} from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
 import {PageContentLib} from "@/app/(ui)/component-library/template/page-content/page-content-lib";
 import {
     ComponentSectionCodeBlockLib
-} from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block-lib";
+} from "@/app/(ui)/component-library/template/sections/code-block-section/component-section-code-block-lib";
 import {getChartSection} from "@/app/(ui)/component-library/molecules/chart/chart.constants";
 
 export default function FilterBarPage() {

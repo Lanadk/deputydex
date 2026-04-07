@@ -1,6 +1,6 @@
 "use client"
 
-import {AnchorLayout} from "@/app/(ui)/component-library/template/anchor-section/anchor-layout";
+import {AnchorLayout} from "@/app/(ui)/component-library/template/sections/anchor-section/anchor-layout";
 import {STATISTICS_SECTIONS} from "@/app/(ui)/(views)/(db)/statistics/statistics-sections.config";
 
 

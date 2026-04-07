@@ -1,9 +1,9 @@
-import {PageHeaderLib} from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
+import {PageHeaderLib} from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
 import {PageContentLib} from "@/app/(ui)/component-library/template/page-content/page-content-lib";
 import {
     ComponentSectionCodeBlockLib
-} from "@/app/(ui)/component-library/molecules/component-section/component-section-code-block-lib";
-import {getKpiCardSections} from "@/app/(ui)/component-library/molecules/kpi-card/kpi-card-lib.constants";
+} from "@/app/(ui)/component-library/template/sections/code-block-section/component-section-code-block-lib";
+import {getKpiCardSections} from "@/app/(ui)/component-library/molecules/cards/kpi-card/kpi-card-lib.constants";
 
 
 export default function KpiCardPage() {

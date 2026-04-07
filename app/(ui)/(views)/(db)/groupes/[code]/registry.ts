@@ -1,10 +1,10 @@
 import {makeRegistryHelper} from "@/app/(ui)/_shared/registry/registry.helper";
 import {
     ActivityCalendarConfig
-} from "@/app/(ui)/component-library/template/block-section/activity-calendar-config.types";
-import {CardConfig} from "@/app/(ui)/component-library/template/block-section/card-config.types";
-import {TableConfig} from "@/app/(ui)/component-library/template/block-section/table-config.types";
-import {ChartConfig} from "@/app/(ui)/component-library/template/block-section/chart-config.types";
+} from "@/app/(ui)/component-library/template/sections/block-section/activity-calendar-config.types";
+import {CardConfig} from "@/app/(ui)/component-library/template/sections/block-section/card-config.types";
+import {TableConfig} from "@/app/(ui)/component-library/template/sections/block-section/table-config.types";
+import {ChartConfig} from "@/app/(ui)/component-library/template/sections/block-section/chart-config.types";
 
 //todo a virer
 type GroupeMemberRow = {

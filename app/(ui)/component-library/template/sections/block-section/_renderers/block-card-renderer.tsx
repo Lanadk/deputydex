@@ -2,10 +2,10 @@ import {
     CardConfig,
     CardDataWrapper, KpiBarCardData,
     KpiCardData, SummaryListCardData
-} from "@/app/(ui)/component-library/template/block-section/card-config.types";
-import {KpiCardLib} from "@/app/(ui)/component-library/molecules/kpi-card/kpi-card-lib";
-import {KpiBarCardLib} from "@/app/(ui)/component-library/molecules/kpi-bar-card/kpi-bar-card-lib";
-import {SummaryListCardLib} from "@/app/(ui)/component-library/molecules/summary-list-card/summary-list-card";
+} from "@/app/(ui)/component-library/template/sections/block-section/card-config.types";
+import {KpiCardLib} from "@/app/(ui)/component-library/molecules/cards/kpi-card/kpi-card-lib";
+import {KpiBarCardLib} from "@/app/(ui)/component-library/molecules/cards/kpi-bar-card/kpi-bar-card-lib";
+import {SummaryListCardLib} from "@/app/(ui)/component-library/molecules/cards/summary-list-card/summary-list-card";
 
 type BlockCardRendererProps = {
     config: CardConfig

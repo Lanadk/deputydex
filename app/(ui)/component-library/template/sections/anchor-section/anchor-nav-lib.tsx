@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useEffect } from "react";
-import {useAnchorSection} from "@/app/(ui)/component-library/template/anchor-section/anchor-section-provider";
-import {AnchorSection} from "@/app/(ui)/component-library/template/anchor-section/anchor.types";
+import {useAnchorSection} from "@/app/(ui)/component-library/template/sections/anchor-section/anchor-section-provider";
+import {AnchorSection} from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
 
 interface AnchorNavLibProps {
     sections: AnchorSection[];

@@ -1,6 +1,6 @@
 import {ScrutinResultDTO} from "@/app/domains/scrutins/dto/scrtins-result.dto";
 import {VotesResultDTO} from "@/app/domains/votes/dto/votes-result.dto";
-import {SummaryListItem} from "@/app/(ui)/component-library/template/block-section/card-config.types";
+import {SummaryListItem} from "@/app/(ui)/component-library/template/sections/block-section/card-config.types";
 
 type TResult = ScrutinResultDTO["position"] | VotesResultDTO["position"];
 

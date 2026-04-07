@@ -2,7 +2,7 @@
 
 import {useLegislature} from "@/app/(ui)/providers/legislature-provider";
 import React, {useCallback, useEffect, useMemo, useState} from "react";
-import {AnchorLayout} from "@/app/(ui)/component-library/template/anchor-section/anchor-layout";
+import {AnchorLayout} from "@/app/(ui)/component-library/template/sections/anchor-section/anchor-layout";
 import {PageContentLib} from "@/app/(ui)/component-library/template/page-content/page-content-lib";
 import {GroupeHeader} from "@/app/(ui)/components/groups/fiche/groupe-header";
 import {GroupeInfosDTO} from "@/app/domains/groupes/dto/groupe-infos.dto";
@@ -10,7 +10,7 @@ import {groupesGateways} from "@/app/(ui)/gateways/groupes/groupes.gateway";
 import {GroupeHeaderSkeleton} from "@/app/(ui)/components/groups/fiche/groupe-header-skeleton";
 import {GROUPES_SECTIONS} from "@/app/(ui)/(views)/(db)/groupes/[code]/config";
 import {SpinnerLib} from "@/app/(ui)/component-library/molecules/spinner/spinner-lib";
-import {SectionBlockLoader} from "@/app/(ui)/component-library/template/block-section/_loader/section-block-loader";
+import {SectionBlockLoader} from "@/app/(ui)/component-library/template/sections/block-section/_loader/section-block-loader";
 
 export default function GroupePageClient({code}: { code: string }) {
     const [readyCount, setReadyCount] = useState(0);

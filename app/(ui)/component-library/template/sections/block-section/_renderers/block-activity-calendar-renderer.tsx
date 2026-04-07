@@ -1,7 +1,7 @@
 import {
     ActivityCalendarConfig,
     ActivityCalendarDataWrapper
-} from "@/app/(ui)/component-library/template/block-section/activity-calendar-config.types";
+} from "@/app/(ui)/component-library/template/sections/block-section/activity-calendar-config.types";
 import {cloneElement} from "react";
 import {ActivityCalendarLib} from "@/app/(ui)/component-library/molecules/activity-calendar/activity-calendar-lib";
 

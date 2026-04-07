@@ -2,8 +2,8 @@ import {CalendarDays, Users, Vote} from "lucide-react";
 import {MdOutlineGroups2} from "react-icons/md";
 import {activityCalendar, card, chart, table} from "@/app/(ui)/(views)/(db)/groupes/[code]/registry";
 import {ScrutinResultDTO} from "@/app/domains/scrutins/dto/scrtins-result.dto";
-import {CardDataWrapper, SummaryListItem} from "@/app/(ui)/component-library/template/block-section/card-config.types";
-import {PageSection} from "@/app/(ui)/component-library/template/anchor-section/anchor.types";
+import {CardDataWrapper, SummaryListItem} from "@/app/(ui)/component-library/template/sections/block-section/card-config.types";
+import {PageSection} from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
 
 export const sampleData = [
     {date: '2024-01-01', count: 0, level: 0}, // Début année

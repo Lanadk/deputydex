@@ -3,7 +3,7 @@ import {IconType} from "react-icons";
 import {
     BlockDataWrapper,
     SectionBlock
-} from "@/app/(ui)/component-library/template/block-section/block-section-renderer";
+} from "@/app/(ui)/component-library/template/sections/block-section/block-section-renderer";
 
 export interface AnchorSection {
     id: string;
