@@ -11,7 +11,6 @@ const components = {
         { name: 'Span', path: '/component-library/atoms/span' },
         { name: 'Badge', path: '/component-library/atoms/badge' },
         { name: 'Badge-avatar', path: '/component-library/atoms/badge-avatar' },
-        { name: 'Kpi-card', path: '/component-library/atoms/kpi-card' }
     ],
     Molecules: [
         { name: 'ToggleSwitch', path: '/component-library/molecules/toggle-switch' },
@@ -21,7 +20,7 @@ const components = {
         { name: 'Activity-calendar', path: '/component-library/molecules/activity-calendar' },
         { name: 'Filter-bar', path: '/component-library/molecules/filter-bar' },
         { name: 'Table', path: '/component-library/molecules/table' },
-        { name: 'Chart', path: '/component-library/molecules/chart' },
+        { name: 'Charts', path: '/component-library/molecules/chart' },
         { name: 'Cards', path: '/component-library/molecules/cards'},
     ],
     Templates: [

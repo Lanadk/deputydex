@@ -30,7 +30,7 @@ export const KpiBarCardLib: React.FC<KpiBarCardLibProps> = ({
     const safeMax = maxValue <= 0 ? 100 : maxValue;
 
     return (
-        <div className={`border border-main rounded-lg bg-gray-100 p-5 ${className}`}>
+        <div className={`border border-main rounded-lg bg-surface-2 p-5 ${className}`}>
             {title && (
                 <h3 className="text-sm font-bold uppercase tracking-wide text-gray-800 mb-5">
                     {title}
@@ -47,7 +47,7 @@ export const KpiBarCardLib: React.FC<KpiBarCardLibProps> = ({
                                 {item.label}
                             </span>
 
-                            <div className="h-2 w-full rounded-full bg-gray-200 overflow-hidden">
+                            <div className="h-2 w-full rounded-full bg-surface-2 overflow-hidden">
                                 <div
                                     className="h-full rounded-full"
                                     style={{

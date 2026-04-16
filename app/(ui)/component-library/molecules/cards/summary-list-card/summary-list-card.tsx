@@ -8,7 +8,7 @@ type SummaryListCardLibProps = {
 };
 
 export const SummaryListCardLib: React.FC<SummaryListCardLibProps> = ({title, items}) => (
-    <div className="chart-lib border border-main rounded-lg bg-surface p-5">
+    <div className="chart-lib border border-main rounded-lg bg-surface-2 p-5">
         {title && (
             <h3 className="text-xs font-bold uppercase tracking-wide text-secondary mb-4">
                 {title}
