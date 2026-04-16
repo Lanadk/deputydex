@@ -22,6 +22,7 @@ const components = {
         { name: 'Table', path: '/component-library/molecules/table' },
         { name: 'Charts', path: '/component-library/molecules/chart' },
         { name: 'Cards', path: '/component-library/molecules/cards'},
+        { name: 'DeputyCards', path: '/component-library/molecules/deputy'},
     ],
     Templates: [
         { name: 'BlockSection', path: '/component-library/template/sections/block-section' },
