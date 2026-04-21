@@ -1,12 +1,21 @@
 import {CalendarDays, Users, Vote} from "lucide-react";
 import {MdOutlineGroups2} from "react-icons/md";
 import {activityCalendar, card, chart, table} from "@/app/(ui)/(views)/(db)/groupes/[code]/registry";
-import {ScrutinResultDTO} from "@/app/domains/scrutins/dto/scrtins-result.dto";
-import {CardDataWrapper, SummaryListItem} from "@/app/(ui)/component-library/template/sections/block-section/card-config.types";
+import {SummaryListItem} from "@/app/(ui)/component-library/template/sections/block-section/card-config.types";
 import {PageSection} from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
+import {groupesGateways} from "@/app/(ui)/gateways/groupes/groupes.gateway";
+import {
+    BlockDataWrapper,
+    SectionBlock
+} from "@/app/(ui)/component-library/template/sections/block-section/block-section-renderer";
+import {GroupeMembersDTO} from "@/app/domains/groupes/dto/groupe-members.dto";
+import {
+    GROUPE_MEMBERS_SORT_OPTIONS
+} from "@/app/domains/groupes/filters/groupe-members.filters";
+import {GroupeCompositionDTO} from "@/app/domains/groupes/dto/groupe-composition.dto";
 
 export const sampleData = [
-    {date: '2024-01-01', count: 0, level: 0}, // Début année
+    {date: '2024-01-01', count: 0, level: 0},
     {date: '2024-01-15', count: 5, level: 2},
     {date: '2024-02-10', count: 8, level: 2},
     {date: '2024-03-05', count: 12, level: 3},
@@ -20,20 +29,10 @@ export const sampleData = [
     {date: '2024-09-14', count: 7, level: 2},
     {date: '2024-10-25', count: 14, level: 3},
     {date: '2024-11-29', count: 11, level: 3},
-    {date: '2024-12-31', count: 0, level: 0}, // Fin année
-];
-
-// TODO: const scrutins = await groupesGateways.getDerniersScrutins(code, legislature);
-const scrutins: ScrutinResultDTO[] = [
-    { label: 'PLF 2025 — amendement art. 12', position: 'pour'       },
-    { label: 'Motion de censure — 15 jan.',   position: 'contre'     },
-    { label: 'Texte retraites — art. 7',      position: 'pour'       },
-    { label: 'Loi immigration — vote final',  position: 'pour' },
-    { label: 'Budget sécu. — art. 3',         position: 'pour'       },
+    {date: '2024-12-31', count: 0, level: 0},
 ];
 
 export const GROUPES_SECTIONS: PageSection[] = [
-    //activity calendar section
     {
         id: 'groupe-activity',
         label: 'Activité du groupe',
@@ -41,16 +40,15 @@ export const GROUPES_SECTIONS: PageSection[] = [
         description: "Consulter l'activité du groupe parlementaire sur la derniere année",
         cols: 4,
         lazy: false,
-        gatewayFn: async (_legislature) => ({
+        gatewayFn: async (_params) => ({
             'groupe-activity-calendar': {
-                data: sampleData, // TODO: groupesGateways.getActivity(legislature)
+                data: sampleData,
             },
         }),
         blocks: [
             {type: 'activity-calendar', colSpan: 4, config: activityCalendar('groupe-activity-calendar')}
         ],
     },
-    //membres du groupe
     {
         id: 'groupe-members',
         label: 'Members du groupe',
@@ -58,110 +56,152 @@ export const GROUPES_SECTIONS: PageSection[] = [
         description: 'Parcourer la liste de tous les membres du groupe parlementaire',
         cols: 4,
         lazy: false,
-        gatewayFn: async (_legislature) => ({
-            'groupe-members-table': [
-                {id: "1", nom: "Jean Dupont", groupe: "EPR", presence: 92, amendements: 34, propositions: 5},
-                {id: "2", nom: "Marie Martin", groupe: "SOC", presence: 78, amendements: 67, propositions: 3},
-                {id: "3", nom: "Paul Bernard", groupe: "RN", presence: 61, amendements: 12, propositions: 1},
-                {id: "4", nom: "Lucie Moreau", groupe: "EPR", presence: 88, amendements: 21, propositions: 7},
-                {id: "5", nom: "Ahmed Kader", groupe: "LFI-NFP", presence: 95, amendements: 89, propositions: 4},
-                // TODO: groupesGateways.getMembers(legislature)
-            ],
-        }),
+        gatewayFn: async ({code, legislature}: Record<string, unknown>) => {
+            const members = await groupesGateways.getGroupeMembers(code as string, legislature as number);
+            return { 'groupe-members-table': members } as Record<string, BlockDataWrapper>;
+        },
         blocks: [
             {
                 type: "table" as const,
                 colSpan: 4,
                 ...table("groupe-members-table"),
-                title: "Membre du groupe",
+                title: "Membres du groupe",
                 subtitle: "Cliquer sur un député pour voir sa fiche",
-                filter: undefined,
+                filter: {
+                    sortOptions: GROUPE_MEMBERS_SORT_OPTIONS,
+                    filterFields: undefined,
+                    applyMode: "auto",
+                },
                 export: undefined,
-            }
+            } satisfies SectionBlock<GroupeMembersDTO>
         ],
     },
-    //groupe composition section
     {
         id: 'groupe-composition',
         label: 'Composition du groupe',
         icon: Users,
         description: "Qui sont ses membres ?",
         cols: 4,
-        // TODO: groupesGateways.getComposition(code, legislature)
-        // → retourne: kpi-actif-members, kpi-age-average, kpi-femmes-percent,
-        //             kpi-deputy-seniority, kpi-deputy-parity, kpi-deputy-location-from,
-        //             chart-groupe-professions-familles, chart-groupe-professions-gaterorie
         lazy: false,
-        gatewayFn: async (legislature) => ({
-            'kpi-actif-members': {
-                data: legislature === 17 ? {label: 'membres actifs', value: 122} : {label: 'membres actifs', value: 91}
-            },
-            'kpi-age-average': {
-                data: legislature === 17 ? {label: 'âge moyen', value: 51} : {label: 'âge moyen', value: 50}
-            },
-            'kpi-femmes-percent': {
-                data: legislature === 17 ? {label: 'de femmes', value: '38%'} : {label: 'de femmes', value: '36%'}
-            },
-            'kpi-deputy-seniority': {
-                data: legislature === 17 ? {
-                    label: 'mandat cumulé moyen',
-                    value: '6.2 ans'
-                } : {label: 'mandat cumulé moyen', value: '5.2 ans'}
-            },
-            'kpi-deputy-parity': {
-                data: {
-                    title: 'Parité', maxValue: 100,
-                    items: [
-                        {label: 'Femmes', value: 38, displayValue: '38%'},
-                        {label: 'Hommes', value: 62, displayValue: '62%', color: '#93c5fd'},
-                    ],
-                    footer: 'Mieux que la moyenne nationale (36% de femmes)',
+        gatewayFn: async ({code, legislature}: Record<string, unknown>) => {
+            const composition: GroupeCompositionDTO = await groupesGateways.getGroupeComposition(code as string, legislature as number);
+
+            return {
+                'kpi-extreme-plus-age': {
+                    data: {
+                        label: 'Député le plus âgé',
+                        value: composition.groupeExtremes?.plusAge
+                            ? `${composition.groupeExtremes.plusAge.nom} (${composition.groupeExtremes.plusAge.age} ans)`
+                            : '-',
+                    }
                 },
-            },
-            'kpi-deputy-location-from': {
-                data: {
-                    title: 'Top départements', maxValue: 12,
-                    items: [
-                        {label: 'Paris (75)', value: 12},
-                        {label: 'Bouches-du-Rhône', value: 7},
-                        {label: 'Nord', value: 5},
-                        {label: 'Rhône', value: 4},
-                    ],
+                'kpi-extreme-plus-jeune': {
+                    data: {
+                        label: 'Député le plus jeune',
+                        value: composition.groupeExtremes?.plusJeune
+                            ? `${composition.groupeExtremes.plusJeune.nom} (${composition.groupeExtremes.plusJeune.age} ans)`
+                            : '-',
+                    }
                 },
-            },
-            'chart-groupe-professions-familles': {
-                type: 'bar',
-                data: [
-                    {label: 'Sans profession déclarée', value: 12},
-                    {label: 'Agriculteurs exploitants', value: 12},
-                    {label: 'Ouvriers', value: 1},
-                    {label: 'Employés', value: 34},
-                    {label: 'Professions Intermédiaires', value: 6},
-                    {label: 'Cadres et professions intellectuelles supérieures', value: 7},
-                    {label: 'Artisans, commerçants et chefs d\'entreprise', value: 6},
-                    {label: 'Retraités', value: 2},
-                ],
-            },
-            'chart-groupe-professions-gaterorie': {
-                type: 'bar',
-                data: [
-                    {label: 'Agriculteurs exploitants', value: 12},
-                    {label: 'Artisans, commerçants et chefs d\'entreprise', value: 1},
-                    {label: 'Cadres et professions intellectuelles supérieures', value: 34},
-                    {label: 'Professions intermédiaires', value: 6},
-                    {label: 'Sans profession déclarée', value: 7},
-                    {label: 'Cadres d\'entreprise', value: 2},
-                ],
-            },
-            // TODO: groupesGateways.getComposition(legislature)
-        }),
+                'kpi-actif-members': {
+                    data: {label: 'membres actifs', value: composition.groupeCountActifMembers ?? 0}
+                },
+                'kpi-age-average': {
+                    data: {label: 'âge moyen', value: composition.groupeAverageMemberAge ?? 0}
+                },
+                'kpi-femmes-percent': {
+                    data: {label: 'de femmes', value: `${composition.groupeAverageFemmePercent ?? 0}%`}
+                },
+                'kpi-deputy-seniority': {
+                    data: {label: 'mandat cumulé moyen', value: `${composition.groupeAverageCumulatedMandat ?? 0} ans`}
+                },
+                'kpi-deputy-tranche-age': {
+                    data: {
+                        title: 'Tranche d\'âge des députés',
+                        maxValue: Math.max(...(composition.groupeTrancheAge ?? []).map(d => d.acteursCount), 1),
+                        items: (composition.groupeTrancheAge ?? []).map(d => ({
+                            label: d.label,
+                            value: d.acteursCount,
+                        })),
+                    },
+                },
+                'kpi-deputy-location-from-election': {
+                    data: {
+                        title: 'Top départements élection',
+                        maxValue: Math.max(...(composition.groupeTopDepartementsElection ?? []).map(d => d.count), 1),
+                        items: (composition.groupeTopDepartementsElection ?? []).map(d => ({
+                            label: d.label,
+                            value: d.count,
+                        })),
+                    },
+                },
+                'kpi-deputy-location-from-birth-dep': {
+                    data: {
+                        title: 'Top départements de naissance',
+                        maxValue: Math.max(...(composition.groupeTopDepartementsNaissance ?? []).map(d => d.count), 1),
+                        items: (composition.groupeTopDepartementsNaissance ?? []).map(d => ({
+                            label: d.label,
+                            value: d.count,
+                        })),
+                    },
+                },
+                'kpi-deputy-location-from-birth-pays': {
+                    data: {
+                        title: 'Top Pays de naissance',
+                        maxValue: Math.max(...(composition.groupeTopPaysNaissance ?? []).map(d => d.count), 1),
+                        items: (composition.groupeTopPaysNaissance ?? []).map(d => ({
+                            label: d.label,
+                            value: d.count,
+                        })),
+                    },
+                },
+                'kpi-deputy-parity': {
+                    data: {
+                        title: 'Parité',
+                        maxValue: 100,
+                        items: [
+                            {label: 'Femmes', value: composition.groupeParite.femme, displayValue: `${composition.groupeParite.femme}%`},
+                            {label: 'Hommes', value: composition.groupeParite.homme, displayValue: `${composition.groupeParite.homme}%`, color: '#93c5fd'},
+                        ],
+                        footer: `${composition.groupeParite.femme}% de femmes dans le groupe`,
+                    },
+                },
+                'chart-deputy-parity': {
+                    type: 'donut',
+                    data: [
+                        {label: 'Hommes', value: composition.groupeParite.homme},
+                        {label: 'Femmes', value: composition.groupeParite.femme}
+                    ]
+                },
+                'chart-groupe-professions-familles': {
+                    type: 'bar',
+                    data: (composition.groupeProfessionFamilles?.data ?? []).map(d => ({
+                        label: d.label,
+                        value: d.acteursCount,
+                    })),
+                },
+                'chart-groupe-professions-gaterorie': {
+                    type: 'bar',
+                    data: (composition.groupeProfessionCategories?.data ?? []).map(d => ({
+                        label: d.label,
+                        value: d.acteursCount,
+                    })),
+                },
+            } as unknown as Record<string, BlockDataWrapper>;
+        },
         blocks: [
             {type: 'card', colSpan: 1, config: card('kpi-actif-members')},
             {type: 'card', colSpan: 1, config: card('kpi-age-average')},
             {type: 'card', colSpan: 1, config: card('kpi-femmes-percent')},
             {type: 'card', colSpan: 1, config: card('kpi-deputy-seniority')},
-            {type: 'card', colSpan: 2, config: card('kpi-deputy-parity')},
-            {type: 'card', colSpan: 2, config: card('kpi-deputy-location-from')},
+            {type: 'card', colSpan: 2, config: card('kpi-deputy-location-from-election')},
+            {type: 'card', colSpan: 2, config: card('kpi-deputy-location-from-birth-dep')},
+            {type: 'card', colSpan: 2, config: card('kpi-deputy-tranche-age')},
+            {type: 'card', colSpan: 2, config: card('kpi-deputy-location-from-birth-pays')},
+            {type: 'card', colSpan: 2, config: card('kpi-extreme-plus-jeune')},
+            {type: 'card', colSpan: 2, config: card('kpi-extreme-plus-age')},
+            {type: 'card', colSpan: 4, config: card('kpi-deputy-parity')},
+            {type: 'chart', colSpan: 4, config: chart('chart-deputy-parity')},
             {type: 'chart', colSpan: 4, config: chart('chart-groupe-professions-familles')},
             {type: 'chart', colSpan: 4, config: chart('chart-groupe-professions-gaterorie')},
         ],
@@ -173,45 +213,35 @@ export const GROUPES_SECTIONS: PageSection[] = [
         icon: Vote,
         cols: 4,
         lazy: false,
-        gatewayFn: async (legislature) => ({
-            'kpi-groupe-vote-cohesion': {
-                data: legislature === 17 ? {
-                    label: 'cohésion de vote, rang: 3e/13',
-                    value: '91%'
-                } : {label: 'cohésion de vote, rang: 3e/13', value: '88%'}
-            },
-            'kpi-groupe-nb-scrutins-legislature': {
-                data: legislature === 17 ? {label: 'scrutins depuis 2022', value: 312} : {
-                    label: 'scrutins depuis 2022',
-                    value: 487
-                }
-            },
-            'kpi-groupe-gouvernement-proximity': {
-                data: legislature === 17 ? {
-                    label: 'proximité gouvernement',
-                    value: '64%'
-                } : {label: 'proximité gouvernement', value: '71%'}
-            },
-            'kpi-groupe-average-scruttin-presence-legislature': {
-                data: legislature === 17 ? {
-                    label: 'présence moyenne, rang: 2e/13',
-                    value: '78%'
-                } : {label: 'présence moyenne, rang: 2e/13', value: '75%'}
-            },
-            'kpi-last-votes': {
-                data: {
-                    title: '5 derniers scrutins',
-                    items: [
-                        { label: 'PLF 2025 — amendement art. 12', badge: { text: 'Pour',   variant: 'primary'   } },
-                        { label: 'Motion de censure — 15 jan.',   badge: { text: 'Contre', variant: 'secondary' } },
-                        { label: 'Texte retraites — art. 7',      badge: { text: 'Pour',   variant: 'primary'   } },
-                        { label: 'Loi immigration — vote final',  badge: { text: 'Abst.',  variant: 'tertiary'  } },
-                        { label: 'Budget sécu. — art. 3',         badge: { text: 'Pour',   variant: 'primary'   } },
-                    ] satisfies SummaryListItem[],
+        gatewayFn: async ({legislature}: Record<string, unknown>) => {
+            const leg = legislature as number;
+            return {
+                'kpi-groupe-vote-cohesion': {
+                    data: {label: 'cohésion de vote, rang: 3e/13', value: leg === 17 ? '91%' : '88%'}
                 },
-            } satisfies CardDataWrapper,
-            // TODO: groupesGateways.getVotesCohesion(legislature)
-        }),
+                'kpi-groupe-nb-scrutins-legislature': {
+                    data: {label: 'scrutins depuis 2022', value: leg === 17 ? 312 : 487}
+                },
+                'kpi-groupe-gouvernement-proximity': {
+                    data: {label: 'proximité gouvernement', value: leg === 17 ? '64%' : '71%'}
+                },
+                'kpi-groupe-average-scruttin-presence-legislature': {
+                    data: {label: 'présence moyenne, rang: 2e/13', value: leg === 17 ? '78%' : '75%'}
+                },
+                'kpi-last-votes': {
+                    data: {
+                        title: '5 derniers scrutins',
+                        items: [
+                            {label: 'PLF 2025 — amendement art. 12', badge: {text: 'Pour', variant: 'primary'}},
+                            {label: 'Motion de censure — 15 jan.', badge: {text: 'Contre', variant: 'secondary'}},
+                            {label: 'Texte retraites — art. 7', badge: {text: 'Pour', variant: 'primary'}},
+                            {label: 'Loi immigration — vote final', badge: {text: 'Abst.', variant: 'tertiary'}},
+                            {label: 'Budget sécu. — art. 3', badge: {text: 'Pour', variant: 'primary'}},
+                        ] satisfies SummaryListItem[],
+                    },
+                },
+            } as unknown as Record<string, BlockDataWrapper>;
+        },
         blocks: [
             {type: 'card', colSpan: 1, config: card('kpi-groupe-vote-cohesion')},
             {type: 'card', colSpan: 1, config: card('kpi-groupe-nb-scrutins-legislature')},
@@ -220,7 +250,6 @@ export const GROUPES_SECTIONS: PageSection[] = [
             {type: 'card', colSpan: 2, config: card('kpi-last-votes')},
         ],
     },
-    //groupe comportement politique section
     {
         id: 'comportement-politique',
         label: 'Comportement politique',
@@ -230,5 +259,4 @@ export const GROUPES_SECTIONS: PageSection[] = [
         lazy: false,
         blocks: []
     },
-
 ];

@@ -9,8 +9,8 @@ export type TablePaginationConfig = {
 };
 
 export type TableFilterConfig = {
-    sortOptions: SortOption[];
-    filterFields: FilterField[];
+    sortOptions: SortOption[] | undefined;
+    filterFields: FilterField[] | undefined;
     applyMode: "auto" | "manual";
 };
 

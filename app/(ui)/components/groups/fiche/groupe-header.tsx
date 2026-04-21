@@ -1,6 +1,7 @@
 import {BadgeLib} from "@/app/(ui)/component-library/atoms/badge/badge-lib";
 import {GroupeInfosDTO} from "@/app/domains/groupes/dto/groupe-infos.dto";
 import {KpiCardLib} from "@/app/(ui)/component-library/molecules/cards/kpi-card/kpi-card-lib";
+import {getGroupCardTheme} from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
 
 export type GroupeHeaderProps = {
     groupeInfos: GroupeInfosDTO;
@@ -8,6 +9,7 @@ export type GroupeHeaderProps = {
 
 export const GroupeHeader: React.FC<GroupeHeaderProps> = ({groupeInfos}: GroupeHeaderProps) => {
     const rank = `${groupeInfos.groupeRank}e`;
+    const color = getGroupCardTheme(groupeInfos.groupeCode).badgeBg;
 
     return (
         <div className="relative w-full rounded-xl p-4 sm:p-6 overflow-hidden">
@@ -39,7 +41,7 @@ export const GroupeHeader: React.FC<GroupeHeaderProps> = ({groupeInfos}: GroupeH
                         <div className="flex gap-2">
                             <BadgeLib
                                 text={groupeInfos.groupeCode}
-                                style={{ backgroundColor: groupeInfos.groupeColor }}
+                                style={{color: 'white', backgroundColor: color}}
                             />
                             {groupeInfos.groupePosition && (
                                 <BadgeLib
@@ -67,7 +69,7 @@ export const GroupeHeader: React.FC<GroupeHeaderProps> = ({groupeInfos}: GroupeH
             </div>
 
             {/* STATS */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+            <div className="grid grid-cols-3 sm:grid-cols-3 gap-3 mt-6">
                 <KpiCardLib
                     kpiValue={groupeInfos.groupeCountMembers}
                     kpiLabel="membres"
@@ -79,10 +81,6 @@ export const GroupeHeader: React.FC<GroupeHeaderProps> = ({groupeInfos}: GroupeH
                 <KpiCardLib
                     kpiValue={groupeInfos.groupeSeatsSharePercent + '%'}
                     kpiLabel="de l'hémicycle"
-                />
-                <KpiCardLib
-                    kpiValue="+4"
-                    kpiLabel="vs 16e"
                 />
             </div>
         </div>

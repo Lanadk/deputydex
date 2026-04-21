@@ -14,7 +14,7 @@ export interface AnchorSection {
 export interface PageSection extends AnchorSection {
     description?: string;
     cols: 1 | 2 | 3 | 4;
-    blocks: SectionBlock[];
-    gatewayFn?: (legislature: number) => Promise<Record<string, BlockDataWrapper>>;
+    blocks: SectionBlock<any>[];
+    gatewayFn?: (params: Record<string, unknown>) => Promise<Record<string, BlockDataWrapper>>;
     lazy?: boolean;
 }

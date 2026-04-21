@@ -23,10 +23,12 @@ function reducer(state: State, action: Action): State {
 }
 
 export function useFetchSectionData(
-    gatewayFn: ((legislature: number) => Promise<Record<string, BlockDataWrapper>>) | undefined,
-    legislature: number
+    gatewayFn: ((params: Record<string, unknown>) => Promise<Record<string, BlockDataWrapper>>) | undefined,
+    params: Record<string, unknown>
 ) {
     const [{ dataMap, loading }, dispatch] = useReducer(reducer, { dataMap: {}, loading: false });
+
+    const paramsKey = JSON.stringify(params);
 
     useEffect(() => {
         if (!gatewayFn) {
@@ -34,9 +36,9 @@ export function useFetchSectionData(
             return;
         }
         dispatch({ type: "FETCH_START" });
-        gatewayFn(legislature)
+        gatewayFn(params)
             .then((payload) => dispatch({ type: "FETCH_SUCCESS", payload }));
-    }, [legislature]);
+    }, [paramsKey]);
 
     return { dataMap, loading };
 }

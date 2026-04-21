@@ -4,16 +4,25 @@ export type GroupeBreakdownItem = {
     percentInGroupe: number;
 };
 
-export type GroupeCompositionDto = {
+export type GroupeCompositionDTO = {
     groupeCountActifMembers?: number;
     groupeAverageMemberAge?: number;
     groupeAverageFemmePercent?: number;
     groupeAverageCumulatedMandat?: number;
+    groupeTrancheAge?: GroupeBreakdownItem[];
     groupeParite: {
         homme: number;
         femme: number;
     };
-    groupeTopDepartements?: {
+    groupeTopDepartementsElection?: {
+        label: string;
+        count: number;
+    }[];
+    groupeTopDepartementsNaissance?: {
+        label: string;
+        count: number;
+    }[];
+    groupeTopPaysNaissance?: {
         label: string;
         count: number;
     }[];
@@ -25,4 +34,14 @@ export type GroupeCompositionDto = {
         totalActeursCount: number;
         data: GroupeBreakdownItem[];
     };
+    groupeExtremes?: {
+        plusAge?: {
+            nom: string;
+            age: number;
+        };
+        plusJeune?: {
+            nom: string;
+            age: number;
+        };
+    }
 };

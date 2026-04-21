@@ -18,6 +18,9 @@ export default function GroupePageClient({code}: { code: string }) {
     const {legislature} = useLegislature();
     const legislatureNum = legislature?.number ?? 17;
 
+    const params = useMemo(() => ({ code, legislature: legislatureNum }), [code, legislatureNum]);
+
+
     useEffect(() => {
         groupesGateways.getGroupeInfos(code, legislatureNum)
             .then(setGroupeInfos)
@@ -54,7 +57,7 @@ export default function GroupePageClient({code}: { code: string }) {
                             <SectionBlockLoader
                                 key={section.id}
                                 section={section}
-                                legislatureNum={legislatureNum}
+                                params={params}
                                 onReady={section.gatewayFn && !section.lazy ? handleReady : noopReady}
                             />
                         ))}

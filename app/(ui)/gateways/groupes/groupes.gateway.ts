@@ -1,6 +1,8 @@
 import {IGroupesGateways} from "@/app/domains/groupes/gateways/IGroupes.gateways";
 import {GroupeCardDTO} from "@/app/domains/groupes/dto/groupes-card.dto";
 import {GroupeInfosDTO} from "@/app/domains/groupes/dto/groupe-infos.dto";
+import {GroupeMembersDTO} from "@/app/domains/groupes/dto/groupe-members.dto";
+import {GroupeCompositionDTO} from "@/app/domains/groupes/dto/groupe-composition.dto";
 
 export const groupesGateways: IGroupesGateways = {
     async getGroupesCards(legislature: number): Promise<GroupeCardDTO[]> {
@@ -21,5 +23,26 @@ export const groupesGateways: IGroupesGateways = {
         }
 
         return res.json();
+    },
+
+    async getGroupeMembers(code:string, legislature: number): Promise<GroupeMembersDTO[]> {
+        const res = await fetch(`/api/groupes/members/${code}/${legislature}`);
+
+        if (!res.ok) {
+            throw new Error("Failed to get groupe infos");
+        }
+
+        return res.json();
+    },
+
+    async getGroupeComposition(code: string, legislature: number): Promise<GroupeCompositionDTO> {
+        const res = await fetch(`/api/groupes/composition/${code}/${legislature}`);
+
+        if (!res.ok) {
+            throw new Error("Failed to get groupe infos");
+        }
+
+        return res.json();
     }
+
 };

@@ -8,12 +8,12 @@ import {PageSection} from "@/app/(ui)/component-library/template/sections/anchor
 
 interface SectionBlockLoaderProps {
     section: PageSection;
-    legislatureNum: number;
+    params: Record<string, unknown>;
     onReady: () => void;
 }
 
-export function SectionBlockLoader({section, legislatureNum, onReady}: SectionBlockLoaderProps) {
-    const {dataMap, loading} = useFetchSectionData(section.gatewayFn, legislatureNum);
+export function SectionBlockLoader({ section, params, onReady }: SectionBlockLoaderProps) {
+    const { dataMap, loading } = useFetchSectionData(section.gatewayFn, params);
 
     const hasCalledReady = useRef(false);
 
