@@ -1,8 +1,7 @@
-import {GroupeInfosRow} from "@/app/infrastructure/groupes/repositories/prisma-groupe-infos.repository";
 import {GroupeInfosDTO} from "@/app/domains/groupes/dto/groupe-infos.dto";
+import {GroupeInfosEntity} from "@/app/domains/groupes/entities/groupe-infos.entity";
 
-
-export function mapEntityToGroupeInfosDTO(legislature: number, entities: GroupeInfosRow[]): GroupeInfosDTO {
+export function mapEntityToGroupeInfosDTO(legislature: number, entities: GroupeInfosEntity[]): GroupeInfosDTO {
     const row = entities?.[0];
 
     return {

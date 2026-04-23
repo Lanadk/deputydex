@@ -2,7 +2,6 @@ import {IGroupeInfosRepository} from "@/app/domains/groupes/repositories/IGroupe
 import {prisma} from "@/app/infrastructure/db/prisma/prisma";
 import {GroupeInfosEntity} from "@/app/domains/groupes/entities/groupe-infos.entity";
 
-
 export const prismaGroupeInfosRepository: IGroupeInfosRepository = {
 
     async getGroupeInfos(code: string, legislature: number): Promise<GroupeInfosEntity[]> {

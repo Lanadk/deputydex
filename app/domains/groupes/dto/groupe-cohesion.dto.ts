@@ -1,4 +1,3 @@
-
 export type GroupeCohesionDTO = {
     evolutionCohesionLegislature: {
         key: string;

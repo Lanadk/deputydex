@@ -1,25 +1,26 @@
 import {GroupeCardDTO} from "@/app/domains/groupes/dto/groupes-card.dto";
+import {GroupeCardEntity} from "@/app/domains/groupes/entities/groupe-card.entity";
 
-export function mapGroupeCardRowEntityToGroupeCardDTO(legislature: number, row: any): GroupeCardDTO {
+export function mapGroupeCardRowEntityToGroupeCardDTO(legislature: number, entity: GroupeCardEntity): GroupeCardDTO {
     return {
-        groupeId: row.groupe_id,
-        groupeCode: row.groupe_code,
-        groupeLabel: row.groupe_label,
-        groupePresidentFullName: row.groupe_president_full_name,
-        groupeQualitySexLabel: row.groupe_label_type_sex,
-        groupeCountMembers: Number(row.groupe_count_members),
-        groupeHref: `/groupes/${row.groupe_code}`,
-        groupeImg: row.groupe_code.includes('NI') ? null : `/tribun/${legislature}/logos_groupes/${row.groupe_code}.png`,
+        groupeId: entity.groupe_id,
+        groupeCode: entity.groupe_code ?? '',
+        groupeLabel: entity.groupe_label ?? '',
+        groupePresidentFullName: entity.groupe_president_full_name ?? '',
+        groupeQualitySexLabel: entity.groupe_label_type_sex ?? '',
+        groupeCountMembers: Number(entity.groupe_count_members),
+        groupeHref: `/groupes/${entity.groupe_code}`,
+        groupeImg: entity.groupe_code?.includes('NI') ? null : `/tribun/${legislature}/logos_groupes/${entity.groupe_code}.png`,
         // TODO color + position
     }
 }
 
-export function mapRowsToDTO(
+export function mapEntityToDTO(
     legislature: number,
-    list: any[]
+    list: GroupeCardEntity[]
 ): GroupeCardDTO[] {
-    return list.map((row) =>
-        mapGroupeCardRowEntityToGroupeCardDTO(legislature, row)
+    return list.map((entity) =>
+        mapGroupeCardRowEntityToGroupeCardDTO(legislature, entity)
     );
 }
 

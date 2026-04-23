@@ -16,7 +16,6 @@ export async function getGroupeMembersUseCase(
         return err("ERROR")
     }
 
-    const dto = mapEntityToGroupeMembersDTO(entities);
-
-    return ok(dto);
+    const dtos = mapEntityToGroupeMembersDTO(entities);
+    return ok(dtos);
 }

@@ -9,12 +9,12 @@ export async function getGroupeComportementUseCase(
     legislature: number
 ): Promise<Result<GroupeComportementDTO, "ERROR">> {
 
-    const entities = await repository.getGroupeComportementLegislature(groupeCode, legislature);
+    const entity = await repository.getGroupeComportementLegislature(groupeCode, legislature);
 
-    if (!entities) {
+    if (!entity) {
         return err("ERROR")
     }
 
-    const dto = mapEntityToGroupeComportementDTO(entities);
+    const dto = mapEntityToGroupeComportementDTO(entity);
     return ok(dto);
 }

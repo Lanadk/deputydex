@@ -10,12 +10,12 @@ export async function getGroupeInfosUseCase(
     legislature: number
 ): Promise<Result<GroupeInfosDTO, "ERROR">> {
 
-    const entity = await repository.getGroupeInfos(groupeCode, legislature);
+    const entities = await repository.getGroupeInfos(groupeCode, legislature);
 
-    if (!entity) {
+    if (!entities) {
         return err("ERROR")
     }
 
-    const dto = mapEntityToGroupeInfosDTO(legislature, entity);
-    return ok(dto);
+    const dtos = mapEntityToGroupeInfosDTO(legislature, entities);
+    return ok(dtos);
 }
