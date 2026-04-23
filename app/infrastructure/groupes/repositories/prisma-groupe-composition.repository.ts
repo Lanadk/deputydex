@@ -194,24 +194,4 @@ export const prismaGroupeCompositionRepository: IGroupeCompositionRepository = {
             },
         };
     },
-
-    async getProfessionFamilles(code: string, legislature: number): Promise<ProfessionFamilleRow[]> {
-        return prisma.$queryRaw<ProfessionFamilleRow[]>`
-            SELECT profession_famille, nb_acteurs, pct_dans_groupe
-            FROM agg_groupes_stats_professions_familles
-            WHERE groupe_code = ${code}
-              AND legislature = ${legislature}
-            ORDER BY nb_acteurs DESC
-        `;
-    },
-
-    async getProfessionCategories(code: string, legislature: number): Promise<ProfessionCategorieRow[]> {
-        return prisma.$queryRaw<ProfessionCategorieRow[]>`
-            SELECT profession_categorie, nb_acteurs, pct_dans_groupe
-            FROM agg_groupes_stats_professions_categories
-            WHERE groupe_code = ${code}
-              AND legislature = ${legislature}
-            ORDER BY nb_acteurs DESC
-        `;
-    },
 }
