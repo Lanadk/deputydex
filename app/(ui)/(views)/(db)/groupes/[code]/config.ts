@@ -1,17 +1,11 @@
 import {CalendarDays, Users, Vote} from "lucide-react";
 import {MdOutlineGroups2} from "react-icons/md";
 import {activityCalendar, card, chart, table} from "@/app/(ui)/(views)/(db)/groupes/[code]/registry";
-import {SummaryListItem} from "@/app/(ui)/component-library/template/sections/block-section/card-config.types";
 import {PageSection} from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
+import {BlockDataWrapper, SectionBlock} from "@/app/(ui)/component-library/template/sections/block-section/block-section-renderer";
 import {groupesGateways} from "@/app/(ui)/gateways/groupes/groupes.gateway";
-import {
-    BlockDataWrapper,
-    SectionBlock
-} from "@/app/(ui)/component-library/template/sections/block-section/block-section-renderer";
 import {GroupeMembersDTO} from "@/app/domains/groupes/dto/groupe-members.dto";
-import {
-    GROUPE_MEMBERS_SORT_OPTIONS
-} from "@/app/domains/groupes/filters/groupe-members.filters";
+import {GROUPE_MEMBERS_SORT_OPTIONS} from "@/app/domains/groupes/filters/groupe-members.filters";
 import {GroupeCompositionDTO} from "@/app/domains/groupes/dto/groupe-composition.dto";
 import {GroupeCohesionDTO} from "@/app/domains/groupes/dto/groupe-cohesion.dto";
 import {GroupeComportementDTO} from "@/app/domains/groupes/dto/groupe-comportement.dto";
@@ -217,31 +211,31 @@ export const GROUPES_SECTIONS: PageSection[] = [
         gatewayFn: async ({code, legislature}: Record<string, unknown>) => {
             const leg = legislature as number;
             const cohesion: GroupeCohesionDTO = await groupesGateways.getGroupeCohesion(code as string, leg);
-            return {
+            return {//TODO
                 'kpi-groupe-vote-cohesion': {
-                    data: {label: 'cohésion de vote, rang: 3e/13', value: leg === 17 ? '91%' : '88%'}
+                    data: {label: 'todo', value: leg === 17 ? 'todo' : 'todo'}
                 },
                 'kpi-groupe-nb-scrutins-legislature': {
-                    data: {label: 'scrutins depuis 2022', value: leg === 17 ? 312 : 487}
+                    data: {label: 'todo', value: leg === 17 ? null : null}
                 },
                 'kpi-groupe-gouvernement-proximity': {
-                    data: {label: 'proximité gouvernement', value: leg === 17 ? '64%' : '71%'}
+                    data: {label: 'proximité gouvernement', value: leg === 17 ? 'todo' : 'todo'}
                 },
                 'kpi-groupe-average-scruttin-presence-legislature': {
-                    data: {label: 'présence moyenne, rang: 2e/13', value: leg === 17 ? '78%' : '75%'}
+                    data: {label: 'présence moyenne', value: leg === 17 ? 'todo' : 'todo'}
                 },
-                'kpi-last-votes': {
-                    data: {
-                        title: '5 derniers scrutins',
-                        items: [
-                            {label: 'PLF 2025 — amendement art. 12', badge: {text: 'Pour', variant: 'primary'}},
-                            {label: 'Motion de censure — 15 jan.', badge: {text: 'Contre', variant: 'secondary'}},
-                            {label: 'Texte retraites — art. 7', badge: {text: 'Pour', variant: 'primary'}},
-                            {label: 'Loi immigration — vote final', badge: {text: 'Abst.', variant: 'tertiary'}},
-                            {label: 'Budget sécu. — art. 3', badge: {text: 'Pour', variant: 'primary'}},
-                        ] satisfies SummaryListItem[],
-                    },
-                },
+                //'kpi-last-votes': { //TODO fix le composant
+                   // data: {
+                     //   title: '5 derniers scrutins',
+                      //  items: [
+                            //{label: 'PLF 2025 — amendement art. 12', badge: {text: 'Pour', variant: 'primary'}},
+                            //{label: 'Motion de censure — 15 jan.', badge: {text: 'Contre', variant: 'secondary'}},
+                          //  {label: 'Texte retraites — art. 7', badge: {text: 'Pour', variant: 'primary'}},
+                        //    {label: 'Loi immigration — vote final', badge: {text: 'Abst.', variant: 'tertiary'}},
+                      //      {label: 'Budget sécu. — art. 3', badge: {text: 'Pour', variant: 'primary'}},
+                    //    ] satisfies SummaryListItem[],
+                  //  },
+                //},
                 'chart-evolution-cohesion-legislature': {
                     type: 'line',
                     data: (cohesion.evolutionCohesionLegislature?? []).map(d => ({
