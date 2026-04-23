@@ -1,6 +1,6 @@
 
 export type GroupeCohesionDTO = {
-    evolutionCohesion: {
+    evolutionCohesionLegislature: {
         key: string;
         value: string |number | unknown;
     }[]

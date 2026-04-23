@@ -93,8 +93,14 @@ const GROUPE_CHART_REGISTRY: ChartConfig[] = [
     },
     {
         id: 'chart-evolution-cohesion-legislature',
-        title: 'Evolution de la cohésion au sein de la législature',
+        title: 'Evolution de la cohésion durant la législature',
         theme: 'cohesion',
+        displayType: 'line'
+    },
+    {
+        id: 'chart-evolution-participation-legislature',
+        title: 'Evolution de la participation durant la législature',
+        theme: 'participation',
         displayType: 'line'
     }
 ];

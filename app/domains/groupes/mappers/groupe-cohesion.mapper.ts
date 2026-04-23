@@ -1,10 +1,10 @@
 import {GroupeCohesionDTO} from "@/app/domains/groupes/dto/groupe-cohesion.dto";
-import {GroupeCohesionRow} from "@/app/infrastructure/groupes/repositories/prisma-groupe-cohesion.repository";
+import {GroupeCohesionEntity} from "@/app/domains/groupes/entities/groupe-cohesion.entity";
 
-export function mapEntityToGroupeCohesionDTO(entities: GroupeCohesionRow[]): GroupeCohesionDTO {
+export function mapEntityToGroupeCohesionDTO(entity: GroupeCohesionEntity): GroupeCohesionDTO {
     return {
-        evolutionCohesion: entities.map((row) => ({
-            key: row.mois.toISOString().slice(0, 7), // "YYYY-MM"
+        evolutionCohesionLegislature: entity.evolutionCohesionLegislature.map((row) => ({
+            key: row.mois.toISOString().slice(0, 7),
             value: row.taux_cohesion ?? 0,
         })),
     };

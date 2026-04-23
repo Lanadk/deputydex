@@ -14,6 +14,7 @@ import {
 } from "@/app/domains/groupes/filters/groupe-members.filters";
 import {GroupeCompositionDTO} from "@/app/domains/groupes/dto/groupe-composition.dto";
 import {GroupeCohesionDTO} from "@/app/domains/groupes/dto/groupe-cohesion.dto";
+import {GroupeComportementDTO} from "@/app/domains/groupes/dto/groupe-comportement.dto";
 
 export const sampleData = [
     {date: '2024-01-01', count: 0, level: 0},
@@ -243,7 +244,7 @@ export const GROUPES_SECTIONS: PageSection[] = [
                 },
                 'chart-evolution-cohesion-legislature': {
                     type: 'line',
-                    data: (cohesion.evolutionCohesion?? []).map(d => ({
+                    data: (cohesion.evolutionCohesionLegislature?? []).map(d => ({
                         label: d.key,
                         value: d.value
                     })),
@@ -266,6 +267,21 @@ export const GROUPES_SECTIONS: PageSection[] = [
         icon: Vote,
         cols: 4,
         lazy: false,
-        blocks: []
+        gatewayFn: async ({code, legislature}: Record<string, unknown>) => {
+            const leg = legislature as number;
+            const comportement: GroupeComportementDTO = await groupesGateways.getGroupeComportement(code as string, leg);
+            return {
+                'chart-evolution-participation-legislature': {
+                    type: 'line',
+                    data: (comportement.evolutionParticipationLegislature?? []).map(d => ({
+                        label: d.key,
+                        value: d.value
+                    })),
+                }
+            } as unknown as Record<string, BlockDataWrapper>;
+        },
+        blocks: [
+            {type: 'chart', colSpan: 4, config: chart('chart-evolution-participation-legislature')},
+        ]
     },
 ];

@@ -1,5 +1,5 @@
-import {GroupeCohesionRow} from "@/app/infrastructure/groupes/repositories/prisma-groupe-cohesion.repository";
+import {GroupeCohesionEntity} from "@/app/domains/groupes/entities/groupe-cohesion.entity";
 
 export interface IGroupeCohesionRepository {
-    getGroupeCohesion(code: string, legislature: number): Promise<GroupeCohesionRow[]>;
+    getGroupeCohesionLegislature(code: string, legislature: number): Promise<GroupeCohesionEntity>;
 }
