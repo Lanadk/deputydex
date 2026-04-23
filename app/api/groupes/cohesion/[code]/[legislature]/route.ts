@@ -1,9 +1,9 @@
 import {isOk} from "@/app/_shared/result-pattern/result";
 import {NextResponse} from "next/server";
-import {getGroupeCompositionUseCase} from "@/app/domains/groupes/use-cases/get-groupe-composition.use-case";
+import {getGroupeCohesionUseCase} from "@/app/domains/groupes/use-cases/get-groupe-cohesion.use-case";
 import {
-    prismaGroupeCompositionRepository
-} from "@/app/infrastructure/groupes/repositories/prisma-groupe-composition.repository";
+    prismaGroupeCohesionRepository
+} from "@/app/infrastructure/groupes/repositories/prisma-groupe-cohesion.repository";
 
 export async function GET(
     _req: Request,
@@ -15,8 +15,8 @@ export async function GET(
 
     try {
 
-        const result = await getGroupeCompositionUseCase(
-            prismaGroupeCompositionRepository,
+        const result = await getGroupeCohesionUseCase(
+            prismaGroupeCohesionRepository,
             code,
             legislatureNumber
         );
@@ -32,7 +32,7 @@ export async function GET(
     } catch (e) {
         console.error(e);
         return NextResponse.json(
-            { error: "Failed to get groupe composition" },
+            { error: "Failed to get groupe cohesion" },
             { status: 500 }
         );
     }

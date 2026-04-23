@@ -13,6 +13,7 @@ import {
     GROUPE_MEMBERS_SORT_OPTIONS
 } from "@/app/domains/groupes/filters/groupe-members.filters";
 import {GroupeCompositionDTO} from "@/app/domains/groupes/dto/groupe-composition.dto";
+import {GroupeCohesionDTO} from "@/app/domains/groupes/dto/groupe-cohesion.dto";
 
 export const sampleData = [
     {date: '2024-01-01', count: 0, level: 0},
@@ -212,8 +213,9 @@ export const GROUPES_SECTIONS: PageSection[] = [
         icon: Vote,
         cols: 4,
         lazy: false,
-        gatewayFn: async ({legislature}: Record<string, unknown>) => {
+        gatewayFn: async ({code, legislature}: Record<string, unknown>) => {
             const leg = legislature as number;
+            const cohesion: GroupeCohesionDTO = await groupesGateways.getGroupeCohesion(code as string, leg);
             return {
                 'kpi-groupe-vote-cohesion': {
                     data: {label: 'cohésion de vote, rang: 3e/13', value: leg === 17 ? '91%' : '88%'}
@@ -239,6 +241,13 @@ export const GROUPES_SECTIONS: PageSection[] = [
                         ] satisfies SummaryListItem[],
                     },
                 },
+                'chart-evolution-cohesion-legislature': {
+                    type: 'line',
+                    data: (cohesion.evolutionCohesion?? []).map(d => ({
+                        label: d.key,
+                        value: d.value
+                    })),
+                }
             } as unknown as Record<string, BlockDataWrapper>;
         },
         blocks: [
@@ -246,6 +255,7 @@ export const GROUPES_SECTIONS: PageSection[] = [
             {type: 'card', colSpan: 1, config: card('kpi-groupe-nb-scrutins-legislature')},
             {type: 'card', colSpan: 1, config: card('kpi-groupe-gouvernement-proximity')},
             {type: 'card', colSpan: 1, config: card('kpi-groupe-average-scruttin-presence-legislature')},
+            {type: 'chart', colSpan: 4, config: chart('chart-evolution-cohesion-legislature')},
             {type: 'card', colSpan: 2, config: card('kpi-last-votes')},
         ],
     },

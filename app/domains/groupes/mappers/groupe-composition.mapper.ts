@@ -58,13 +58,5 @@ export const mapEntityToGroupeCompositionDTO = (
             nom: `${entity.extremes.plusJeune.prenom} ${entity.extremes.plusJeune.nom}`,
             age: entity.extremes.plusJeune.age,
         },
-        plusExperimente: entity.extremes.plusExperimente && {
-            nom: `${entity.extremes.plusExperimente.prenom} ${entity.extremes.plusExperimente.nom}`,
-            annees: entity.extremes.plusExperimente.annees,
-        },
-        moinsExperimente: entity.extremes.moinsExperimente && {
-            nom: `${entity.extremes.moinsExperimente.prenom} ${entity.extremes.moinsExperimente.nom}`,
-            annees: entity.extremes.moinsExperimente.annees,
-        },
     } : undefined,
 });

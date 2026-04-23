@@ -2,6 +2,7 @@ import {GroupeCardDTO} from "@/app/domains/groupes/dto/groupes-card.dto";
 import {GroupeInfosDTO} from "@/app/domains/groupes/dto/groupe-infos.dto";
 import {GroupeMembersDTO} from "@/app/domains/groupes/dto/groupe-members.dto";
 import {GroupeCompositionDTO} from "@/app/domains/groupes/dto/groupe-composition.dto";
+import {GroupeCohesionDTO} from "@/app/domains/groupes/dto/groupe-cohesion.dto";
 
 export interface IGroupesGateways {
     getGroupesCards(legislature: number): Promise<GroupeCardDTO[]>;
@@ -11,4 +12,6 @@ export interface IGroupesGateways {
     getGroupeMembers(code:string, legislature: number): Promise<GroupeMembersDTO[]>;
 
     getGroupeComposition(code: string, legislature: number): Promise<GroupeCompositionDTO>;
+
+    getGroupeCohesion(code: string, legislature: number): Promise<GroupeCohesionDTO>;
 }

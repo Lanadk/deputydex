@@ -90,6 +90,12 @@ const GROUPE_CHART_REGISTRY: ChartConfig[] = [
         title: 'Parité au sein du groupe parlementaire',
         theme: 'parity',
         displayType: 'donut'
+    },
+    {
+        id: 'chart-evolution-cohesion-legislature',
+        title: 'Evolution de la cohésion au sein de la législature',
+        theme: 'cohesion',
+        displayType: 'line'
     }
 ];
 
