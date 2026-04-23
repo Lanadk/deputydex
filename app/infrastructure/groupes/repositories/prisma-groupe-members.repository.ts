@@ -1,19 +1,13 @@
 import {prisma} from "@/app/infrastructure/db/prisma/prisma";
 import {IGroupeMembersRepository} from "@/app/domains/groupes/repositories/IGroupeMembersRepository";
+import {GroupeMembersEntity} from "@/app/domains/groupes/entities/groupe-members.entity";
 
-export type GroupeMembersRow = {
-    first_name: string;
-    last_name: string;
-    since: Date;
-    circonscription: string
-    age: number;
-}
 
 export const prismaGroupeMembersRepository: IGroupeMembersRepository = {
 
-    async getGroupeMembers(code: string, legislature: number): Promise<GroupeMembersRow[]> {
+    async getGroupeMembers(code: string, legislature: number): Promise<GroupeMembersEntity[]> {
         try {
-            return await prisma.$queryRaw<GroupeMembersRow[]>`
+            return await prisma.$queryRaw<GroupeMembersEntity[]>`
                 SELECT * FROM (
                                   SELECT DISTINCT ON (a.uid)
                                       a.prenom                                                    AS first_name,

@@ -1,21 +1,13 @@
 import {IGroupesCardsRepository} from "@/app/domains/groupes/repositories/IGroupesCardsRepository";
 import {prisma} from "@/app/infrastructure/db/prisma/prisma";
-
-type GroupeCardRow = {
-    groupe_id: string;
-    groupe_code: string | null;
-    groupe_label: string | null;
-    groupe_president_full_name: string | null;
-    groupe_label_type_sex: string | null;
-    groupe_count_members: number | null;
-};
+import {GroupeCardEntity} from "@/app/domains/groupes/entities/groupe-card.entity";
 
 export const prismaGroupesCardsRepository: IGroupesCardsRepository = {
 
-    async getGroupesCards(legislature: number): Promise<any[]> {
+    async getGroupesCards(legislature: number): Promise<GroupeCardEntity[]> {
         //TODO surement faire un check de ce qu'on veut recupere , car on fetch les groupes ayant existé mais le fetch remonté des nb_acteurs à 0
         try {
-            return await prisma.$queryRaw<GroupeCardRow[]>`
+            return await prisma.$queryRaw<GroupeCardEntity[]>`
                 select
                     rg.groupe_id as groupe_id,
                     rg.code as groupe_code,
