@@ -1,6 +1,6 @@
 import type { PaginatedResult } from "@/app/_shared/pagination/paginated-result";
-import {ActeurDTO} from "@/app/domains/acteurs/dto/acteur.dto";
 import {FilterBarQuery} from "@/app/_shared/filtering/filter-bar.types";
+import {ActeurDTO} from "@/app/domains/acteurs/dto/acteur.dto";
 
 export interface IActeursGateway {
     search(
