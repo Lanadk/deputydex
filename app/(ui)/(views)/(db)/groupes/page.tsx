@@ -3,7 +3,7 @@
 import React, {useEffect, useMemo, useState} from "react";
 import {useLegislature} from "@/app/(ui)/providers/legislature-provider";
 import {GroupCard} from "@/app/(ui)/components/groups/group-card";
-import {PageHeaderLib} from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
+import {PageHeaderLib} from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
 import type {FilterBarQuery} from "@/app/_shared/filtering/filter-bar.types";
 import {applyFilterBarQueryClient} from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib.client-query";
 import {GroupIntro} from "@/app/(ui)/components/groups/group-intro";
@@ -12,6 +12,7 @@ import {GroupResume} from "@/app/(ui)/components/groups/group-resume";
 import {groupesGateways} from "@/app/(ui)/gateways/groupes/groupes.gateway";
 import {GroupeCardDTO} from "@/app/domains/groupes/dto/groupes-card.dto";
 import {getGroupCardTheme} from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
+import {BaseLayout} from "@/app/(ui)/component-library/template/base-layout/base-layout-lib";
 
 export default function GroupesPage() {
     const {legislature} = useLegislature();
@@ -41,51 +42,53 @@ export default function GroupesPage() {
 
     return (
         <>
-            <div className="mb-8 border-b border-main pb-6">
-                <PageHeaderLib
-                    title="Groupes parlementaires"
-                    subtitle="Explorez les groupes parlementaires de l'assemblée nationale, découvrez leurs membres, leurs présidents et leurs positions politiques.
+            <BaseLayout>
+                <div className="mb-8 border-b border-main pb-6">
+                    <PageHeaderLib
+                        title="Groupes parlementaires"
+                        subtitle="Explorez les groupes parlementaires de l'assemblée nationale, découvrez leurs membres, leurs présidents et leurs positions politiques.
                     Plongez dans l'univers des groupes parlementaires pour mieux comprendre la dynamique politique de l'Assemblée nationale."
-                />
-            </div>
-
-            <main className="flex flex-col gap-6 w-full mx-auto">
-                <div className="relative z-30 grid w-full grid-cols-1 gap-2 lg:grid-cols-2 items-start">
-                    <GroupIntro/>
-                    <GroupResume
-                        legislature={legislatureNumber}
-                        activeGroupsCount={groupes.length - 1} // on ne compte pas les NI donc -1
                     />
-                    <div className="lg:col-span-2">
-                        <GroupFilter
-                            count={filteredGroupes.length}
-                            onQueryChangeAction={handleQueryChange}
+                </div>
+
+                <main className="flex flex-col gap-6 w-full mx-auto">
+                    <div className="relative z-30 grid w-full grid-cols-1 gap-2 lg:grid-cols-2 items-start">
+                        <GroupIntro/>
+                        <GroupResume
+                            legislature={legislatureNumber}
+                            activeGroupsCount={groupes.length - 1} // on ne compte pas les NI donc -1
                         />
+                        <div className="lg:col-span-2">
+                            <GroupFilter
+                                count={filteredGroupes.length}
+                                onQueryChangeAction={handleQueryChange}
+                            />
+                        </div>
                     </div>
-                </div>
 
-                <div className="relative z-0 grid grid-cols-1 gap-6 sm:grid-cols-3 lg:grid-cols-4 mt-5">
-                    {filteredGroupes.map((groupe) => {
-                        const theme = getGroupCardTheme(groupe.groupeCode);
+                    <div className="relative z-0 grid grid-cols-1 gap-6 sm:grid-cols-3 lg:grid-cols-4 mt-5">
+                        {filteredGroupes.map((groupe) => {
+                            const theme = getGroupCardTheme(groupe.groupeCode);
 
-                        return (
-                            <div key={groupe.groupeId}>
-                                <GroupCard
-                                    code={groupe.groupeCode}
-                                    libelle={groupe.groupeLabel}
-                                    nbMembers={groupe.groupeCountMembers}
-                                    president={groupe.groupePresidentFullName}
-                                    sexPresidentType={groupe.groupeQualitySexLabel}
-                                    position={groupe.groupePosition}
-                                    image={groupe.groupeImg}
-                                    href={groupe.groupeHref}
-                                    theme={theme}
-                                />
-                            </div>
-                        );
-                    })}
-                </div>
-            </main>
+                            return (
+                                <div key={groupe.groupeId}>
+                                    <GroupCard
+                                        code={groupe.groupeCode}
+                                        libelle={groupe.groupeLabel}
+                                        nbMembers={groupe.groupeCountMembers}
+                                        president={groupe.groupePresidentFullName}
+                                        sexPresidentType={groupe.groupeQualitySexLabel}
+                                        position={groupe.groupePosition}
+                                        image={groupe.groupeImg}
+                                        href={groupe.groupeHref}
+                                        theme={theme}
+                                    />
+                                </div>
+                            );
+                        })}
+                    </div>
+                </main>
+            </BaseLayout>
         </>
     );
 }

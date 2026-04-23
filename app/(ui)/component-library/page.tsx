@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
-import { PageHeaderLib } from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
+import { PageHeaderLib } from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
 import { Suspense } from 'react';
 
 const components = {
@@ -10,7 +10,7 @@ const components = {
         { name: 'Button', path: '/component-library/atoms/button' },
         { name: 'Span', path: '/component-library/atoms/span' },
         { name: 'Badge', path: '/component-library/atoms/badge' },
-        { name: 'Badge-avatar', path: '/component-library/atoms/badge-avatar' }
+        { name: 'Badge-avatar', path: '/component-library/atoms/badge-avatar' },
     ],
     Molecules: [
         { name: 'ToggleSwitch', path: '/component-library/molecules/toggle-switch' },
@@ -20,11 +20,13 @@ const components = {
         { name: 'Activity-calendar', path: '/component-library/molecules/activity-calendar' },
         { name: 'Filter-bar', path: '/component-library/molecules/filter-bar' },
         { name: 'Table', path: '/component-library/molecules/table' },
-        { name: 'Chart', path: '/component-library/molecules/chart' },
+        { name: 'Charts', path: '/component-library/molecules/chart' },
+        { name: 'Cards', path: '/component-library/molecules/cards'},
+        { name: 'DeputyCards', path: '/component-library/molecules/deputy'},
     ],
     Templates: [
-        { name: 'BlockSection', path: '/component-library/template/block-section' },
-        { name: 'AnchorSection', path: '/component-library/template/anchor-section' },
+        { name: 'BlockSection', path: '/component-library/template/sections/block-section' },
+        { name: 'AnchorSection', path: '/component-library/template/sections/anchor-section' },
     ],
 };
 

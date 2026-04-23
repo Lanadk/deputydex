@@ -1,7 +1,7 @@
 import {GroupeCardDTO} from "@/app/domains/groupes/dto/groupes-card.dto";
 import {Result, ok, err} from "@/app/_shared/result-pattern/result"
 import {IGroupesCardsRepository} from "@/app/domains/groupes/repositories/IGroupesCardsRepository";
-import {mapRowsToDTO} from "@/app/domains/groupes/mappers/groupes-cards.mapper";
+import {mapEntityToDTO} from "@/app/domains/groupes/mappers/groupes-cards.mapper";
 
 
 export async function getGroupesCardsUseCase(
@@ -9,12 +9,12 @@ export async function getGroupesCardsUseCase(
     legislature: number
 ): Promise<Result<GroupeCardDTO[] , "ERROR">> {
 
-    const entity = await groupesCardsRepository.getGroupesCards(legislature);
+    const entities = await groupesCardsRepository.getGroupesCards(legislature);
 
-    if (!entity) {
+    if (!entities) {
         return err("ERROR")
     }
 
-    const dto = mapRowsToDTO(legislature, entity);
-    return ok(dto);
+    const dtos = mapEntityToDTO(legislature, entities);
+    return ok(dtos);
 }

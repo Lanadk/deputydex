@@ -11,7 +11,7 @@ const getCSSVar = (name: string): string =>
 const getCalendarTheme = (): ThemeInput => {
     return {
         light: [
-            getCSSVar('--p1-white-3'),
+            getCSSVar('--p1-white-2'),
             getCSSVar('--p1-steel-2'),
             getCSSVar('--p1-blue-3'),
             getCSSVar('--p1-blue-4'),

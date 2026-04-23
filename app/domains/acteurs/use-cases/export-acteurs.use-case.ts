@@ -2,13 +2,14 @@ import "server-only";
 
 import type { FilterBarQuery } from "@/app/_shared/filtering/filter-bar.types";
 import {ExportFormat, ExportResult} from "@/app/_shared/export/export.types";
+import { Result, ok } from "@/app/_shared/result-pattern/result";
 import { toCsv, type CsvColumn } from "@/app/_shared/export/csv";
-import { sanitizeFilterBarQuery } from "@/app/infrastructure/filtering/filter-bar-sanitize";
+import { sanitizeFilterBarQuery } from "@/app/_shared/filtering/filter-bar-sanitize";
+
 import { ACTEURS_FILTER_FIELDS, ACTEURS_SORT_OPTIONS } from "@/app/domains/acteurs/filters/acteurs.filters";
 import type { ActeurDTO } from "@/app/domains/acteurs/dto/acteur.dto";
 import { mapActeursToDTO } from "@/app/domains/acteurs/mappers/acteur.mapper";
 import { IActeursRepository } from "@/app/domains/acteurs/repositories/IActeursRepository";
-import { Result, ok } from "@/app/_shared/result-pattern/result";
 
 const SANITIZE_OPTIONS = {
     allowedFilterFields: ACTEURS_FILTER_FIELDS.map((f) => f.field),

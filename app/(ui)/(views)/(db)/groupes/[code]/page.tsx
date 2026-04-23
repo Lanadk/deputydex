@@ -1,4 +1,4 @@
-import { PageHeaderLib } from "@/app/(ui)/component-library/molecules/page-header/page-header-lib";
+import GroupePageClient from "@/app/(ui)/(views)/(db)/groupes/[code]/groupe-page-client";
 
 export default async function GroupePage({
                                              params,
@@ -7,18 +7,5 @@ export default async function GroupePage({
 }) {
     const { code } = await params;
 
-    return (
-        <>
-            <div className="border-b border-main pb-6 mb-8">
-                <PageHeaderLib
-                    title={`Groupe ${code}`}
-                    subtitle="Présentation, composition, activité et informations détaillées."
-                />
-            </div>
-
-            <main>
-                Contenu du groupe {code}
-            </main>
-        </>
-    );
+    return <GroupePageClient code={code} />;
 }

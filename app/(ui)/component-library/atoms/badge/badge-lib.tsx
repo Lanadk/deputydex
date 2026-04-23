@@ -8,7 +8,7 @@ export type BaseProps = {
 };
 
 export type VariantProps = BaseProps & {
-    variant?: "primary" | "secondary" | "tertiary";
+    variant?: 'primary' | 'secondary' | 'tertiary';
     className?: never;
     style?: never;
 };
