@@ -91,14 +91,15 @@ export const getCardsSections = () => [
     {
         title: 'Summary list card badge usage',
         code: SUMMARY_LIST_CARD_BADGE_USAGE,
-        component: (
-            <SummaryListCardLib
-                title='Députes'
-                items={[
-                    { label: 'Femmes', badge: { text: 'F', variant: 'primary' } },
-                    { label: 'Hommes', badge: { text: 'H', variant: 'secondary' } },
-                ]}
-            />
+        component: ( //TODO fix this
+        //    <SummaryListCardLib
+        //        title='Députes'
+        //        items={[
+        //            { label: 'Femmes', badge: { text: 'F', variant: 'primary' } },
+        //            { label: 'Hommes', badge: { text: 'H', variant: 'secondary' } },
+        //        ]}
+        //    />
+            <></>
         )
     },
 ];
