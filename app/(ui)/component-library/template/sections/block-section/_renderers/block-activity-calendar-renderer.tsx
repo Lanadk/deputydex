@@ -23,7 +23,7 @@ export function BlockActivityCalendarRenderer({config, data, loading}: BlockActi
                     data={data.data}
                     tooltips={{
                         activity: {
-                            text: activity => `${activity.level} activities on ${activity.date}`,
+                            text: activity => `${activity.count} activities on ${activity.date}`,
                             placement: 'top',
                             offset: 6,
                             hoverRestMs: 300,

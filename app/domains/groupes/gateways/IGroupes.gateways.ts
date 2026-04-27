@@ -17,4 +17,6 @@ export interface IGroupesGateways {
     getGroupeCohesion(code: string, legislature: number): Promise<GroupeCohesionDTO>;
 
     getGroupeComportement(code: string, legislature: number): Promise<GroupeComportementDTO>;
+
+    getGroupeActivityCalendar(code: string, legislature: number): Promise<any>;
 }

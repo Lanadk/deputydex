@@ -65,6 +65,13 @@ export const groupesGateways: IGroupesGateways = {
         }
 
         return res.json();
-    }
+    },
 
+    async getGroupeActivityCalendar(code: string, legislature: number) {
+        const res = await fetch(`/api/groupes/activity/${code}/${legislature}`);
+
+        if (!res.ok) throw new Error("Failed to get activity");
+
+        return res.json();
+    }
 };
