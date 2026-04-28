@@ -36,13 +36,36 @@ export const GROUPES_SECTIONS: PageSection[] = [
         description: "Consulter l'activité du groupe parlementaire sur la derniere année",
         cols: 4,
         lazy: false,
-        gatewayFn: async (_params) => ({
-            'groupe-activity-calendar': {
-                data: sampleData,
-            },
-        }),
+        gatewayFn: async ({ code, legislature }) => {
+            const data = await groupesGateways.getGroupeActivityCalendar(
+                code as string,
+                legislature as number
+            );
+
+            return {
+                'groupe-activity-calendar': {
+                    data,
+                },
+            };
+        },
+        actions: {
+            onActivityClick: async ({ date, code, legislature }) => {
+                const details =
+                    await groupesGateways.getGroupeActivityCalendarDetails(
+                        code,
+                        legislature,
+                        date
+                    );
+
+                console.log("DETAILS :", details);
+            }
+        },
         blocks: [
-            {type: 'activity-calendar', colSpan: 4, config: activityCalendar('groupe-activity-calendar')}
+            {
+                type: 'activity-calendar',
+                colSpan: 4,
+                config: activityCalendar('groupe-activity-calendar')
+            }
         ],
     },
     {

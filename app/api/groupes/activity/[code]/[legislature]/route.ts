@@ -1,18 +1,22 @@
 import { NextResponse } from "next/server";
-import {getGroupeCardsUseCase} from "@/app/domains/groupes/use-cases/get-groupe-cards.use-case";
-import {prismaGroupesCardsRepository} from "@/app/infrastructure/groupes/repositories/prisma-groupes-cards.repository";
 import {isOk} from "@/app/_shared/result-pattern/result";
+import {getGroupeActivityUseCase} from "@/app/domains/groupes/use-cases/get-groupe-activity.use-case";
+import {
+    prismaGroupeActivityRepository
+} from "@/app/infrastructure/groupes/repositories/prisma-groupe-activity.repository";
 
 export async function GET(
     _req: Request,
-    { params }: { params: Promise<{ legislature: string }> }
+    { params }: { params: Promise<{code: string, legislature: string}> }
 ): Promise<Response> {
     const { legislature } = await params;
+    const { code }  = await params;
     const legislatureNumber = Number(legislature);
     try {
 
-        const result = await getGroupeCardsUseCase(
-            prismaGroupesCardsRepository,
+        const result = await getGroupeActivityUseCase(
+            prismaGroupeActivityRepository,
+            code,
             legislatureNumber
         );
 

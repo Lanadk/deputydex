@@ -37,8 +37,6 @@ export default function GroupePageClient({code}: { code: string }) {
         setReadyCount(c => c + 1);
     }, []);
 
-    console.log('[Page] allReady:', allReady, 'readyCount:', readyCount, 'sectionsToAwait:', sectionsToAwait.length);
-
     return (
         <AnchorLayout
             header={groupeInfos ? <GroupeHeader groupeInfos={groupeInfos}/> : <GroupeHeaderSkeleton/>}

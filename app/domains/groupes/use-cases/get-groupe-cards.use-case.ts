@@ -4,7 +4,7 @@ import {IGroupesCardsRepository} from "@/app/domains/groupes/repositories/IGroup
 import {mapEntityToDTO} from "@/app/domains/groupes/mappers/groupes-cards.mapper";
 
 
-export async function getGroupesCardsUseCase(
+export async function getGroupeCardsUseCase(
     groupesCardsRepository: IGroupesCardsRepository,
     legislature: number
 ): Promise<Result<GroupeCardDTO[] , "ERROR">> {

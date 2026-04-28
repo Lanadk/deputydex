@@ -5,6 +5,8 @@ import {GroupeMembersDTO} from "@/app/domains/groupes/dto/groupe-members.dto";
 import {GroupeCompositionDTO} from "@/app/domains/groupes/dto/groupe-composition.dto";
 import {GroupeCohesionDTO} from "@/app/domains/groupes/dto/groupe-cohesion.dto";
 import {GroupeComportementDTO} from "@/app/domains/groupes/dto/groupe-comportement.dto";
+import {GroupeActivityDTO} from "@/app/domains/groupes/dto/groupe-activity.dto";
+import {GroupeActivityDetailsDTO} from "@/app/domains/groupes/dto/groupe-activity-details.dto";
 
 export const groupesGateways: IGroupesGateways = {
     async getGroupesCards(legislature: number): Promise<GroupeCardDTO[]> {
@@ -65,6 +67,21 @@ export const groupesGateways: IGroupesGateways = {
         }
 
         return res.json();
-    }
+    },
 
+    async getGroupeActivityCalendar(code: string, legislature: number): Promise<GroupeActivityDTO> {
+        const res = await fetch(`/api/groupes/activity/${code}/${legislature}`);
+
+        if (!res.ok) throw new Error("Failed to get activity");
+
+        return res.json();
+    },
+
+    async getGroupeActivityCalendarDetails(code: string, legislature: number, date: string): Promise<GroupeActivityDetailsDTO> {
+        const res = await fetch(`/api/groupes/activity/${code}/${legislature}/details?date=${date}`);
+
+        if (!res.ok) throw new Error("Failed to get activity");
+
+        return res.json();
+    }
 };

@@ -11,10 +11,20 @@ export interface AnchorSection {
     icon: LucideIcon | IconType;
 }
 
+//TODO pas fou ca, faudrait changer
+export type SectionActions = {
+    onActivityClick?: (params: {
+        date: string;
+        code: string;
+        legislature: number;
+    }) => Promise<void> | void;
+};
+
 export interface PageSection extends AnchorSection {
     description?: string;
     cols: 1 | 2 | 3 | 4;
     blocks: SectionBlock<any>[];
     gatewayFn?: (params: Record<string, unknown>) => Promise<Record<string, BlockDataWrapper>>;
     lazy?: boolean;
+    actions?: SectionActions;
 }
