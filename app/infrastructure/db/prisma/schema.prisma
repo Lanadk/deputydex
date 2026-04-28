@@ -76,6 +76,11 @@ model MonitorDataDownload {
   @@map("monitor_data_download")
 }
 
+model MonitorDataSetsUpdate {
+  id          Int         @id @default(autoincrement())
+  createdAt   DateTime    @default(now()) @map("created_at")
+}
+
 // ============================================
 // ACTEURS
 // ============================================
