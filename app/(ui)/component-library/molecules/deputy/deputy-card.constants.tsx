@@ -17,27 +17,27 @@ export const getDeputyCardSections = () => [
         code: DEPUTYCARD_CODE,
         component: (
             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5 gap-6 items-start">
-                <DeputyCard nom="Thivauetjr ehjrkedjdje"
+                <DeputyCard uid="demo-1" nom="Thivauetjr ehjrkedjdje"
                                groupe="LFI"
                                image="/tribun/16/photos_deputes_nobg/001_Damien_Abad.png"
                                role="Député"
                 />
-                <DeputyCard nom="Titi"
+                <DeputyCard uid="demo-2" nom="Titi"
                                groupe="RN"
                                image="/tribun/16/photos_deputes_nobg/026_Anne-Laure_Babault.png"
                                role="Député"
                 />
-                <DeputyCard nom="Tata Micron"
+                <DeputyCard uid="demo-3" nom="Tata Micron"
                                groupe="RE"
                                image="/tribun/16/photos_deputes_nobg/010_Henri_Alfandari.png"
                                role="Président"
                 />
-                <DeputyCard nom="Toto Micron"
+                <DeputyCard uid="demo-4" nom="Toto Micron"
                                groupe="SOC"
                                image="/tribun/16/photos_deputes_nobg/032_Christophe_Barthès.png"
                                role="Gouvernement"
                 />
-                <DeputyCard nom="toto"
+                <DeputyCard uid="demo-5" nom="toto"
                                groupe="ECOS"
                                image="/tribun/16/photos_deputes_nobg/111_Agnès_Carel.png"
                                role="Ministre"

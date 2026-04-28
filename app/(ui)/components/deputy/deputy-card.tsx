@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { CardBody, CardContainer, CardItem } from "@/app/(ui)/component-library/external/3d-card/3d-card";
 import {getCanonicalGroupCode, getGroupCardTheme} from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
 import {CardHoloOverlay} from "@/app/(ui)/components/holo-effect/card-holo-overlay";
@@ -33,6 +34,7 @@ const HexRF = ({ cx, cy, size }: { cx: number; cy: number; size: number }) => {
 };
 
 interface DeputyCardProps {
+    uid: string;
     nom: string;
     groupe: string;
     image: string;
@@ -40,6 +42,7 @@ interface DeputyCardProps {
 }
 
 export default function DeputyCard({
+                                       uid,
                                        nom,
                                        groupe,
                                        image,
@@ -49,6 +52,7 @@ export default function DeputyCard({
     const groupTheme = getGroupCardTheme(getCanonicalGroupCode(groupe));
 
     return (
+        <Link href={`/deputes/${uid}`}>
         <CardContainer>
             <CardBody
                 className="deputy-card-shell card-holo-host relative group/card w-full aspect-5/7 rounded-xl p-3 cursor-pointer flex flex-col justify-between"
@@ -95,5 +99,6 @@ export default function DeputyCard({
                 </CardItem>
             </CardBody>
         </CardContainer>
+        </Link>
     );
 }
