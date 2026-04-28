@@ -18,4 +18,8 @@ export type ActivityCalendarConfig = {
     displayType: ActivityCalendarDisplayType;
     title?: string;
     subtitle?: string;
+    //TODO fix je pense
+    onClick?: (params: {
+        date: string;
+    }) => void | Promise<void>;
 };

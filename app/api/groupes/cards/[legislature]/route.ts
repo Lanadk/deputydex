@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import {getGroupesCardsUseCase} from "@/app/domains/groupes/use-cases/get-groupes-cards.use-case";
+import {getGroupeCardsUseCase} from "@/app/domains/groupes/use-cases/get-groupe-cards.use-case";
 import {prismaGroupesCardsRepository} from "@/app/infrastructure/groupes/repositories/prisma-groupes-cards.repository";
 import {isOk} from "@/app/_shared/result-pattern/result";
 
@@ -11,7 +11,7 @@ export async function GET(
     const legislatureNumber = Number(legislature);
     try {
 
-        const result = await getGroupesCardsUseCase(
+        const result = await getGroupeCardsUseCase(
             prismaGroupesCardsRepository,
             legislatureNumber
         );

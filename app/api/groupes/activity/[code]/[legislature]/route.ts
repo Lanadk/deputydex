@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import {isOk} from "@/app/_shared/result-pattern/result";
-import {getGroupesActivityUseCase} from "@/app/domains/groupes/use-cases/get-groupes-activity.use-case";
+import {getGroupeActivityUseCase} from "@/app/domains/groupes/use-cases/get-groupe-activity.use-case";
 import {
     prismaGroupeActivityRepository
 } from "@/app/infrastructure/groupes/repositories/prisma-groupe-activity.repository";
@@ -14,7 +14,7 @@ export async function GET(
     const legislatureNumber = Number(legislature);
     try {
 
-        const result = await getGroupesActivityUseCase(
+        const result = await getGroupeActivityUseCase(
             prismaGroupeActivityRepository,
             code,
             legislatureNumber

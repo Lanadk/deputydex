@@ -38,6 +38,8 @@ export function SectionBlockLoader({ section, params, onReady }: SectionBlockLoa
                     block={block}
                     dataMap={dataMap}
                     loading={loading}
+                    params={params}
+                    actions={section.actions}
                 />
             ))}
         </AnchorSectionBlockLib>

@@ -3,7 +3,7 @@ import {IGroupeActivityRepository} from "@/app/domains/groupes/repositories/IGro
 import {mapEntityToGroupeActivityDTO} from "@/app/domains/groupes/mappers/groupe-activity.mapper";
 
 
-export async function getGroupesActivityUseCase(
+export async function getGroupeActivityUseCase(
     repository: IGroupeActivityRepository,
     groupeCode: string,
     legislature: number

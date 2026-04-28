@@ -48,8 +48,24 @@ export const GROUPES_SECTIONS: PageSection[] = [
                 },
             };
         },
+        actions: {
+            onActivityClick: async ({ date, code, legislature }) => {
+                const details =
+                    await groupesGateways.getGroupeActivityCalendarDetails(
+                        code,
+                        legislature,
+                        date
+                    );
+
+                console.log("DETAILS :", details);
+            }
+        },
         blocks: [
-            {type: 'activity-calendar', colSpan: 4, config: activityCalendar('groupe-activity-calendar')}
+            {
+                type: 'activity-calendar',
+                colSpan: 4,
+                config: activityCalendar('groupe-activity-calendar')
+            }
         ],
     },
     {

@@ -16,6 +16,9 @@ import {
 import {
     BlockActivityCalendarRenderer
 } from "@/app/(ui)/component-library/template/sections/block-section/_renderers/block-activity-calendar-renderer";
+import {
+    SectionActions
+} from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
 
 export type ColSpan = 1 | 2 | 3 | 4;
 export type ParagraphItem =
@@ -44,6 +47,7 @@ export type SectionBlock<TRow = unknown> =
     type: "activity-calendar";
     colSpan?: ColSpan;
     config: ActivityCalendarConfig;
+    actions?: any;
 } | {
     type: "table";
     colSpan?: ColSpan;
@@ -55,11 +59,13 @@ export type BlockDataWrapper =
     | ActivityCalendarDataWrapper
     | unknown[]; // table rows
 
-interface BlockSectionRendererProps {
+type BlockSectionRendererProps = {
     block: SectionBlock;
     dataMap: Record<string, BlockDataWrapper>;
     loading: boolean;
-}
+    params: Record<string, unknown>;
+    actions?: SectionActions;
+};
 
 /**
  * BlockSectionRenderer
@@ -69,7 +75,9 @@ interface BlockSectionRendererProps {
 export const BlockSectionRenderer: React.FC<BlockSectionRendererProps> = ({
                                                                               block,
                                                                               dataMap,
-                                                                              loading
+                                                                              loading,
+                                                                              params,
+                                                                              actions
                                                                           }) => {
     const colSpanClass =
         block.colSpan === 2 ? "sm:col-span-2" :
@@ -115,6 +123,8 @@ export const BlockSectionRenderer: React.FC<BlockSectionRendererProps> = ({
                         config={block.config}
                         data={dataMap[block.config.id] as ActivityCalendarDataWrapper ?? null}
                         loading={loading}
+                        params={params}
+                        actions={actions}
                     />
                 );
         }
