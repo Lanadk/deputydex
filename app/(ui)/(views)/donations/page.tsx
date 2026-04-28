@@ -1,4 +1,4 @@
-export default function DeputedexPage() {
+export default function DonationPage() {
     return (
         <div>
             <main>
