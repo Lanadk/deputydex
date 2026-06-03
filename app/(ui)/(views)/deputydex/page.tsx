@@ -1,29 +1,25 @@
-"use client";
+"use client"
 
-import {PageHeaderLib} from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
-import React, {useEffect, useMemo, useRef, useState} from "react";
-import {BaseLayout} from "@/app/(ui)/component-library/template/base-layout/base-layout-lib";
-import {useLegislature} from "@/app/(ui)/providers/legislature-provider";
-import DeputyCard from "@/app/(ui)/components/deputy/deputy-card";
-import {useWindowVirtualizer} from "@tanstack/react-virtual";
-import type {FilterBarQuery} from "@/app/_shared/filtering/filter-bar.types";
-import {applyFilterBarQueryClient} from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib.client-query";
+import {
+    AnchorLayoutFixHeader
+} from "@/app/(ui)/component-library/template/sections/anchor-section-header-fix/anchor-layout-fix-header";
 import {DeputyFilter} from "@/app/(ui)/components/deputy/deputy-filter";
-import {deputesGateway} from "@/app/(ui)/gateways/deputes/deputes.gateway";
+import {useEffect, useMemo, useRef, useState} from "react";
+import {useLegislature} from "@/app/(ui)/providers/legislature-provider";
 import {DeputesCardDTO} from "@/app/domains/deputes/dto/deputes-card.dto";
+import {FilterBarQuery} from "@/app/_shared/filtering/filter-bar.types";
+import {applyFilterBarQueryClient} from "@/app/(ui)/component-library/molecules/filter-bar/filter-bar-lib.client-query";
+import {useWindowVirtualizer} from "@tanstack/react-virtual";
+import {deputesGateway} from "@/app/(ui)/gateways/deputes/deputes.gateway";
+import DeputyCard from "@/app/(ui)/components/deputy/deputy-card";
 
 export default function DeputydexPage() {
     const {legislature} = useLegislature();
     const legislatureNumber = legislature?.number ?? 0;
 
     const [deputies, setDeputies] = useState<DeputesCardDTO[]>([]);
-    const [query, setQuery] = useState<FilterBarQuery>({
-        orderBy: [],
-        where: {},
-    });
-    const handleQueryChange = (q: FilterBarQuery) => {
-        setQuery(q);
-    };
+    const [query, setQuery] = useState<FilterBarQuery>({ orderBy: [], where: {} });
+
     const filteredDeputies = useMemo(
         () => applyFilterBarQueryClient(deputies, query),
         [deputies, query]
@@ -41,38 +37,25 @@ export default function DeputydexPage() {
 
     useEffect(() => {
         deputesGateway.getDeputesCards(legislatureNumber)
-           .then(setDeputies)
-           .catch(console.error);
+            .then(setDeputies)
+            .catch(console.error);
     }, [legislatureNumber]);
 
     return (
-        <BaseLayout>
-            <div className="mb-8 border-b border-main pb-6">
-                <PageHeaderLib
-                    title="Deputydex"
-                    subtitle="Toto"
+        <AnchorLayoutFixHeader
+            title="Deputydex"
+            subtitle="Toto"
+            sections={[]}
+            fixedBar={
+                <DeputyFilter
+                    count={filteredDeputies.length}
+                    onQueryChangeAction={(q) => setQuery(q)}
                 />
-            </div>
-
-            <main ref={parentRef} className="flex flex-col gap-6 w-full mx-auto">
-
-                {/*
-
-                                    <div className="w-full">
-                        <DeputyFilter
-                            count={filteredDeputies.length}
-                            onQueryChangeAction={handleQueryChange}
-                        />
-                    </div>
-                */}
-
-
-
+            }
+        >
+            <main ref={parentRef} className="w-full">
                 <div
-                    style={{
-                        height: rowVirtualizer.getTotalSize(),
-                        position: "relative",
-                    }}
+                    style={{ height: rowVirtualizer.getTotalSize(), position: "relative", zIndex: 0 }}
                 >
                     {rowVirtualizer.getVirtualItems().map((virtualRow) => {
                         const start = virtualRow.index * columnCount;
@@ -90,7 +73,7 @@ export default function DeputydexPage() {
                                     width: "100%",
                                     transform: `translateY(${virtualRow.start}px)`,
                                 }}
-                                className="flex justify-center gap-12 py-4"
+                                className="flex justify-end gap-12 py-4"
                             >
                                 {items.map((d) => (
                                     <div key={d.deputeUID} className="w-50">
@@ -106,8 +89,7 @@ export default function DeputydexPage() {
                         );
                     })}
                 </div>
-
             </main>
-        </BaseLayout>
+        </AnchorLayoutFixHeader>
     );
 }
