@@ -81,11 +81,13 @@ export default function DeputyCard({
 
                 <CardItem translateZ="100" className="w-full flex-1 flex items-center justify-center py-2 z-10">
                     <div className="w-3/4 aspect-3/4">
-                        <img
-                            src={image}
-                            alt={nom}
-                            className="w-full h-full object-contain"
-                        />
+                        {image && (
+                            <img
+                                src={image}
+                                alt={nom}
+                                className="w-full h-full object-contain"
+                            />
+                        )}
                     </div>
                 </CardItem>
 

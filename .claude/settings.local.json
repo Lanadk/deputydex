@@ -1,0 +1,8 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(wc -l /c/Users/PC/Documents/WorkSpace/DeputeDEX/deputydex/app/'\\(ui\\)'/'\\(views\\)'/db/statistics/statistics-sections.config.ts)",
+      "Bash(npx tsc *)"
+    ]
+  }
+}
