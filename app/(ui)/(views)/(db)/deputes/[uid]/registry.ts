@@ -2,8 +2,15 @@ import { makeRegistryHelper } from "@/app/(ui)/_shared/registry/registry.helper"
 import { CardConfig } from "@/app/(ui)/component-library/template/sections/block-section/card-config.types";
 import { TableConfig } from "@/app/(ui)/component-library/template/sections/block-section/table-config.types";
 import { ChartConfig } from "@/app/(ui)/component-library/template/sections/block-section/chart-config.types";
+import { ActivityCalendarConfig } from "@/app/(ui)/component-library/template/sections/block-section/activity-calendar-config.types";
 import { DeputeMandatDTO } from "@/app/domains/deputes/dto/depute-mandat.dto";
 import { DeputeRecentVoteDTO } from "@/app/domains/deputes/dto/depute-recent-vote.dto";
+
+// ── Calendrier d'activité ────────────────────────────────────────────────────
+
+const DEPUTE_ACTIVITY_CALENDAR_REGISTRY: ActivityCalendarConfig[] = [
+    { id: "depute-activity-calendar", displayType: "tooltip-and-href" },
+];
 
 // ── Tables ──────────────────────────────────────────────────────────────────
 
@@ -124,3 +131,4 @@ const DEPUTE_CHART_REGISTRY: ChartConfig[] = [
 export const card = makeRegistryHelper(DEPUTE_CARD_REGISTRY, "CardConfig");
 export const table = makeRegistryHelper(DEPUTE_TABLE_REGISTRY as TableConfig[], "TableConfig");
 export const chart = makeRegistryHelper(DEPUTE_CHART_REGISTRY, "ChartConfig");
+export const activityCalendar = makeRegistryHelper(DEPUTE_ACTIVITY_CALENDAR_REGISTRY, "ActivityCalendarConfig");

@@ -24,5 +24,5 @@ export interface IGroupesGateways {
 
     getGroupeActivityCalendar(code: string, legislature: number): Promise<GroupeActivityDTO>;
 
-    getGroupeActivityCalendarDetails(code: string, legislature: number, date: string): Promise<GroupeActivityDetailsDTO>
+    getGroupeActivityCalendarDetails(code: string, legislature: number, date: string): Promise<GroupeActivityDetailsDTO[]>
 }

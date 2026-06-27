@@ -14,11 +14,18 @@ export const prismaGroupeActivityDetailsRepository: IGroupeActivityDetailsReposi
                     acd.activity_date,
                     acd.domain,
                     acd.ref_id,
-                    acd.meta
+                    CASE
+                        WHEN acd.domain IN ('amendement', 'amendement_co')
+                            THEN acd.meta || jsonb_build_object('titre', am.division_titre)
+                        ELSE acd.meta
+                    END AS meta
                 FROM agg_activity_calendar_details_mv acd
                 JOIN ref_groupes rg
                     ON rg.groupe_id = acd.entity_id
                     AND rg.groupe_legislature = acd.legislature
+                LEFT JOIN public.amendements am
+                    ON am.uid = acd.ref_id
+                   AND acd.domain IN ('amendement', 'amendement_co')
                 WHERE rg.code = ${code}
                   AND acd.entity_type = 'groupe'
                   AND acd.legislature = ${legislature}

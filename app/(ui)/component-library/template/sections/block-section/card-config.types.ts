@@ -22,7 +22,7 @@ export type KpiBarCardItem = {
 };
 
 export type SummaryListItem =
-    | { label: string; badge: VariantProps & CustomProps }
+    | { label: string; badge: VariantProps | CustomProps }
     | { label: string; value: string | number };
 
 export type SummaryListCardData = {

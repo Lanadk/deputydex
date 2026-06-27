@@ -4,8 +4,37 @@ import { DeputeMandatDTO } from "@/app/domains/deputes/dto/depute-mandat.dto";
 import { DeputeVoteStatsDTO } from "@/app/domains/deputes/dto/depute-vote-stats.dto";
 import { DeputeRecentVoteDTO } from "@/app/domains/deputes/dto/depute-recent-vote.dto";
 import { DeputeAmendementStatsDTO } from "@/app/domains/deputes/dto/depute-amendement-stats.dto";
+import { DeputeListItemDTO } from "@/app/domains/deputes/dto/depute-list-item.dto";
+import { DeputesCardDTO } from "@/app/domains/deputes/dto/deputes-card.dto";
+import { DeputeActivityDTO } from "@/app/domains/deputes/dto/depute-activity.dto";
+import { DeputeActivityDetailsDTO } from "@/app/domains/deputes/dto/depute-activity-details.dto";
 
 export const deputesGateway: IDeputesGateways = {
+
+    async getDeputesList(legislature: number): Promise<DeputeListItemDTO[]> {
+        const res = await fetch(`/api/deputes/list/${legislature}`);
+        if (!res.ok) throw new Error("Failed to get deputes list");
+        return res.json();
+    },
+
+    async getDeputesCards(legislature: number): Promise<DeputesCardDTO[]> {
+        const res = await fetch(`/api/deputes/cards/${legislature}`);
+        if (!res.ok) throw new Error("Failed to get deputes cards");
+        return res.json();
+    },
+
+    async getDeputeActivityCalendar(uid: string, legislature: number): Promise<DeputeActivityDTO> {
+        const res = await fetch(`/api/deputes/${uid}/activity/${legislature}`);
+        if (!res.ok) throw new Error("Failed to get depute activity");
+        return res.json();
+    },
+
+    async getDeputeActivityCalendarDetails(uid: string, legislature: number, date: string): Promise<DeputeActivityDetailsDTO[]> {
+        const res = await fetch(`/api/deputes/${uid}/activity/${legislature}/details?date=${date}`);
+        if (!res.ok) throw new Error("Failed to get depute activity details");
+        return res.json();
+    },
+
     async getDeputeIdentity(uid: string, legislature: number): Promise<DeputeIdentityDTO> {
         const res = await fetch(`/api/deputes/${uid}/identity/${legislature}`);
         if (!res.ok) throw new Error("Failed to get depute identity");

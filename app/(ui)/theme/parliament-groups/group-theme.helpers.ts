@@ -134,6 +134,26 @@ export function getGroupCardTheme(group: string | null | undefined): GroupTheme 
     return getGroupTheme(group);
 }
 
+const GROUP_FULL_LABELS: Record<string, string> = {
+    RN: "Rassemblement National",
+    EPR: "Ensemble pour la République",
+    LFI: "La France insoumise",
+    SOC: "Socialistes et apparentés",
+    DR: "Droite Républicaine",
+    ECOS: "Écologiste et Social",
+    DEM: "Les Démocrates",
+    HOR: "Horizons et Indépendants",
+    LIOT: "Libertés, Indépendants, Outre-mer et Territoires",
+    GDR: "Gauche Démocrate et Républicaine",
+    UDDPLR: "Union des droites pour la République",
+    DEFAULT: "Non inscrits",
+};
+
+export function getGroupFullLabel(group: string | null | undefined): string {
+    const canonical = getCanonicalGroupCode(group);
+    return GROUP_FULL_LABELS[canonical] ?? (group ?? "Non inscrits");
+}
+
 
 export function mapSeriesToGroupColors<T extends { label: string }>(
     series: T[],

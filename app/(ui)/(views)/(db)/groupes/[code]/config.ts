@@ -50,14 +50,11 @@ export const GROUPES_SECTIONS: PageSection[] = [
         },
         actions: {
             onActivityClick: async ({ date, code, legislature }) => {
-                const details =
-                    await groupesGateways.getGroupeActivityCalendarDetails(
-                        code,
-                        legislature,
-                        date
-                    );
-
-                console.log("DETAILS :", details);
+                return groupesGateways.getGroupeActivityCalendarDetails(
+                    code as string,
+                    legislature as number,
+                    date
+                );
             }
         },
         blocks: [
