@@ -15,7 +15,7 @@ export const prismaGroupeActivityDetailsRepository: IGroupeActivityDetailsReposi
                     acd.domain,
                     acd.ref_id,
                     acd.meta
-                FROM activity_calendar_details_mv acd
+                FROM agg_activity_calendar_details_mv acd
                 JOIN ref_groupes rg
                     ON rg.groupe_id = acd.entity_id
                     AND rg.groupe_legislature = acd.legislature
