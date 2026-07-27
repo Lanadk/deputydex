@@ -234,18 +234,30 @@ export const GROUPES_SECTIONS: PageSection[] = [
         gatewayFn: async ({code, legislature}: Record<string, unknown>) => {
             const leg = legislature as number;
             const cohesion: GroupeCohesionDTO = await groupesGateways.getGroupeCohesion(code as string, leg);
-            return {//TODO
+            return {
                 'kpi-groupe-vote-cohesion': {
-                    data: {label: 'todo', value: leg === 17 ? 'todo' : 'todo'}
+                    data: {
+                        label: 'taux de cohésion',
+                        value: cohesion.tauxCohesionLegislature != null ? `${cohesion.tauxCohesionLegislature}%` : '-',
+                    }
                 },
                 'kpi-groupe-nb-scrutins-legislature': {
-                    data: {label: 'todo', value: leg === 17 ? null : null}
-                },
-                'kpi-groupe-gouvernement-proximity': {
-                    data: {label: 'proximité gouvernement', value: leg === 17 ? 'todo' : 'todo'}
+                    data: {
+                        label: 'scrutins de la législature',
+                        value: cohesion.nbScrutinsCouverts ?? '-',
+                    }
                 },
                 'kpi-groupe-average-scruttin-presence-legislature': {
-                    data: {label: 'présence moyenne', value: leg === 17 ? 'todo' : 'todo'}
+                    data: {
+                        label: 'présence moyenne',
+                        value: cohesion.tauxParticipationLegislature != null ? `${cohesion.tauxParticipationLegislature}%` : '-',
+                    }
+                },
+                'kpi-groupe-gouvernement-proximity': {
+                    data: {
+                        label: 'proximité gouvernement',
+                        value: cohesion.tauxProximiteGouvernement != null ? `${cohesion.tauxProximiteGouvernement}%` : '-',
+                    }
                 },
                 //'kpi-last-votes': { //TODO fix le composant
                    // data: {
@@ -271,8 +283,8 @@ export const GROUPES_SECTIONS: PageSection[] = [
         blocks: [
             {type: 'card', colSpan: 1, config: card('kpi-groupe-vote-cohesion')},
             {type: 'card', colSpan: 1, config: card('kpi-groupe-nb-scrutins-legislature')},
-            {type: 'card', colSpan: 1, config: card('kpi-groupe-gouvernement-proximity')},
             {type: 'card', colSpan: 1, config: card('kpi-groupe-average-scruttin-presence-legislature')},
+            {type: 'card', colSpan: 1, config: card('kpi-groupe-gouvernement-proximity')},
             {type: 'chart', colSpan: 4, config: chart('chart-evolution-cohesion-legislature')},
             {type: 'card', colSpan: 2, config: card('kpi-last-votes')},
         ],
