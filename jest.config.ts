@@ -26,7 +26,7 @@ const config: Config = {
     // jacoco — c'est un format Java (outil JaCoCo) que Jest/Istanbul ne
     // produit pas ; l'équivalent XML cross-langage serait 'cobertura', à
     // activer plutôt si un outil CI (SonarQube, GitLab...) doit le consommer.
-    coverageReporters: ['text-summary', 'html'],
+    coverageReporters: ['text-summary', 'html', 'json-summary'],
     collectCoverageFrom: [
         'app/**/*.{ts,tsx}',
         '!app/**/*.d.ts',

@@ -11,7 +11,8 @@
     "prisma:generate": "prisma generate",
     "test": "jest",
     "test:watch": "jest --watch",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "coverage:by-layer": "jest --coverage --silent && tsx scripts/coverage-by-layer.ts"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",
