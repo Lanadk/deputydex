@@ -61,9 +61,28 @@ function pct([covered, total]: [number, number]): string {
     return total === 0 ? "n/a" : `${((covered / total) * 100).toFixed(1)}%`;
 }
 
-console.log("| Couche | Fichiers | Statements | Branches | Functions | Lines |");
-console.log("|---|---|---|---|---|---|");
+// Table ASCII à largeur de colonne fixe (pas du markdown) : ce script tourne
+// dans un terminal brut, pas dans un rendu markdown, donc les `|` doivent
+// s'aligner tout seuls plutôt que de compter sur un renderer pour le faire.
+const headers = ["Couche", "Fichiers", "Statements", "Branches", "Functions", "Lines"];
+const rows: string[][] = [headers];
 for (const [name, t] of Object.entries(totals)) {
     if (t.files === 0) continue;
-    console.log(`| ${name} | ${t.files} | ${pct(t.statements)} | ${pct(t.branches)} | ${pct(t.functions)} | ${pct(t.lines)} |`);
+    rows.push([name, String(t.files), pct(t.statements), pct(t.branches), pct(t.functions), pct(t.lines)]);
 }
+
+const widths = headers.map((_, col) => Math.max(...rows.map((row) => row[col].length)));
+
+function printRow(row: string[]): void {
+    const cells = row.map((cell, col) => cell.padEnd(widths[col]));
+    console.log(`| ${cells.join(" | ")} |`);
+}
+
+function printSeparator(): void {
+    const segments = widths.map((w) => "-".repeat(w + 2));
+    console.log(`|${segments.join("|")}|`);
+}
+
+printRow(headers);
+printSeparator();
+for (const row of rows.slice(1)) printRow(row);
