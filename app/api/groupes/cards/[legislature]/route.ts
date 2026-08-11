@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import {getGroupeCardsUseCase} from "@/app/domains/groupes/use-cases/get-groupe-cards.use-case";
 import {prismaGroupesCardsRepository} from "@/app/infrastructure/groupes/repositories/prisma-groupes-cards.repository";
 import {isOk} from "@/app/_shared/result-pattern/result";
+import {cachedJson, cachedRead} from "@/app/_shared/cache/cached-response";
 
 export async function GET(
     _req: Request,
@@ -11,13 +12,13 @@ export async function GET(
     const legislatureNumber = Number(legislature);
     try {
 
-        const result = await getGroupeCardsUseCase(
-            prismaGroupesCardsRepository,
-            legislatureNumber
+        const result = await cachedRead(
+            () => getGroupeCardsUseCase(prismaGroupesCardsRepository, legislatureNumber),
+            ["groupe-cards", legislature]
         );
 
         if (isOk(result)) {
-            return NextResponse.json(result.data);
+            return cachedJson(result.data);
         }
 
         return NextResponse.json(

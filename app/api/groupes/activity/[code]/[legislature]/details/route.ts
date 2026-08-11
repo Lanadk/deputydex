@@ -4,6 +4,7 @@ import {
     prismaGroupeActivityDetailsRepository
 } from "@/app/infrastructure/groupes/repositories/prisma-groupe-activity-details.repository";
 import {getGroupeActivityDetailsUseCase} from "@/app/domains/groupes/use-cases/get-groupe-activity-details.use-case";
+import {cachedJson, cachedRead} from "@/app/_shared/cache/cached-response";
 
 
 export async function GET(
@@ -21,15 +22,18 @@ export async function GET(
     const date = new Date(dateParam);
 
     try {
-        const result = await getGroupeActivityDetailsUseCase(
-            prismaGroupeActivityDetailsRepository,
-            code,
-            Number(legislature),
-            date!
+        const result = await cachedRead(
+            () => getGroupeActivityDetailsUseCase(
+                prismaGroupeActivityDetailsRepository,
+                code,
+                Number(legislature),
+                date!
+            ),
+            ["groupe-activity-details", code, legislature, dateParam]
         );
 
         if (isOk(result)) {
-            return NextResponse.json(result.data);
+            return cachedJson(result.data);
         }
 
         return NextResponse.json({ error: result.error }, { status: 500 });
