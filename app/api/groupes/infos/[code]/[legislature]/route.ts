@@ -2,6 +2,7 @@ import {isOk} from "@/app/_shared/result-pattern/result";
 import {NextResponse} from "next/server";
 import {getGroupeInfosUseCase} from "@/app/domains/groupes/use-cases/get-groupe-infos.use-case";
 import {prismaGroupeInfosRepository} from "@/app/infrastructure/groupes/repositories/prisma-groupe-infos.repository";
+import {cachedJson, cachedRead} from "@/app/_shared/cache/cached-response";
 
 
 export async function GET(
@@ -14,14 +15,13 @@ export async function GET(
 
     try {
 
-        const result = await getGroupeInfosUseCase(
-            prismaGroupeInfosRepository,
-            code,
-            legislatureNumber
+        const result = await cachedRead(
+            () => getGroupeInfosUseCase(prismaGroupeInfosRepository, code, legislatureNumber),
+            ["groupe-infos", code, legislature]
         );
 
         if (isOk(result)) {
-            return NextResponse.json(result.data);
+            return cachedJson(result.data);
         }
 
         return NextResponse.json(

@@ -2,14 +2,18 @@ import { NextResponse } from "next/server";
 import { getCurrentLegislatureUseCase } from "@/app/domains/legislatures/use-cases/get-current-legislature.use-case";
 import { prismaLegislaturesRepository } from "@/app/infrastructure/legislatures/repositories/prisma-legislatures.repository";
 import { isOk } from "@/app/_shared/result-pattern/result";
+import { cachedJson, cachedRead } from "@/app/_shared/cache/cached-response";
 
 
 export async function GET(): Promise<Response> {
     try {
-        const result = await getCurrentLegislatureUseCase(prismaLegislaturesRepository);
+        const result = await cachedRead(
+            () => getCurrentLegislatureUseCase(prismaLegislaturesRepository),
+            ["legislature-current"]
+        );
 
         if (isOk(result)) {
-            return NextResponse.json(result.data);
+            return cachedJson(result.data);
         }
 
         if (result.error === "NOT_FOUND") {

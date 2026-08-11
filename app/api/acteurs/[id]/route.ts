@@ -2,6 +2,7 @@ import {NextResponse} from "next/server";
 import {getActeurByIdUseCase} from "@/app/domains/acteurs/use-cases/get-acteur-by-id.use-case";
 import {prismaActeursRepository} from "@/app/infrastructure/acteurs/repositories/prisma-acteurs.repository";
 import {isOk} from "@/app/_shared/result-pattern/result";
+import {cachedJson, cachedRead} from "@/app/_shared/cache/cached-response";
 
 
 export async function GET(
@@ -10,10 +11,13 @@ export async function GET(
 ): Promise<Response> {
     const { id } = await params;
     try {
-        const result = await getActeurByIdUseCase(prismaActeursRepository, id);
+        const result = await cachedRead(
+            () => getActeurByIdUseCase(prismaActeursRepository, id),
+            ["acteur-by-id", id]
+        );
 
         if(isOk(result)) {
-            return NextResponse.json(result.data);
+            return cachedJson(result.data);
         }
 
         if(result.error === "NOT_FOUND") {

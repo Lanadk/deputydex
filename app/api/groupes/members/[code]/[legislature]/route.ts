@@ -4,6 +4,7 @@ import {getGroupeMembersUseCase} from "@/app/domains/groupes/use-cases/get-group
 import {
     prismaGroupeMembersRepository
 } from "@/app/infrastructure/groupes/repositories/prisma-groupe-members.repository";
+import {cachedJson, cachedRead} from "@/app/_shared/cache/cached-response";
 
 export async function GET(
     _req: Request,
@@ -15,14 +16,13 @@ export async function GET(
 
     try {
 
-        const result = await getGroupeMembersUseCase(
-            prismaGroupeMembersRepository,
-            code,
-            legislatureNumber
+        const result = await cachedRead(
+            () => getGroupeMembersUseCase(prismaGroupeMembersRepository, code, legislatureNumber),
+            ["groupe-members", code, legislature]
         );
 
         if (isOk(result)) {
-            return NextResponse.json(result.data);
+            return cachedJson(result.data);
         }
 
         return NextResponse.json(

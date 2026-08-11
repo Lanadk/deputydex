@@ -3,6 +3,7 @@ import {NextResponse} from "next/server";
 import {getGroupeComportementUseCase} from "@/app/domains/groupes/use-cases/get-groupe-comportement.use-case";
 import prismaGroupeComportementRepository
     from "@/app/infrastructure/groupes/repositories/prisma-groupe-comportement.repository";
+import {cachedJson, cachedRead} from "@/app/_shared/cache/cached-response";
 
 export async function GET(
     _req: Request,
@@ -14,14 +15,13 @@ export async function GET(
 
     try {
 
-        const result = await getGroupeComportementUseCase(
-            prismaGroupeComportementRepository,
-            code,
-            legislatureNumber
+        const result = await cachedRead(
+            () => getGroupeComportementUseCase(prismaGroupeComportementRepository, code, legislatureNumber),
+            ["groupe-comportement", code, legislature]
         );
 
         if (isOk(result)) {
-            return NextResponse.json(result.data);
+            return cachedJson(result.data);
         }
 
         return NextResponse.json(
