@@ -16,6 +16,7 @@ const config: Config = {
         '^@/(.*)$': '<rootDir>/$1',
         '\\.(css|less|scss|sass)$': 'identity-obj-proxy',
         '^server-only$': '<rootDir>/__mocks__/server-only.ts',
+        '^next/cache$': '<rootDir>/__mocks__/next-cache.ts',
     },
     // scripts/db_tests et scripts/github_actions_tests sont des scaffolds legacy
     // (code mort/commenté, cf. CLAUDE.md) — pas de vrais tests, on les exclut de

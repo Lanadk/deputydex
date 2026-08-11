@@ -21,6 +21,10 @@ describe("GET /api/groupes/cohesion/[code]/[legislature]", () => {
     it("returns 200 with the cohesion history DTO", async () => {
         getGroupeCohesionLegislature.mockResolvedValue({
             evolutionCohesionLegislature: [{ mois: new Date("2024-07-01"), taux_cohesion: 0.92 }],
+            cohesionLegislature: { nb_scrutins_couverts: 120, taux_cohesion: 0.876 },
+            couvertureScrutins: { nb_scrutins_couverts: 120, nb_scrutins_legislature: 150, taux_couverture_scrutins: 0.8 },
+            participationLegislature: { taux_participation_legislature: 0.62 },
+            proximiteGouvernement: { taux_proximite: 0.734 },
         });
 
         const res = await call("REN", "17");
@@ -29,6 +33,10 @@ describe("GET /api/groupes/cohesion/[code]/[legislature]", () => {
         expect(res.status).toBe(200);
         expect(await res.json()).toEqual({
             evolutionCohesionLegislature: [{ key: "2024-07", value: 0.92 }],
+            tauxCohesionLegislature: 88,
+            nbScrutinsCouverts: 120,
+            tauxParticipationLegislature: 0.62,
+            tauxProximiteGouvernement: 73,
         });
     });
 
