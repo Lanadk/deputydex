@@ -92,10 +92,15 @@ export function ActeursWithPaginationExample() {
     const [total, setTotal] = useState(0);
     const [loading, setLoading] = useState(false);
 
-    // reset page si query change (important)
-    useEffect(() => {
+    // reset page si query change (important) — pas via useEffect (setState
+    // synchrone dans un effect = cascade de renders, cf. react-hooks/set-state-in-effect).
+    // Pattern "adjust state during render" recommandé par React :
+    // https://react.dev/learn/you-might-not-need-an-effect#adjusting-some-state-when-a-prop-changes
+    const [prevQuery, setPrevQuery] = useState(query);
+    if (query !== prevQuery) {
+        setPrevQuery(query);
         setPage(1);
-    }, [query]);
+    }
 
     useEffect(() => {
         let cancelled = false;

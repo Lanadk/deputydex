@@ -15,7 +15,7 @@ export const GroupIntro: React.FC = () => {
                 Les présidents de groupe siègent à la Conférence des présidents.
                 Les commissions sont composées en proportion de l’importance numérique des groupes.
                 Un groupe doit comprendre au moins quinze députés. Les groupes d’opposition et les groupes minoritaires
-                (c'est à dire les groupes qui ne sont pas déclarés d'opposition, à l’exception de celui dont l’effectif est le plus nombreux)
+                (c’est à dire les groupes qui ne sont pas déclarés d’opposition, à l’exception de celui dont l’effectif est le plus nombreux)
                 bénéficient de droits particuliers.
             </p>
 

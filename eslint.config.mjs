@@ -19,6 +19,11 @@ const eslintConfig = defineConfig([
     "out/**",
     "build/**",
     "next-env.d.ts",
+    // Artefacts locaux gitignored mais pas ignorés par défaut par
+    // eslint-config-next : sans ça, lint après un `test:coverage` ou un
+    // `prisma:generate` local fait exploser eslint sur du code généré/vendor.
+    "coverage/**",
+    "app/infrastructure/db/generated/**",
   ]),
 ]);
 

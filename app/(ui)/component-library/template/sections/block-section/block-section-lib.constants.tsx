@@ -6,7 +6,7 @@ import {WireLabel} from "@/app/(ui)/component-library/template/debug/wireframe/w
 //Wireframes
 const WireframeParagraphBlock = () => (
     <div className="w-full border border-main rounded-lg overflow-hidden p-4 flex flex-col gap-3" style={{ borderStyle: "dashed" }}>
-        <WireLabel>type="paragraph"</WireLabel>
+        <WireLabel>type=&#34;paragraph&#34;</WireLabel>
 
         {/* highlight */}
         <div className="px-3 py-2 rounded border-l-2 flex items-center gap-2" style={{ borderColor: "var(--accent)", backgroundColor: "var(--surface-3)" }}>
@@ -59,7 +59,7 @@ const WireframeParagraphBlock = () => (
 
 const WireframeTableBlock = () => (
     <div className="w-full border border-main rounded-lg overflow-hidden p-4 flex flex-col gap-3" style={{ borderStyle: "dashed" }}>
-        <WireLabel>type="table"</WireLabel>
+        <WireLabel>type=&quot;table&quot;</WireLabel>
 
         {/* FilterBar */}
         <div className="flex items-center gap-2 p-2 rounded border border-main" style={{ borderStyle: "dashed", backgroundColor: "var(--surface-2)" }}>
@@ -110,12 +110,12 @@ const WireframeTableBlock = () => (
 
 const WireframeChartBlock = () => (
     <div className="w-full border border-main rounded-lg overflow-hidden p-4 flex flex-col gap-3" style={{ borderStyle: "dashed" }}>
-        <WireLabel>type="chart"</WireLabel>
+        <WireLabel>type=&quot;chart&quot;</WireLabel>
 
         <div className="grid grid-cols-3 gap-3">
             {/* bar */}
             <div className="border border-main rounded p-2 flex flex-col gap-2" style={{ borderStyle: "dashed" }}>
-                <WireLabel>type="bar"</WireLabel>
+                <WireLabel>type=&quot;bar&quot;</WireLabel>
                 <div className="h-20 rounded flex items-end gap-1 px-2 pb-1" style={{ backgroundColor: "var(--surface-3)" }}>
                     {[4, 7, 5, 9, 6, 8, 3].map((h, i) => (
                         <div key={i} className="flex-1 rounded-sm" style={{ height: `${h * 9}%`, backgroundColor: "var(--accent)", opacity: 0.7 }} />
@@ -125,7 +125,7 @@ const WireframeChartBlock = () => (
 
             {/* line */}
             <div className="border border-main rounded p-2 flex flex-col gap-2" style={{ borderStyle: "dashed" }}>
-                <WireLabel>type="line"</WireLabel>
+                <WireLabel>type=&quot;line&quot;</WireLabel>
                 <div className="h-20 rounded relative overflow-hidden" style={{ backgroundColor: "var(--surface-3)" }}>
                     <svg viewBox="0 0 100 50" className="w-full h-full" preserveAspectRatio="none">
                         <polyline
@@ -141,7 +141,7 @@ const WireframeChartBlock = () => (
 
             {/* donut */}
             <div className="border border-main rounded p-2 flex flex-col gap-2" style={{ borderStyle: "dashed" }}>
-                <WireLabel>type="donut"</WireLabel>
+                <WireLabel>type=&quot;donut&quot;</WireLabel>
                 <div className="h-20 rounded flex items-center justify-center" style={{ backgroundColor: "var(--surface-3)" }}>
                     <svg viewBox="0 0 40 40" className="w-14 h-14">
                         <circle cx="20" cy="20" r="15" fill="none" stroke="var(--accent)" strokeWidth="6" strokeDasharray="60 35" opacity="0.8" />
@@ -153,7 +153,7 @@ const WireframeChartBlock = () => (
 
             {/* stacked-bar colSpan=3 */}
             <div className="col-span-3 border border-main rounded p-2 flex flex-col gap-2" style={{ borderStyle: "dashed" }}>
-                <WireLabel>type="stacked-bar"</WireLabel>
+                <WireLabel>type=&quot;stacked-bar&quot;</WireLabel>
                 <div className="h-16 rounded flex items-end gap-1 px-2 pb-1" style={{ backgroundColor: "var(--surface-3)" }}>
                     {[
                         [5, 3, 2],

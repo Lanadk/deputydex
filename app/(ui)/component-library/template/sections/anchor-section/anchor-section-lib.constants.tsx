@@ -64,7 +64,7 @@ const WireframeAnchorSectionBlock = () => (
                 </div>
                 <div className="flex flex-col gap-1">
                     <div className="flex items-center gap-2">
-                        <WireLabel>id="section-id"</WireLabel>
+                        <WireLabel>id=&quot;section-id&quot;</WireLabel>
                         <div className="h-3 w-28 rounded" style={{ backgroundColor: "var(--surface-3)" }} />
                     </div>
                     <div className="h-2 w-40 rounded" style={{ backgroundColor: "var(--surface-3)" }} />
