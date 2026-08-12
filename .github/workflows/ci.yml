@@ -87,8 +87,26 @@ jobs:
       - name: Install Vercel CLI
         run: npm install --global vercel@latest
 
+      # Debug temporaire : confirme que les 3 secrets arrivent bien au job
+      # (vides ou pas, bonne longueur) sans jamais afficher leur valeur —
+      # GitHub masque automatiquement tout ce qui matche exactement un secret,
+      # donc même une valeur juste apparaîtrait en ***. On regarde la longueur
+      # à la place pour détecter un espace/retour à la ligne collé en trop.
+      - name: Debug - check secrets reach the job
+        run: |
+          echo "VERCEL_TOKEN length: ${#VERCEL_TOKEN}"
+          echo "VERCEL_ORG_ID length: ${#VERCEL_ORG_ID}"
+          echo "VERCEL_PROJECT_ID length: ${#VERCEL_PROJECT_ID}"
+
+      # Vérifie l'auth du token seul (n'a besoin ni de ORG_ID ni de PROJECT_ID)
+      # -> si ça échoue, le token lui-même est en cause (mauvaise valeur,
+      # expiré, révoqué). Si ça réussit, le problème est forcément ORG_ID/
+      # PROJECT_ID ou l'accès du token à cette team précise.
+      - name: Debug - whoami (token only)
+        run: vercel whoami --token=$VERCEL_TOKEN
+
       - name: Pull Vercel project settings
-        run: vercel pull --yes --environment=preview --token=$VERCEL_TOKEN
+        run: vercel pull --yes --environment=preview --token=$VERCEL_TOKEN --debug
 
       - name: Build with Vercel
         run: vercel build --token=$VERCEL_TOKEN
