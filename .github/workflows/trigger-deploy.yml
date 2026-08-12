@@ -1,9 +1,108 @@
-name: Trigger prod deploy
+name: CI + Trigger prod deploy
+
+# Pipeline complète sur push main :
+#   test -> build -> deploy Vercel (Preview, gate de validation) -> trigger deploy VPS (prod)
+# Chaque job dépend du précédent via `needs:` : si un job échoue, tous les
+# suivants sont automatiquement skippés (donc jamais de dispatch vers
+# deputydex-cd si les tests/le build/le déploiement Vercel ne passent pas).
 on:
   push:
     branches: [main]
+
+concurrency:
+  group: front-ci-cd
+  cancel-in-progress: false
+
 jobs:
-  dispatch:
+  # ---------------------------------------------------------------------
+  # TEST
+  # ---------------------------------------------------------------------
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run lint
+
+      - run: npm test
+
+  # ---------------------------------------------------------------------
+  # BUILD
+  # ---------------------------------------------------------------------
+  # `npm run build` = `prisma generate && next build`. Ne nécessite pas
+  # DB_URL/DATABASE_URL : `prisma generate` ne fait que générer le client à
+  # partir du schema (pas de connexion DB), et aucune page ne fait de requête
+  # DB au build (pas de generateStaticParams/force-static dans ce repo) — les
+  # pages sont rendues à la requête, pas au build. Cf. CLAUDE.md sur DB_URL.
+  build:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - run: npm ci
+
+      - run: npm run build
+
+  # ---------------------------------------------------------------------
+  # DEPLOY VERCEL (Preview) — gate de validation, pas la prod
+  # ---------------------------------------------------------------------
+  # Déploie un vrai build serverless sur une URL Preview unique (pas d'alias
+  # sur le domaine de prod). Sert de dernier filet avant de toucher au VPS :
+  # si Vercel refuse de builder/déployer, le déploiement VPS n'est pas
+  # déclenché. Nécessite 3 secrets sur ce repo (Settings > Secrets > Actions) :
+  #   VERCEL_TOKEN     -> vercel.com/account/tokens
+  #   VERCEL_ORG_ID    -> `vercel link` en local (.vercel/project.json) ou
+  #                        Team/Account Settings > General
+  #   VERCEL_PROJECT_ID -> `vercel link` en local (.vercel/project.json) ou
+  #                        Project Settings > General
+  vercel-preview:
+    needs: build
+    runs-on: ubuntu-latest
+    env:
+      VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
+      VERCEL_ORG_ID: ${{ secrets.VERCEL_ORG_ID }}
+      VERCEL_PROJECT_ID: ${{ secrets.VERCEL_PROJECT_ID }}
+    outputs:
+      preview-url: ${{ steps.deploy.outputs.url }}
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Install Vercel CLI
+        run: npm install --global vercel@latest
+
+      - name: Pull Vercel project settings
+        run: vercel pull --yes --environment=preview --token=$VERCEL_TOKEN
+
+      - name: Build with Vercel
+        run: vercel build --token=$VERCEL_TOKEN
+
+      - name: Deploy prebuilt output to Vercel (preview)
+        id: deploy
+        run: |
+          url=$(vercel deploy --prebuilt --token=$VERCEL_TOKEN)
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Display preview URL
+        run: echo "Preview Vercel -> ${{ steps.deploy.outputs.url }}"
+
+  # ---------------------------------------------------------------------
+  # TRIGGER DEPLOY PROD (VPS via deputydex-cd)
+  # ---------------------------------------------------------------------
+  trigger-vps-deploy:
+    needs: vercel-preview
     runs-on: ubuntu-latest
     steps:
       - uses: peter-evans/repository-dispatch@v3
