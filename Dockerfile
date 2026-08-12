@@ -4,7 +4,7 @@ WORKDIR /app
 
 # Copie les fichiers de dépendances en premier (cache Docker)
 COPY package*.json ./
-COPY prisma ./prisma/
+COPY app/infrastructure/db/prisma ./app/infrastructure/db/prisma/
 
 RUN npm ci
 
@@ -28,7 +28,7 @@ RUN addgroup --system --gid 1001 nodejs && \
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
-COPY --from=builder /app/prisma ./prisma
+COPY --from=builder /app/app/infrastructure/db/prisma ./app/infrastructure/db/prisma
 
 USER nextjs
 
