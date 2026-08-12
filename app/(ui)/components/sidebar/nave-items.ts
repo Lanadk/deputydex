@@ -8,5 +8,9 @@ export const NAVITEMS = [
     {label: "Data Sources", href: "/data-sources", icon: Database, section: "info"},
     {label: "About us", href: "/about-us", icon: MessageCircleMore, section: "info"},
     {label: "Donations", href: "/donations", icon: HandHelping, section: "info"},
-    {label: "Lib component", href: "/component-library", icon: Component, section: "component-library"}, // dev only , faudra couper la route en prod
+    // Visible uniquement en dev : la route elle-même est bloquée en prod
+    // par un notFound() côté serveur dans component-library/layout.tsx.
+    ...(process.env.NODE_ENV !== "production"
+        ? [{label: "Lib component", href: "/component-library", icon: Component, section: "component-library"}]
+        : []),
 ];
