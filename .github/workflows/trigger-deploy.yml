@@ -25,9 +25,14 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
+          # Pas de `cache: npm` : package-lock.json est gitignored dans ce
+          # repo (cf. .gitignore), donc jamais présent sur le runner — le
+          # cache actions/setup-node a besoin d'un lockfile pour sa clé.
 
-      - run: npm ci
+      # npm ci exige un package-lock.json ; comme il n'est pas commit,
+      # on utilise npm install (même convention que le rôle Ansible
+      # deploy-front dans deputydex-cd).
+      - run: npm install
 
       - run: npm run lint
 
@@ -50,9 +55,8 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
 
-      - run: npm ci
+      - run: npm install
 
       - run: npm run build
 
