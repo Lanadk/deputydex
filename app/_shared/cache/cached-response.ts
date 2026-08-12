@@ -1,6 +1,6 @@
 import { NextResponse } from "next/server";
 import { unstable_cache } from "next/cache";
-import { ACTIVE_CACHE_TTL_SECONDS, PARLIAMENT_DATA_CACHE_TAG } from "@/app/_shared/cache/cache.config";
+import { ACTIVE_CACHE_TTL_SECONDS, CACHE_TTL_SECONDS, PARLIAMENT_DATA_CACHE_TAG } from "@/app/_shared/cache/cache.config";
 
 /**
  * Exécute `fn` derrière le cache serveur Next.js (`unstable_cache`).
@@ -13,12 +13,21 @@ import { ACTIVE_CACHE_TTL_SECONDS, PARLIAMENT_DATA_CACHE_TAG } from "@/app/_shar
  * `keyParts` doit inclure un identifiant stable de l'endpoint + tous les
  * paramètres qui font varier le résultat (id, code, legislature, ...) — sans
  * ça, deux requêtes différentes partageraient la même entrée de cache.
+ *
+ * `unstable_cache` refuse `revalidate: 0` (il lève une exception — seuls
+ * `false` ou un nombre `> 0` sont acceptés). Quand `ACTIVE_CACHE_TTL_SECONDS`
+ * vaut `CACHE_TTL_SECONDS.NO_CACHE`, on contourne donc `unstable_cache` et on
+ * appelle `fn` directement, pour un vrai "pas de cache".
  */
 export function cachedRead<T>(
     fn: () => Promise<T>,
     keyParts: string[],
     extraTags: string[] = []
 ): Promise<T> {
+    if (ACTIVE_CACHE_TTL_SECONDS === CACHE_TTL_SECONDS.NO_CACHE) {
+        return fn();
+    }
+
     return unstable_cache(fn, keyParts, {
         revalidate: ACTIVE_CACHE_TTL_SECONDS,
         tags: [PARLIAMENT_DATA_CACHE_TAG, ...extraTags],

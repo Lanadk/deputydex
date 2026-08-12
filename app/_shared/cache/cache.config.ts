@@ -10,9 +10,13 @@
  * `ACTIVE_CACHE_TTL_SECONDS` pour pointer vers `CACHE_TTL_SECONDS.DAY`.
  * Aucune autre modification n'est nécessaire.
  *
- * `NO_CACHE` (0) désactive le cache — `unstable_cache` traite `revalidate: 0`
- * comme "toujours revalider", donc chaque requête retape la DB. Utile pour
- * débugger en local sans devoir attendre l'expiration du TTL.
+ * `NO_CACHE` (0) désactive le cache. ATTENTION : `unstable_cache()` lève une
+ * exception si on lui passe `revalidate: 0` directement (Next.js n'accepte
+ * que `false` ou un nombre `> 0` — voir `unstable-cache.js` dans `next/dist`).
+ * `cachedRead` (dans `cached-response.ts`) contourne donc `unstable_cache`
+ * entièrement quand la TTL active vaut `NO_CACHE`, et appelle `fn()` en
+ * direct. Utile pour débugger en local sans devoir attendre l'expiration du
+ * TTL.
  */
 export const CACHE_TTL_SECONDS = {
     NO_CACHE: 0,
@@ -21,7 +25,7 @@ export const CACHE_TTL_SECONDS = {
 } as const;
 
 /** TTL actuellement actif pour l'ensemble des endpoints de lecture cachés. */
-export const ACTIVE_CACHE_TTL_SECONDS: number = CACHE_TTL_SECONDS.WEEK;
+export const ACTIVE_CACHE_TTL_SECONDS: number = CACHE_TTL_SECONDS.NO_CACHE;
 
 /**
  * Tag partagé par toutes les entrées de cache "données parlementaires".
