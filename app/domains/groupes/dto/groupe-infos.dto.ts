@@ -5,8 +5,8 @@ export type GroupeInfosDTO = {
     groupePosition?: 'Droite' | 'Centre' | 'Gauche';
     groupeCountMembers: number;
     groupeRank: number;
-    groupeYearOfCreation: string,
-    groupeWebSite: string;
+    groupeYearOfCreation: string | null,
+    groupeWebSite: string | null;
     groupeColor?: string;
     groupeImg: string | "";
     groupePresidentFullName: string;

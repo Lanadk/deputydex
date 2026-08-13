@@ -48,6 +48,15 @@ describe("mapEntityToGroupeInfosDTO", () => {
         expect(dto.groupeCode).toBe("REN");
     });
 
+    it("passes through null groupeYearOfCreation/groupeWebSite when the group has no référentiel row yet", () => {
+        const dto = mapEntityToGroupeInfosDTO(17, [
+            makeEntity({ groupe_year_of_creation: null, groupe_web_site: null }),
+        ]);
+
+        expect(dto.groupeYearOfCreation).toBeNull();
+        expect(dto.groupeWebSite).toBeNull();
+    });
+
     it("coerces stringly-typed numeric fields (as raw SQL often returns them) via Number()", () => {
         // $queryRaw sur Postgres renvoie souvent les colonnes numeric/bigint sous
         // forme de string — le mapper doit les convertir. On simule ça avec un
