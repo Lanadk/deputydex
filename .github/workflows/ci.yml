@@ -67,16 +67,11 @@ jobs:
   # sur le domaine de prod). Sert de dernier filet avant de toucher au VPS :
   # si Vercel refuse de builder/déployer, le déploiement VPS n'est pas
   # déclenché. Nécessite 3 secrets sur ce repo (Settings > Secrets > Actions) :
-  #   VERCEL_TOKEN      -> vercel.com/account/tokens, scope "Full Account".
-  #                        ⚠️ Un token scopé sur une team précise (au lieu de
-  #                        Full Account) échoue avec des erreurs trompeuses
-  #                        ("User not found" sur whoami, "Could not retrieve
-  #                        Project Settings" sur pull) même avec des
-  #                        ORG_ID/PROJECT_ID corrects — vécu en prod, cf. PR.
-  #   VERCEL_ORG_ID     -> `vercel link` en local (.vercel/project.json ou
-  #                        repo.json) ou Team Settings > General ("Team ID")
-  #   VERCEL_PROJECT_ID -> `vercel link` en local (.vercel/project.json ou
-  #                        repo.json) ou Project Settings > General
+  #   VERCEL_TOKEN     -> vercel.com/account/tokens
+  #   VERCEL_ORG_ID    -> `vercel link` en local (.vercel/project.json) ou
+  #                        Team/Account Settings > General
+  #   VERCEL_PROJECT_ID -> `vercel link` en local (.vercel/project.json) ou
+  #                        Project Settings > General
   vercel-preview:
     needs: build
     runs-on: ubuntu-latest
