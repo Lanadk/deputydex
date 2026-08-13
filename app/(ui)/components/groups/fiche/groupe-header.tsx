@@ -57,13 +57,19 @@ export const GroupeHeader: React.FC<GroupeHeaderProps> = ({groupeInfos}: GroupeH
                     </div>
                     {/* LIGNE 3 */}
                     <div className="flex flex-wrap gap-2">
-                        <BadgeLib text={`Fondé en ${groupeInfos.groupeYearOfCreation}`} variant="secondary"/>
-                        <a
-                            href={groupeInfos.groupeWebSite}
-                            className="px-3 py-1 rounded-full border text-sm hover:bg-gray-50"
-                        >
-                            Site officiel ↗
-                        </a>
+                        {groupeInfos.groupeYearOfCreation && (
+                            <BadgeLib text={`Fondé en ${groupeInfos.groupeYearOfCreation}`} variant="secondary"/>
+                        )}
+                        {groupeInfos.groupeWebSite && (
+                            <a
+                                href={groupeInfos.groupeWebSite}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="px-3 py-1 rounded-full border text-sm hover:bg-gray-50"
+                            >
+                                Site officiel ↗
+                            </a>
+                        )}
                     </div>
                 </div>
             </div>
