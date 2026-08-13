@@ -1,7 +1,7 @@
 name: CI + Trigger prod deploy
 
 # Pipeline complète sur push main :
-#   test -> build -> deploy Vercel (Preview, gate de validation) -> trigger deploy VPS (prod)
+#   test -> build -> deploy Vercel (Preview, gate de validation) -> trigger deploy (prod)
 # Chaque job dépend du précédent via `needs:` : si un job échoue, tous les
 # suivants sont automatiquement skippés (donc jamais de dispatch vers
 # deputydex-cd si les tests/le build/le déploiement Vercel ne passent pas).
@@ -64,8 +64,8 @@ jobs:
   # DEPLOY VERCEL (Preview) — gate de validation, pas la prod
   # ---------------------------------------------------------------------
   # Déploie un vrai build serverless sur une URL Preview unique (pas d'alias
-  # sur le domaine de prod). Sert de dernier filet avant de toucher au VPS :
-  # si Vercel refuse de builder/déployer, le déploiement VPS n'est pas
+  # sur le domaine de prod). Sert de dernier filet avant de toucher à la prod :
+  # si Vercel refuse de builder/déployer, le déploiement n'est pas
   # déclenché. Nécessite 3 secrets sur ce repo (Settings > Secrets > Actions) :
   #   VERCEL_TOKEN     -> vercel.com/account/tokens
   #   VERCEL_ORG_ID    -> `vercel link` en local (.vercel/project.json) ou
@@ -103,7 +103,7 @@ jobs:
         run: echo "Preview Vercel -> ${{ steps.deploy.outputs.url }}"
 
   # ---------------------------------------------------------------------
-  # TRIGGER DEPLOY PROD (VPS via deputydex-cd)
+  # TRIGGER DEPLOY PROD
   # ---------------------------------------------------------------------
   trigger-vps-deploy:
     needs: vercel-preview
