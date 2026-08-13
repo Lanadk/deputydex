@@ -449,23 +449,13 @@ model RefGroupes {
   @@map("ref_groupes")
 }
 
-// NOTE: ce modèle est ajouté manuellement en attendant qu'il soit répliqué côté
-// pipeline deputydex-data. schema.prisma est normalement un miroir synchronisé
-// automatiquement depuis ce repo externe (voir commits "chore: sync schema.prisma
-// from deputydex-data@<hash>") — si la table n'est pas créée là-bas et ajoutée à
-// sa propre source de schéma, le prochain sync écrasera cette définition.
-// Voir db-handoff/2026-08-13_ref_groupes_fondation/ pour le SQL à transmettre.
-//
-// Table de référentiel des groupes parlementaires par identité de parti (clé =
-// code du groupe, stable à travers les législatures). Le RN et le FN ont des
-// codes différents et donc des lignes distinctes : pas de fusion historique.
 model RefGroupesFondation {
-  id             Int       @id @default(autoincrement())
-  groupeCode     String    @unique @map("groupe_code") @db.VarChar(20)
-  anneeFondation Int?      @map("annee_fondation")
-  siteOfficiel   String?   @map("site_officiel") @db.Text
-  createdAt      DateTime  @default(now()) @map("created_at") @db.Timestamp(6)
-  updatedAt      DateTime  @default(now()) @updatedAt @map("updated_at") @db.Timestamp(6)
+  id              Int      @id @default(autoincrement())
+  groupe_code     String   @unique @db.VarChar(20)
+  annee_fondation Int?
+  site_officiel   String?  @db.Text
+  created_at      DateTime @default(now()) @db.Timestamp(6)
+  updated_at      DateTime @default(now()) @updatedAt @db.Timestamp(6)
 
   @@map("ref_groupes_fondation")
 }
