@@ -3,7 +3,7 @@ import {BarChart3, Component, Layers, Grid3x3, HandHelping, MessageCircleMore, D
 export const NAVITEMS = [
     {label: "DeputeDex", href: "/deputydex", icon: Grid3x3, section: "deputydex"},
     {label: "Groupes", href: "/groupes", icon: Layers, section: "db"},
-    {label: "Statistiques", href: "/statistics", icon: BarChart3, section: "db"},
+    //label: "Statistiques", href: "/statistics", icon: BarChart3, section: "db"}, //TODO V2
     {label: "Data Sources", href: "/data-sources", icon: Database, section: "info"},
     {label: "About us", href: "/about-us", icon: MessageCircleMore, section: "info"},
     //{label: "Donations", href: "/donations", icon: HandHelping, section: "info"}, //TODO V2

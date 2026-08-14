@@ -25,7 +25,7 @@ export default function HomeClient() {
                                 ? "/assets/imgs/ASS_DEX_LIGHT.svg"
                                 : "/assets/imgs/ASS_DEX_ACC.svg"
                         }
-                        alt="ASS DEX"
+                        alt="Députédex - base de données des députés français"
                         width={250}
                         height={250}
                         priority
@@ -33,7 +33,13 @@ export default function HomeClient() {
                 )}
             </div>
 
-            <h1>Bienvenue</h1>
+            <div className="flex flex-col items-center gap-2 text-center px-4">
+                <h1>Bienvenue sur Députédex</h1>
+                <p className="subtitle max-w-xl">
+                    La base de données interactive des députés français : mandats, groupes
+                    parlementaires, scrutins, votes et statistiques de l&apos;Assemblée nationale.
+                </p>
+            </div>
 
             <div className="flex gap-4">
                 <Link href="/deputydex">

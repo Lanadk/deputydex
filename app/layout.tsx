@@ -55,6 +55,20 @@ export const metadata: Metadata = {
     },
 };
 
+const websiteJsonLd = {
+    "@context": "https://schema.org",
+    "@type": "WebSite",
+    name: SITE_NAME,
+    alternateName: "DeputeDex",
+    url: SITE_URL,
+    description: DEFAULT_DESCRIPTION,
+    inLanguage: "fr-FR",
+    about: {
+        "@type": "Thing",
+        name: "Députés français de l'Assemblée nationale",
+    },
+};
+
 export default function RootLayout({
                                        children,
                                    }: Readonly<{
@@ -62,6 +76,13 @@ export default function RootLayout({
 }>) {
     return (
         <html lang="fr" suppressHydrationWarning>
+        <head>
+            <script
+                type="application/ld+json"
+                dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
+            />
+            <title></title>
+        </head>
         <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-y-scroll`}
         >
