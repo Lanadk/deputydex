@@ -113,6 +113,32 @@ export default function AppSidebar() {
                         );
                     })}
                 </nav>
+
+                {/* Copyright / mentions légales */}
+                <Tooltip
+                    title={!isOpen ? "Mentions légales" : ''}
+                    disableFocusListener
+                    disableTouchListener
+                    classes={{ tooltip: `tooltip-lib` }}
+                    placement="right"
+                >
+                    <Link
+                        href="/mentions-legales"
+                        onClick={() => { if (isMobile) toggle(); }}
+                        className="flex items-center gap-2 px-4 py-3 border-t border-main text-xs text-subtitle-accent hover:underline shrink-0"
+                    >
+                        {isOpen ? (
+                            <SpanLib
+                                className="whitespace-nowrap overflow-hidden"
+                                style={{animation: "fadeIn 0.15s ease 0.15s both"}}
+                            >
+                                © {new Date().getFullYear()} Députédex
+                            </SpanLib>
+                        ) : (
+                            <SpanLib>©</SpanLib>
+                        )}
+                    </Link>
+                </Tooltip>
             </aside>
 
             {/* Backdrop mobile */}
