@@ -44,16 +44,16 @@ describe("getGroupeInfosUseCase", () => {
         expect(result).toEqual({ success: false, error: "ERROR" });
     });
 
-    // Comportement actuel documenté ici, pas corrigé : le use-case ne teste
-    // que `!entities` (null/undefined), pas un tableau vide. Un tableau vide
-    // passe donc ce garde-fou puis fait planter le mapper (`entities?.[0]`
-    // devient undefined, et `row.legislature` lève). À corriger séparément
-    // si ce cas peut réellement se produire côté repository.
-    it("throws instead of returning err('ERROR') when the repository resolves an empty array", async () => {
+    // Cas réel : un code de groupe existant dans une autre législature (ex:
+    // "NI-16", "RE") mais absent de celle demandée. Le repository renvoie un
+    // tableau vide (pas null/undefined) — doit être traité comme "not found".
+    it("returns err('ERROR') when the repository resolves an empty array (code not found for this legislature)", async () => {
         const repository: IGroupeInfosRepository = {
             getGroupeInfos: jest.fn().mockResolvedValue([]),
         };
 
-        await expect(getGroupeInfosUseCase(repository, "REN", 17)).rejects.toThrow();
+        const result = await getGroupeInfosUseCase(repository, "NI-16", 17);
+
+        expect(result).toEqual({ success: false, error: "ERROR" });
     });
 });

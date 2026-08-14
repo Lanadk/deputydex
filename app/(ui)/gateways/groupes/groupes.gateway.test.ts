@@ -13,6 +13,7 @@ describe("groupesGateways — URL construction & success path", () => {
     it.each([
         ["getGroupesCards", () => groupesGateways.getGroupesCards(17), "/api/groupes/cards/17"],
         ["getGroupeInfos", () => groupesGateways.getGroupeInfos("REN", 17), "/api/groupes/infos/REN/17"],
+        ["getGroupeLegislatures", () => groupesGateways.getGroupeLegislatures("REN"), "/api/groupes/legislatures/REN"],
         ["getGroupeMembers", () => groupesGateways.getGroupeMembers("REN", 17), "/api/groupes/members/REN/17"],
         ["getGroupeComposition", () => groupesGateways.getGroupeComposition("REN", 17), "/api/groupes/composition/REN/17"],
         ["getGroupeCohesion", () => groupesGateways.getGroupeCohesion("REN", 17), "/api/groupes/cohesion/REN/17"],
@@ -41,6 +42,7 @@ describe("groupesGateways — error messages on a non-ok response", () => {
     it.each([
         ["getGroupesCards", () => groupesGateways.getGroupesCards(17), "Failed to get groupes cards"],
         ["getGroupeInfos", () => groupesGateways.getGroupeInfos("REN", 17), "Failed to get groupe infos"],
+        ["getGroupeLegislatures", () => groupesGateways.getGroupeLegislatures("REN"), "Failed to get groupe legislatures"],
         ["getGroupeActivityCalendar", () => groupesGateways.getGroupeActivityCalendar("REN", 17), "Failed to get activity"],
         ["getGroupeActivityCalendarDetails", () => groupesGateways.getGroupeActivityCalendarDetails("REN", 17, "2024-07-08"), "Failed to get activity"],
     ])("%s throws '%s'", async (_name, call, expectedMessage) => {
