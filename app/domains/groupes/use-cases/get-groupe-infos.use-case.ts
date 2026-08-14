@@ -12,7 +12,7 @@ export async function getGroupeInfosUseCase(
 
     const entities = await repository.getGroupeInfos(groupeCode, legislature);
 
-    if (!entities) {
+    if (!entities || entities.length === 0) {
         return err("ERROR")
     }
 

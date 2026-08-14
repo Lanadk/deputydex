@@ -15,7 +15,7 @@ import {SectionBlockLoader} from "@/app/(ui)/component-library/template/sections
 export default function GroupePageClient({code}: { code: string }) {
     const [readyCount, setReadyCount] = useState(0);
     const [groupeInfos, setGroupeInfos] = useState<GroupeInfosDTO>();
-    const {legislature} = useLegislature();
+    const {legislature, legislatures, setUnavailableLegislatureNumbers} = useLegislature();
     const legislatureNum = legislature?.number ?? 17;
 
     const params = useMemo(() => ({ code, legislature: legislatureNum }), [code, legislatureNum]);
@@ -26,6 +26,30 @@ export default function GroupePageClient({code}: { code: string }) {
             .then(setGroupeInfos)
             .catch(console.error);
     }, [code, legislatureNum]);
+
+    // Un code de groupe (ex: "RE") n'existe pas forcément sous ce nom dans
+    // toutes les législatures (ex: devenu "EPR" en 17e) — pas de mapping
+    // fiable entre les deux, donc on grise plutôt les législatures où ce
+    // code n'a pas existé dans le sélecteur global.
+    useEffect(() => {
+        let cancelled = false;
+
+        groupesGateways.getGroupeLegislatures(code)
+            .then(availableNumbers => {
+                if (cancelled) return;
+                const available = new Set(availableNumbers);
+                const unavailable = new Set(
+                    legislatures.map(l => l.number).filter(n => !available.has(n))
+                );
+                setUnavailableLegislatureNumbers(unavailable);
+            })
+            .catch(console.error);
+
+        return () => {
+            cancelled = true;
+            setUnavailableLegislatureNumbers(new Set());
+        };
+    }, [code, legislatures, setUnavailableLegislatureNumbers]);
 
     const sectionsToAwait = useMemo(
         () => GROUPES_SECTIONS.filter(s => s.gatewayFn && !s.lazy),

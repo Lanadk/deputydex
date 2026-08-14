@@ -29,6 +29,16 @@ export const groupesGateways: IGroupesGateways = {
         return res.json();
     },
 
+    async getGroupeLegislatures(code: string): Promise<number[]> {
+        const res = await fetch(`/api/groupes/legislatures/${code}`);
+
+        if (!res.ok) {
+            throw new Error("Failed to get groupe legislatures");
+        }
+
+        return res.json();
+    },
+
     async getGroupeMembers(code:string, legislature: number): Promise<GroupeMembersDTO[]> {
         const res = await fetch(`/api/groupes/members/${code}/${legislature}`);
 

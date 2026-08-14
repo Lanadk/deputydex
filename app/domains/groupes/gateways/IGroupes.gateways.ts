@@ -12,6 +12,8 @@ export interface IGroupesGateways {
 
     getGroupeInfos(code: string, legislature: number): Promise<GroupeInfosDTO>;
 
+    getGroupeLegislatures(code: string): Promise<number[]>;
+
     getGroupeMembers(code:string, legislature: number): Promise<GroupeMembersDTO[]>;
 
     getGroupeComposition(code: string, legislature: number): Promise<GroupeCompositionDTO>;
