@@ -81,7 +81,6 @@ export default function RootLayout({
                 type="application/ld+json"
                 dangerouslySetInnerHTML={{ __html: JSON.stringify(websiteJsonLd) }}
             />
-            <title></title>
         </head>
         <body
             className={`${geistSans.variable} ${geistMono.variable} antialiased overflow-y-scroll`}
