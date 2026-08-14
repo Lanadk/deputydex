@@ -1,6 +1,7 @@
 "use client";
 
 import {useState} from "react";
+import {usePathname} from "next/navigation";
 import {useLegislature} from "@/app/(ui)/providers/legislature-provider";
 import {ButtonLib} from "@/app/(ui)/component-library/atoms/button/button-lib";
 import {SpanLib} from "@/app/(ui)/component-library/atoms/span/span-lib";
@@ -10,6 +11,15 @@ import {BadgeLib} from "@/app/(ui)/component-library/atoms/badge/badge-lib";
 export function LegislatureSelector() {
     const {legislature, legislatures, setLegislature, loading, unavailableLegislatureNumbers} = useLegislature();
     const [isOpen, setIsOpen] = useState(false);
+    const pathname = usePathname();
+    const [trackedPathname, setTrackedPathname] = useState(pathname);
+
+    // Changer de législature ne doit pas fermer le panneau (l'utilisateur
+    // peut vouloir comparer plusieurs législatures d'affilée), seule une navigation vers une autre page le referme
+    if (pathname !== trackedPathname) {
+        setTrackedPathname(pathname);
+        setIsOpen(false);
+    }
 
     if (loading) return null;
 
@@ -42,7 +52,6 @@ export function LegislatureSelector() {
                                     onClick={() => {
                                         if (isUnavailable) return;
                                         setLegislature(l);
-                                        setIsOpen(false)
                                     }}
                                     className={`flex items-center justify-between px-3 py-2 rounded-lg gap-2 sidebar-link ${legislature?.id === l.id ? "sidebar-link--active" : ""} ${isUnavailable ? "opacity-40 cursor-not-allowed" : ""}`}
                                 >
