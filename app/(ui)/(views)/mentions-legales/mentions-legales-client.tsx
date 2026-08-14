@@ -146,7 +146,7 @@ export default function MentionsLegalesClient() {
                                 rel="noopener noreferrer"
                                 className="text-accent hover:underline"
                             >
-                                Licence Ouverte / Open Licence (Etalab)
+                                Licence Ouverte / Open Licence
                             </a>. Elles restent librement réutilisables dans les conditions fixées par
                             cette licence, indépendamment du copyright applicable au site lui-même.
                         </p>
