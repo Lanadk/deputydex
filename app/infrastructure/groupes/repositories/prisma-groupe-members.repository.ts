@@ -20,6 +20,8 @@ export const prismaGroupeMembersRepository: IGroupeMembersRepository = {
                                       INNER JOIN ref_groupes rg
                                       ON rg.groupe_id = ag.groupe_id
                                       AND rg.groupe_legislature = ag.groupe_legislature
+                                      LEFT JOIN param_legislatures pl
+                                      ON pl.number = ag.groupe_legislature
                                       LEFT JOIN LATERAL (
                                       SELECT mv.election_departement, mv.election_num_circo
                                       FROM mandats mv
@@ -32,8 +34,8 @@ export const prismaGroupeMembersRepository: IGroupeMembersRepository = {
                                       LEFT JOIN ref_acteurs_photos p ON p.acteur_uid = a.uid
                                   WHERE rg.code = ${code}
                                     AND ag.groupe_legislature = ${legislature}
-                                    AND ag.date_debut <= CURRENT_DATE
-                                    AND (ag.date_fin IS NULL OR ag.date_fin >= CURRENT_DATE)
+                                    AND ag.date_debut <= COALESCE(pl.end_date, CURRENT_DATE)
+                                    AND (ag.date_fin IS NULL OR ag.date_fin >= COALESCE(pl.end_date, CURRENT_DATE))
                                   ORDER BY a.uid, ag.date_fin DESC NULLS FIRST, ag.date_debut DESC
                               ) sub
                 ORDER BY last_name, first_name
