@@ -17,6 +17,7 @@ interface ComparatorContextValue {
     enableSplit: () => void;
     disableSplit: () => void;
     updateContext: (contextIndex: number, params: StatFetchParams) => void;
+    resetContext: (contextIndex: number) => void;
     setDisplayType: (contextIndex: number, definitionId: string, displayType: ChartDisplayType) => void;
 }
 
@@ -27,6 +28,7 @@ const ComparatorContext = createContext<ComparatorContextValue>({
     enableSplit: () => {},
     disableSplit: () => {},
     updateContext: () => {},
+    resetContext: () => {},
     setDisplayType: () => {},
 });
 
@@ -54,6 +56,7 @@ export function ComparatorProvider({ children }: { children: React.ReactNode }) 
         enableSplit: () => dispatch({ type: "ENABLE_SPLIT" }),
         disableSplit: () => dispatch({ type: "DISABLE_SPLIT" }),
         updateContext: (contextIndex, params) => dispatch({ type: "UPDATE_CONTEXT", contextIndex, params }),
+        resetContext: (contextIndex) => dispatch({ type: "RESET_CONTEXT", contextIndex }),
         setDisplayType: (contextIndex, definitionId, displayType) =>
             dispatch({ type: "SET_DISPLAY_TYPE", contextIndex, definitionId, displayType }),
     };

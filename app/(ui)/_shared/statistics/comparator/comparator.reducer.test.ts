@@ -175,6 +175,57 @@ describe("comparatorReducer", () => {
         });
     });
 
+    describe("RESET_CONTEXT", () => {
+        it("empties only the targeted context, keeping the selection, when another context still has data", () => {
+            const state: ComparatorState = {
+                mode: "split",
+                selectedStatIds: ["acteurs.age-distribution"],
+                contexts: [{ filters: { legislature: 17 } }, { filters: { legislature: 16 } }],
+                displayTypes: [{ "acteurs.age-distribution": "bar" }, { "acteurs.age-distribution": "donut" }],
+            };
+
+            const result = reduce(state, { type: "RESET_CONTEXT", contextIndex: 0 });
+
+            expect(result.contexts).toEqual([{}, { filters: { legislature: 16 } }]);
+            expect(result.selectedStatIds).toEqual(["acteurs.age-distribution"]);
+            expect(result.displayTypes).toEqual([{ "acteurs.age-distribution": "bar" }, { "acteurs.age-distribution": "donut" }]);
+        });
+
+        it("also clears the shared selection once every context ends up empty", () => {
+            const state: ComparatorState = {
+                mode: "split",
+                selectedStatIds: ["acteurs.age-distribution"],
+                contexts: [{}, { filters: { legislature: 16 } }],
+                displayTypes: [{}, { "acteurs.age-distribution": "donut" }],
+            };
+
+            const result = reduce(state, { type: "RESET_CONTEXT", contextIndex: 1 });
+
+            expect(result.contexts).toEqual([{}, {}]);
+            expect(result.selectedStatIds).toEqual([]);
+            expect(result.displayTypes).toEqual([{}, {}]);
+        });
+
+        it("clears the selection in single mode too (the lone context is always 'every context')", () => {
+            const state: ComparatorState = {
+                mode: "single",
+                selectedStatIds: ["acteurs.age-distribution"],
+                contexts: [{ filters: { legislature: 17 } }],
+                displayTypes: [{ "acteurs.age-distribution": "bar" }],
+            };
+
+            const result = reduce(state, { type: "RESET_CONTEXT", contextIndex: 0 });
+
+            expect(result.contexts).toEqual([{}]);
+            expect(result.selectedStatIds).toEqual([]);
+            expect(result.displayTypes).toEqual([{}]);
+        });
+
+        it("is a no-op on an out-of-range context index", () => {
+            expect(reduce(INITIAL_COMPARATOR_STATE, { type: "RESET_CONTEXT", contextIndex: 1 })).toBe(INITIAL_COMPARATOR_STATE);
+        });
+    });
+
     describe("SET_DISPLAY_TYPE", () => {
         it("sets the display type independently per context for the same stat", () => {
             const state: ComparatorState = {

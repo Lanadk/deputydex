@@ -2,6 +2,7 @@ import { STATS_CATALOG } from "@/app/(ui)/_shared/statistics/catalog/stats-catal
 import { StatDomainModule } from "@/app/(ui)/_shared/statistics/catalog/stats-domain.types";
 import { findStatDefinition } from "@/app/(ui)/_shared/statistics/catalog/stats-catalog.helpers";
 import { ComparatorAction, ComparatorState } from "@/app/(ui)/_shared/statistics/comparator/comparator.types";
+import { isEmptyContext } from "@/app/(ui)/_shared/statistics/context/is-empty-context";
 
 /**
  * L'incompatibilité (domain/scope différent du reste de `selectedStatIds`)
@@ -91,6 +92,31 @@ export function comparatorReducer(
             const contexts = [...state.contexts];
             contexts[action.contextIndex] = action.params;
             return { ...state, contexts };
+        }
+
+        case "RESET_CONTEXT": {
+            if (!state.contexts[action.contextIndex]) return state;
+            const contexts = [...state.contexts];
+            contexts[action.contextIndex] = {};
+
+            // Tant qu'il reste au moins un contexte non-vide, la contrainte
+            // domaine/scope garde son sens (l'autre colonne affiche encore un
+            // graphe pour selectedStatIds) — on ne touche qu'au contexte visé,
+            // comme UPDATE_CONTEXT.
+            if (!contexts.every(isEmptyContext)) {
+                return { ...state, contexts };
+            }
+
+            // Tous les contextes sont désormais vides : plus rien n'est
+            // affiché nulle part, la contrainte domaine/scope verrouillée via
+            // selectedStatIds n'a plus lieu d'être — on repart d'une sélection
+            // vierge pour pouvoir choisir un autre domaine.
+            return {
+                ...state,
+                contexts,
+                selectedStatIds: [],
+                displayTypes: state.displayTypes.map(() => ({})),
+            };
         }
 
         case "SET_DISPLAY_TYPE": {

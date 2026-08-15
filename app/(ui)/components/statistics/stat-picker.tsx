@@ -20,8 +20,15 @@ interface StatPickerProps {
     /** contexte du contexte de comparaison que CE picker édite (contexts[contextIndex]) */
     context: StatFetchParams;
     onContextChange: (params: StatFetchParams) => void;
-    /** vide selectedStatIds — utilisé par "Réinitialiser" et par le changement de domaine/scope hors comparaison */
+    /** vide selectedStatIds — utilisé par le changement de domaine/scope hors comparaison */
     onClearSelection: () => void;
+    /**
+     * Bouton "Réinitialiser" : vide CE contexte (RESET_CONTEXT côté reducer).
+     * Vide aussi selectedStatIds — donc débloque le choix de domaine — mais
+     * seulement si TOUS les contextes sont vides après coup ; sinon l'autre
+     * colonne perdrait son graphe (voir comparator.reducer.ts).
+     */
+    onReset: () => void;
     /** true seulement en mode split — la contrainte domaine/scope ne se justifie qu'en comparaison réelle */
     isComparing: boolean;
     /**
@@ -57,6 +64,7 @@ export const StatPicker: React.FC<StatPickerProps> = ({
                                                             context,
                                                             onContextChange,
                                                             onClearSelection,
+                                                            onReset,
                                                             isComparing,
                                                             otherContext,
                                                         }) => {
@@ -117,25 +125,15 @@ export const StatPicker: React.FC<StatPickerProps> = ({
     };
 
     const handleReset = () => {
-        // selectedStatIds est PARTAGÉ entre les deux contextes en comparaison
-        // (mêmes stats, contextes différents — c'est le principe même du
-        // comparateur). En comparaison, réinitialiser ce picker ne doit donc
-        // toucher QUE son propre contexte (filtres/entité, et l'affichage de
-        // CE picker) : le vider globalement viderait aussi le graphe affiché
-        // de l'autre côté. isClosed referme CE picker (retour au choix de
-        // domaine) sans toucher selectedStatIds ni le picker/graphe de
-        // l'autre contexte.
+        // L'affichage LOCAL de ce picker (isClosed) redémarre toujours à
+        // vide — la décision de vider aussi selectedStatIds (partagé entre
+        // les deux contextes) appartient au reducer via onReset
+        // (RESET_CONTEXT), qui seul sait si TOUS les contextes sont
+        // désormais vides.
         setIsClosed(true);
         setOpenDomain(null);
         setLocalScope("aggregate");
-
-        if (isComparing) {
-            onContextChange({});
-            return;
-        }
-
-        onClearSelection();
-        onContextChange({});
+        onReset();
     };
 
     return (
@@ -195,7 +193,15 @@ export const StatPicker: React.FC<StatPickerProps> = ({
                     {isReady ? (
                         <div className="flex flex-col gap-2">
                             {groupStatsByCategory(comparableInScope).map((group) => (
-                                <details key={group.category} className="rounded-lg border border-main bg-surface-2 px-3 py-2">
+                                <details
+                                    key={group.category}
+                                    // Toujours dépliée si elle contient une stat sélectionnée —
+                                    // utile surtout en comparaison, où la catégorie d'un contexte
+                                    // peut rester repliée alors qu'une stat y est déjà cochée
+                                    // (sélection partagée entre les deux contextes).
+                                    open={group.stats.some((stat) => selectedStatIds.includes(stat.id))}
+                                    className="rounded-lg border border-main bg-surface-2 px-3 py-2"
+                                >
                                     <summary className="cursor-pointer text-sm font-semibold text-subtitle-accent">
                                         {group.category}
                                     </summary>

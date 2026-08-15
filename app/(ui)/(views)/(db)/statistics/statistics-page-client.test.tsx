@@ -184,6 +184,38 @@ describe("StatisticsPageClient", () => {
         expect(screen.getByText("17ᵉ législature")).toBeInTheDocument();
     });
 
+    it("resetting BOTH contexts clears the shared selection too, unlocking domain choice again", async () => {
+        render(<StatisticsPageClient />);
+
+        // Contexte A : Groupes -> 16ᵉ législature -> Effectifs par groupe.
+        fireEvent.click(screen.getAllByText("Groupes")[0]);
+        fireEvent.click(await screen.findByText("16ᵉ législature"));
+        fireEvent.click(await screen.findByText("Effectifs par groupe"));
+        fireEvent.click(screen.getByText("Comparer"));
+
+        // Contexte B : même domaine (auto-ouvert), 17ᵉ (16 déjà pris par A).
+        await waitFor(() => expect(screen.getAllByText("17ᵉ législature")).toHaveLength(2));
+        fireEvent.click(screen.getAllByText("17ᵉ législature")[1]);
+
+        // La sélection active verrouille le domaine : "Votes" indisponible
+        // des deux côtés.
+        expect(screen.getAllByText("Votes")[0].closest("button")).toBeDisabled();
+        expect(screen.getAllByText("Votes")[1].closest("button")).toBeDisabled();
+
+        // Réinitialise A seul : B garde encore ses filtres, la contrainte
+        // domaine/scope doit donc persister.
+        fireEvent.click(screen.getAllByText("Réinitialiser ce contexte")[0]);
+        expect(screen.getAllByText("Votes")[0].closest("button")).toBeDisabled();
+
+        // Réinitialise aussi B : plus aucun contexte n'a de filtre nulle
+        // part, la contrainte tombe et "Votes" redevient choisissable.
+        fireEvent.click(screen.getAllByText("Réinitialiser ce contexte")[1]);
+
+        expect(screen.getAllByText("Votes")[0].closest("button")).not.toBeDisabled();
+        expect(screen.getAllByText("Votes")[1].closest("button")).not.toBeDisabled();
+        expect(screen.queryByText("1 statistique sélectionnée")).not.toBeInTheDocument();
+    });
+
     it("hides 'Comparer' for a domain with no entity/population to vary between contexts", () => {
         render(<StatisticsPageClient />);
 

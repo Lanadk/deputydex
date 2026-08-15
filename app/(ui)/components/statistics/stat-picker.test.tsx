@@ -80,6 +80,7 @@ function renderPicker(props: Partial<React.ComponentProps<typeof StatPicker>> = 
             context={{}}
             onContextChange={jest.fn()}
             onClearSelection={jest.fn()}
+            onReset={jest.fn()}
             isComparing={false}
             {...props}
         />
@@ -98,6 +99,7 @@ function StatefulPickerHarness({
             selectedStatIds={[]}
             onToggleStat={jest.fn()}
             onClearSelection={jest.fn()}
+            onReset={jest.fn()}
             isComparing={false}
             {...props}
             context={context}
@@ -185,6 +187,16 @@ describe("StatPicker", () => {
         });
 
         expect(screen.getByText("Démographie")).toBeInTheDocument();
+    });
+
+    it("keeps the category containing a selected stat open, even without manual interaction — useful when it's the shared selection auto-shown in a comparison context", () => {
+        renderPicker({
+            selectedStatIds: ["acteurs.age-distribution"],
+            context: { filters: { legislature: 17 } },
+        });
+
+        expect(screen.getByText("Démographie").closest("details")).toHaveAttribute("open");
+        expect(screen.getByText("Cohésion").closest("details")).not.toHaveAttribute("open");
     });
 
     it("does not show categories for the auto-expanded domain until its context is ready", () => {
@@ -293,37 +305,37 @@ describe("StatPicker", () => {
         expect(onContextChange).toHaveBeenCalledWith({ filters: { legislature: 17 } });
     });
 
-    it("shows a 'Réinitialiser' button once a domain is open, clearing the selection and context", () => {
-        const onClearSelection = jest.fn();
-        const onContextChange = jest.fn();
-        renderPicker({ onClearSelection, onContextChange });
+    it("shows a 'Réinitialiser' button once a domain is open, calling onReset and closing the domain", () => {
+        const onReset = jest.fn();
+        renderPicker({ onReset });
 
         expect(screen.queryByText("Réinitialiser")).not.toBeInTheDocument();
 
         fireEvent.click(screen.getByText("Députés"));
         fireEvent.click(screen.getByText("Réinitialiser"));
 
-        expect(onClearSelection).toHaveBeenCalledTimes(1);
-        expect(onContextChange).toHaveBeenCalledWith({});
-        // Le picker revient à l'état "aucun domaine ouvert".
+        expect(onReset).toHaveBeenCalledTimes(1);
+        // Le picker revient à l'état "aucun domaine ouvert" — décision locale,
+        // indépendante de ce que fait le reducer avec selectedStatIds.
         expect(screen.queryByText("Démographie")).not.toBeInTheDocument();
     });
 
-    it("while comparing, resets only this picker's own context — never the shared selection", () => {
-        const onClearSelection = jest.fn();
-        const onContextChange = jest.fn();
+    it("shows 'Réinitialiser ce contexte' while comparing, and delegates entirely to onReset", () => {
+        // La décision de vider aussi selectedStatIds (partagé entre les deux
+        // contextes) appartient au reducer (RESET_CONTEXT, voir
+        // comparator.reducer.test.ts) — ce composant se contente d'appeler
+        // onReset, qu'il soit en comparaison ou non.
+        const onReset = jest.fn();
         renderPicker({
             selectedStatIds: ["acteurs.age-distribution"],
             context: { filters: { legislature: 17 } },
-            onClearSelection,
-            onContextChange,
+            onReset,
             isComparing: true,
         });
 
         fireEvent.click(screen.getByText("Réinitialiser ce contexte"));
 
-        expect(onContextChange).toHaveBeenCalledWith({});
-        expect(onClearSelection).not.toHaveBeenCalled();
+        expect(onReset).toHaveBeenCalledTimes(1);
     });
 
     it("while comparing, closes THIS picker's own domain/categories on reset, even though the shared selection (still held by the other context) is untouched", () => {
