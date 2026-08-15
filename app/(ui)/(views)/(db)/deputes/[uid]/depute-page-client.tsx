@@ -15,7 +15,7 @@ import { DEPUTE_SECTIONS } from "@/app/(ui)/(views)/(db)/deputes/[uid]/config";
 export default function DeputePageClient({ uid }: { uid: string }) {
     const [readyCount, setReadyCount] = useState(0);
     const [identity, setIdentity] = useState<DeputeIdentityDTO>();
-    const { legislature } = useLegislature();
+    const { legislature, legislatures, setUnavailableLegislatureNumbers } = useLegislature();
     const legislatureNum = legislature?.number ?? 17;
 
     const params = useMemo(
@@ -29,6 +29,31 @@ export default function DeputePageClient({ uid }: { uid: string }) {
             .then(setIdentity)
             .catch(console.error);
     }, [uid, legislatureNum]);
+
+    // Un député n'a pas forcément siégé sous toutes les législatures (élu
+    // en 17e seulement, par exemple) — appeler l'identité sur une
+    // législature où il n'existe pas fait échouer la requête serveur. On
+    // grise donc ces législatures dans le sélecteur global, comme pour les
+    // groupes (cf. groupe-page-client.tsx).
+    useEffect(() => {
+        let cancelled = false;
+
+        deputesGateway.getDeputeLegislatures(uid)
+            .then(availableNumbers => {
+                if (cancelled) return;
+                const available = new Set(availableNumbers);
+                const unavailable = new Set(
+                    legislatures.map(l => l.number).filter(n => !available.has(n))
+                );
+                setUnavailableLegislatureNumbers(unavailable);
+            })
+            .catch(console.error);
+
+        return () => {
+            cancelled = true;
+            setUnavailableLegislatureNumbers(new Set());
+        };
+    }, [uid, legislatures, setUnavailableLegislatureNumbers]);
 
     const sectionsToAwait = useMemo(
         () => DEPUTE_SECTIONS.filter((s) => s.gatewayFn && !s.lazy),

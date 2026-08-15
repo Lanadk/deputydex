@@ -14,6 +14,7 @@ export interface IDeputesGateways {
     getDeputeActivityCalendar(uid: string, legislature: number): Promise<DeputeActivityDTO>;
     getDeputeActivityCalendarDetails(uid: string, legislature: number, date: string): Promise<DeputeActivityDetailsDTO[]>;
     getDeputeIdentity(uid: string, legislature: number): Promise<DeputeIdentityDTO>;
+    getDeputeLegislatures(uid: string): Promise<number[]>;
     getDeputeMandats(uid: string): Promise<DeputeMandatDTO[]>;
     getDeputeVoteStats(uid: string, legislature: number): Promise<DeputeVoteStatsDTO>;
     getDeputeRecentVotes(uid: string, legislature: number): Promise<DeputeRecentVoteDTO[]>;

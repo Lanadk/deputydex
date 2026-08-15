@@ -41,6 +41,12 @@ export const deputesGateway: IDeputesGateways = {
         return res.json();
     },
 
+    async getDeputeLegislatures(uid: string): Promise<number[]> {
+        const res = await fetch(`/api/deputes/${uid}/legislatures`);
+        if (!res.ok) throw new Error("Failed to get depute legislatures");
+        return res.json();
+    },
+
     async getDeputeMandats(uid: string): Promise<DeputeMandatDTO[]> {
         const res = await fetch(`/api/deputes/${uid}/mandats`);
         if (!res.ok) throw new Error("Failed to get depute mandats");

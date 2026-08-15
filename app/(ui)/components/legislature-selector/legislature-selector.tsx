@@ -48,7 +48,7 @@ export function LegislatureSelector() {
                                 <button
                                     key={l.id}
                                     disabled={isUnavailable}
-                                    title={isUnavailable ? "Ce groupe n'existait pas sous ce nom durant cette législature" : undefined}
+                                    title={isUnavailable ? "Non disponible sur cette page pour cette législature" : undefined}
                                     onClick={() => {
                                         if (isUnavailable) return;
                                         setLegislature(l);
