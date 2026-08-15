@@ -5,13 +5,13 @@ import { BaseLayout } from "@/app/(ui)/component-library/template/base-layout/ba
 import { PageHeaderLib } from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
 import { ButtonLib } from "@/app/(ui)/component-library/atoms/button/button-lib";
 import { SpanLib } from "@/app/(ui)/component-library/atoms/span/span-lib";
-import { ComparatorProvider, useComparator } from "@/app/(ui)/(views)/(db)/statistics/_catalog/comparator-provider";
-import { STATS_CATALOG } from "@/app/(ui)/(views)/(db)/statistics/_catalog/stats-catalog";
-import { findStatDefinition } from "@/app/(ui)/(views)/(db)/statistics/_catalog/stats-catalog.helpers";
+import { ComparatorProvider, useComparator } from "@/app/(ui)/providers/comparator-provider";
+import { STATS_CATALOG } from "@/app/(ui)/_shared/statistics/catalog/stats-catalog";
+import { findStatDefinition } from "@/app/(ui)/_shared/statistics/catalog/stats-catalog.helpers";
 import { StatPicker } from "@/app/(ui)/components/statistics/stat-picker";
 import { StatViewer } from "@/app/(ui)/components/statistics/stat-viewer";
 import { ENTITY_RESOLVERS } from "@/app/(ui)/components/statistics/entity-resolvers/entity-resolvers.registry";
-import { buildContextLabel } from "@/app/(ui)/(views)/(db)/statistics/_catalog/build-context-label";
+import { buildContextLabel } from "@/app/(ui)/_shared/statistics/context/build-context-label";
 
 /**
  * Le hub Statistiques : StatPicker (explorer/sélectionner) + une grille
@@ -20,8 +20,7 @@ import { buildContextLabel } from "@/app/(ui)/(views)/(db)/statistics/_catalog/b
  * ne fait que lire/écrire son état.
  */
 function StatisticsHub() {
-    const { state, toggleStat, enableSplit, disableSplit, setDisplayType, updateContext, resetContext, clearSelection } =
-        useComparator();
+    const { state, toggleStat, enableSplit, disableSplit, setDisplayType, updateContext, clearSelection } = useComparator();
     const { mode, selectedStatIds, contexts, displayTypes } = state;
 
     const selectedDefinitions = selectedStatIds
@@ -45,7 +44,6 @@ function StatisticsHub() {
                         context={context}
                         onContextChange={(params) => updateContext(contextIndex, params)}
                         onClearSelection={clearSelection}
-                        onReset={() => resetContext(contextIndex)}
                         isComparing={mode === "split"}
                     />
                 ))}

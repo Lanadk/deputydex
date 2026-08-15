@@ -23,7 +23,7 @@ type StatHandler = (params: StatFetchParams) => Promise<RawStatData | null>;
 
 /**
  * Registre SERVEUR des stats du catalogue : symétrique du registre client
- * (StatDefinition[] sous statistics/_domains/<domain>/registry.ts) mais
+ * (StatDefinition[] sous _shared/statistics/catalog/domains/<domain>/registry.ts) mais
  * branche use-case + repository Prisma au lieu de title/category/keywords.
  * Point d'entrée unique pour tout le catalogue, quel que soit le domaine —
  * ajouter une stat = ajouter une entrée ici + son pendant client, jamais une
@@ -78,7 +78,7 @@ const STAT_HANDLERS: Record<string, Record<string, StatHandler>> = {
             return { shape: "timeseries", points: result.data.points };
         },
         // Pas exposée dans GROUPES_STATS (pas une stat du picker) — usage
-        // interne par les insights (voir _catalog/insights/) pour situer une
+        // interne par les insights (voir _shared/statistics/insights/) pour situer une
         // stat par rapport à la moyenne du domaine.
         "parite-moyenne": async (params) => {
             const legislature = params.filters?.legislature as number | undefined;

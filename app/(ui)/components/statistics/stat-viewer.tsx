@@ -1,18 +1,18 @@
 "use client";
 
 import React from "react";
-import { StatDefinition } from "@/app/(ui)/(views)/(db)/statistics/_catalog/stat-definition.types";
-import { ChartDisplayType } from "@/app/(ui)/(views)/(db)/statistics/_catalog/comparator.types";
+import { StatDefinition } from "@/app/(ui)/_shared/statistics/catalog/stat-definition.types";
+import { ChartDisplayType } from "@/app/(ui)/_shared/statistics/comparator/comparator.types";
 import { StatFetchParams } from "@/app/_shared/statistics/stat-scope.types";
-import { useStatData } from "@/app/(ui)/(views)/(db)/statistics/_catalog/use-stat-data";
-import { useStatInsight } from "@/app/(ui)/(views)/(db)/statistics/_catalog/use-stat-insight";
-import { isContextReady } from "@/app/(ui)/(views)/(db)/statistics/_catalog/is-context-ready";
+import { useStatData } from "@/app/(ui)/_shared/statistics/data/use-stat-data";
+import { useStatInsight } from "@/app/(ui)/_shared/statistics/insights/use-stat-insight";
+import { isContextReady } from "@/app/(ui)/_shared/statistics/context/is-context-ready";
 import {
     DISPLAY_TYPE_COMPATIBILITY,
     DISPLAY_TYPE_LABELS,
-} from "@/app/(ui)/(views)/(db)/statistics/_catalog/display-type-compatibility";
-import { RenderStatChart } from "@/app/(ui)/(views)/(db)/statistics/_catalog/render-stat-chart";
-import { toExportRows } from "@/app/(ui)/(views)/(db)/statistics/_catalog/export-stat-data";
+} from "@/app/(ui)/_shared/statistics/data/display-type-compatibility";
+import { RenderStatChart } from "@/app/(ui)/components/statistics/render-stat-chart";
+import { toExportRows } from "@/app/(ui)/_shared/statistics/data/export-stat-data";
 import { SelectLib } from "@/app/(ui)/component-library/molecules/select/select-lib";
 import { TableExportActions } from "@/app/(ui)/component-library/molecules/table/components/table-export-actions";
 import { SpanLib } from "@/app/(ui)/component-library/atoms/span/span-lib";

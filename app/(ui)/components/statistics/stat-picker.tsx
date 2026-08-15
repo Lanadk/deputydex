@@ -3,15 +3,15 @@
 import React, { useState } from "react";
 import { ButtonLib } from "@/app/(ui)/component-library/atoms/button/button-lib";
 import { CheckboxLib } from "@/app/(ui)/component-library/molecules/checkbox/checkbox-lib";
-import { STATS_CATALOG } from "@/app/(ui)/(views)/(db)/statistics/_catalog/stats-catalog";
+import { STATS_CATALOG } from "@/app/(ui)/_shared/statistics/catalog/stats-catalog";
 import {
     findStatDefinition,
     getComparableStats,
     groupStatsByCategory,
-} from "@/app/(ui)/(views)/(db)/statistics/_catalog/stats-catalog.helpers";
+} from "@/app/(ui)/_shared/statistics/catalog/stats-catalog.helpers";
 import { StatDomain, StatFetchParams, StatScope } from "@/app/_shared/statistics/stat-scope.types";
 import { ENTITY_RESOLVERS } from "@/app/(ui)/components/statistics/entity-resolvers/entity-resolvers.registry";
-import { isContextReady } from "@/app/(ui)/(views)/(db)/statistics/_catalog/is-context-ready";
+import { isContextReady } from "@/app/(ui)/_shared/statistics/context/is-context-ready";
 
 interface StatPickerProps {
     /** ids déjà sélectionnés (ComparatorState.selectedStatIds) — pilote la contrainte domaine/scope */
@@ -20,15 +20,8 @@ interface StatPickerProps {
     /** contexte du contexte de comparaison que CE picker édite (contexts[contextIndex]) */
     context: StatFetchParams;
     onContextChange: (params: StatFetchParams) => void;
-    /** vide selectedStatIds — utilisé par le changement de domaine/scope hors comparaison */
+    /** vide selectedStatIds — utilisé par "Réinitialiser" et par le changement de domaine/scope hors comparaison */
     onClearSelection: () => void;
-    /**
-     * Bouton "Réinitialiser" : vide CE contexte (RESET_CONTEXT côté reducer).
-     * Vide aussi selectedStatIds — donc débloque le choix de domaine — mais
-     * seulement si TOUS les contextes sont vides après coup ; sinon l'autre
-     * colonne perdrait son graphe (voir comparator.reducer.ts).
-     */
-    onReset: () => void;
     /** true seulement en mode split — la contrainte domaine/scope ne se justifie qu'en comparaison réelle */
     isComparing: boolean;
 }
@@ -57,7 +50,6 @@ export const StatPicker: React.FC<StatPickerProps> = ({
                                                             context,
                                                             onContextChange,
                                                             onClearSelection,
-                                                            onReset,
                                                             isComparing,
                                                         }) => {
     const [openDomain, setOpenDomain] = useState<StatDomain | null>(null);
@@ -96,13 +88,20 @@ export const StatPicker: React.FC<StatPickerProps> = ({
     };
 
     const handleReset = () => {
-        // Le state local (domaine ouvert / scope) redémarre toujours à vide —
-        // la décision de vider aussi selectedStatIds (partagé entre les deux
-        // contextes) appartient au reducer via onReset (RESET_CONTEXT), qui
-        // seul sait si TOUS les contextes sont désormais vides.
+        // selectedStatIds est PARTAGÉ entre les deux contextes en comparaison
+        // (mêmes stats, contextes différents — c'est le principe même du
+        // comparateur). En comparaison, réinitialiser ce picker ne doit donc
+        // toucher QUE son propre contexte (filtres/entité) : le vider
+        // globalement viderait aussi le graphe affiché de l'autre côté.
+        if (isComparing) {
+            onContextChange({});
+            return;
+        }
+
         setOpenDomain(null);
         setLocalScope("aggregate");
-        onReset();
+        onClearSelection();
+        onContextChange({});
     };
 
     return (

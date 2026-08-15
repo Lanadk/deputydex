@@ -3,7 +3,7 @@
  * Statistiques. La FORME (`shape`) est fixe et vient du calcul serveur ;
  * le FORMAT d'affichage (bar/donut/line/...) est un choix runtime de
  * l'utilisateur, résolu séparément via `DISPLAY_TYPE_COMPATIBILITY`
- * (voir app/(ui)/(views)/(db)/statistics/_catalog/display-type-compatibility.ts).
+ * (voir app/(ui)/_shared/statistics/data/display-type-compatibility.ts).
  *
  * Volontairement découplé de `ChartDataWrapper` (block-section/chart-config.types.ts)
  * qui, lui, fige forme + format ensemble pour les blocks de page statiques

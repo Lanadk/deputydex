@@ -2,7 +2,7 @@
  * Domaines exposant des stats dans le catalogue Statistiques.
  * `votes` et `scrutins` n'ont pas encore de backend (repository/use-case) —
  * le slot existe dans le pattern, le registre reste vide jusqu'à leur
- * implémentation (voir statistics/_domains/<domain>/registry.ts).
+ * implémentation (voir _shared/statistics/catalog/domains/<domain>/registry.ts).
  */
 export type StatDomain = "acteurs" | "groupes" | "votes" | "scrutins" | "legislatures";
 

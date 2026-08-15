@@ -6,7 +6,7 @@ import "@testing-library/jest-dom";
 // non testés sous jsdom ailleurs dans le repo — on le remplace par un
 // placeholder pour isoler l'orchestration propre à StatViewer (fetch,
 // format-switcher, export, méthodologie) de la correction du rendu chart.
-jest.mock("@/app/(ui)/(views)/(db)/statistics/_catalog/render-stat-chart", () => ({
+jest.mock("@/app/(ui)/components/statistics/render-stat-chart", () => ({
     RenderStatChart: ({ data, displayType, loading }: { data: { shape: string } | null; displayType: string | null; loading: boolean }) => (
         <div data-testid="chart-placeholder">
             {loading ? "loading" : JSON.stringify({ shape: data?.shape ?? null, displayType })}
@@ -20,7 +20,7 @@ jest.mock("@/app/(ui)/gateways/statistics/statistics.gateway", () => ({
 
 import { StatViewer } from "@/app/(ui)/components/statistics/stat-viewer";
 import { statisticsGateway } from "@/app/(ui)/gateways/statistics/statistics.gateway";
-import { StatDefinition } from "@/app/(ui)/(views)/(db)/statistics/_catalog/stat-definition.types";
+import { StatDefinition } from "@/app/(ui)/_shared/statistics/catalog/stat-definition.types";
 
 const fetchStat = statisticsGateway.fetchStat as jest.Mock;
 
