@@ -95,7 +95,7 @@ export const DeputeHeader: React.FC<DeputeHeaderProps> = ({ identity }) => {
                     kpiLabel="législature"
                 />
                 <KpiCardLib
-                    kpiValue={identity.numCirco ? `${identity.professionLibelle}e` : "—"}
+                    kpiValue={identity.numCirco ? `${identity.professionLibelle}` : "—"} //TODO récuperer de la base le sexe et adapter en fonction
                     kpiLabel="profession"
                 />
                 <KpiCardLib
