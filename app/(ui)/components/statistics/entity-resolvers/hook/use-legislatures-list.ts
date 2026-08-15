@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
-import { legislaturesGateway } from "@/app/(ui)/gateways/legislatures/legislatures.gateway";
-import { LegislatureDTO } from "@/app/domains/legislatures/dto/legislature.dto";
+import {LegislatureDTO} from "@/app/domains/legislatures/dto/legislature.dto";
+import {legislaturesGateway} from "@/app/(ui)/gateways/legislatures/legislatures.gateway";
 
 /**
  * Liste des législatures, indépendante du LegislatureProvider app-wide

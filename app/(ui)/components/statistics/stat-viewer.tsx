@@ -13,6 +13,7 @@ import {
 } from "@/app/(ui)/_shared/statistics/data/display-type-compatibility";
 import { RenderStatChart } from "@/app/(ui)/components/statistics/render-stat-chart";
 import { toExportRows } from "@/app/(ui)/_shared/statistics/data/export-stat-data";
+import { ButtonLib } from "@/app/(ui)/component-library/atoms/button/button-lib";
 import { SelectLib } from "@/app/(ui)/component-library/molecules/select/select-lib";
 import { TableExportActions } from "@/app/(ui)/component-library/molecules/table/components/table-export-actions";
 import { SpanLib } from "@/app/(ui)/component-library/atoms/span/span-lib";
@@ -41,7 +42,7 @@ export const StatViewer: React.FC<StatViewerProps> = ({
                                                             displayType,
                                                             onDisplayTypeChange,
                                                         }) => {
-    const { data, loading } = useStatData(definition, context);
+    const { data, loading, error, retry } = useStatData(definition, context);
     const insight = useStatInsight(definition, context, data);
     const ready = isContextReady(definition.domain, definition.scope, context);
 
@@ -81,14 +82,21 @@ export const StatViewer: React.FC<StatViewerProps> = ({
                 </p>
             )}
 
-            {ready ? (
-                <RenderStatChart data={data} displayType={resolvedDisplayType} loading={loading} title={definition.title} />
-            ) : (
+            {!ready ? (
                 <div className="flex items-center justify-center rounded-lg border border-dashed border-main bg-surface-2 p-8 text-center">
                     <SpanLib className="text-subtitle-accent">
                         Complète les filtres ci-dessus (législature, entité...) pour afficher ce graphe.
                     </SpanLib>
                 </div>
+            ) : error ? (
+                <div className="flex flex-col items-center justify-center gap-3 rounded-lg border border-dashed border-main bg-surface-2 p-8 text-center">
+                    <SpanLib className="text-subtitle-accent">
+                        Impossible de charger cette statistique pour le moment.
+                    </SpanLib>
+                    <ButtonLib text="Réessayer" size="small" variant="tertiary" onClick={retry} />
+                </div>
+            ) : (
+                <RenderStatChart data={data} displayType={resolvedDisplayType} loading={loading} title={definition.title} />
             )}
 
             <TableExportActions exportEnabled={!!data} onExportAction={handleExport} />

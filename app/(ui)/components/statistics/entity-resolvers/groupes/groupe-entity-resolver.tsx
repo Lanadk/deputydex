@@ -1,10 +1,10 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { ButtonLib } from "@/app/(ui)/component-library/atoms/button/button-lib";
-import { EntityResolverProps } from "@/app/(ui)/components/statistics/entity-resolvers/entity-resolver.types";
-import { useLegislaturesList } from "@/app/(ui)/components/statistics/entity-resolvers/use-legislatures-list";
-import { groupesGateways } from "@/app/(ui)/gateways/groupes/groupes.gateway";
+import {groupesGateways} from "@/app/(ui)/gateways/groupes/groupes.gateway";
+import {EntityResolverProps} from "@/app/(ui)/components/statistics/entity-resolvers/entity-resolver.types";
+import {useLegislaturesList} from "@/app/(ui)/components/statistics/entity-resolvers/hook/use-legislatures-list";
+import {ButtonLib} from "@/app/(ui)/component-library/atoms/button/button-lib";
 
 export const GroupeEntityResolver: React.FC<EntityResolverProps> = ({ value, scope, onChange, lockedScope }) => {
     const legislatures = useLegislaturesList();

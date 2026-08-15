@@ -1,12 +1,13 @@
 "use client";
 
 import React, { useEffect, useState } from "react";
-import { ButtonLib } from "@/app/(ui)/component-library/atoms/button/button-lib";
-import { InputLib } from "@/app/(ui)/component-library/molecules/input/input-lib";
-import { EntityResolverProps } from "@/app/(ui)/components/statistics/entity-resolvers/entity-resolver.types";
-import { useLegislaturesList } from "@/app/(ui)/components/statistics/entity-resolvers/use-legislatures-list";
-import { acteursGateway } from "@/app/(ui)/gateways/acteurs/acteurs.gateway";
-import { ActeurDTO } from "@/app/domains/acteurs/dto/acteur.dto";
+import {EntityResolverProps} from "@/app/(ui)/components/statistics/entity-resolvers/entity-resolver.types";
+import {ActeurDTO} from "@/app/domains/acteurs/dto/acteur.dto";
+import {useLegislaturesList} from "@/app/(ui)/components/statistics/entity-resolvers/hook/use-legislatures-list";
+import {acteursGateway} from "@/app/(ui)/gateways/acteurs/acteurs.gateway";
+import {ButtonLib} from "@/app/(ui)/component-library/atoms/button/button-lib";
+import {InputLib} from "@/app/(ui)/component-library/molecules/input/input-lib";
+
 
 /**
  * "Un député précis" n'a PAS de sélecteur de législature : un député reste

@@ -1,7 +1,7 @@
 import { StatDomain } from "@/app/_shared/statistics/stat-scope.types";
 import { EntityResolver } from "@/app/(ui)/components/statistics/entity-resolvers/entity-resolver.types";
-import { GroupeEntityResolver } from "@/app/(ui)/components/statistics/entity-resolvers/groupe-entity-resolver";
-import { ActeurEntityResolver } from "@/app/(ui)/components/statistics/entity-resolvers/acteur-entity-resolver";
+import { GroupeEntityResolver } from "./groupes/groupe-entity-resolver";
+import { ActeurEntityResolver } from "./acteurs/acteur-entity-resolver";
 
 /**
  * Domaines exposant un choix "entité précise vs population" avant les

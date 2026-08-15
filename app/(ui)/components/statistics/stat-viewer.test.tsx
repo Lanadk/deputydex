@@ -140,4 +140,27 @@ describe("StatViewer", () => {
         ).toBeInTheDocument();
         expect(screen.queryByTestId("chart-placeholder")).not.toBeInTheDocument();
     });
+
+    it("shows an error message with a retry button instead of hanging forever when the fetch fails", async () => {
+        fetchStat.mockRejectedValue(new Error("Failed to fetch stat acteurs/age-distribution"));
+        render(<StatViewer definition={AGE_DISTRIBUTION} context={READY_CONTEXT} displayType={null} onDisplayTypeChange={jest.fn()} />);
+
+        expect(await screen.findByText("Impossible de charger cette statistique pour le moment.")).toBeInTheDocument();
+        expect(screen.getByText("Réessayer")).toBeInTheDocument();
+        expect(screen.queryByTestId("chart-placeholder")).not.toBeInTheDocument();
+    });
+
+    it("retries the fetch when 'Réessayer' is clicked, and shows the chart once it succeeds", async () => {
+        fetchStat.mockRejectedValueOnce(new Error("network down"));
+        render(<StatViewer definition={AGE_DISTRIBUTION} context={READY_CONTEXT} displayType={null} onDisplayTypeChange={jest.fn()} />);
+
+        await screen.findByText("Réessayer");
+
+        fetchStat.mockResolvedValueOnce({ shape: "distribution", items: [] });
+        fireEvent.click(screen.getByText("Réessayer"));
+
+        await waitFor(() => expect(fetchStat).toHaveBeenCalledTimes(2));
+        expect(await screen.findByTestId("chart-placeholder")).toBeInTheDocument();
+        expect(screen.queryByText("Impossible de charger cette statistique pour le moment.")).not.toBeInTheDocument();
+    });
 });
