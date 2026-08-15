@@ -1,6 +1,7 @@
 import { StatDataShape } from "@/app/_shared/statistics/raw-stat-data.types";
 import { StatDomain, StatScope } from "@/app/_shared/statistics/stat-scope.types";
 import { FilterField } from "@/app/_shared/filtering/filter-bar.types";
+import { ChartColorVariant } from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
 
 /**
  * Descripteur d'UNE stat du catalogue Statistiques. Volontairement sans
@@ -32,6 +33,18 @@ export interface StatDefinition {
 
     dataShape: StatDataShape;
     unit?: string;
+    /**
+     * "parliament-group" colore le chart avec la couleur du groupe politique
+     * plutôt que la palette générique — voir `getCanonicalGroupTheme`
+     * (group-theme.helpers.ts). N'a de sens QUE si le label de chaque item
+     * (distribution) ou l'entité sélectionnée (timeseries à une série) est
+     * un vrai code/libellé de groupe — ex: `groupes.effectifs` (un item par
+     * groupe) ou `groupes.cohesion` (une entité = un groupe). À NE PAS mettre
+     * sur une stat dont les labels ne sont pas des groupes (ex: `groupes.parite`,
+     * dont les items sont "Hommes"/"Femmes" — le variant retomberait sur la
+     * couleur par défaut pour les deux, ce qui est pire que sans variant).
+     */
+    chartVariant?: ChartColorVariant;
 
     /** scope === "aggregate" : filtres disponibles pour restreindre la population (réutilise FilterField de FilterBarLib) */
     populationFilters?: FilterField[];

@@ -15,6 +15,10 @@ export const GROUPES_STATS: StatDefinition[] = [
         dataShape: "distribution",
         unit: "%",
         entityIdLabel: "Choisir un groupe",
+        // PAS de chartVariant "parliament-group" ici : les items sont
+        // "Hommes"/"Femmes", pas des groupes — le variant les colorerait
+        // tous les deux en gris par défaut (aucune correspondance trouvée),
+        // ce qui est pire que la palette générique.
     }),
     defineStat("groupes", "effectifs", {
         scope: "aggregate",
@@ -25,6 +29,9 @@ export const GROUPES_STATS: StatDefinition[] = [
         methodology: "Nombre de membres actuellement recensés, par groupe parlementaire.",
         dataShape: "distribution",
         unit: "membres",
+        // Un item par groupe (label = code/libellé du groupe) — le cas
+        // d'usage exact du variant.
+        chartVariant: "parliament-group",
     }),
     defineStat("groupes", "cohesion", {
         scope: "entity",
@@ -36,5 +43,9 @@ export const GROUPES_STATS: StatDefinition[] = [
         dataShape: "timeseries",
         unit: "%",
         entityIdLabel: "Choisir un groupe",
+        // Une seule série = le groupe sélectionné — colore la courbe avec sa
+        // couleur (voir StatViewer, qui résout le code du groupe depuis le
+        // contexte pour le passer en `groupLabel`).
+        chartVariant: "parliament-group",
     }),
 ];

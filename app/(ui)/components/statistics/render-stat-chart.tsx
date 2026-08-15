@@ -11,6 +11,7 @@ import { DashedLineChartLib } from "@/app/(ui)/component-library/molecules/chart
 import { ScatterChartLib } from "@/app/(ui)/component-library/molecules/chart/point-chart/scatter-chart-lib";
 import { KpiCardLib } from "@/app/(ui)/component-library/molecules/cards/kpi-card/kpi-card-lib";
 import { MultiDatum, SeriesConfig } from "@/app/(ui)/component-library/template/sections/block-section/chart-config.types";
+import { ChartColorVariant } from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
 
 /**
  * Pivote une liste de séries "longues" (une entrée par série, chacune avec
@@ -49,6 +50,16 @@ interface RenderStatChartProps {
     displayType: ChartDisplayType | null;
     loading: boolean;
     title?: string;
+    /** "parliament-group" colore le chart avec la couleur du groupe politique — voir StatDefinition.chartVariant */
+    variant?: ChartColorVariant;
+    /**
+     * Code/libellé du groupe sélectionné — n'a d'effet qu'en scope "entity"
+     * + variant "parliament-group" + un chart à une seule série (ex:
+     * groupes.cohesion) : ces charts n'ont pas de label par item à faire
+     * correspondre à un groupe (contrairement à une distribution comme
+     * groupes.effectifs), juste UNE courbe/série à colorer.
+     */
+    groupLabel?: string | null;
 }
 
 /**
@@ -58,7 +69,7 @@ interface RenderStatChartProps {
  * qui lui adapte ChartDataWrapper (forme figée par displayType, un seul
  * format possible par block de page).
  */
-export const RenderStatChart: React.FC<RenderStatChartProps> = ({ data, displayType, loading, title }) => {
+export const RenderStatChart: React.FC<RenderStatChartProps> = ({ data, displayType, loading, title, variant, groupLabel }) => {
     if (!data) {
         return <BarChartLib title={title} loading={loading} data={[]} />;
     }
@@ -71,22 +82,28 @@ export const RenderStatChart: React.FC<RenderStatChartProps> = ({ data, displayT
 
     switch (data.shape) {
         case "distribution": {
+            // Un item par label ici (ex: un groupe par item pour
+            // groupes.effectifs) — chaque item peut être coloré individuellement.
             if (displayType === "donut") {
-                return <DonutChartLib title={title} loading={loading} data={data.items.map((i) => ({ ...i, id: i.label }))} />;
+                return <DonutChartLib title={title} loading={loading} data={data.items.map((i) => ({ ...i, id: i.label }))} variant={variant} />;
             }
             if (displayType === "pie") {
-                return <PieChartLib title={title} loading={loading} data={data.items} />;
+                return <PieChartLib title={title} loading={loading} data={data.items} variant={variant} />;
             }
-            return <BarChartLib title={title} loading={loading} data={data.items} />;
+            return <BarChartLib title={title} loading={loading} data={data.items} variant={variant} />;
         }
 
         case "timeseries": {
+            // Une seule série (l'entité sélectionnée, ex: groupes.cohesion) —
+            // `groupLabel` colore toute la courbe, pas item par item.
             if (displayType === "line-dashed") {
-                return <DashedLineChartLib title={title} loading={loading} data={data.points} />;
+                return <DashedLineChartLib title={title} loading={loading} data={data.points} variant={variant} groupLabel={groupLabel} />;
             }
             if (displayType === "line") {
-                return <LineChartLib title={title} loading={loading} data={data.points} />;
+                return <LineChartLib title={title} loading={loading} data={data.points} variant={variant} groupLabel={groupLabel} />;
             }
+            // Fallback bar : les labels sont des mois, pas des groupes — pas
+            // de variant ici, `BarChartLib` chercherait un groupe par mois.
             return <BarChartLib title={title} loading={loading} data={data.points} />;
         }
 
@@ -95,12 +112,12 @@ export const RenderStatChart: React.FC<RenderStatChartProps> = ({ data, displayT
             const dataset = toMultiSeriesDataset(data.series, stacked);
 
             if (displayType === "line-multi") {
-                return <LineChartLib title={title} loading={loading} data={dataset.data} series={dataset.series} />;
+                return <LineChartLib title={title} loading={loading} data={dataset.data} series={dataset.series} variant={variant} />;
             }
             if (displayType === "line-dashed-multi") {
-                return <DashedLineChartLib title={title} loading={loading} data={dataset.data} series={dataset.series} />;
+                return <DashedLineChartLib title={title} loading={loading} data={dataset.data} series={dataset.series} variant={variant} />;
             }
-            return <BarChartLib title={title} loading={loading} data={dataset.data} series={dataset.series} />;
+            return <BarChartLib title={title} loading={loading} data={dataset.data} series={dataset.series} variant={variant} />;
         }
 
         case "points": {

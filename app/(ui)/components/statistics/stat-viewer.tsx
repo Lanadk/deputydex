@@ -59,6 +59,16 @@ export const StatViewer: React.FC<StatViewerProps> = ({
     const contextLabel = buildContextLabel(definition.domain, context, "");
     const chartTitle = contextLabel ? `${definition.title} — ${contextLabel}` : definition.title;
 
+    // Code du groupe sélectionné, pour un chart à une seule série coloré
+    // "parliament-group" (ex: groupes.cohesion) — voir RenderStatChart.groupLabel.
+    // `entityLabel` est posé au code du groupe (pas son libellé complet) par
+    // GroupeEntityResolver au moment du choix, exactement ce dont
+    // getCanonicalGroupChartColor a besoin.
+    const groupChartLabel =
+        definition.domain === "groupes"
+            ? ((context.filters?.entityLabel as string | undefined) ?? context.entityId ?? null)
+            : null;
+
     const handleExport = (format: ExportFormat) => {
         if (!data) return;
         const { rows, csvColumns } = toExportRows(data);
@@ -113,7 +123,14 @@ export const StatViewer: React.FC<StatViewerProps> = ({
                     <ButtonLib text="Réessayer" size="small" variant="tertiary" onClick={retry} />
                 </div>
             ) : (
-                <RenderStatChart data={data} displayType={resolvedDisplayType} loading={loading} title={chartTitle} />
+                <RenderStatChart
+                    data={data}
+                    displayType={resolvedDisplayType}
+                    loading={loading}
+                    title={chartTitle}
+                    variant={definition.chartVariant}
+                    groupLabel={groupChartLabel}
+                />
             )}
 
             <TableExportActions exportEnabled={!!data} onExportAction={handleExport} />
