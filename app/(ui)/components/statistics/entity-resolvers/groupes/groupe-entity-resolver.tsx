@@ -6,7 +6,7 @@ import {EntityResolverProps} from "@/app/(ui)/components/statistics/entity-resol
 import {useLegislaturesList} from "@/app/(ui)/components/statistics/entity-resolvers/hook/use-legislatures-list";
 import {ButtonLib} from "@/app/(ui)/component-library/atoms/button/button-lib";
 
-export const GroupeEntityResolver: React.FC<EntityResolverProps> = ({ value, scope, onChange, lockedScope }) => {
+export const GroupeEntityResolver: React.FC<EntityResolverProps> = ({ value, scope, onChange, lockedScope, otherContext }) => {
     const legislatures = useLegislaturesList();
     const [groupes, setGroupes] = useState<{ code: string; label: string }[]>([]);
 
@@ -14,6 +14,12 @@ export const GroupeEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
     const canPickAggregate = lockedScope !== "entity";
 
     const selectedLegislature = (value.filters?.legislature as number | undefined) ?? null;
+
+    // Valeur déjà prise par l'AUTRE colonne en comparaison — comparer une
+    // législature ou un groupe à lui-même n'a pas de sens, ce choix est donc
+    // grisé plutôt que laissé sélectionnable (voir EntityResolverProps).
+    const otherLegislature = (otherContext?.filters?.legislature as number | undefined) ?? null;
+    const otherEntityId = otherContext?.entityId ?? null;
 
     useEffect(() => {
         // Rien à faire tant qu'aucune législature n'est choisie — le bloc
@@ -67,6 +73,7 @@ export const GroupeEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
                         text={`${l.number}ᵉ législature`}
                         size="small"
                         variant={selectedLegislature === l.number ? "primary" : "tertiary"}
+                        disabled={l.number === otherLegislature}
                         onClick={() => setLegislatureNumber(l.number)}
                     />
                 ))}
@@ -83,6 +90,7 @@ export const GroupeEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
                             text={groupe.label}
                             size="small"
                             variant={value.entityId === groupe.code ? "primary" : "tertiary"}
+                            disabled={groupe.code === otherEntityId}
                             onClick={() =>
                                 onChange("entity", {
                                     entityId: groupe.code,

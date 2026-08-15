@@ -24,6 +24,13 @@ interface StatPickerProps {
     onClearSelection: () => void;
     /** true seulement en mode split — la contrainte domaine/scope ne se justifie qu'en comparaison réelle */
     isComparing: boolean;
+    /**
+     * Contexte de l'AUTRE colonne en comparaison — `null` hors comparaison.
+     * Transmis tel quel à l'EntityResolver du domaine pour qu'il grise la
+     * valeur déjà prise en face (même législature, même entité) : voir
+     * EntityResolverProps.otherContext.
+     */
+    otherContext?: StatFetchParams | null;
 }
 
 /**
@@ -51,6 +58,7 @@ export const StatPicker: React.FC<StatPickerProps> = ({
                                                             onContextChange,
                                                             onClearSelection,
                                                             isComparing,
+                                                            otherContext,
                                                         }) => {
     const [openDomain, setOpenDomain] = useState<StatDomain | null>(null);
     const [localScope, setLocalScope] = useState<StatScope>("aggregate");
@@ -147,6 +155,7 @@ export const StatPicker: React.FC<StatPickerProps> = ({
                             value={context}
                             scope={effectiveScope}
                             lockedScope={lockedScope}
+                            otherContext={isComparing ? otherContext : null}
                             onChange={(newScope, params) => {
                                 if (!isComparing && rawConstraint && rawConstraint.scope !== newScope) {
                                     onClearSelection();

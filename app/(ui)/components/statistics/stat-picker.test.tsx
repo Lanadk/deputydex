@@ -17,7 +17,10 @@ jest.mock("@/app/(ui)/gateways/acteurs/acteurs.gateway", () => ({
 
 jest.mock("@/app/(ui)/gateways/legislatures/legislatures.gateway", () => ({
     legislaturesGateway: {
-        getAll: jest.fn().mockResolvedValue([{ id: 1, number: 17, startDate: null, endDate: null }]),
+        getAll: jest.fn().mockResolvedValue([
+            { id: 1, number: 16, startDate: null, endDate: null },
+            { id: 2, number: 17, startDate: null, endDate: null },
+        ]),
         getCurrent: jest.fn().mockResolvedValue(null),
     },
 }));
@@ -321,5 +324,42 @@ describe("StatPicker", () => {
 
         expect(onContextChange).toHaveBeenCalledWith({});
         expect(onClearSelection).not.toHaveBeenCalled();
+    });
+
+    it("while comparing, greys out the legislature already picked in the other context", async () => {
+        renderPicker({
+            isComparing: true,
+            otherContext: { filters: { legislature: 16 } },
+        });
+
+        fireEvent.click(screen.getByText("Députés"));
+
+        expect((await screen.findByText("16ᵉ législature")).closest("button")).toBeDisabled();
+        expect(screen.getByText("17ᵉ législature").closest("button")).not.toBeDisabled();
+    });
+
+    it("while comparing, greys out the deputy already picked in the other context", async () => {
+        renderPicker({
+            isComparing: true,
+            otherContext: { entityId: "PA001", filters: { entityLabel: "Amélie Durand" } },
+        });
+
+        fireEvent.click(screen.getByText("Députés"));
+        fireEvent.click(screen.getByText("Un député précis"));
+        fireEvent.change(screen.getByPlaceholderText("Rechercher un député par nom…"), { target: { value: "Amélie" } });
+
+        const otherDeputyButton = await screen.findByText("Amélie Durand");
+        expect(otherDeputyButton.closest("button")).toBeDisabled();
+    });
+
+    it("does not grey out anything when not comparing, even if otherContext is passed", async () => {
+        renderPicker({
+            isComparing: false,
+            otherContext: { filters: { legislature: 16 } },
+        });
+
+        fireEvent.click(screen.getByText("Députés"));
+
+        expect((await screen.findByText("16ᵉ législature")).closest("button")).not.toBeDisabled();
     });
 });

@@ -21,7 +21,7 @@ import {InputLib} from "@/app/(ui)/component-library/molecules/input/input-lib";
  * législature). Avec une législature choisie, comparer 16ᵉ vs 17ᵉ redevient
  * pertinent.
  */
-export const ActeurEntityResolver: React.FC<EntityResolverProps> = ({ value, scope, onChange, lockedScope }) => {
+export const ActeurEntityResolver: React.FC<EntityResolverProps> = ({ value, scope, onChange, lockedScope, otherContext }) => {
     const legislatures = useLegislaturesList();
     const [search, setSearch] = useState("");
     const [acteurs, setActeurs] = useState<ActeurDTO[]>([]);
@@ -30,6 +30,12 @@ export const ActeurEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
     const canPickAggregate = lockedScope !== "entity";
 
     const selectedLegislature = (value.filters?.legislature as number | undefined) ?? null;
+
+    // Valeur déjà prise par l'AUTRE colonne en comparaison — comparer une
+    // législature ou un député à lui-même n'a pas de sens, ce choix est donc
+    // grisé plutôt que laissé sélectionnable (voir EntityResolverProps).
+    const otherLegislature = (otherContext?.filters?.legislature as number | undefined) ?? null;
+    const otherEntityId = otherContext?.entityId ?? null;
 
     useEffect(() => {
         if (search.trim().length < 2) return;
@@ -102,18 +108,25 @@ export const ActeurEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
                     />
                     {visibleActeurs.length > 0 && (
                         <div className="flex max-h-56 flex-col gap-1 overflow-y-auto rounded-lg border border-main bg-surface-2 p-2">
-                            {visibleActeurs.map((acteur) => (
-                                <button
-                                    key={acteur.id}
-                                    type="button"
-                                    onClick={() => handleSelectActeur(acteur)}
-                                    className={`rounded px-2 py-1 text-left text-sm hover:bg-surface-3 ${
-                                        value.entityId === acteur.id ? "bg-surface-3 font-semibold" : ""
-                                    }`}
-                                >
-                                    {acteur.prenom} {acteur.nom}
-                                </button>
-                            ))}
+                            {visibleActeurs.map((acteur) => {
+                                const isTakenByOtherContext = acteur.id === otherEntityId;
+                                return (
+                                    <button
+                                        key={acteur.id}
+                                        type="button"
+                                        disabled={isTakenByOtherContext}
+                                        onClick={() => handleSelectActeur(acteur)}
+                                        title={isTakenByOtherContext ? "Déjà choisi dans l'autre contexte" : undefined}
+                                        className={`rounded px-2 py-1 text-left text-sm ${
+                                            isTakenByOtherContext
+                                                ? "cursor-not-allowed opacity-40"
+                                                : "hover:bg-surface-3"
+                                        } ${value.entityId === acteur.id ? "bg-surface-3 font-semibold" : ""}`}
+                                    >
+                                        {acteur.prenom} {acteur.nom}
+                                    </button>
+                                );
+                            })}
                         </div>
                     )}
                 </div>
@@ -127,6 +140,7 @@ export const ActeurEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
                             text={`${l.number}ᵉ législature`}
                             size="small"
                             variant={selectedLegislature === l.number ? "primary" : "tertiary"}
+                            disabled={l.number === otherLegislature}
                             onClick={() => onChange("aggregate", { filters: { ...value.filters, legislature: l.number } })}
                         />
                     ))}

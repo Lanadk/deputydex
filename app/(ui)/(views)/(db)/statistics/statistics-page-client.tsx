@@ -45,6 +45,7 @@ function StatisticsHub() {
                         onContextChange={(params) => updateContext(contextIndex, params)}
                         onClearSelection={clearSelection}
                         isComparing={mode === "split"}
+                        otherContext={mode === "split" ? contexts[contextIndex === 0 ? 1 : 0] : null}
                     />
                 ))}
             </div>
