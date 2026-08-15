@@ -7,6 +7,7 @@ import { StatFetchParams } from "@/app/_shared/statistics/stat-scope.types";
 import { useStatData } from "@/app/(ui)/_shared/statistics/data/use-stat-data";
 import { useStatInsight } from "@/app/(ui)/_shared/statistics/insights/use-stat-insight";
 import { isContextReady } from "@/app/(ui)/_shared/statistics/context/is-context-ready";
+import { buildContextLabel } from "@/app/(ui)/_shared/statistics/context/build-context-label";
 import {
     DISPLAY_TYPE_COMPATIBILITY,
     DISPLAY_TYPE_LABELS,
@@ -49,6 +50,15 @@ export const StatViewer: React.FC<StatViewerProps> = ({
     const compatibleDisplayTypes = DISPLAY_TYPE_COMPATIBILITY[definition.dataShape];
     const resolvedDisplayType = displayType ?? compatibleDisplayTypes[0] ?? null;
 
+    // "Tous les groupes — 17ᵉ législature", "RN — 17ᵉ législature",
+    // "Amélie Durand"... — vide si le domaine n'a ni entité ni législature à
+    // afficher (ex: votes/scrutins, qui n'ont pas encore d'EntityResolver).
+    // Répété sur CHAQUE StatViewer (pas juste l'en-tête de colonne en
+    // comparaison) : sans ça, un graphe seul ne dit jamais sur quelle
+    // population il porte.
+    const contextLabel = buildContextLabel(definition.domain, context, "");
+    const chartTitle = contextLabel ? `${definition.title} — ${contextLabel}` : definition.title;
+
     const handleExport = (format: ExportFormat) => {
         if (!data) return;
         const { rows, csvColumns } = toExportRows(data);
@@ -60,6 +70,11 @@ export const StatViewer: React.FC<StatViewerProps> = ({
             <div className="flex items-start justify-between gap-3">
                 <div className="min-w-0">
                     <h3 className="text-base font-semibold">{definition.title}</h3>
+                    {contextLabel && (
+                        <SpanLib className="mt-0.5 block text-xs font-semibold uppercase tracking-wide text-accent">
+                            {contextLabel}
+                        </SpanLib>
+                    )}
                     {definition.description && (
                         <SpanLib className="mt-1 block text-sm leading-relaxed text-subtitle-accent">
                             {definition.description}
@@ -98,7 +113,7 @@ export const StatViewer: React.FC<StatViewerProps> = ({
                     <ButtonLib text="Réessayer" size="small" variant="tertiary" onClick={retry} />
                 </div>
             ) : (
-                <RenderStatChart data={data} displayType={resolvedDisplayType} loading={loading} title={definition.title} />
+                <RenderStatChart data={data} displayType={resolvedDisplayType} loading={loading} title={chartTitle} />
             )}
 
             <TableExportActions exportEnabled={!!data} onExportAction={handleExport} />

@@ -20,9 +20,7 @@ export const ACTEURS_STATS: StatDefinition[] = [
         title: "Parité femmes / hommes",
         category: "Démographie",
         keywords: ["parité", "genre", "démographie", "députés"],
-        description: "Répartition des députés selon leur âge, en regroupant les députés de l’ensemble des " +
-            "législatures présentes dans la base de données. Cette statistique donne une vision globale de " +
-            "la répartition des âges sur l’ensemble de la période étudiée.",
+        description: "Indique l'équilibre entre hommes et femmes parmi l'ensemble des députés actuellement en fonction.",
         methodology: "Répartition par genre déclaré, sur l'ensemble des députés recensés.",
         dataShape: "distribution",
         unit: "%",

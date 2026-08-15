@@ -3,8 +3,6 @@
 import React from 'react';
 
 export interface SpanLibProps {
-    /** Identificateur */
-    key?: string;
     /** Contenu à afficher */
     children?: React.ReactNode;
     /** Callback au clic (optionnel) */
@@ -16,7 +14,6 @@ export interface SpanLibProps {
 }
 
 export const SpanLib: React.FC<SpanLibProps> = ({
-                                                    key,
                                                     children,
                                                     onClick,
                                                     className,
@@ -24,7 +21,6 @@ export const SpanLib: React.FC<SpanLibProps> = ({
                                                 }) => {
     return (
         <span
-            key={key}
             className={`span-lib ${onClick ? 'span-lib--clickable' : ''} ${className}`}
             style={style}
             onClick={onClick}

@@ -86,22 +86,46 @@ function StatisticsHub() {
                     </SpanLib>
                 </div>
             ) : (
-                <div className={`grid gap-4 ${mode === "split" ? "lg:grid-cols-2" : "grid-cols-1"}`}>
-                    {contexts.map((context, contextIndex) => (
-                        <div key={contextIndex} className="flex flex-col gap-4">
-                            {mode === "split" && (
-                                <SpanLib className="text-xs font-semibold uppercase tracking-wide text-subtitle-accent">
+                <div className="flex flex-col gap-4">
+                    {mode === "split" && (
+                        <div className="grid gap-4 lg:grid-cols-2">
+                            {contexts.map((context, contextIndex) => (
+                                <SpanLib
+                                    key={contextIndex}
+                                    className="text-xs font-semibold uppercase tracking-wide text-subtitle-accent"
+                                >
                                     {buildContextLabel(
                                         selectedDefinitions[0]?.domain ?? null,
                                         context,
                                         contextIndex === 0 ? "Contexte A" : "Contexte B"
                                     )}
                                 </SpanLib>
-                            )}
+                            ))}
+                        </div>
+                    )}
 
-                            {selectedDefinitions.map((definition) => (
+                    {/*
+                        Une grid PAR statistique (definition en boucle externe, context en
+                        interne) plutôt qu'une seule grid globale avec une colonne par
+                        contexte : sinon les deux colonnes ne sont que deux piles
+                        indépendantes de cartes empilées côte à côte — dès qu'une carte est
+                        plus haute que sa vis-à-vis (texte plus long, chart avec plus de
+                        catégories...), tout ce qui suit dans l'autre colonne se décale et
+                        les paires à comparer ne sont plus alignées. Une grid par stat
+                        confine l'écart de hauteur à SA propre paire : les deux cartes
+                        démarrent alignées en haut, mais `items-start` (au lieu du
+                        `stretch` par défaut de CSS Grid) laisse chacune sa propre hauteur
+                        — ouvrir "Comment c'est calculé ?" ou un insight plus long d'un
+                        côté n'étire jamais la carte d'en face.
+                    */}
+                    {selectedDefinitions.map((definition) => (
+                        <div
+                            key={definition.id}
+                            className={`grid items-start gap-4 ${mode === "split" ? "lg:grid-cols-2" : "grid-cols-1"}`}
+                        >
+                            {contexts.map((context, contextIndex) => (
                                 <StatViewer
-                                    key={definition.id}
+                                    key={contextIndex}
                                     definition={definition}
                                     context={context}
                                     displayType={displayTypes[contextIndex]?.[definition.id] ?? null}

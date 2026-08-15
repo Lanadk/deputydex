@@ -22,6 +22,15 @@ export const GroupeEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
     const otherLegislature = (otherContext?.filters?.legislature as number | undefined) ?? null;
     const otherEntityId = otherContext?.entityId ?? null;
 
+    // La législature elle-même n'est "prise" par l'autre contexte qu'en scope
+    // aggregate (comparer "tous les groupes" de la même législature des deux
+    // côtés serait comparer une population à elle-même). En scope entity,
+    // deux groupes DIFFÉRENTS de la MÊME législature forment une comparaison
+    // parfaitement valide — c'est le code du groupe (voir plus bas,
+    // `groupe.code === otherEntityId`) qui porte alors la vraie contrainte
+    // "pas le même groupe", pas la législature.
+    const legislatureTaken = scope === "aggregate" ? otherLegislature : null;
+
     useEffect(() => {
         // Rien à faire tant qu'aucune législature n'est choisie — le bloc
         // liste est de toute façon masqué dans ce cas (voir le rendu
@@ -74,7 +83,7 @@ export const GroupeEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
                         text={`${l.number}ᵉ législature`}
                         size="small"
                         variant={selectedLegislature === l.number ? "primary" : "tertiary"}
-                        disabled={l.number === otherLegislature}
+                        disabled={l.number === legislatureTaken}
                         onClick={() => setLegislatureNumber(l.number)}
                     />
                 ))}
@@ -91,7 +100,12 @@ export const GroupeEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
                             text={groupe.label}
                             size="small"
                             variant={value.entityId === groupe.code ? "primary" : "tertiary"}
-                            disabled={groupe.code === otherEntityId}
+                            // Un même code de groupe peut être réutilisé d'une législature à
+                            // l'autre (ex: "HOR" en 16ᵉ et en 17ᵉ) — le code seul ne suffit
+                            // donc pas à identifier "le même groupe qu'en face" : il faut AUSSI
+                            // que la législature choisie soit la même, sinon on bloquerait à
+                            // tort une comparaison temporelle légitime (HOR16 vs HOR17).
+                            disabled={groupe.code === otherEntityId && selectedLegislature === otherLegislature}
                             onClick={() =>
                                 onChange("entity", {
                                     entityId: groupe.code,
