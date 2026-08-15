@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import StatisticsPageClient from "@/app/(ui)/(views)/(db)/statistics/statistics-page-client";
 
 export const metadata: Metadata = {
     title: "Statistiques",
@@ -12,11 +13,5 @@ export const metadata: Metadata = {
 };
 
 export default function StatisticsPage() {
-    return (
-        <div>
-            <main>
-                <p></p>
-            </main>
-        </div>
-    );
+    return <StatisticsPageClient />;
 }

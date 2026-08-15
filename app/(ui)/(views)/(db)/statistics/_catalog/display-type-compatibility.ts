@@ -15,3 +15,17 @@ export const DISPLAY_TYPE_COMPATIBILITY: Record<StatDataShape, ChartDisplayType[
     points: ["scatter"],
     scalar: [],
 };
+
+/** Libellés FR affichés dans le format-switcher (SelectLib), un par displayType du catalogue. */
+export const DISPLAY_TYPE_LABELS: Record<ChartDisplayType, string> = {
+    bar: "Barres",
+    pie: "Camembert",
+    donut: "Donut",
+    line: "Courbe",
+    "line-dashed": "Courbe pointillée",
+    "bar-multi": "Barres groupées",
+    "stacked-bar": "Barres empilées",
+    "line-multi": "Courbes multiples",
+    "line-dashed-multi": "Courbes pointillées multiples",
+    scatter: "Nuage de points",
+};

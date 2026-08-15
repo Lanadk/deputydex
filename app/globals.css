@@ -867,6 +867,44 @@
     }
 
     /* -------------------------------------------------------
+       CheckboxLib
+       ------------------------------------------------------- */
+    .checkbox-lib {
+        @apply inline-flex items-center gap-2 text-sm text-left cursor-pointer bg-transparent border-0 p-0;
+        color: var(--foreground);
+    }
+
+    .checkbox-lib:disabled {
+        opacity: 0.5;
+        cursor: not-allowed;
+    }
+
+    .checkbox-lib__box {
+        @apply flex items-center justify-center shrink-0 rounded;
+        width: 18px;
+        height: 18px;
+        border: 1px solid var(--border-main);
+        background-color: var(--field-surface);
+        transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .checkbox-lib--checked .checkbox-lib__box {
+        background-color: var(--accent);
+        border-color: var(--accent);
+        color: var(--btn-primary-text);
+    }
+
+    .checkbox-lib__check {
+        width: 12px;
+        height: 12px;
+    }
+
+    .checkbox-lib:focus-visible {
+        outline: 2px solid var(--toggle-focus);
+        outline-offset: 2px;
+    }
+
+    /* -------------------------------------------------------
        Tooltip - MUI overrides
        ------------------------------------------------------- */
     .tooltip-lib {
