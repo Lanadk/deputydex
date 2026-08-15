@@ -30,8 +30,9 @@ export const FEMMES_ASSEMBLEE_SECTIONS: PageSection[] = [
         cols: 4,
         lazy: false,
         gatewayFn: async ({ legislature }: Record<string, unknown>) => {
+            const leg = legislature as number;
             const [repartition, evolution] = await Promise.all([
-                statisticsGateway.fetchStat("acteurs", "parite", { filters: { legislature: legislature as number } }),
+                statisticsGateway.fetchStat("acteurs", "parite", { filters: { legislature: leg } }),
                 statisticsGateway.fetchStat("legislatures", "parite", {}),
             ]);
 
@@ -40,7 +41,9 @@ export const FEMMES_ASSEMBLEE_SECTIONS: PageSection[] = [
 
             return {
                 "kpi-femmes-part-actuelle": {
-                    data: { label: "de femmes députées actuellement", value: `${pctFemmes(items)}%` },
+                    // Le chiffre seul ne dit jamais de quelle législature il parle —
+                    // voir StatViewer.contextLabel (mode avancé), même principe ici.
+                    data: { label: `de femmes députées — ${leg}ᵉ législature`, value: `${pctFemmes(items)}%` },
                 },
                 "chart-femmes-repartition-actuelle": { data: items },
                 "chart-femmes-evolution-legislatures": { data: points },

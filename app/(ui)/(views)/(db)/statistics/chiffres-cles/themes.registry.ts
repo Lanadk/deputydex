@@ -1,6 +1,7 @@
 import { LucideIcon, Venus, CalendarDays, Vote, Handshake, Users, Briefcase, FileText } from "lucide-react";
 import { PageSection } from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
 import { FEMMES_ASSEMBLEE_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/femmes-assemblee.sections";
+import { FEMINISATION_GROUPES_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/feminisation-groupes.sections";
 
 export interface KeyFigureTheme {
     /** Segment de route : /statistics/chiffres-cles/<slug> */
@@ -47,7 +48,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
         title: "La féminisation des groupes politiques",
         teaser: "Classement des groupes parlementaires par part de femmes parmi leurs membres.",
         icon: Users,
-        sections: [],
+        sections: FEMINISATION_GROUPES_SECTIONS,
     },
     {
         slug: "cohesion-groupes",

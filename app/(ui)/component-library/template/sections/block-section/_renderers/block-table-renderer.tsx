@@ -60,8 +60,9 @@ export function BlockTableRenderer({config, data, loading}: BlockTableRendererPr
             )}
 
             {config.export && (
+                // Pas de `title` ici : `config.title` est déjà affiché juste au-dessus
+                // (chart-lib__header) — le répéter ici l'affichait deux fois de suite.
                 <TableExportActions
-                    title={config.title ?? "Export"}
                     hint={`${filteredRows.length} résultat(s)`}
                     onExportAction={(format) =>
                         exportRows(filteredRows, format, {

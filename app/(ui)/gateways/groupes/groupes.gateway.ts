@@ -7,6 +7,7 @@ import {GroupeCohesionDTO} from "@/app/domains/groupes/dto/groupe-cohesion.dto";
 import {GroupeComportementDTO} from "@/app/domains/groupes/dto/groupe-comportement.dto";
 import {GroupeActivityDTO} from "@/app/domains/groupes/dto/groupe-activity.dto";
 import {GroupeActivityDetailsDTO} from "@/app/domains/groupes/dto/groupe-activity-details.dto";
+import {GroupesFeminisationDTO} from "@/app/domains/groupes/dto/groupes-feminisation.dto";
 
 export const groupesGateways: IGroupesGateways = {
     async getGroupesCards(legislature: number): Promise<GroupeCardDTO[]> {
@@ -91,6 +92,14 @@ export const groupesGateways: IGroupesGateways = {
         const res = await fetch(`/api/groupes/activity/${code}/${legislature}/details?date=${date}`);
 
         if (!res.ok) throw new Error("Failed to get activity");
+
+        return res.json();
+    },
+
+    async getGroupesFeminisation(legislature: number): Promise<GroupesFeminisationDTO> {
+        const res = await fetch(`/api/groupes/feminisation/${legislature}`);
+
+        if (!res.ok) throw new Error("Failed to get groupes feminisation");
 
         return res.json();
     }

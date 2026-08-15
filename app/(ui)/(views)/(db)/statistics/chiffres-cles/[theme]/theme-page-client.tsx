@@ -35,7 +35,7 @@ export default function ThemePageClient({ slug }: { slug: string }) {
                 <Link href="/statistics/chiffres-cles" className="text-sm text-subtitle-accent hover:text-accent">
                     ← Retour aux chiffres clés
                 </Link>
-                <PageHeaderLib title={theme.title} subtitle={theme.teaser} className="mt-3 mb-0" />
+                <PageHeaderLib title={theme.title} subtitle={theme.teaser} icon={theme.icon} className="mt-3 mb-0" />
             </div>
 
             {theme.sections.length === 0 ? (
@@ -47,7 +47,15 @@ export default function ThemePageClient({ slug }: { slug: string }) {
             ) : (
                 <PageContentLib>
                     {theme.sections.map((section) => (
-                        <SectionBlockLoader key={section.id} section={section} params={params} onReady={() => {}} />
+                        <SectionBlockLoader
+                            key={section.id}
+                            section={section}
+                            params={params}
+                            onReady={() => {}}
+                            // Une seule section = son en-tête (icône/titre/description) ne
+                            // ferait que répéter le PageHeaderLib juste au-dessus.
+                            hideHeader={theme.sections.length === 1}
+                        />
                     ))}
                 </PageContentLib>
             )}

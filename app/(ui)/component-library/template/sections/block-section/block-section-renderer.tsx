@@ -26,8 +26,23 @@ export type ParagraphItem =
     | { type: "highlight"; content: string }
     | { type: "list"; items: string[] }
     | { type: "kpi"; label: string; value: string; trend?: "up" | "down" | "neutral"; trendLabel?: string }
+    /** Petit label en gras au-dessus des items suivants — regroupe visuellement un paragraphe qui couvre plusieurs sous-sujets (ex: "Taux de féminisation" puis "Mouvements de femmes") plutôt qu'une liste plate de phrases */
+    | { type: "subheading"; content: string }
 
 //Blocks
+
+/**
+ * Un paragraphe est soit statique (`items` figés dans le registry, cas
+ * `groupes/[code]`), soit dynamique (`dataId` + `render`) : `render` reçoit
+ * la donnée fetchée sous `dataMap[dataId]` (posée par le `gatewayFn` de la
+ * section) et produit les `ParagraphItem[]` à afficher — utile pour un récit
+ * généré depuis de vraies données ("le groupe X a le taux le plus haut...",
+ * voir `chiffres-cles/themes/feminisation-groupes.sections.ts`) plutôt qu'un
+ * texte figé à l'avance.
+ */
+export type ParagraphSource =
+    | { items: ParagraphItem[] }
+    | { dataId: string; render: (data: BlockDataWrapper | undefined) => ParagraphItem[] };
 
 export type SectionBlock<TRow = unknown> =
     | {
@@ -35,11 +50,10 @@ export type SectionBlock<TRow = unknown> =
     /** Occupe 2 colonnes dans la grille (défaut: 1) */
     colSpan?: ColSpan;
     config: ChartConfig;
-} | {
+} | ({
     type: "paragraph";
     colSpan?: ColSpan;
-    items: ParagraphItem[];
-} | {
+} & ParagraphSource) | {
     type: "card"
     colSpan?: ColSpan;
     config: CardConfig;
@@ -96,8 +110,10 @@ export const BlockSectionRenderer: React.FC<BlockSectionRendererProps> = ({
                     />
                 );
 
-            case "paragraph":
-                return <BlockParagraphRenderer items={block.items}/>;
+            case "paragraph": {
+                const items = "dataId" in block ? block.render(dataMap[block.dataId]) : block.items;
+                return <BlockParagraphRenderer items={items}/>;
+            }
 
             case "table":
                 return (

@@ -1,17 +1,41 @@
 import {
     CardConfig,
-    CardDataWrapper, KpiBarCardData,
+    CardDataWrapper, GroupCardData, GroupCardPairData, KpiBarCardData,
     KpiCardData, SummaryListCardData
 } from "@/app/(ui)/component-library/template/sections/block-section/card-config.types";
 import {KpiCardLib} from "@/app/(ui)/component-library/molecules/cards/kpi-card/kpi-card-lib";
 import {KpiBarCardLib} from "@/app/(ui)/component-library/molecules/cards/kpi-bar-card/kpi-bar-card-lib";
 import {SummaryListCardLib} from "@/app/(ui)/component-library/molecules/cards/summary-list-card/summary-list-card";
+import {GroupCard} from "@/app/(ui)/components/groups/group-card";
+import {getCanonicalGroupTheme} from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
 
 type BlockCardRendererProps = {
     config: CardConfig
     data: CardDataWrapper | null;
     loading: boolean;
 };
+
+/** Largeur commune imposée à chaque `GroupCard` — sinon chacune garde la largeur de son contenu (photo, libellé...) et deux cartes voisines n'ont aucune raison de faire la même taille. */
+function GroupCardWithCaption({data}: {data: GroupCardData}) {
+    return (
+        <div className="flex w-56 shrink-0 flex-col items-center gap-2">
+            <GroupCard
+                code={data.code}
+                libelle={data.libelle}
+                nbMembers={data.nbMembers}
+                president={data.president}
+                sexPresidentType={data.sexPresidentType}
+                position={data.position}
+                href={data.href}
+                image={data.image}
+                theme={getCanonicalGroupTheme(data.code)}
+            />
+            {data.caption && (
+                <span className="text-sm font-semibold text-subtitle-accent">{data.caption}</span>
+            )}
+        </div>
+    );
+}
 
 export function BlockCardRenderer({config, data, loading}: BlockCardRendererProps) {
     if (!data || loading) return null;
@@ -36,6 +60,24 @@ export function BlockCardRenderer({config, data, loading}: BlockCardRendererProp
         case 'summary-list-card': {
             const d = data as { data: SummaryListCardData };
             return <SummaryListCardLib title={d.data.title} items={d.data.items}/>;
+        }
+        case 'group-card': {
+            const d = data as { data: GroupCardData };
+            return (
+                <div className="flex justify-center">
+                    <GroupCardWithCaption data={d.data}/>
+                </div>
+            );
+        }
+        case 'group-card-pair': {
+            const d = data as { data: GroupCardPairData };
+            return (
+                <div className="flex flex-wrap justify-center gap-6">
+                    {d.data.cards.map((c) => (
+                        <GroupCardWithCaption key={c.code} data={c}/>
+                    ))}
+                </div>
+            );
         }
     }
 }

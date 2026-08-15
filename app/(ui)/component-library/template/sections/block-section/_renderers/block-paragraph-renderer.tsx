@@ -21,6 +21,17 @@ export const BlockParagraphRenderer: React.FC<BlockParagraphRendererProps> = ({ 
             {items.map((item, i) => {
                 switch (item.type) {
 
+                    case "subheading":
+                        return (
+                            <span
+                                key={i}
+                                className="text-xs font-semibold uppercase tracking-wide"
+                                style={{ color: "var(--subtitle-accent)" }}
+                            >
+                                {item.content}
+                            </span>
+                        );
+
                     case "text":
                         return (
                             <p
