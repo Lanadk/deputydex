@@ -59,6 +59,9 @@ export const DeputeHeader: React.FC<DeputeHeaderProps> = ({ identity }) => {
                                 style={{ color: "white", backgroundColor: badgeColor }}
                             />
                         )}
+                        {identity.groupeCode && !identity.groupeActif && (
+                            <BadgeLib text="Mandat terminé" variant="secondary" />
+                        )}
                         {genre && <BadgeLib text={genre} variant="secondary" />}
                     </div>
 

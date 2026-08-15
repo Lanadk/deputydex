@@ -10,6 +10,7 @@ export type DeputeIdentityEntity = {
     photo_path: string | null;
     groupe_code: string | null;
     groupe_label: string | null;
+    groupe_actif: boolean;
     region: string | null;
     departement: string | null;
     num_circo: string | null;

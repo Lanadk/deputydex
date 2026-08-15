@@ -27,6 +27,7 @@ export function mapDeputeIdentityEntityToDTO(
         photoUrl: entity.photo_path,
         groupeCode: entity.groupe_code,
         groupeLabel: entity.groupe_label,
+        groupeActif: entity.groupe_actif,
         region: entity.region,
         departement: entity.departement,
         numCirco: entity.num_circo,

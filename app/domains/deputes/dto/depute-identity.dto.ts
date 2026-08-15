@@ -11,6 +11,7 @@ export type DeputeIdentityDTO = {
     photoUrl: string | null;
     groupeCode: string | null;
     groupeLabel: string | null;
+    groupeActif: boolean;
     region: string | null;
     departement: string | null;
     numCirco: string | null;
