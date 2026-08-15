@@ -4,7 +4,19 @@ import { cachedJson, cachedRead } from "@/app/_shared/cache/cached-response";
 import { RawStatData } from "@/app/_shared/statistics/raw-stat-data.types";
 import { StatFetchParams } from "@/app/_shared/statistics/stat-scope.types";
 import { getActeursAgeDistributionUseCase } from "@/app/domains/acteurs/use-cases/get-acteurs-age-distribution.use-case";
+import { getActeursGenderDistributionUseCase } from "@/app/domains/acteurs/use-cases/get-acteurs-gender-distribution.use-case";
+import { getActeurMandatsCountUseCase } from "@/app/domains/acteurs/use-cases/get-acteur-mandats-count.use-case";
 import { prismaActeursStatsRepository } from "@/app/infrastructure/acteurs/repositories/prisma-acteurs-stats.repository";
+import { getGroupeStatPariteUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-parite.use-case";
+import { getGroupeStatEffectifsUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-effectifs.use-case";
+import { getGroupeStatCohesionUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-cohesion.use-case";
+import { prismaGroupesStatsRepository } from "@/app/infrastructure/groupes/repositories/prisma-groupes-stats.repository";
+import { getLegislaturesPariteEvolutionUseCase } from "@/app/domains/legislatures/use-cases/get-legislatures-parite-evolution.use-case";
+import { prismaLegislaturesStatsRepository } from "@/app/infrastructure/legislatures/repositories/prisma-legislatures-stats.repository";
+import { getVotesPositionsStatUseCase } from "@/app/domains/votes/use-cases/get-votes-positions-stat.use-case";
+import { prismaVotesStatsRepository } from "@/app/infrastructure/votes/repositories/prisma-votes-stats.repository";
+import { getScrutinsParticipationStatUseCase } from "@/app/domains/scrutins/use-cases/get-scrutins-participation-stat.use-case";
+import { prismaScrutinsStatsRepository } from "@/app/infrastructure/scrutins/repositories/prisma-scrutins-stats.repository";
 
 type StatHandler = (params: StatFetchParams) => Promise<RawStatData | null>;
 
@@ -18,92 +30,73 @@ type StatHandler = (params: StatFetchParams) => Promise<RawStatData | null>;
  */
 const STAT_HANDLERS: Record<string, Record<string, StatHandler>> = {
     acteurs: {
-        "age-distribution": async () => {
-            const result = await getActeursAgeDistributionUseCase(prismaActeursStatsRepository);
+        "age-distribution": async (params) => {
+            const legislature = params.filters?.legislature as number | undefined;
+            const result = await getActeursAgeDistributionUseCase(prismaActeursStatsRepository, legislature);
             if (!isOk(result)) return null;
             return { shape: "distribution", items: result.data.items };
         },
-        // TODO: mock — remplacer par une vraie requête (civilite) quand le backend sera branché.
-        parite: async () => ({
-            shape: "distribution",
-            items: [
-                { label: "Hommes", value: 64 },
-                { label: "Femmes", value: 36 },
-            ],
-        }),
-        // TODO: mock — remplacer par une vraie requête (mandats) quand le backend sera branché.
-        mandats: async () => ({ shape: "scalar", value: 2, label: "mandats" }),
+        parite: async (params) => {
+            const legislature = params.filters?.legislature as number | undefined;
+            const result = await getActeursGenderDistributionUseCase(prismaActeursStatsRepository, legislature);
+            if (!isOk(result)) return null;
+            return { shape: "distribution", items: result.data.items };
+        },
+        mandats: async (params) => {
+            if (!params.entityId) return null;
+            const result = await getActeurMandatsCountUseCase(prismaActeursStatsRepository, params.entityId);
+            if (!isOk(result)) return null;
+            return { shape: "scalar", value: result.data.count, label: "mandats" };
+        },
     },
-    // TODO: mock — le backend "groupes" existe (IGroupeCompositionRepository,
-    // IGroupeCohesionRepository...) mais n'est pas encore branché ici.
     groupes: {
-        parite: async () => ({
-            shape: "distribution",
-            items: [
-                { label: "Hommes", value: 65 },
-                { label: "Femmes", value: 35 },
-            ],
-        }),
-        effectifs: async () => ({
-            shape: "distribution",
-            items: [
-                { label: "RN", value: 88 },
-                { label: "EPR", value: 92 },
-                { label: "SOC", value: 66 },
-                { label: "LFI", value: 71 },
-                { label: "DR", value: 47 },
-                { label: "ECOS", value: 38 },
-                { label: "GDR", value: 17 },
-                { label: "HOR", value: 33 },
-            ],
-        }),
-        cohesion: async () => ({
-            shape: "timeseries",
-            points: [
-                { label: "Sept.", value: 82 },
-                { label: "Oct.", value: 85 },
-                { label: "Nov.", value: 79 },
-                { label: "Déc.", value: 88 },
-                { label: "Jan.", value: 91 },
-            ],
-        }),
+        parite: async (params) => {
+            const code = params.entityId;
+            const legislature = params.filters?.legislature as number | undefined;
+            if (!code || !legislature) return null;
+
+            const result = await getGroupeStatPariteUseCase(prismaGroupesStatsRepository, code, legislature);
+            if (!isOk(result)) return null;
+            return { shape: "distribution", items: result.data.items };
+        },
+        effectifs: async (params) => {
+            const legislature = params.filters?.legislature as number | undefined;
+            if (!legislature) return null;
+
+            const result = await getGroupeStatEffectifsUseCase(prismaGroupesStatsRepository, legislature);
+            if (!isOk(result)) return null;
+            return { shape: "distribution", items: result.data.items };
+        },
+        cohesion: async (params) => {
+            const code = params.entityId;
+            const legislature = params.filters?.legislature as number | undefined;
+            if (!code || !legislature) return null;
+
+            const result = await getGroupeStatCohesionUseCase(prismaGroupesStatsRepository, code, legislature);
+            if (!isOk(result)) return null;
+            return { shape: "timeseries", points: result.data.points };
+        },
     },
-    // Aucun backend "votes" n'existe encore — entièrement mocké.
     votes: {
-        positions: async () => ({
-            shape: "distribution",
-            items: [
-                { label: "Pour", value: 210 },
-                { label: "Contre", value: 180 },
-                { label: "Abstention", value: 40 },
-                { label: "Non-votant", value: 147 },
-            ],
-        }),
+        positions: async () => {
+            const result = await getVotesPositionsStatUseCase(prismaVotesStatsRepository);
+            if (!isOk(result)) return null;
+            return { shape: "distribution", items: result.data.items };
+        },
     },
-    // Aucun backend "scrutins" n'existe encore — entièrement mocké.
     scrutins: {
-        participation: async () => ({
-            shape: "timeseries",
-            points: [
-                { label: "Sept.", value: 78 },
-                { label: "Oct.", value: 81 },
-                { label: "Nov.", value: 74 },
-                { label: "Déc.", value: 69 },
-                { label: "Jan.", value: 83 },
-            ],
-        }),
+        participation: async () => {
+            const result = await getScrutinsParticipationStatUseCase(prismaScrutinsStatsRepository);
+            if (!isOk(result)) return null;
+            return { shape: "timeseries", points: result.data.points };
+        },
     },
-    // TODO: mock — le backend "legislatures" existe (ILegislaturesRepository)
-    // mais n'est pas encore branché ici.
     legislatures: {
-        parite: async () => ({
-            shape: "timeseries",
-            points: [
-                { label: "XVᵉ", value: 39 },
-                { label: "XVIᵉ", value: 37.3 },
-                { label: "XVIIᵉ", value: 36.1 },
-            ],
-        }),
+        parite: async () => {
+            const result = await getLegislaturesPariteEvolutionUseCase(prismaLegislaturesStatsRepository);
+            if (!isOk(result)) return null;
+            return { shape: "timeseries", points: result.data.points };
+        },
     },
 };
 

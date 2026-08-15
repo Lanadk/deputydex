@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
+import { ButtonLib } from "@/app/(ui)/component-library/atoms/button/button-lib";
 import { CheckboxLib } from "@/app/(ui)/component-library/molecules/checkbox/checkbox-lib";
 import { STATS_CATALOG } from "@/app/(ui)/(views)/(db)/statistics/_catalog/stats-catalog";
 import {
@@ -18,6 +19,8 @@ interface StatPickerLibProps {
     /** contexte du contexte de comparaison que CE picker édite (contexts[contextIndex]) */
     context: StatFetchParams;
     onContextChange: (params: StatFetchParams) => void;
+    /** vide selectedStatIds — seul moyen de changer de domaine une fois une stat cochée */
+    onClearSelection: () => void;
 }
 
 /**
@@ -36,6 +39,7 @@ export const StatPickerLib: React.FC<StatPickerLibProps> = ({
                                                                   onToggleStat,
                                                                   context,
                                                                   onContextChange,
+                                                                  onClearSelection,
                                                               }) => {
     const [openDomain, setOpenDomain] = useState<StatDomain | null>(null);
     const [localScope, setLocalScope] = useState<StatScope>("aggregate");
@@ -60,29 +64,42 @@ export const StatPickerLib: React.FC<StatPickerLibProps> = ({
         setLocalScope("aggregate");
     };
 
+    const handleReset = () => {
+        setOpenDomain(null);
+        setLocalScope("aggregate");
+        onClearSelection();
+        onContextChange({});
+    };
+
     return (
         <div className="flex w-full flex-col gap-4 rounded-xl border border-main bg-surface-1 p-4">
-            <div className="flex flex-wrap gap-3">
-                {STATS_CATALOG.map((module) => {
-                    const availableInDomain = comparableForSelection.filter((stat) => stat.domain === module.id);
-                    const isDisabled = availableInDomain.length === 0;
-                    const isActive = activeDomain === module.id;
+            <div className="flex items-center justify-between gap-3">
+                <div className="flex flex-1 flex-wrap gap-3">
+                    {STATS_CATALOG.map((module) => {
+                        const availableInDomain = comparableForSelection.filter((stat) => stat.domain === module.id);
+                        const isDisabled = availableInDomain.length === 0;
+                        const isActive = activeDomain === module.id;
 
-                    return (
-                        <button
-                            key={module.id}
-                            type="button"
-                            disabled={isDisabled}
-                            onClick={() => handleOpenDomain(module.id)}
-                            className={`flex flex-1 min-w-[140px] flex-col items-center gap-2 rounded-xl border p-5 text-center transition-colors ${
-                                isActive ? "border-accent bg-surface-2" : "border-main bg-surface-1"
-                            } ${isDisabled ? "cursor-not-allowed opacity-40" : "cursor-pointer hover:bg-surface-2"}`}
-                        >
-                            <module.icon className="h-6 w-6" style={{ color: isActive ? "var(--accent)" : "var(--subtitle-accent)" }} />
-                            <span className="text-sm font-semibold">{module.label}</span>
-                        </button>
-                    );
-                })}
+                        return (
+                            <button
+                                key={module.id}
+                                type="button"
+                                disabled={isDisabled}
+                                onClick={() => handleOpenDomain(module.id)}
+                                className={`flex flex-1 min-w-[140px] flex-col items-center gap-2 rounded-xl border p-5 text-center transition-colors ${
+                                    isActive ? "border-accent bg-surface-2" : "border-main bg-surface-1"
+                                } ${isDisabled ? "cursor-not-allowed opacity-40" : "cursor-pointer hover:bg-surface-2"}`}
+                            >
+                                <module.icon className="h-6 w-6" style={{ color: isActive ? "var(--accent)" : "var(--subtitle-accent)" }} />
+                                <span className="text-sm font-semibold">{module.label}</span>
+                            </button>
+                        );
+                    })}
+                </div>
+
+                {(activeDomain || selectedStatIds.length > 0) && (
+                    <ButtonLib text="Réinitialiser" size="small" variant="tertiary" onClick={handleReset} />
+                )}
             </div>
 
             {activeDomain && (

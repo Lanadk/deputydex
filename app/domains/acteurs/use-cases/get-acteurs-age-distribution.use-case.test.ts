@@ -3,7 +3,10 @@ import { IActeursStatsRepository } from "@/app/domains/acteurs/repositories/IAct
 
 function makeRepository(overrides: Partial<IActeursStatsRepository> = {}): IActeursStatsRepository {
     return {
+        searchDeputies: jest.fn().mockResolvedValue([]),
         getAgeDistribution: jest.fn().mockResolvedValue([]),
+        getGenderDistribution: jest.fn().mockResolvedValue([]),
+        getMandatsCount: jest.fn().mockResolvedValue(0),
         ...overrides,
     };
 }
@@ -34,5 +37,13 @@ describe("getActeursAgeDistributionUseCase", () => {
         const result = await getActeursAgeDistributionUseCase(repository);
 
         expect(result).toEqual({ success: true, data: { items: [] } });
+    });
+
+    it("forwards the legislature filter to the repository", async () => {
+        const repository = makeRepository();
+
+        await getActeursAgeDistributionUseCase(repository, 17);
+
+        expect(repository.getAgeDistribution).toHaveBeenCalledWith(17);
     });
 });

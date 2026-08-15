@@ -13,7 +13,6 @@ export const ACTEURS_STATS: StatDefinition[] = [
         dataShape: "distribution",
         unit: "députés",
     }),
-    // TODO: mock — à remplacer par une vraie requête (civilite) quand le backend sera branché.
     defineStat("acteurs", "parite", {
         scope: "aggregate",
         title: "Parité hommes / femmes",
@@ -23,7 +22,6 @@ export const ACTEURS_STATS: StatDefinition[] = [
         dataShape: "distribution",
         unit: "%",
     }),
-    // TODO: mock — à remplacer par une vraie requête (mandats) quand le backend sera branché.
     defineStat("acteurs", "mandats", {
         scope: "entity",
         title: "Nombre de mandats cumulés",

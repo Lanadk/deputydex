@@ -10,6 +10,8 @@ import { STATS_CATALOG } from "@/app/(ui)/(views)/(db)/statistics/_catalog/stats
 import { findStatDefinition } from "@/app/(ui)/(views)/(db)/statistics/_catalog/stats-catalog.helpers";
 import { StatPickerLib } from "@/app/(ui)/components/statistics/stat-picker-lib";
 import { StatViewerLib } from "@/app/(ui)/components/statistics/stat-viewer-lib";
+import { ENTITY_RESOLVERS } from "@/app/(ui)/components/statistics/entity-resolvers/entity-resolvers.registry";
+import { buildContextLabel } from "@/app/(ui)/(views)/(db)/statistics/_catalog/build-context-label";
 
 /**
  * Le hub Statistiques : StatPickerLib (explorer/sélectionner) + une grille
@@ -18,12 +20,18 @@ import { StatViewerLib } from "@/app/(ui)/components/statistics/stat-viewer-lib"
  * ne fait que lire/écrire son état.
  */
 function StatisticsHub() {
-    const { state, toggleStat, enableSplit, disableSplit, setDisplayType, updateContext } = useComparator();
+    const { state, toggleStat, enableSplit, disableSplit, setDisplayType, updateContext, clearSelection } = useComparator();
     const { mode, selectedStatIds, contexts, displayTypes } = state;
 
     const selectedDefinitions = selectedStatIds
         .map((id) => findStatDefinition(STATS_CATALOG, id))
         .filter((definition) => definition !== null);
+
+    // Comparer n'a de sens que si le domaine sélectionné offre une vraie
+    // variable à faire différer entre les deux contextes (une entité à
+    // choisir, une législature...) — voir ENTITY_RESOLVERS. Sans ça, les
+    // deux colonnes afficheraient strictement la même donnée non filtrée.
+    const canCompare = selectedDefinitions.length > 0 && !!ENTITY_RESOLVERS[selectedDefinitions[0].domain];
 
     return (
         <main className="flex w-full flex-col gap-6">
@@ -35,9 +43,37 @@ function StatisticsHub() {
                         onToggleStat={toggleStat}
                         context={context}
                         onContextChange={(params) => updateContext(contextIndex, params)}
+                        onClearSelection={clearSelection}
                     />
                 ))}
             </div>
+
+            {/* Décorrélé de la sélection : "Quitter la comparaison" doit rester
+                accessible même si un reset vide selectedDefinitions pendant
+                qu'on est en mode split (sinon plus aucun moyen de sortir). */}
+            {(mode === "split" || selectedDefinitions.length > 0) && (
+                <div className="flex items-center justify-between gap-3">
+                    <div className="flex flex-col">
+                        <SpanLib className="text-subtitle-accent">
+                            {selectedDefinitions.length} statistique{selectedDefinitions.length > 1 ? "s" : ""} sélectionnée
+                            {selectedDefinitions.length > 1 ? "s" : ""}
+                        </SpanLib>
+                        {mode === "single" && selectedDefinitions.length > 0 && !canCompare && (
+                            <SpanLib className="text-xs text-subtitle-accent">
+                                Comparaison indisponible : ce domaine n&apos;a pas d&apos;entité ni de filtre à faire varier.
+                            </SpanLib>
+                        )}
+                    </div>
+                    {(mode === "split" || canCompare) && (
+                        <ButtonLib
+                            text={mode === "split" ? "Quitter la comparaison" : "Comparer"}
+                            size="small"
+                            variant={mode === "split" ? "secondary" : "primary"}
+                            onClick={mode === "split" ? disableSplit : enableSplit}
+                        />
+                    )}
+                </div>
+            )}
 
             {selectedDefinitions.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-main bg-surface-1 p-8 text-center">
@@ -46,44 +82,33 @@ function StatisticsHub() {
                     </SpanLib>
                 </div>
             ) : (
-                <>
-                    <div className="flex items-center justify-between gap-3">
-                        <SpanLib className="text-subtitle-accent">
-                            {selectedDefinitions.length} statistique{selectedDefinitions.length > 1 ? "s" : ""} sélectionnée
-                            {selectedDefinitions.length > 1 ? "s" : ""}
-                        </SpanLib>
-                        <ButtonLib
-                            text={mode === "split" ? "Quitter la comparaison" : "Comparer"}
-                            size="small"
-                            variant={mode === "split" ? "secondary" : "primary"}
-                            onClick={mode === "split" ? disableSplit : enableSplit}
-                        />
-                    </div>
+                <div className={`grid gap-4 ${mode === "split" ? "lg:grid-cols-2" : "grid-cols-1"}`}>
+                    {contexts.map((context, contextIndex) => (
+                        <div key={contextIndex} className="flex flex-col gap-4">
+                            {mode === "split" && (
+                                <SpanLib className="text-xs font-semibold uppercase tracking-wide text-subtitle-accent">
+                                    {buildContextLabel(
+                                        selectedDefinitions[0]?.domain ?? null,
+                                        context,
+                                        contextIndex === 0 ? "Contexte A" : "Contexte B"
+                                    )}
+                                </SpanLib>
+                            )}
 
-                    <div className={`grid gap-4 ${mode === "split" ? "lg:grid-cols-2" : "grid-cols-1"}`}>
-                        {contexts.map((context, contextIndex) => (
-                            <div key={contextIndex} className="flex flex-col gap-4">
-                                {mode === "split" && (
-                                    <SpanLib className="text-xs font-semibold uppercase tracking-wide text-subtitle-accent">
-                                        {contextIndex === 0 ? "Contexte A" : "Contexte B"}
-                                    </SpanLib>
-                                )}
-
-                                {selectedDefinitions.map((definition) => (
-                                    <StatViewerLib
-                                        key={definition.id}
-                                        definition={definition}
-                                        context={context}
-                                        displayType={displayTypes[contextIndex]?.[definition.id] ?? null}
-                                        onDisplayTypeChange={(displayType) =>
-                                            setDisplayType(contextIndex, definition.id, displayType)
-                                        }
-                                    />
-                                ))}
-                            </div>
-                        ))}
-                    </div>
-                </>
+                            {selectedDefinitions.map((definition) => (
+                                <StatViewerLib
+                                    key={definition.id}
+                                    definition={definition}
+                                    context={context}
+                                    displayType={displayTypes[contextIndex]?.[definition.id] ?? null}
+                                    onDisplayTypeChange={(displayType) =>
+                                        setDisplayType(contextIndex, definition.id, displayType)
+                                    }
+                                />
+                            ))}
+                        </div>
+                    ))}
+                </div>
             )}
         </main>
     );

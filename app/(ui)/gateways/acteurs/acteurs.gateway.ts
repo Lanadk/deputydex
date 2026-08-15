@@ -20,4 +20,11 @@ export const acteursGateway: IActeursGateway = {
         if (!res.ok) throw new Error("Failed to get acteur");
         return res.json();
     },
+
+    async searchDeputies(search): Promise<ActeurDTO[]> {
+        const qs = search ? `?search=${encodeURIComponent(search)}` : "";
+        const res = await fetch(`/api/acteurs/deputies${qs}`);
+        if (!res.ok) throw new Error("Failed to search deputies");
+        return res.json();
+    },
 };

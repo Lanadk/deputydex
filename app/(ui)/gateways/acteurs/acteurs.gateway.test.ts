@@ -70,3 +70,36 @@ describe("acteursGateway.getById", () => {
         await expect(acteursGateway.getById("PA1")).rejects.toThrow("Failed to get acteur");
     });
 });
+
+describe("acteursGateway.searchDeputies", () => {
+    afterEach(() => jest.resetAllMocks());
+
+    it("GETs /api/acteurs/deputies without a query string when search is omitted", async () => {
+        mockFetchOnce({ ok: true, json: async () => [] });
+
+        await acteursGateway.searchDeputies();
+
+        expect(fetch).toHaveBeenCalledWith("/api/acteurs/deputies");
+    });
+
+    it("appends an encoded ?search= query string when provided", async () => {
+        mockFetchOnce({ ok: true, json: async () => [] });
+
+        await acteursGateway.searchDeputies("du rand");
+
+        expect(fetch).toHaveBeenCalledWith("/api/acteurs/deputies?search=du%20rand");
+    });
+
+    it("resolves with the parsed JSON on success", async () => {
+        const data = [{ id: "PA1", prenom: "Amélie", nom: "Durand" }];
+        mockFetchOnce({ ok: true, json: async () => data });
+
+        await expect(acteursGateway.searchDeputies()).resolves.toEqual(data);
+    });
+
+    it("throws when the response is not ok", async () => {
+        mockFetchOnce({ ok: false });
+
+        await expect(acteursGateway.searchDeputies()).rejects.toThrow("Failed to search deputies");
+    });
+});

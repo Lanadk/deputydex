@@ -1,8 +1,9 @@
 import { defineStat } from "@/app/(ui)/(views)/(db)/statistics/_catalog/define-stat";
 import { StatDefinition } from "@/app/(ui)/(views)/(db)/statistics/_catalog/stat-definition.types";
 
-// Aucun backend "scrutins" n'existe encore (ni repository, ni use-case) —
-// cette entrée est entièrement mockée côté serveur (STAT_HANDLERS) en attendant.
+// Premier backend réel pour "scrutins" (IScrutinsStatsRepository), branché
+// sur scrutins/scrutins_agregats — voir STAT_HANDLERS dans
+// app/api/statistics/[domain]/[statId]/route.ts.
 export const SCRUTINS_STATS: StatDefinition[] = [
     defineStat("scrutins", "participation", {
         scope: "aggregate",

@@ -1,6 +1,6 @@
 "use client";
 
-import {useState} from "react";
+import React, {useState} from "react";
 import {usePathname} from "next/navigation";
 import {useLegislature} from "@/app/(ui)/providers/legislature-provider";
 import {ButtonLib} from "@/app/(ui)/component-library/atoms/button/button-lib";
@@ -20,6 +20,9 @@ export function LegislatureSelector() {
         setTrackedPathname(pathname);
         setIsOpen(false);
     }
+
+    // La page Statistiques gère sa propre notion de législature
+    if (pathname.startsWith("/statistics")) return null;
 
     if (loading) return null;
 

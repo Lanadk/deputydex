@@ -1,6 +1,26 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
+import { StatFetchParams } from "@/app/_shared/statistics/stat-scope.types";
+
+// Les EntityResolvers tapent de vrais gateways réseau — on les mocke pour ne
+// pas dépendre du réseau/de la DB dans ce test unitaire.
+jest.mock("@/app/(ui)/gateways/acteurs/acteurs.gateway", () => ({
+    acteursGateway: {
+        searchDeputies: jest.fn().mockResolvedValue([
+            { id: "PA001", prenom: "Amélie", nom: "Durand", professionCategorie: null, dateNaissance: null },
+        ]),
+        search: jest.fn(),
+        getById: jest.fn(),
+    },
+}));
+
+jest.mock("@/app/(ui)/gateways/legislatures/legislatures.gateway", () => ({
+    legislaturesGateway: {
+        getAll: jest.fn().mockResolvedValue([{ id: 1, number: 17, startDate: null, endDate: null }]),
+        getCurrent: jest.fn().mockResolvedValue(null),
+    },
+}));
 
 jest.mock("@/app/(ui)/(views)/(db)/statistics/_catalog/stats-catalog", () => {
     const { Users } = jest.requireActual("lucide-react");
@@ -56,7 +76,30 @@ function renderPicker(props: Partial<React.ComponentProps<typeof StatPickerLib>>
             onToggleStat={jest.fn()}
             context={{}}
             onContextChange={jest.fn()}
+            onClearSelection={jest.fn()}
             {...props}
+        />
+    );
+}
+
+/** Harnais avec état réel pour context — nécessaire pour les flux qui dépendent d'un aller-retour onContextChange -> context. */
+function StatefulPickerHarness({
+    onContextChange,
+    ...props
+}: Partial<React.ComponentProps<typeof StatPickerLib>> & { onContextChange: (p: StatFetchParams) => void }) {
+    const [context, setContext] = React.useState<StatFetchParams>({});
+
+    return (
+        <StatPickerLib
+            selectedStatIds={[]}
+            onToggleStat={jest.fn()}
+            onClearSelection={jest.fn()}
+            {...props}
+            context={context}
+            onContextChange={(params) => {
+                setContext(params);
+                onContextChange(params);
+            }}
         />
     );
 }
@@ -128,15 +171,39 @@ describe("StatPickerLib", () => {
         expect(screen.queryByText("Démographie")).not.toBeInTheDocument();
     });
 
-    it("calls onContextChange when an entity is picked in the resolver", () => {
+    it("searches deputies by name (no legislature gate) and calls onContextChange when one is picked", async () => {
         const onContextChange = jest.fn();
-        renderPicker({ onContextChange });
+        render(<StatefulPickerHarness onContextChange={onContextChange} />);
 
         fireEvent.click(screen.getByText("Députés"));
         fireEvent.click(screen.getByText("Un député précis"));
-        fireEvent.change(screen.getByPlaceholderText("Rechercher un député…"), { target: { value: "Amélie" } });
-        fireEvent.click(screen.getByText("Amélie Durand"));
 
-        expect(onContextChange).toHaveBeenCalledWith({ entityId: "PA001" });
+        // Pas de liste avant d'avoir tapé au moins 2 caractères.
+        expect(screen.queryByText("Amélie Durand")).not.toBeInTheDocument();
+
+        fireEvent.change(screen.getByPlaceholderText("Rechercher un député par nom…"), { target: { value: "Amélie" } });
+
+        fireEvent.click(await screen.findByText("Amélie Durand"));
+
+        expect(onContextChange).toHaveBeenLastCalledWith({
+            entityId: "PA001",
+            filters: { entityLabel: "Amélie Durand" },
+        });
+    });
+
+    it("shows a 'Réinitialiser' button once a domain is open, clearing the selection and context", () => {
+        const onClearSelection = jest.fn();
+        const onContextChange = jest.fn();
+        renderPicker({ onClearSelection, onContextChange });
+
+        expect(screen.queryByText("Réinitialiser")).not.toBeInTheDocument();
+
+        fireEvent.click(screen.getByText("Députés"));
+        fireEvent.click(screen.getByText("Réinitialiser"));
+
+        expect(onClearSelection).toHaveBeenCalledTimes(1);
+        expect(onContextChange).toHaveBeenCalledWith({});
+        // Le picker revient à l'état "aucun domaine ouvert".
+        expect(screen.queryByText("Démographie")).not.toBeInTheDocument();
     });
 });

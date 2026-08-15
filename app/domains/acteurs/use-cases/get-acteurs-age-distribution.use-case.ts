@@ -4,9 +4,10 @@ import { ActeurAgeDistributionDTO } from "@/app/domains/acteurs/dto/acteur-age-d
 import { ok, Result } from "@/app/_shared/result-pattern/result";
 
 export async function getActeursAgeDistributionUseCase(
-    repository: IActeursStatsRepository
+    repository: IActeursStatsRepository,
+    legislature?: number
 ): Promise<Result<ActeurAgeDistributionDTO, never>> {
-    const entities = await repository.getAgeDistribution();
+    const entities = await repository.getAgeDistribution(legislature);
 
     return ok(mapActeurAgeDistributionToDTO(entities));
 }

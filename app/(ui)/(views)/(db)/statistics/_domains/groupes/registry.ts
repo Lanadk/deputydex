@@ -1,10 +1,9 @@
 import { defineStat } from "@/app/(ui)/(views)/(db)/statistics/_catalog/define-stat";
 import { StatDefinition } from "@/app/(ui)/(views)/(db)/statistics/_catalog/stat-definition.types";
 
-// TODO: mock — le backend "groupes" existe déjà pour la page groupes/[code]
-// (IGroupeCompositionRepository, IGroupeCohesionRepository...) mais n'est pas
-// encore branché sur le catalogue de stats ; ces entrées sont mockées côté
-// serveur (STAT_HANDLERS) en attendant.
+// Branché sur de vraies tables agrégées (agg_groupes_stats_parite,
+// agg_groupes_effectifs_legislature, agg_groupes_stats_cohesion_mensuelle),
+// voir STAT_HANDLERS dans app/api/statistics/[domain]/[statId]/route.ts.
 export const GROUPES_STATS: StatDefinition[] = [
     defineStat("groupes", "parite", {
         scope: "entity",
