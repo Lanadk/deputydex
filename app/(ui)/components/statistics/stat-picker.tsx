@@ -20,8 +20,15 @@ interface StatPickerProps {
     /** contexte du contexte de comparaison que CE picker édite (contexts[contextIndex]) */
     context: StatFetchParams;
     onContextChange: (params: StatFetchParams) => void;
-    /** vide selectedStatIds — utilisé par "Réinitialiser" et par le changement de domaine/scope hors comparaison */
+    /** vide selectedStatIds — utilisé par le changement de domaine/scope hors comparaison */
     onClearSelection: () => void;
+    /**
+     * Bouton "Réinitialiser" : vide CE contexte (RESET_CONTEXT côté reducer).
+     * Vide aussi selectedStatIds — donc débloque le choix de domaine — mais
+     * seulement si TOUS les contextes sont vides après coup ; sinon l'autre
+     * colonne perdrait son graphe (voir comparator.reducer.ts).
+     */
+    onReset: () => void;
     /** true seulement en mode split — la contrainte domaine/scope ne se justifie qu'en comparaison réelle */
     isComparing: boolean;
 }
@@ -50,6 +57,7 @@ export const StatPicker: React.FC<StatPickerProps> = ({
                                                             context,
                                                             onContextChange,
                                                             onClearSelection,
+                                                            onReset,
                                                             isComparing,
                                                         }) => {
     const [openDomain, setOpenDomain] = useState<StatDomain | null>(null);
@@ -88,20 +96,13 @@ export const StatPicker: React.FC<StatPickerProps> = ({
     };
 
     const handleReset = () => {
-        // selectedStatIds est PARTAGÉ entre les deux contextes en comparaison
-        // (mêmes stats, contextes différents — c'est le principe même du
-        // comparateur). En comparaison, réinitialiser ce picker ne doit donc
-        // toucher QUE son propre contexte (filtres/entité) : le vider
-        // globalement viderait aussi le graphe affiché de l'autre côté.
-        if (isComparing) {
-            onContextChange({});
-            return;
-        }
-
+        // Le state local (domaine ouvert / scope) redémarre toujours à vide —
+        // la décision de vider aussi selectedStatIds (partagé entre les deux
+        // contextes) appartient au reducer via onReset (RESET_CONTEXT), qui
+        // seul sait si TOUS les contextes sont désormais vides.
         setOpenDomain(null);
         setLocalScope("aggregate");
-        onClearSelection();
-        onContextChange({});
+        onReset();
     };
 
     return (

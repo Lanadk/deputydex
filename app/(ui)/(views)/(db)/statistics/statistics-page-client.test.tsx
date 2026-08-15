@@ -102,6 +102,32 @@ describe("StatisticsPageClient", () => {
         ).not.toBeInTheDocument();
     });
 
+    it("resetting both contexts (A then B) clears the shared selection, unlocking domain choice again", async () => {
+        render(<StatisticsPageClient />);
+
+        fireEvent.click(screen.getAllByText("Députés")[0]);
+        fireEvent.click(await screen.findByText("17ᵉ législature"));
+        fireEvent.click(await screen.findByText("Répartition par âge"));
+        fireEvent.click(screen.getByText("Comparer"));
+
+        // Sélection active -> domaine verrouillé sur "Députés" des deux côtés.
+        expect(screen.getAllByText("Votes")[0].closest("button")).toBeDisabled();
+        expect(screen.getAllByText("Votes")[1].closest("button")).toBeDisabled();
+
+        // Réinitialise d'abord un seul contexte : l'autre garde encore sa
+        // donnée, la contrainte de domaine doit donc persister.
+        fireEvent.click(screen.getAllByText("Réinitialiser ce contexte")[1]);
+        expect(screen.getAllByText("Votes")[0].closest("button")).toBeDisabled();
+
+        // Réinitialise aussi le second : plus aucun contexte n'a de donnée,
+        // la contrainte tombe et "Votes" redevient choisissable.
+        fireEvent.click(screen.getAllByText("Réinitialiser ce contexte")[0]);
+
+        expect(screen.queryByText("1 statistique sélectionnée")).not.toBeInTheDocument();
+        expect(screen.getAllByText("Votes")[0].closest("button")).not.toBeDisabled();
+        expect(screen.getAllByText("Votes")[1].closest("button")).not.toBeDisabled();
+    });
+
     it("hides 'Comparer' for a domain with no entity/population to vary between contexts", () => {
         render(<StatisticsPageClient />);
 

@@ -20,7 +20,8 @@ import { buildContextLabel } from "@/app/(ui)/(views)/(db)/statistics/_catalog/b
  * ne fait que lire/écrire son état.
  */
 function StatisticsHub() {
-    const { state, toggleStat, enableSplit, disableSplit, setDisplayType, updateContext, clearSelection } = useComparator();
+    const { state, toggleStat, enableSplit, disableSplit, setDisplayType, updateContext, resetContext, clearSelection } =
+        useComparator();
     const { mode, selectedStatIds, contexts, displayTypes } = state;
 
     const selectedDefinitions = selectedStatIds
@@ -44,6 +45,7 @@ function StatisticsHub() {
                         context={context}
                         onContextChange={(params) => updateContext(contextIndex, params)}
                         onClearSelection={clearSelection}
+                        onReset={() => resetContext(contextIndex)}
                         isComparing={mode === "split"}
                     />
                 ))}

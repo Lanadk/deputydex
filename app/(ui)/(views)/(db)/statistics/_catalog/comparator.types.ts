@@ -37,4 +37,5 @@ export type ComparatorAction =
     | { type: "ENABLE_SPLIT" }
     | { type: "DISABLE_SPLIT" }
     | { type: "UPDATE_CONTEXT"; contextIndex: number; params: StatFetchParams }
+    | { type: "RESET_CONTEXT"; contextIndex: number }
     | { type: "SET_DISPLAY_TYPE"; contextIndex: number; definitionId: string; displayType: ChartDisplayType };
