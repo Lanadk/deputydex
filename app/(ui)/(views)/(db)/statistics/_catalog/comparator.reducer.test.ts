@@ -110,7 +110,7 @@ describe("comparatorReducer", () => {
     });
 
     describe("ENABLE_SPLIT", () => {
-        it("clones context 0 and its display types into a new context 1", () => {
+        it("starts context 1 empty (domain/scope restent verrouillés via selectedStatIds, pas via context) but clones displayTypes", () => {
             const state: ComparatorState = {
                 mode: "single",
                 selectedStatIds: ["acteurs.age-distribution"],
@@ -121,13 +121,11 @@ describe("comparatorReducer", () => {
             const result = reduce(state, { type: "ENABLE_SPLIT" });
 
             expect(result.mode).toBe("split");
-            expect(result.contexts).toEqual([{ filters: { legislature: 17 } }, { filters: { legislature: 17 } }]);
+            expect(result.contexts).toEqual([{ filters: { legislature: 17 } }, {}]);
             expect(result.displayTypes).toEqual([
                 { "acteurs.age-distribution": "bar" },
                 { "acteurs.age-distribution": "bar" },
             ]);
-            // les objets clonés doivent être indépendants, pas partagés par référence
-            expect(result.contexts[1]).not.toBe(result.contexts[0]);
             expect(result.displayTypes[1]).not.toBe(result.displayTypes[0]);
         });
 

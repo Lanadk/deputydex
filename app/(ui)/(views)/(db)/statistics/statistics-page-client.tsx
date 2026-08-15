@@ -8,14 +8,14 @@ import { SpanLib } from "@/app/(ui)/component-library/atoms/span/span-lib";
 import { ComparatorProvider, useComparator } from "@/app/(ui)/(views)/(db)/statistics/_catalog/comparator-provider";
 import { STATS_CATALOG } from "@/app/(ui)/(views)/(db)/statistics/_catalog/stats-catalog";
 import { findStatDefinition } from "@/app/(ui)/(views)/(db)/statistics/_catalog/stats-catalog.helpers";
-import { StatPickerLib } from "@/app/(ui)/components/statistics/stat-picker-lib";
-import { StatViewerLib } from "@/app/(ui)/components/statistics/stat-viewer-lib";
+import { StatPicker } from "@/app/(ui)/components/statistics/stat-picker";
+import { StatViewer } from "@/app/(ui)/components/statistics/stat-viewer";
 import { ENTITY_RESOLVERS } from "@/app/(ui)/components/statistics/entity-resolvers/entity-resolvers.registry";
 import { buildContextLabel } from "@/app/(ui)/(views)/(db)/statistics/_catalog/build-context-label";
 
 /**
- * Le hub Statistiques : StatPickerLib (explorer/sélectionner) + une grille
- * de StatViewerLib, une colonne par contexte (1 en exploration, 2 en
+ * Le hub Statistiques : StatPicker (explorer/sélectionner) + une grille
+ * de StatViewer, une colonne par contexte (1 en exploration, 2 en
  * comparaison). Toute la logique vit dans ComparatorProvider — ce composant
  * ne fait que lire/écrire son état.
  */
@@ -37,13 +37,14 @@ function StatisticsHub() {
         <main className="flex w-full flex-col gap-6">
             <div className={`grid gap-4 ${mode === "split" ? "lg:grid-cols-2" : "grid-cols-1"}`}>
                 {contexts.map((context, contextIndex) => (
-                    <StatPickerLib
+                    <StatPicker
                         key={contextIndex}
                         selectedStatIds={selectedStatIds}
                         onToggleStat={toggleStat}
                         context={context}
                         onContextChange={(params) => updateContext(contextIndex, params)}
                         onClearSelection={clearSelection}
+                        isComparing={mode === "split"}
                     />
                 ))}
             </div>
@@ -96,7 +97,7 @@ function StatisticsHub() {
                             )}
 
                             {selectedDefinitions.map((definition) => (
-                                <StatViewerLib
+                                <StatViewer
                                     key={definition.id}
                                     definition={definition}
                                     context={context}

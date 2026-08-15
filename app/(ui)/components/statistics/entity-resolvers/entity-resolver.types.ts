@@ -10,7 +10,7 @@ export interface EntityResolverProps {
     /**
      * Si non-null, bride le toggle entity/aggregate : imposé par
      * `selectedStatIds` déjà choisis (même règle que le domaine dans
-     * StatPickerLib — l'incompatibilité est rendue impossible à atteindre,
+     * StatPicker — l'incompatibilité est rendue impossible à atteindre,
      * pas corrigée après coup).
      */
     lockedScope?: StatScope | null;

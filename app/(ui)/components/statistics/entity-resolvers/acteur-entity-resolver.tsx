@@ -4,20 +4,31 @@ import React, { useEffect, useState } from "react";
 import { ButtonLib } from "@/app/(ui)/component-library/atoms/button/button-lib";
 import { InputLib } from "@/app/(ui)/component-library/molecules/input/input-lib";
 import { EntityResolverProps } from "@/app/(ui)/components/statistics/entity-resolvers/entity-resolver.types";
+import { useLegislaturesList } from "@/app/(ui)/components/statistics/entity-resolvers/use-legislatures-list";
 import { acteursGateway } from "@/app/(ui)/gateways/acteurs/acteurs.gateway";
 import { ActeurDTO } from "@/app/domains/acteurs/dto/acteur.dto";
 
 /**
- * Pas de sélecteur de législature ici : un député reste le même quelle que
- * soit la législature, contrairement à un groupe (qui, lui, se redéfinit à
- * chaque législature). "Tous les députés" = toutes législatures confondues.
+ * "Un député précis" n'a PAS de sélecteur de législature : un député reste
+ * la même personne quelle que soit la législature, le nom est déjà le seul
+ * filtre nécessaire pour comparer deux contextes.
+ *
+ * "Tous les députés" EN A besoin, contrairement à ce qu'on avait fait avant :
+ * sans législature, la population est toujours "tous les députés, toutes
+ * législatures confondues" des deux côtés — rien à faire varier, comparer
+ * n'aurait aucun sens (cf. groupes, où "tous les groupes" se filtre déjà par
+ * législature). Avec une législature choisie, comparer 16ᵉ vs 17ᵉ redevient
+ * pertinent.
  */
 export const ActeurEntityResolver: React.FC<EntityResolverProps> = ({ value, scope, onChange, lockedScope }) => {
+    const legislatures = useLegislaturesList();
     const [search, setSearch] = useState("");
     const [acteurs, setActeurs] = useState<ActeurDTO[]>([]);
 
     const canPickEntity = lockedScope !== "aggregate";
     const canPickAggregate = lockedScope !== "entity";
+
+    const selectedLegislature = (value.filters?.legislature as number | undefined) ?? null;
 
     useEffect(() => {
         if (search.trim().length < 2) return;
@@ -39,6 +50,29 @@ export const ActeurEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
 
     const visibleActeurs = search.trim().length < 2 ? [] : acteurs;
 
+    // Une fois un député choisi, l'input affiche son nom (au lieu de ce qui a
+    // été tapé pour le trouver) et la liste se referme — retaper quelque
+    // chose abandonne ce choix et relance une recherche.
+    const selectedLabel = value.entityId ? ((value.filters?.entityLabel as string | undefined) ?? value.entityId) : null;
+
+    const handleSearchChange = (v: string) => {
+        setSearch(v);
+        if (value.entityId) {
+            onChange("entity", {});
+        }
+    };
+
+    const handleSelectActeur = (acteur: ActeurDTO) => {
+        onChange("entity", {
+            entityId: acteur.id,
+            // entityLabel voyage dans `filters` pour que le hub puisse
+            // afficher un vrai libellé de contexte (voir build-context-label.ts)
+            // au lieu de "Contexte A/B".
+            filters: { entityLabel: `${acteur.prenom ?? ""} ${acteur.nom ?? ""}`.trim() },
+        });
+        setSearch("");
+    };
+
     return (
         <div className="flex flex-col gap-3">
             <div className="flex flex-wrap gap-2">
@@ -54,28 +88,24 @@ export const ActeurEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
                     size="small"
                     variant={scope === "aggregate" ? "primary" : "secondary"}
                     disabled={!canPickAggregate}
-                    onClick={() => onChange("aggregate", {})}
+                    onClick={() => onChange("aggregate", { filters: value.filters })}
                 />
             </div>
 
             {scope === "entity" && (
                 <div className="flex flex-col gap-2">
-                    <InputLib placeholder="Rechercher un député par nom…" value={search} onChange={setSearch} />
+                    <InputLib
+                        placeholder="Rechercher un député par nom…"
+                        value={selectedLabel ?? search}
+                        onChange={handleSearchChange}
+                    />
                     {visibleActeurs.length > 0 && (
                         <div className="flex max-h-56 flex-col gap-1 overflow-y-auto rounded-lg border border-main bg-surface-2 p-2">
                             {visibleActeurs.map((acteur) => (
                                 <button
                                     key={acteur.id}
                                     type="button"
-                                    onClick={() =>
-                                        onChange("entity", {
-                                            entityId: acteur.id,
-                                            // entityLabel voyage dans `filters` pour que le hub puisse
-                                            // afficher un vrai libellé de contexte (voir build-context-label.ts)
-                                            // au lieu de "Contexte A/B".
-                                            filters: { entityLabel: `${acteur.prenom ?? ""} ${acteur.nom ?? ""}`.trim() },
-                                        })
-                                    }
+                                    onClick={() => handleSelectActeur(acteur)}
                                     className={`rounded px-2 py-1 text-left text-sm hover:bg-surface-3 ${
                                         value.entityId === acteur.id ? "bg-surface-3 font-semibold" : ""
                                     }`}
@@ -85,6 +115,20 @@ export const ActeurEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
                             ))}
                         </div>
                     )}
+                </div>
+            )}
+
+            {scope === "aggregate" && (
+                <div className="flex flex-wrap gap-2">
+                    {legislatures.map((l) => (
+                        <ButtonLib
+                            key={l.id}
+                            text={`${l.number}ᵉ législature`}
+                            size="small"
+                            variant={selectedLegislature === l.number ? "primary" : "tertiary"}
+                            onClick={() => onChange("aggregate", { filters: { ...value.filters, legislature: l.number } })}
+                        />
+                    ))}
                 </div>
             )}
         </div>

@@ -6,6 +6,7 @@ import { ChartDisplayType } from "@/app/(ui)/(views)/(db)/statistics/_catalog/co
 import { StatFetchParams } from "@/app/_shared/statistics/stat-scope.types";
 import { useStatData } from "@/app/(ui)/(views)/(db)/statistics/_catalog/use-stat-data";
 import { useStatInsight } from "@/app/(ui)/(views)/(db)/statistics/_catalog/use-stat-insight";
+import { isContextReady } from "@/app/(ui)/(views)/(db)/statistics/_catalog/is-context-ready";
 import {
     DISPLAY_TYPE_COMPATIBILITY,
     DISPLAY_TYPE_LABELS,
@@ -18,7 +19,7 @@ import { SpanLib } from "@/app/(ui)/component-library/atoms/span/span-lib";
 import { exportRows } from "@/app/(ui)/utils/export-rows";
 import { ExportFormat } from "@/app/_shared/export/export.types";
 
-interface StatViewerLibProps {
+interface StatViewerProps {
     definition: StatDefinition;
     context: StatFetchParams;
     /** displayTypes[contextIndex][definitionId] côté appelant — null = pas encore choisi */
@@ -34,14 +35,15 @@ interface StatViewerLibProps {
  * exploration (1 contexte) ou comparateur (2 contextes) : aucune divergence
  * de props entre les deux, voir comparator.types.ts.
  */
-export const StatViewerLib: React.FC<StatViewerLibProps> = ({
-                                                                  definition,
-                                                                  context,
-                                                                  displayType,
-                                                                  onDisplayTypeChange,
-                                                              }) => {
+export const StatViewer: React.FC<StatViewerProps> = ({
+                                                            definition,
+                                                            context,
+                                                            displayType,
+                                                            onDisplayTypeChange,
+                                                        }) => {
     const { data, loading } = useStatData(definition, context);
     const insight = useStatInsight(definition, context, data);
+    const ready = isContextReady(definition.domain, definition.scope, context);
 
     const compatibleDisplayTypes = DISPLAY_TYPE_COMPATIBILITY[definition.dataShape];
     const resolvedDisplayType = displayType ?? compatibleDisplayTypes[0] ?? null;
@@ -79,7 +81,15 @@ export const StatViewerLib: React.FC<StatViewerLibProps> = ({
                 </p>
             )}
 
-            <RenderStatChart data={data} displayType={resolvedDisplayType} loading={loading} title={definition.title} />
+            {ready ? (
+                <RenderStatChart data={data} displayType={resolvedDisplayType} loading={loading} title={definition.title} />
+            ) : (
+                <div className="flex items-center justify-center rounded-lg border border-dashed border-main bg-surface-2 p-8 text-center">
+                    <SpanLib className="text-subtitle-accent">
+                        Complète les filtres ci-dessus (législature, entité...) pour afficher ce graphe.
+                    </SpanLib>
+                </div>
+            )}
 
             <TableExportActions exportEnabled={!!data} onExportAction={handleExport} />
 

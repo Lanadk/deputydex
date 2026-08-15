@@ -62,7 +62,16 @@ export function comparatorReducer(
             return {
                 ...state,
                 mode: "split",
-                contexts: [state.contexts[0], { ...state.contexts[0] }],
+                // Le contexte B démarre VIDE, pas cloné : le domaine/scope
+                // restent verrouillés via selectedStatIds (indépendant de
+                // `context`), mais les filtres de comparaison eux-mêmes
+                // (législature, entité...) doivent être choisis par
+                // l'utilisateur pour ce côté — sinon les deux colonnes
+                // affichent la même donnée le temps qu'il les édite.
+                contexts: [state.contexts[0], {}],
+                // displayTypes, lui, reste cloné : le format d'un chart n'est
+                // pas un filtre de comparaison, comparer un bar à un donut
+                // n'aurait pas de sens par défaut (reste éditable ensuite).
                 displayTypes: [state.displayTypes[0], { ...state.displayTypes[0] }],
             };
         }
