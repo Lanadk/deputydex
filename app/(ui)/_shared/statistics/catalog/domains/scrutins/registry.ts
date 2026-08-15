@@ -10,6 +10,7 @@ export const SCRUTINS_STATS: StatDefinition[] = [
         title: "Évolution du taux de participation",
         category: "Participation",
         keywords: ["scrutins", "participation", "évolution"],
+        description: "Montre si les députés participent de plus en plus, ou de moins en moins, aux scrutins au fil des mois.",
         methodology: "Taux moyen de participation aux scrutins, calculé mois par mois sur la législature en cours.",
         dataShape: "timeseries",
         unit: "%",

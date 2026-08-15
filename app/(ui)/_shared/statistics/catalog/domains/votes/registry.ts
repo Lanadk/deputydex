@@ -10,6 +10,7 @@ export const VOTES_STATS: StatDefinition[] = [
         title: "Répartition des positions de vote",
         category: "Positions de vote",
         keywords: ["votes", "pour", "contre", "abstention"],
+        description: "Montre comment se répartissent les votes exprimés à l'Assemblée entre \"pour\", \"contre\", abstentions et non-votants.",
         methodology: "Répartition de l'ensemble des votes individuels par position (pour / contre / abstention / non-votant).",
         dataShape: "distribution",
         unit: "votes",

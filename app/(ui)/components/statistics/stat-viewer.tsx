@@ -61,7 +61,9 @@ export const StatViewer: React.FC<StatViewerProps> = ({
                 <div className="min-w-0">
                     <h3 className="text-base font-semibold">{definition.title}</h3>
                     {definition.description && (
-                        <SpanLib className="text-subtitle-accent">{definition.description}</SpanLib>
+                        <SpanLib className="mt-1 block text-sm leading-relaxed text-subtitle-accent">
+                            {definition.description}
+                        </SpanLib>
                     )}
                 </div>
 

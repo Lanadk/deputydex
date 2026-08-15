@@ -5,6 +5,7 @@ import {groupesGateways} from "@/app/(ui)/gateways/groupes/groupes.gateway";
 import {EntityResolverProps} from "@/app/(ui)/components/statistics/entity-resolvers/entity-resolver.types";
 import {useLegislaturesList} from "@/app/(ui)/components/statistics/entity-resolvers/hook/use-legislatures-list";
 import {ButtonLib} from "@/app/(ui)/component-library/atoms/button/button-lib";
+import {FilterGroupLib} from "@/app/(ui)/component-library/molecules/filter-group/filter-group-lib";
 
 export const GroupeEntityResolver: React.FC<EntityResolverProps> = ({ value, scope, onChange, lockedScope, otherContext }) => {
     const legislatures = useLegislaturesList();
@@ -49,7 +50,7 @@ export const GroupeEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
 
     return (
         <div className="flex flex-col gap-3">
-            <div className="flex flex-wrap gap-2">
+            <FilterGroupLib label="Portée">
                 <ButtonLib
                     text="Un groupe précis"
                     size="small"
@@ -64,9 +65,9 @@ export const GroupeEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
                     disabled={!canPickAggregate}
                     onClick={() => onChange("aggregate", { filters: value.filters })}
                 />
-            </div>
+            </FilterGroupLib>
 
-            <div className="flex flex-wrap gap-2">
+            <FilterGroupLib label="Législature">
                 {legislatures.map((l) => (
                     <ButtonLib
                         key={l.id}
@@ -77,10 +78,10 @@ export const GroupeEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
                         onClick={() => setLegislatureNumber(l.number)}
                     />
                 ))}
-            </div>
+            </FilterGroupLib>
 
             {scope === "entity" && selectedLegislature != null && (
-                <div className="flex flex-wrap gap-2">
+                <FilterGroupLib label="Groupe">
                     {groupes.length === 0 && (
                         <span className="text-sm text-subtitle-accent">Aucun groupe trouvé pour cette législature.</span>
                     )}
@@ -102,7 +103,7 @@ export const GroupeEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
                             }
                         />
                     ))}
-                </div>
+                </FilterGroupLib>
             )}
         </div>
     );

@@ -9,6 +9,7 @@ export const LEGISLATURES_STATS: StatDefinition[] = [
         title: "Évolution de la parité",
         category: "Composition",
         keywords: ["parité", "évolution", "législatures"],
+        description: "Montre si la part de femmes élues à l'Assemblée progresse ou recule d'une législature à l'autre.",
         methodology: "Part de femmes élues, comparée d'une législature à l'autre.",
         dataShape: "timeseries",
         unit: "%",

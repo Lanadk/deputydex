@@ -7,6 +7,7 @@ import {useLegislaturesList} from "@/app/(ui)/components/statistics/entity-resol
 import {acteursGateway} from "@/app/(ui)/gateways/acteurs/acteurs.gateway";
 import {ButtonLib} from "@/app/(ui)/component-library/atoms/button/button-lib";
 import {InputLib} from "@/app/(ui)/component-library/molecules/input/input-lib";
+import {FilterGroupLib} from "@/app/(ui)/component-library/molecules/filter-group/filter-group-lib";
 
 
 /**
@@ -82,7 +83,7 @@ export const ActeurEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
 
     return (
         <div className="flex flex-col gap-3">
-            <div className="flex flex-wrap gap-2">
+            <FilterGroupLib label="Portée">
                 <ButtonLib
                     text="Un député précis"
                     size="small"
@@ -97,10 +98,10 @@ export const ActeurEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
                     disabled={!canPickAggregate}
                     onClick={() => onChange("aggregate", { filters: value.filters })}
                 />
-            </div>
+            </FilterGroupLib>
 
             {scope === "entity" && (
-                <div className="flex flex-col gap-2">
+                <FilterGroupLib label="Député" className="flex-col">
                     <InputLib
                         placeholder="Rechercher un député par nom…"
                         value={selectedLabel ?? search}
@@ -129,11 +130,11 @@ export const ActeurEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
                             })}
                         </div>
                     )}
-                </div>
+                </FilterGroupLib>
             )}
 
             {scope === "aggregate" && (
-                <div className="flex flex-wrap gap-2">
+                <FilterGroupLib label="Législature">
                     {legislatures.map((l) => (
                         <ButtonLib
                             key={l.id}
@@ -144,7 +145,7 @@ export const ActeurEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
                             onClick={() => onChange("aggregate", { filters: { ...value.filters, legislature: l.number } })}
                         />
                     ))}
-                </div>
+                </FilterGroupLib>
             )}
         </div>
     );
