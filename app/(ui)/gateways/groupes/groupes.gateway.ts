@@ -87,7 +87,7 @@ export const groupesGateways: IGroupesGateways = {
         return res.json();
     },
 
-    async getGroupeActivityCalendarDetails(code: string, legislature: number, date: string): Promise<GroupeActivityDetailsDTO> {
+    async getGroupeActivityCalendarDetails(code: string, legislature: number, date: string): Promise<GroupeActivityDetailsDTO[]> {
         const res = await fetch(`/api/groupes/activity/${code}/${legislature}/details?date=${date}`);
 
         if (!res.ok) throw new Error("Failed to get activity");

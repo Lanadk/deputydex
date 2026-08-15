@@ -30,5 +30,6 @@ export const prismaGroupesCardsRepository: IGroupesCardsRepository = {
             console.error("Error fetching group cards:", error);
             throw new Error("Failed to fetch group cards");
         }
+
     }
 }

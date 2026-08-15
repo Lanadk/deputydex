@@ -10,12 +10,15 @@ type LegislatureContextType = {
     setLegislature: (l: LegislatureDTO) => void;
     loading: boolean;
     /**
-     * Numéros de législature à griser dans le sélecteur, ex: le code d'un
-     * groupe n'existe que sous une autre appellation dans ces législatures
-     * (RE n'existe qu'en 16e, EPR qu'en 17e — pas de mapping automatique
-     * possible, voir groupe-page-client.tsx). Une page l'alimente via
-     * `setUnavailableLegislatureNumbers` et la remet à vide en se démontant.
-     * //TODO faire la meme chose pour les députés
+     * Numéros de législature à griser dans le sélecteur. Deux cas d'usage :
+     * - un code de groupe n'existe que sous une autre appellation dans ces
+     *   législatures (RE n'existe qu'en 16e, EPR qu'en 17e — pas de mapping
+     *   automatique possible, voir groupe-page-client.tsx) ;
+     * - un député n'a pas siégé sous ces législatures (voir
+     *   depute-page-client.tsx), appeler son identité dessus ferait échouer
+     *   la requête serveur.
+     * Une page l'alimente via `setUnavailableLegislatureNumbers` et la remet
+     * à vide en se démontant.
      */
     unavailableLegislatureNumbers: Set<number>;
     setUnavailableLegislatureNumbers: (numbers: Set<number>) => void;

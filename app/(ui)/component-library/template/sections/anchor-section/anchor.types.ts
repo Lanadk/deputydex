@@ -4,6 +4,9 @@ import {
     BlockDataWrapper,
     SectionBlock
 } from "@/app/(ui)/component-library/template/sections/block-section/block-section-renderer";
+import {
+    ActivityCalendarDetailItem
+} from "@/app/(ui)/component-library/template/sections/block-section/activity-calendar-config.types";
 
 export interface AnchorSection {
     id: string;
@@ -11,13 +14,10 @@ export interface AnchorSection {
     icon: LucideIcon | IconType;
 }
 
-//TODO pas fou ca, faudrait changer
 export type SectionActions = {
-    onActivityClick?: (params: {
-        date: string;
-        code: string;
-        legislature: number;
-    }) => Promise<void> | void;
+    onActivityClick?: (
+        params: { date: string } & Record<string, unknown>
+    ) => Promise<ActivityCalendarDetailItem[] | void> | ActivityCalendarDetailItem[] | void;
 };
 
 export interface PageSection extends AnchorSection {

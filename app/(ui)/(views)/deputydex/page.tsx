@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import DeputydexPageClient from "@/app/(ui)/(views)/deputydex/deputydex-page-client";
 
 export const metadata: Metadata = {
     title: "Députédex",
@@ -14,11 +15,5 @@ export const metadata: Metadata = {
 };
 
 export default function DeputydexPage() {
-    return (
-        <div>
-            <main>
-                <p></p>
-            </main>
-        </div>
-    );
+    return <DeputydexPageClient />;
 }

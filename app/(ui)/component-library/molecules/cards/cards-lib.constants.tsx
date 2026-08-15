@@ -7,6 +7,12 @@ const KPI_CODE_SIMPLE_USAGE = `<KpiCardLib
     kpiLabel="membres"
 />`
 
+const KPI_CODE_SMALL_USAGE = `<KpiCardLib
+    size="sm"
+    kpiValue="Cadres de la fonction publique, professions intellectuelles et artistiques"
+    kpiLabel="catégorie"
+/>`
+
 const KPI_BAR_CARD_SIMPLE_USAGE = `<KpiBarCardLib
     title='Parité'
     items={[
@@ -41,6 +47,19 @@ export const getCardsSections = () => [
                 kpiValue="88"
                 kpiLabel="membres"
             />
+        )
+    },
+    {
+        title: 'KPI Card small usage (valeur texte long)',
+        code: KPI_CODE_SMALL_USAGE,
+        component: (
+            <div className="w-40">
+                <KpiCardLib
+                    size="sm"
+                    kpiValue="Cadres de la fonction publique, professions intellectuelles et artistiques"
+                    kpiLabel="catégorie"
+                />
+            </div>
         )
     },
     {
