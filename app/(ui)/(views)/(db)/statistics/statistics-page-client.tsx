@@ -18,7 +18,7 @@ import { StatViewerLib } from "@/app/(ui)/components/statistics/stat-viewer-lib"
  * ne fait que lire/écrire son état.
  */
 function StatisticsHub() {
-    const { state, toggleStat, enableSplit, disableSplit, setDisplayType } = useComparator();
+    const { state, toggleStat, enableSplit, disableSplit, setDisplayType, updateContext } = useComparator();
     const { mode, selectedStatIds, contexts, displayTypes } = state;
 
     const selectedDefinitions = selectedStatIds
@@ -27,7 +27,17 @@ function StatisticsHub() {
 
     return (
         <main className="flex w-full flex-col gap-6">
-            <StatPickerLib selectedStatIds={selectedStatIds} onToggleStat={toggleStat} />
+            <div className={`grid gap-4 ${mode === "split" ? "lg:grid-cols-2" : "grid-cols-1"}`}>
+                {contexts.map((context, contextIndex) => (
+                    <StatPickerLib
+                        key={contextIndex}
+                        selectedStatIds={selectedStatIds}
+                        onToggleStat={toggleStat}
+                        context={context}
+                        onContextChange={(params) => updateContext(contextIndex, params)}
+                    />
+                ))}
+            </div>
 
             {selectedDefinitions.length === 0 ? (
                 <div className="rounded-xl border border-dashed border-main bg-surface-1 p-8 text-center">

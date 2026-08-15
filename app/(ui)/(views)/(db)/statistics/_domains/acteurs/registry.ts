@@ -13,4 +13,25 @@ export const ACTEURS_STATS: StatDefinition[] = [
         dataShape: "distribution",
         unit: "députés",
     }),
+    // TODO: mock — à remplacer par une vraie requête (civilite) quand le backend sera branché.
+    defineStat("acteurs", "parite", {
+        scope: "aggregate",
+        title: "Parité hommes / femmes",
+        category: "Démographie",
+        keywords: ["parité", "genre", "démographie", "députés"],
+        methodology: "Répartition par genre déclaré, sur l'ensemble des députés recensés.",
+        dataShape: "distribution",
+        unit: "%",
+    }),
+    // TODO: mock — à remplacer par une vraie requête (mandats) quand le backend sera branché.
+    defineStat("acteurs", "mandats", {
+        scope: "entity",
+        title: "Nombre de mandats cumulés",
+        category: "Profil",
+        keywords: ["mandat", "ancienneté", "profil", "député"],
+        methodology: "Nombre de mandats de député détenus (mandat actuel compris) par ce député précis.",
+        dataShape: "scalar",
+        unit: "mandats",
+        entityIdLabel: "Choisir un député",
+    }),
 ];

@@ -1,5 +1,38 @@
+import { defineStat } from "@/app/(ui)/(views)/(db)/statistics/_catalog/define-stat";
 import { StatDefinition } from "@/app/(ui)/(views)/(db)/statistics/_catalog/stat-definition.types";
 
-// TODO: exposer les premières stats "groupes" dans le catalogue (le backend
-// existe déjà : voir IGroupeCompositionRepository, IGroupeCohesionRepository...).
-export const GROUPES_STATS: StatDefinition[] = [];
+// TODO: mock — le backend "groupes" existe déjà pour la page groupes/[code]
+// (IGroupeCompositionRepository, IGroupeCohesionRepository...) mais n'est pas
+// encore branché sur le catalogue de stats ; ces entrées sont mockées côté
+// serveur (STAT_HANDLERS) en attendant.
+export const GROUPES_STATS: StatDefinition[] = [
+    defineStat("groupes", "parite", {
+        scope: "entity",
+        title: "Parité au sein du groupe",
+        category: "Composition",
+        keywords: ["parité", "genre", "groupe", "composition"],
+        methodology: "Répartition par genre déclaré des membres du groupe sélectionné.",
+        dataShape: "distribution",
+        unit: "%",
+        entityIdLabel: "Choisir un groupe",
+    }),
+    defineStat("groupes", "effectifs", {
+        scope: "aggregate",
+        title: "Effectifs par groupe",
+        category: "Composition",
+        keywords: ["effectifs", "taille", "membres", "tous les groupes"],
+        methodology: "Nombre de membres actuellement recensés, par groupe parlementaire.",
+        dataShape: "distribution",
+        unit: "membres",
+    }),
+    defineStat("groupes", "cohesion", {
+        scope: "entity",
+        title: "Évolution de la cohésion",
+        category: "Cohésion",
+        keywords: ["cohésion", "vote", "évolution", "groupe"],
+        methodology: "Taux de cohésion de vote du groupe sélectionné, calculé mois par mois sur la législature en cours.",
+        dataShape: "timeseries",
+        unit: "%",
+        entityIdLabel: "Choisir un groupe",
+    }),
+];
