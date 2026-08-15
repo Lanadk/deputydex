@@ -1,4 +1,4 @@
-import { BookOpen, CalendarDays, User, Vote } from "lucide-react";
+import { BookOpen, CalendarDays, Vote } from "lucide-react";
 import { activityCalendar, card, chart, table } from "@/app/(ui)/(views)/(db)/deputes/[uid]/registry";
 import { PageSection } from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
 import { BlockDataWrapper, SectionBlock } from "@/app/(ui)/component-library/template/sections/block-section/block-section-renderer";
@@ -111,15 +111,15 @@ export const DEPUTE_SECTIONS: PageSection[] = [
             } as unknown as Record<string, BlockDataWrapper>;
         },
         blocks: [
+            { type: "card", colSpan: 1, config: card("kpi-vote-total") },
             { type: "card", colSpan: 1, config: card("kpi-vote-participation") },
             { type: "card", colSpan: 1, config: card("kpi-vote-fidelite") },
             { type: "card", colSpan: 1, config: card("kpi-vote-rebel") },
-            { type: "card", colSpan: 1, config: card("kpi-vote-total") },
-            { type: "card", colSpan: 2, config: card("kpi-vote-breakdown") },
-            { type: "chart", colSpan: 2, config: chart("chart-vote-positions") },
             { type: "card", colSpan: 1, config: card("kpi-amendements-deposes") },
             { type: "card", colSpan: 1, config: card("kpi-amendements-adoptes") },
             { type: "card", colSpan: 1, config: card("kpi-amendements-taux") },
+            { type: "card", colSpan: 2, config: card("kpi-vote-breakdown") },
+            { type: "chart", colSpan: 2, config: chart("chart-vote-positions") },
             {
                 type: "table" as const,
                 colSpan: 4,
@@ -146,35 +146,6 @@ export const DEPUTE_SECTIONS: PageSection[] = [
                 colSpan: 4,
                 ...table("depute-mandats-table"),
             } satisfies SectionBlock<DeputeMandatDTO>,
-        ],
-    },
-
-    // ── Profil socio-professionnel ────────────────────────────────────────────
-    {
-        id: "profil",
-        label: "Profil socio-professionnel",
-        icon: User,
-        description: "Profession et catégorie socio-professionnelle avant le mandat",
-        cols: 4,
-        lazy: false,
-        gatewayFn: async ({ uid, legislature }: Record<string, unknown>) => {
-            const identity = await deputesGateway.getDeputeIdentity(uid as string, legislature as number);
-            return {
-                "kpi-profession": {
-                    data: { label: "profession", value: identity.professionLibelle ?? "Non renseigné" },
-                },
-                "kpi-categorie": {
-                    data: { label: "catégorie", value: identity.professionCategorie ?? "Non renseigné" },
-                },
-                "kpi-famille": {
-                    data: { label: "famille CSP", value: identity.professionFamille ?? "Non renseigné" },
-                },
-            } as unknown as Record<string, BlockDataWrapper>;
-        },
-        blocks: [
-            { type: "card", colSpan: 2, config: card("kpi-profession") },
-            { type: "card", colSpan: 1, config: card("kpi-categorie") },
-            { type: "card", colSpan: 1, config: card("kpi-famille") },
         ],
     },
 ];

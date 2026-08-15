@@ -95,16 +95,16 @@ export const DeputeHeader: React.FC<DeputeHeaderProps> = ({ identity }) => {
                     kpiLabel="législature"
                 />
                 <KpiCardLib
-                    kpiValue={identity.numCirco ? `${identity.numCirco}e` : "—"}
-                    kpiLabel="circonscription"
+                    kpiValue={identity.numCirco ? `${identity.professionLibelle}e` : "—"}
+                    kpiLabel="profession"
                 />
                 <KpiCardLib
-                    kpiValue={identity.departement ?? "—"}
-                    kpiLabel="département"
+                    kpiValue={identity.professionCategorie ?? "—"}
+                    kpiLabel="catégorie"
                 />
                 <KpiCardLib
-                    kpiValue={identity.region ?? "—"}
-                    kpiLabel="région"
+                    kpiValue={identity.professionFamille ?? "—"}
+                    kpiLabel="famille CSP"
                 />
             </div>
         </div>

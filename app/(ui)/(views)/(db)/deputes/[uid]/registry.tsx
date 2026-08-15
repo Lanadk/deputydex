@@ -1,3 +1,4 @@
+import React from "react";
 import { makeRegistryHelper } from "@/app/(ui)/_shared/registry/registry.helper";
 import { CardConfig } from "@/app/(ui)/component-library/template/sections/block-section/card-config.types";
 import { TableConfig } from "@/app/(ui)/component-library/template/sections/block-section/table-config.types";
@@ -5,6 +6,73 @@ import { ChartConfig } from "@/app/(ui)/component-library/template/sections/bloc
 import { ActivityCalendarConfig } from "@/app/(ui)/component-library/template/sections/block-section/activity-calendar-config.types";
 import { DeputeMandatDTO } from "@/app/domains/deputes/dto/depute-mandat.dto";
 import { DeputeRecentVoteDTO } from "@/app/domains/deputes/dto/depute-recent-vote.dto";
+
+const VOTE_POSITION_COLORS: Record<string, string> = {
+    pour: "#22c55e",
+    contre: "#ef4444",
+    abstention: "#f59e0b",
+    nonvotant: "#94a3b8",
+};
+
+function votePositionColor(position: string | null): string | undefined {
+    if (!position) return undefined;
+    return VOTE_POSITION_COLORS[position.toLowerCase()];
+}
+
+const TYPE_ORGANE_LABELS: Record<string, string> = {
+    ASSEMBLEE: "Assemblée nationale",
+    API: "Assemblée parlementaire internationale",
+    BUREAU: "Bureau de l'Assemblée nationale",
+    CJR: "Cour de justice de la République",
+    CMP: "Commission mixte paritaire",
+    CNPE: "Commission d'enquête",
+    CNPS: "Commission spéciale",
+    COMNL: "Commission spéciale",
+    COMPER: "Commission permanente",
+    COMSENAT: "Commission (Sénat)",
+    COMSPSENAT: "Commission spéciale (Sénat)",
+    CONFPT: "Conférence des présidents",
+    DELEG: "Délégation",
+    DELEGBUREAU: "Délégation du Bureau",
+    DELEGSENAT: "Délégation (Sénat)",
+    GA: "Groupe d'amitié",
+    GE: "Groupe d'études",
+    GEVI: "Groupe d'études à vocation internationale",
+    GOUVERNEMENT: "Gouvernement",
+    GP: "Groupe politique",
+    GROUPESENAT: "Groupe (Sénat)",
+    MINISTERE: "Ministère",
+    MISINFO: "Mission d'information",
+    MISINFOCOM: "Mission d'information commune",
+    MISINFOPRE: "Mission d'information de la Conférence des présidents",
+    OFFPAR: "Office parlementaire",
+    ORGEXTPARL: "Organisme extra-parlementaire",
+    PARPOL: "Parti politique",
+    PRESREP: "Présidence de la République",
+    SENAT: "Sénat",
+};
+
+function typeOrganeLabel(typeOrgane: string): string {
+    return TYPE_ORGANE_LABELS[typeOrgane] ?? typeOrgane;
+}
+
+function formatDuree(dateDebutISO: string, dateFinISO: string | null): string {
+    const start = new Date(dateDebutISO);
+    const end = dateFinISO ? new Date(dateFinISO) : new Date();
+
+    let months = (end.getFullYear() - start.getFullYear()) * 12 + (end.getMonth() - start.getMonth());
+    if (end.getDate() < start.getDate()) months -= 1;
+    months = Math.max(0, months);
+
+    if (months < 1) {
+        const days = Math.max(0, Math.round((end.getTime() - start.getTime()) / (1000 * 60 * 60 * 24)));
+        return `${days} jour(s)`;
+    }
+    if (months < 12) {
+        return `${months} mois`;
+    }
+    return `${Math.floor(months / 12)} an(s)`;
+}
 
 // ── Calendrier d'activité ────────────────────────────────────────────────────
 
@@ -24,7 +92,7 @@ const DEPUTE_TABLE_REGISTRY: (TableConfig<DeputeMandatDTO> | TableConfig<DeputeR
                 id: "type",
                 header: "Type",
                 align: "center",
-                cell: (r: DeputeMandatDTO) => r.typeOrgane,
+                cell: (r: DeputeMandatDTO) => typeOrganeLabel(r.typeOrgane),
             },
             {
                 id: "qualite",
@@ -48,7 +116,7 @@ const DEPUTE_TABLE_REGISTRY: (TableConfig<DeputeMandatDTO> | TableConfig<DeputeR
                 id: "duree",
                 header: "Durée",
                 align: "center",
-                cell: (r: DeputeMandatDTO) => r.dureeAns !== null ? `${r.dureeAns} an(s)` : "—",
+                cell: (r: DeputeMandatDTO) => formatDuree(r.dateDebut, r.dateFin),
             },
         ],
         getRowKey: (r: DeputeMandatDTO) => r.uid,
@@ -59,6 +127,17 @@ const DEPUTE_TABLE_REGISTRY: (TableConfig<DeputeMandatDTO> | TableConfig<DeputeR
         title: "Derniers votes",
         subtitle: "Les 20 derniers scrutins auxquels ce député a participé",
         columns: [
+            {
+                id: "rebelle",
+                header: "",
+                align: "center",
+                width: 32,
+                cell: (r: DeputeRecentVoteDTO) => r.isRebel ? (
+                    <span title="Vote rebelle : différent du groupe" style={{ cursor: "help" }}>
+                        ❗
+                    </span>
+                ) : null,
+            },
             {
                 id: "titre",
                 header: "Scrutin",
@@ -75,19 +154,21 @@ const DEPUTE_TABLE_REGISTRY: (TableConfig<DeputeMandatDTO> | TableConfig<DeputeR
                 id: "position",
                 header: "Position",
                 align: "center",
-                cell: (r: DeputeRecentVoteDTO) => r.position,
+                cell: (r: DeputeRecentVoteDTO) => (
+                    <span style={{ color: votePositionColor(r.position), fontWeight: 600 }}>
+                        {r.position}
+                    </span>
+                ),
             },
             {
                 id: "groupe",
                 header: "Groupe",
                 align: "center",
-                cell: (r: DeputeRecentVoteDTO) => r.groupePosition ?? "—",
-            },
-            {
-                id: "rebelle",
-                header: "Rebelle",
-                align: "center",
-                cell: (r: DeputeRecentVoteDTO) => r.isRebel ? "⚡ Oui" : "—",
+                cell: (r: DeputeRecentVoteDTO) => r.groupePosition ? (
+                    <span style={{ color: votePositionColor(r.groupePosition), fontWeight: 600 }}>
+                        {r.groupePosition}
+                    </span>
+                ) : "—",
             },
         ],
         getRowKey: (r: DeputeRecentVoteDTO) => r.scrutinUid,

@@ -23,9 +23,13 @@ export const prismaDeputeIdentityRepository: IDeputeIdentityRepository = {
                 m.election_departement AS departement,
                 m.election_num_circo   AS num_circo
             FROM acteurs a
-            LEFT JOIN ref_acteurs_photos rap
-                ON rap.acteur_uid = a.uid
-               AND rap.legislature = ${legislature}
+            LEFT JOIN LATERAL (
+                SELECT NULLIF(photo_path, 'null') AS photo_path
+                FROM ref_acteurs_photos
+                WHERE acteur_uid = a.uid
+                ORDER BY legislature DESC
+                LIMIT 1
+            ) rap ON true
             LEFT JOIN acteurs_groupes ag
                 ON ag.acteur_uid = a.uid
                AND ag.groupe_legislature = ${legislature}
