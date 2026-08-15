@@ -92,20 +92,24 @@ export const DeputeHeader: React.FC<DeputeHeaderProps> = ({ identity }) => {
             </div>
 
             {/* KPIs */}
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 mt-6 items-stretch">
                 <KpiCardLib
+                    size="sm"
                     kpiValue={`${identity.legislature}e`}
                     kpiLabel="législature"
                 />
                 <KpiCardLib
+                    size="sm"
                     kpiValue={identity.numCirco ? `${identity.professionLibelle}` : "—"} //TODO récuperer de la base le sexe et adapter en fonction
                     kpiLabel="profession"
                 />
                 <KpiCardLib
+                    size="sm"
                     kpiValue={identity.professionCategorie ?? "—"}
                     kpiLabel="catégorie"
                 />
                 <KpiCardLib
+                    size="sm"
                     kpiValue={identity.professionFamille ?? "—"}
                     kpiLabel="famille CSP"
                 />
