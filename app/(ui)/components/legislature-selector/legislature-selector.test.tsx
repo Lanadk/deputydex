@@ -37,13 +37,40 @@ describe("LegislatureSelector", () => {
         expect(screen.getByText("17ème")).toBeInTheDocument();
     });
 
-    it("renders nothing on the statistics page — it manages its own legislature per context", () => {
+    it("renders nothing on the statistics hub — no legislature-dependent content there", () => {
         mockUsePathname.mockReturnValue("/statistics");
         setLegislatureState();
 
         const { container } = render(<LegislatureSelector />);
 
         expect(container).toBeEmptyDOMElement();
+    });
+
+    it("renders nothing on the advanced explorer — it manages its own legislature per context", () => {
+        mockUsePathname.mockReturnValue("/statistics/avance");
+        setLegislatureState();
+
+        const { container } = render(<LegislatureSelector />);
+
+        expect(container).toBeEmptyDOMElement();
+    });
+
+    it("renders the selector on chiffres-cles pages — they read the app-wide legislature directly, with no picker of their own", () => {
+        mockUsePathname.mockReturnValue("/statistics/chiffres-cles");
+        setLegislatureState();
+
+        render(<LegislatureSelector />);
+
+        expect(screen.getByText("17ème")).toBeInTheDocument();
+    });
+
+    it("renders the selector on a chiffres-cles theme page", () => {
+        mockUsePathname.mockReturnValue("/statistics/chiffres-cles/femmes-assemblee");
+        setLegislatureState();
+
+        render(<LegislatureSelector />);
+
+        expect(screen.getByText("17ème")).toBeInTheDocument();
     });
 
     it("renders nothing while the app-wide legislature is still loading (non-statistics page)", () => {
