@@ -20,6 +20,16 @@ export const prismaGroupesStatsRepository: IGroupesStatsRepository = {
         return rows[0] ?? null;
     },
 
+    async getPariteMoyenne(legislature: number): Promise<GroupeStatPariteEntity> {
+        const rows = await prisma.$queryRaw<{ nb_hommes: number; nb_femmes: number }[]>`
+            SELECT COALESCE(SUM(nb_hommes), 0)::int AS nb_hommes,
+                   COALESCE(SUM(nb_femmes), 0)::int AS nb_femmes
+            FROM agg_groupes_stats_parite
+            WHERE legislature = ${legislature}
+        `;
+        return rows[0] ?? null;
+    },
+
     async getEffectifs(legislature: number): Promise<GroupeStatEffectifRow[]> {
         return prisma.$queryRaw<GroupeStatEffectifRow[]>`
             SELECT rg.code AS groupe_code,

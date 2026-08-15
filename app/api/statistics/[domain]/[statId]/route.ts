@@ -10,6 +10,7 @@ import { prismaActeursStatsRepository } from "@/app/infrastructure/acteurs/repos
 import { getGroupeStatPariteUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-parite.use-case";
 import { getGroupeStatEffectifsUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-effectifs.use-case";
 import { getGroupeStatCohesionUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-cohesion.use-case";
+import { getGroupeStatPariteMoyenneUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-parite-moyenne.use-case";
 import { prismaGroupesStatsRepository } from "@/app/infrastructure/groupes/repositories/prisma-groupes-stats.repository";
 import { getLegislaturesPariteEvolutionUseCase } from "@/app/domains/legislatures/use-cases/get-legislatures-parite-evolution.use-case";
 import { prismaLegislaturesStatsRepository } from "@/app/infrastructure/legislatures/repositories/prisma-legislatures-stats.repository";
@@ -75,6 +76,17 @@ const STAT_HANDLERS: Record<string, Record<string, StatHandler>> = {
             const result = await getGroupeStatCohesionUseCase(prismaGroupesStatsRepository, code, legislature);
             if (!isOk(result)) return null;
             return { shape: "timeseries", points: result.data.points };
+        },
+        // Pas exposée dans GROUPES_STATS (pas une stat du picker) — usage
+        // interne par les insights (voir _catalog/insights/) pour situer une
+        // stat par rapport à la moyenne du domaine.
+        "parite-moyenne": async (params) => {
+            const legislature = params.filters?.legislature as number | undefined;
+            if (!legislature) return null;
+
+            const result = await getGroupeStatPariteMoyenneUseCase(prismaGroupesStatsRepository, legislature);
+            if (!isOk(result)) return null;
+            return { shape: "distribution", items: result.data.items };
         },
     },
     votes: {

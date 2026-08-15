@@ -4,6 +4,7 @@ import { IGroupesStatsRepository } from "@/app/domains/groupes/repositories/IGro
 function makeRepository(overrides: Partial<IGroupesStatsRepository> = {}): IGroupesStatsRepository {
     return {
         getParite: jest.fn().mockResolvedValue(null),
+        getPariteMoyenne: jest.fn().mockResolvedValue(null),
         getEffectifs: jest.fn().mockResolvedValue([]),
         getCohesionEvolution: jest.fn().mockResolvedValue([]),
         ...overrides,

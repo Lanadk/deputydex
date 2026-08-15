@@ -5,6 +5,7 @@ import { StatDefinition } from "@/app/(ui)/(views)/(db)/statistics/_catalog/stat
 import { ChartDisplayType } from "@/app/(ui)/(views)/(db)/statistics/_catalog/comparator.types";
 import { StatFetchParams } from "@/app/_shared/statistics/stat-scope.types";
 import { useStatData } from "@/app/(ui)/(views)/(db)/statistics/_catalog/use-stat-data";
+import { useStatInsight } from "@/app/(ui)/(views)/(db)/statistics/_catalog/use-stat-insight";
 import {
     DISPLAY_TYPE_COMPATIBILITY,
     DISPLAY_TYPE_LABELS,
@@ -40,6 +41,7 @@ export const StatViewerLib: React.FC<StatViewerLibProps> = ({
                                                                   onDisplayTypeChange,
                                                               }) => {
     const { data, loading } = useStatData(definition, context);
+    const insight = useStatInsight(definition, context, data);
 
     const compatibleDisplayTypes = DISPLAY_TYPE_COMPATIBILITY[definition.dataShape];
     const resolvedDisplayType = displayType ?? compatibleDisplayTypes[0] ?? null;
@@ -70,6 +72,12 @@ export const StatViewerLib: React.FC<StatViewerLibProps> = ({
                     </div>
                 )}
             </div>
+
+            {insight && (
+                <p className="rounded-lg border-l-2 px-3 py-2 text-sm" style={{ borderColor: "var(--accent)", backgroundColor: "var(--surface-2)" }}>
+                    {insight}
+                </p>
+            )}
 
             <RenderStatChart data={data} displayType={resolvedDisplayType} loading={loading} title={definition.title} />
 

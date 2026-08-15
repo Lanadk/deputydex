@@ -1,4 +1,4 @@
-import { getGroupeStatPariteUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-parite.use-case";
+import { getGroupeStatPariteMoyenneUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-parite-moyenne.use-case";
 import { IGroupesStatsRepository } from "@/app/domains/groupes/repositories/IGroupesStatsRepository";
 
 function makeRepository(overrides: Partial<IGroupesStatsRepository> = {}): IGroupesStatsRepository {
@@ -11,26 +11,26 @@ function makeRepository(overrides: Partial<IGroupesStatsRepository> = {}): IGrou
     };
 }
 
-describe("getGroupeStatPariteUseCase", () => {
-    it("maps the repository row to a DTO", async () => {
-        const repository = makeRepository({ getParite: jest.fn().mockResolvedValue({ nb_hommes: 65, nb_femmes: 35 }) });
+describe("getGroupeStatPariteMoyenneUseCase", () => {
+    it("maps the aggregated repository row to a DTO", async () => {
+        const repository = makeRepository({ getPariteMoyenne: jest.fn().mockResolvedValue({ nb_hommes: 400, nb_femmes: 215 }) });
 
-        const result = await getGroupeStatPariteUseCase(repository, "RN", 17);
+        const result = await getGroupeStatPariteMoyenneUseCase(repository, 17);
 
-        expect(repository.getParite).toHaveBeenCalledWith("RN", 17);
+        expect(repository.getPariteMoyenne).toHaveBeenCalledWith(17);
         if (!result.success) throw new Error("expected success");
         expect(result.data).toEqual({
             items: [
-                { label: "Hommes", value: 65 },
-                { label: "Femmes", value: 35 },
+                { label: "Hommes", value: 400 },
+                { label: "Femmes", value: 215 },
             ],
         });
     });
 
-    it("returns ok({items: []}) when the group has no parité row", async () => {
+    it("returns ok({items: []}) when there is no data", async () => {
         const repository = makeRepository();
 
-        const result = await getGroupeStatPariteUseCase(repository, "UNKNOWN", 17);
+        const result = await getGroupeStatPariteMoyenneUseCase(repository, 17);
 
         expect(result).toEqual({ success: true, data: { items: [] } });
     });
