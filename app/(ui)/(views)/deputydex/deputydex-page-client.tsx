@@ -8,7 +8,9 @@ import { DeputesCardDTO } from "@/app/domains/deputes/dto/deputes-card.dto";
 import DeputyCard from "@/app/(ui)/components/deputy/deputy-card";
 import { DeputyFilter, SortDir } from "@/app/(ui)/components/deputy/deputy-filter";
 import { SpinnerLib } from "@/app/(ui)/component-library/molecules/spinner/spinner-lib";
+import { SpanLib } from "@/app/(ui)/component-library/atoms/span/span-lib";
 import { AnchorLayoutFixHeader } from "@/app/(ui)/component-library/template/sections/anchor-section-header-fix/anchor-layout-fix-header";
+import { normalizeForSearch } from "@/app/_shared/utils/string";
 
 const ROW_ESTIMATE_SIZE = 320;
 
@@ -43,6 +45,7 @@ export default function DeputydexPageClient() {
     const [loading, setLoading] = useState(true);
     const [selectedGroupe, setSelectedGroupe] = useState<string | null>(null);
     const [sortDir, setSortDir] = useState<SortDir>("asc");
+    const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
@@ -55,9 +58,14 @@ export default function DeputydexPageClient() {
     }, [legislatureNum]);
 
     const filteredDeputies = useMemo(() => {
-        const list = selectedGroupe
+        let list = selectedGroupe
             ? deputies.filter((d) => d.deputeGroupeCode === selectedGroupe)
             : deputies;
+
+        const query = normalizeForSearch(searchQuery);
+        if (query) {
+            list = list.filter((d) => normalizeForSearch(d.deputeFullName ?? "").includes(query));
+        }
 
         return [...list].sort((a, b) => {
             const nomA = (a.deputeFullName ?? "").toLowerCase();
@@ -66,7 +74,7 @@ export default function DeputydexPageClient() {
                 ? nomA.localeCompare(nomB, "fr")
                 : nomB.localeCompare(nomA, "fr");
         });
-    }, [deputies, selectedGroupe, sortDir]);
+    }, [deputies, selectedGroupe, sortDir, searchQuery]);
 
     const columnCount = useColumnCount();
     const parentRef = useRef<HTMLDivElement | null>(null);
@@ -88,14 +96,20 @@ export default function DeputydexPageClient() {
                     deputies={deputies}
                     selectedGroupe={selectedGroupe}
                     sortDir={sortDir}
+                    searchQuery={searchQuery}
                     onSelectGroupeAction={setSelectedGroupe}
                     onSortDirAction={setSortDir}
+                    onSearchQueryAction={setSearchQuery}
                 />
             }
         >
             {loading ? (
                 <div className="flex items-center justify-center h-64">
                     <SpinnerLib />
+                </div>
+            ) : filteredDeputies.length === 0 ? (
+                <div className="flex items-center justify-center h-32">
+                    <SpanLib className="text-subtitle-accent">Aucun résultat</SpanLib>
                 </div>
             ) : (
                 <main ref={parentRef} className="w-full">

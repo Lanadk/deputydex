@@ -10,11 +10,12 @@ export const prismaDeputeActivityRepository: IDeputeActivityRepository = {
             return await prisma.$queryRaw<DeputeActivityEntity[]>`
                 SELECT
                     activity_date,
-                    SUM(count) as total_count
-                FROM agg_activity_calendar_mv
+                    COUNT(*) as total_count
+                FROM agg_activity_calendar_details_mv
                 WHERE entity_type = 'depute'
                   AND entity_id = ${uid}
                   AND legislature = ${legislature}
+                  AND NOT (domain = 'vote' AND meta ->> 'position' = 'non_votant')
                 GROUP BY activity_date
                 ORDER BY activity_date ASC
             `;

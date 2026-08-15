@@ -3,6 +3,7 @@
 import React, { useMemo } from "react";
 import { SpanLib } from "@/app/(ui)/component-library/atoms/span/span-lib";
 import { ButtonLib } from "@/app/(ui)/component-library/atoms/button/button-lib";
+import { InputLib } from "@/app/(ui)/component-library/molecules/input/input-lib";
 import { DeputesCardDTO } from "@/app/domains/deputes/dto/deputes-card.dto";
 import {
     getCanonicalGroupCode,
@@ -17,8 +18,10 @@ type DeputyFilterProps = {
     deputies: DeputesCardDTO[];
     selectedGroupe: string | null;
     sortDir: SortDir;
+    searchQuery: string;
     onSelectGroupeAction: (code: string | null) => void;
     onSortDirAction: (dir: SortDir) => void;
+    onSearchQueryAction: (query: string) => void;
 };
 
 export const DeputyFilter: React.FC<DeputyFilterProps> = ({
@@ -26,8 +29,10 @@ export const DeputyFilter: React.FC<DeputyFilterProps> = ({
                                                                 deputies,
                                                                 selectedGroupe,
                                                                 sortDir,
+                                                                searchQuery,
                                                                 onSelectGroupeAction,
                                                                 onSortDirAction,
+                                                                onSearchQueryAction,
                                                             }) => {
     const groupes = useMemo(() => {
         const codes = new Set<string>();
@@ -52,6 +57,17 @@ export const DeputyFilter: React.FC<DeputyFilterProps> = ({
                 <SpanLib className="text-subtitle-accent">
                     {count} résultat{count > 1 ? "s" : ""}
                 </SpanLib>
+            </div>
+
+            <div className="flex items-center gap-2">
+                <span className="text-xs font-medium text-subtitle-accent">Rechercher :</span>
+                <div className="flex-1 min-w-[180px] max-w-xs">
+                    <InputLib
+                        value={searchQuery}
+                        onChange={onSearchQueryAction}
+                        placeholder="Nom ou prénom..."
+                    />
+                </div>
             </div>
 
             <div className="flex items-center gap-2">
