@@ -62,6 +62,12 @@ export const StatPicker: React.FC<StatPickerProps> = ({
                                                         }) => {
     const [openDomain, setOpenDomain] = useState<StatDomain | null>(null);
     const [localScope, setLocalScope] = useState<StatScope>("aggregate");
+    // true juste après un "Réinitialiser" de CE picker, tant que l'utilisateur
+    // n'a pas recliqué une tuile domaine — sert à faire gagner explicitement
+    // le "aucun domaine ouvert" sur la contrainte partagée (voir activeDomain
+    // ci-dessous), sans quoi le reset n'aurait aucun effet visible tant que
+    // l'autre contexte garde une stat sélectionnée.
+    const [isClosed, setIsClosed] = useState(false);
 
     const referenceId = selectedStatIds[0];
     const reference = referenceId ? findStatDefinition(STATS_CATALOG, referenceId) : null;
@@ -71,7 +77,21 @@ export const StatPicker: React.FC<StatPickerProps> = ({
     const selectionConstraint = isComparing ? rawConstraint : null;
     const lockedScope = isComparing ? (reference?.scope ?? null) : null;
 
-    const activeDomain = openDomain ?? rawConstraint?.domain ?? null;
+    // rawConstraint (dérivé de selectedStatIds, PARTAGÉ entre les deux
+    // pickers en comparaison) doit toujours gagner sur openDomain (état
+    // local à CE picker) dès qu'il existe : selectedStatIds peut être établi
+    // par l'AUTRE contexte (ex: les deux contextes sont vides, l'utilisateur
+    // coche une catégorie côté B) — openDomain de CE picker resterait alors
+    // sur un domaine périmé (celui qu'il affichait avant que tout soit vidé)
+    // si on le laissait prioritaire, montrant le mauvais EntityResolver et
+    // les mauvaises catégories. openDomain ne sert donc qu'à prévisualiser un
+    // domaine tant qu'aucune contrainte n'existe (selectedStatIds vide).
+    //
+    // isClosed prime sur tout le reste : après "Réinitialiser ce contexte",
+    // CE picker doit revenir au choix de domaine même si l'autre contexte
+    // garde une sélection (donc rawConstraint non-null) — sinon le reset
+    // n'aurait aucun effet visible tant que l'autre colonne a un graphe.
+    const activeDomain = isClosed ? null : rawConstraint?.domain ?? openDomain ?? null;
     const effectiveScope: StatScope = lockedScope ?? localScope;
 
     const comparableForSelection = getComparableStats(STATS_CATALOG, selectionConstraint);
@@ -91,6 +111,7 @@ export const StatPicker: React.FC<StatPickerProps> = ({
         if (!isComparing && rawConstraint && rawConstraint.domain !== domain) {
             onClearSelection();
         }
+        setIsClosed(false);
         setOpenDomain(domain);
         setLocalScope("aggregate");
     };
@@ -99,15 +120,20 @@ export const StatPicker: React.FC<StatPickerProps> = ({
         // selectedStatIds est PARTAGÉ entre les deux contextes en comparaison
         // (mêmes stats, contextes différents — c'est le principe même du
         // comparateur). En comparaison, réinitialiser ce picker ne doit donc
-        // toucher QUE son propre contexte (filtres/entité) : le vider
-        // globalement viderait aussi le graphe affiché de l'autre côté.
+        // toucher QUE son propre contexte (filtres/entité, et l'affichage de
+        // CE picker) : le vider globalement viderait aussi le graphe affiché
+        // de l'autre côté. isClosed referme CE picker (retour au choix de
+        // domaine) sans toucher selectedStatIds ni le picker/graphe de
+        // l'autre contexte.
+        setIsClosed(true);
+        setOpenDomain(null);
+        setLocalScope("aggregate");
+
         if (isComparing) {
             onContextChange({});
             return;
         }
 
-        setOpenDomain(null);
-        setLocalScope("aggregate");
         onClearSelection();
         onContextChange({});
     };

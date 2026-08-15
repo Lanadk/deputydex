@@ -326,6 +326,32 @@ describe("StatPicker", () => {
         expect(onClearSelection).not.toHaveBeenCalled();
     });
 
+    it("while comparing, closes THIS picker's own domain/categories on reset, even though the shared selection (still held by the other context) is untouched", () => {
+        renderPicker({
+            selectedStatIds: ["acteurs.age-distribution"],
+            context: { filters: { legislature: 17 } },
+            isComparing: true,
+        });
+
+        // Auto-ouvert sur "Députés" grâce à selectedStatIds — voir le test
+        // "auto-expands the domain...".
+        expect(screen.getByText("Démographie")).toBeInTheDocument();
+
+        fireEvent.click(screen.getByText("Réinitialiser ce contexte"));
+
+        // Ce picker revient au choix de domaine — selectedStatIds ne change
+        // pas ici (c'est le parent, pas ce composant, qui décide de le
+        // vider ou non), donc si l'autre contexte le garde, son graphe à lui
+        // n'est pas affecté par ce reset.
+        expect(screen.queryByText("Démographie")).not.toBeInTheDocument();
+        expect(screen.queryByText("Un député précis")).not.toBeInTheDocument();
+
+        // La tuile reste cliquable (toujours compatible avec la sélection
+        // partagée) : recliquer dessus rouvre normalement ce picker.
+        fireEvent.click(screen.getByText("Députés"));
+        expect(screen.getByText("Un député précis")).toBeInTheDocument();
+    });
+
     it("while comparing, greys out the legislature already picked in the other context", async () => {
         renderPicker({
             isComparing: true,
