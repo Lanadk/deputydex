@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Link from "next/link";
 import { BaseLayout } from "@/app/(ui)/component-library/template/base-layout/base-layout-lib";
 import { PageHeaderLib } from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
 import { ButtonLib } from "@/app/(ui)/component-library/atoms/button/button-lib";
@@ -14,12 +15,17 @@ import { ENTITY_RESOLVERS } from "@/app/(ui)/components/statistics/entity-resolv
 import { buildContextLabel } from "@/app/(ui)/_shared/statistics/context/build-context-label";
 
 /**
- * Le hub Statistiques : StatPicker (explorer/sélectionner) + une grille
+ * Le hub "Mode avancé" : StatPicker (explorer/sélectionner) + une grille
  * de StatViewer, une colonne par contexte (1 en exploration, 2 en
  * comparaison). Toute la logique vit dans ComparatorProvider — ce composant
  * ne fait que lire/écrire son état.
+ *
+ * Anciennement `/statistics` lui-même — déplacé sous `/statistics/avance`
+ * quand `/statistics` est devenu un hub de choix entre ce mode et
+ * "Chiffres clés" (pages éditoriales, voir `chiffres-cles/`). Le contenu de
+ * ce composant n'a pas changé, seule sa route a bougé.
  */
-function StatisticsHub() {
+function StatisticsAdvancedHub() {
     const { state, toggleStat, enableSplit, disableSplit, setDisplayType, updateContext, resetContext, clearSelection } =
         useComparator();
     const { mode, selectedStatIds, contexts, displayTypes } = state;
@@ -142,18 +148,22 @@ function StatisticsHub() {
     );
 }
 
-export default function StatisticsPageClient() {
+export default function AvancePageClient() {
     return (
         <BaseLayout>
             <div className="mb-8 border-b border-main pb-6">
+                <Link href="/statistics" className="text-sm text-subtitle-accent hover:text-accent">
+                    ← Retour au hub Statistiques
+                </Link>
                 <PageHeaderLib
-                    title="Statistiques"
+                    title="Mode avancé"
                     subtitle="Explore les statistiques de l'Assemblée nationale : sélectionne un ou plusieurs graphiques, change leur format d'affichage, exporte-les, et compare-les entre deux contextes (groupes, législatures, députés...)."
+                    className="mt-3 mb-0"
                 />
             </div>
 
             <ComparatorProvider>
-                <StatisticsHub />
+                <StatisticsAdvancedHub />
             </ComparatorProvider>
         </BaseLayout>
     );

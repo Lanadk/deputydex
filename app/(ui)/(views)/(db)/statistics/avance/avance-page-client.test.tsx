@@ -79,11 +79,11 @@ jest.mock("@/app/(ui)/_shared/statistics/catalog/stats-catalog", () => {
     };
 });
 
-import StatisticsPageClient from "@/app/(ui)/(views)/(db)/statistics/statistics-page-client";
+import AvancePageClient from "@/app/(ui)/(views)/(db)/statistics/avance/avance-page-client";
 
-describe("StatisticsPageClient", () => {
+describe("AvancePageClient", () => {
     it("keeps 'Quitter la comparaison' visible after deselecting every stat while in split mode", async () => {
-        render(<StatisticsPageClient />);
+        render(<AvancePageClient />);
 
         // Sélectionne une stat, dans le premier (et seul, pour l'instant) picker
         // — il faut d'abord choisir une législature pour que la catégorie apparaisse.
@@ -106,7 +106,7 @@ describe("StatisticsPageClient", () => {
     });
 
     it("resetting one context's picker does not clear the shared stat selection (nor the other context's chart)", async () => {
-        render(<StatisticsPageClient />);
+        render(<AvancePageClient />);
 
         fireEvent.click(screen.getAllByText("Députés")[0]);
         fireEvent.click(await screen.findByText("17ᵉ législature"));
@@ -127,7 +127,7 @@ describe("StatisticsPageClient", () => {
     });
 
     it("follows the domain established by the OTHER context's pick, not a stale locally-opened domain", async () => {
-        render(<StatisticsPageClient />);
+        render(<AvancePageClient />);
 
         // Contexte A : ouvre "Députés" (openDomain local du picker A =
         // "acteurs") puis sélectionne une stat -> comparaison.
@@ -159,7 +159,7 @@ describe("StatisticsPageClient", () => {
     });
 
     it("resetting one context's picker closes only that picker — the other keeps its filters/categories untouched", async () => {
-        render(<StatisticsPageClient />);
+        render(<AvancePageClient />);
 
         // Contexte A : Groupes -> 16ᵉ législature -> Effectifs par groupe.
         fireEvent.click(screen.getAllByText("Groupes")[0]);
@@ -185,7 +185,7 @@ describe("StatisticsPageClient", () => {
     });
 
     it("resetting BOTH contexts clears the shared selection too, unlocking domain choice again", async () => {
-        render(<StatisticsPageClient />);
+        render(<AvancePageClient />);
 
         // Contexte A : Groupes -> 16ᵉ législature -> Effectifs par groupe.
         fireEvent.click(screen.getAllByText("Groupes")[0]);
@@ -217,7 +217,7 @@ describe("StatisticsPageClient", () => {
     });
 
     it("hides 'Comparer' for a domain with no entity/population to vary between contexts", () => {
-        render(<StatisticsPageClient />);
+        render(<AvancePageClient />);
 
         fireEvent.click(screen.getAllByText("Votes")[0]);
         fireEvent.click(screen.getAllByText("Répartition des positions de vote")[0]);
