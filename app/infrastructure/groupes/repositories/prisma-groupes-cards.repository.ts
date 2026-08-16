@@ -23,7 +23,8 @@ export const prismaGroupesCardsRepository: IGroupesCardsRepository = {
                     on agec.groupe_id = rg.groupe_id
                    and agec.legislature = rg.groupe_legislature
                 where rg.groupe_legislature = ${legislature}
-                and rg.code not in ('TBD', 'NI')
+                and rg.code <> 'TBD'
+                and rg.code not like 'NI%'
                 order by rg.code asc nulls last, rg.libelle asc nulls last
             `;
         } catch (error) {

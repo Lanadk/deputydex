@@ -3,8 +3,10 @@ import {
     GroupeStatAgeParGroupeRow,
     GroupeStatCohesionPointEntity,
     GroupeStatEffectifRow,
+    GroupeStatExpressionVoteRow,
     GroupeStatPariteEntity,
     GroupeStatPariteParGroupeRow,
+    GroupeStatPositionVoteRow,
 } from "@/app/domains/groupes/entities/groupe-stats-catalog.entity";
 
 export interface IGroupesStatsRepository {
@@ -39,4 +41,26 @@ export interface IGroupesStatsRepository {
      * Source : `agg_groupes_stats_age`.
      */
     getAgeParGroupe(legislature: number): Promise<GroupeStatAgeParGroupeRow[]>;
+
+    /**
+     * Répartition pour/contre/abstention, une ligne par (groupe POLITIQUE,
+     * position) — pour un classement tous groupes confondus. Source :
+     * `agg_groupes_stats_votes_positions_politiques`, construite depuis les
+     * votes individuels historiques : un groupe renommé/dissous en cours de
+     * législature (ex: UDR → UDDPR) y garde des lignes même après que tous
+     * ses membres ont basculé vers le nouveau code — le repository doit donc
+     * filtrer sur l'effectif COURANT (`agg_groupes_effectifs_legislature`),
+     * pas seulement sur l'existence de votes.
+     */
+    getPositionsVoteParGroupe(legislature: number): Promise<GroupeStatPositionVoteRow[]>;
+
+    /**
+     * Taux d'expression aux scrutins, une ligne par groupe POLITIQUE — % de
+     * positions politiques (pour/contre/abstention) parmi toutes les
+     * positions observées (non-votants inclus). Source :
+     * `agg_groupes_stats_expression_votes`. Même précaution que
+     * `getPositionsVoteParGroupe` : filtrer sur l'effectif COURANT, pas
+     * seulement sur l'existence de la ligne dans la vue.
+     */
+    getExpressionVotesParGroupe(legislature: number): Promise<GroupeStatExpressionVoteRow[]>;
 }

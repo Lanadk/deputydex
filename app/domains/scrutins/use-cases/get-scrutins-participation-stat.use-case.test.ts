@@ -4,6 +4,7 @@ import { IScrutinsStatsRepository } from "@/app/domains/scrutins/repositories/IS
 function makeRepository(overrides: Partial<IScrutinsStatsRepository> = {}): IScrutinsStatsRepository {
     return {
         getParticipationEvolution: jest.fn().mockResolvedValue([]),
+        countScrutins: jest.fn().mockResolvedValue(0),
         ...overrides,
     };
 }

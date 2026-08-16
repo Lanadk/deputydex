@@ -1,5 +1,6 @@
 import { isOk } from "@/app/_shared/result-pattern/result";
 import { getScrutinsParticipationStatUseCase } from "@/app/domains/scrutins/use-cases/get-scrutins-participation-stat.use-case";
+import { getScrutinsTotalUseCase } from "@/app/domains/scrutins/use-cases/get-scrutins-total.use-case";
 import { prismaScrutinsStatsRepository } from "@/app/infrastructure/scrutins/repositories/prisma-scrutins-stats.repository";
 import { StatHandler } from "@/app/api/statistics/_handlers/stat-handler.types";
 
@@ -15,5 +16,13 @@ export const SCRUTINS_STAT_HANDLERS: Record<string, StatHandler> = {
         const result = await getScrutinsParticipationStatUseCase(prismaScrutinsStatsRepository);
         if (!isOk(result)) return null;
         return { shape: "timeseries", points: result.data.points };
+    },
+    total: async (params) => {
+        const legislature = params.filters?.legislature as number | undefined;
+        if (!legislature) return null;
+
+        const result = await getScrutinsTotalUseCase(prismaScrutinsStatsRepository, legislature);
+        if (!isOk(result)) return null;
+        return { shape: "scalar", value: result.data.total, label: "scrutins" };
     },
 };

@@ -9,6 +9,7 @@ function makeRepository(overrides: Partial<IVotesStatsRepository> = {}): IVotesS
             total_abstentions: 0,
             total_non_votants: 0,
         }),
+        countVotes: jest.fn().mockResolvedValue(0),
         ...overrides,
     };
 }

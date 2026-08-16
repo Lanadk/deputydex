@@ -5,6 +5,7 @@ import { ChartConfig } from "@/app/(ui)/component-library/template/sections/bloc
 import { TableConfig } from "@/app/(ui)/component-library/template/sections/block-section/table-config.types";
 import { GroupeFeminisationRowDTO } from "@/app/domains/groupes/dto/groupes-feminisation.dto";
 import { GroupeAgeRowDTO } from "@/app/domains/groupes/dto/groupes-age.dto";
+import { GroupeCardDTO } from "@/app/domains/groupes/dto/groupes-card.dto";
 import { getCanonicalGroupTheme } from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
 
 /**
@@ -22,6 +23,12 @@ export type GroupeFeminisationTableRow = GroupeFeminisationRowDTO & { rank: numb
 
 /** Même principe pour la table "âge des groupes". */
 export type GroupeAgeTableRow = GroupeAgeRowDTO & { rank: number };
+
+/** Table "effectifs des groupes" : `GroupeCardDTO` porte déjà tout (code, libellé, effectif) — pas de DTO dédié nécessaire. */
+export type GroupeEffectifTableRow = GroupeCardDTO & { rank: number };
+
+/** Table "expression aux scrutins" : construite dans le thème depuis `groupes.expression-votes` (items label=code/value=taux) + `getGroupesCards` pour le libellé complet — pas de DTO domaine dédié. */
+export type GroupeExpressionTableRow = { groupeCode: string; groupeLabel: string; tauxExpressionVotes: number; rank: number };
 
 /**
  * Cellule "Groupe" cliquable, colorée avec le thème du groupe (même palette
@@ -47,6 +54,10 @@ const KEY_FIGURES_CARDS: CardConfig[] = [
     { id: "card-groupes-feminisation-extremes", displayType: "group-card-pair" },
     { id: "card-groupes-age-extremes", displayType: "group-card-pair" },
     { id: "card-deputes-age-extremes", displayType: "depute-card-pair" },
+    { id: "card-groupes-effectifs-extremes", displayType: "group-card-pair" },
+    { id: "kpi-scrutins-total-legislature", displayType: "kpi-card" },
+    { id: "kpi-votes-total-legislature", displayType: "kpi-card" },
+    { id: "card-groupes-expression-extremes", displayType: "group-card-pair" },
 ];
 
 const KEY_FIGURES_CHARTS: ChartConfig[] = [
@@ -61,6 +72,12 @@ const KEY_FIGURES_CHARTS: ChartConfig[] = [
         title: "Évolution depuis les débuts de la législature",
         theme: "parity",
         displayType: "line",
+    },
+    {
+        id: "chart-positions-vote-groupes",
+        title: "Répartition pour / contre / abstention par groupe (en %)",
+        theme: "vote-positions",
+        displayType: "stacked-bar",
     },
 ];
 
@@ -90,6 +107,24 @@ const KEY_FIGURES_TABLES: TableConfig<any>[] = [
         ],
         getRowKey: (r: GroupeAgeTableRow) => r.groupeCode,
     } satisfies TableConfig<GroupeAgeTableRow>,
+    {
+        id: "table-effectifs-groupes",
+        columns: [
+            { id: "rank", header: "N°", align: "center", cell: (r: GroupeEffectifTableRow) => r.rank, width: 48 },
+            { id: "groupe", header: "Groupe", align: "left", cell: (r: GroupeEffectifTableRow) => <GroupCell code={r.groupeCode} label={r.groupeLabel} /> },
+            { id: "effectif", header: "Effectif", align: "center", cell: (r: GroupeEffectifTableRow) => r.groupeCountMembers },
+        ],
+        getRowKey: (r: GroupeEffectifTableRow) => r.groupeCode,
+    } satisfies TableConfig<GroupeEffectifTableRow>,
+    {
+        id: "table-expression-votes-groupes",
+        columns: [
+            { id: "rank", header: "N°", align: "center", cell: (r: GroupeExpressionTableRow) => r.rank, width: 48 },
+            { id: "groupe", header: "Groupe", align: "left", cell: (r: GroupeExpressionTableRow) => <GroupCell code={r.groupeCode} label={r.groupeLabel} /> },
+            { id: "taux", header: "Taux d'expression", align: "center", cell: (r: GroupeExpressionTableRow) => `${r.tauxExpressionVotes}%` },
+        ],
+        getRowKey: (r: GroupeExpressionTableRow) => r.groupeCode,
+    } satisfies TableConfig<GroupeExpressionTableRow>,
 ];
 
 export const card = makeRegistryHelper(KEY_FIGURES_CARDS, "CardConfig");

@@ -3,4 +3,7 @@ import { ScrutinParticipationPointEntity } from "@/app/domains/scrutins/entities
 export interface IScrutinsStatsRepository {
     /** Taux de participation moyen (nombre_votants / (nombre_votants + non_votants)), un point par mois. */
     getParticipationEvolution(): Promise<ScrutinParticipationPointEntity[]>;
+
+    /** Nombre total de scrutins (= de votes solennels/publics organisés), pour une législature — pas le nombre de votes individuels des député·es. */
+    countScrutins(legislature: number): Promise<number>;
 }

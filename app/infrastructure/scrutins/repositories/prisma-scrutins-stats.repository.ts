@@ -23,4 +23,13 @@ export const prismaScrutinsStatsRepository: IScrutinsStatsRepository = {
             ORDER BY mois ASC
         `;
     },
+
+    async countScrutins(legislature: number): Promise<number> {
+        const rows = await prisma.$queryRaw<{ total: number }[]>`
+            SELECT COUNT(*)::int AS total
+            FROM scrutins
+            WHERE legislature_snapshot = ${legislature}
+        `;
+        return rows[0]?.total ?? 0;
+    },
 };

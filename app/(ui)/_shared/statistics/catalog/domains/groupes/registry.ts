@@ -48,4 +48,28 @@ export const GROUPES_STATS: StatDefinition[] = [
         // contexte pour le passer en `groupLabel`).
         chartVariant: "parliament-group",
     }),
+    defineStat("groupes", "positions-de-vote", {
+        scope: "aggregate",
+        title: "Positions de vote par groupe",
+        category: "Votes",
+        keywords: ["positions", "vote", "pour", "contre", "abstention", "tous les groupes"],
+        description: "Compare, pour chaque groupe parlementaire, la part de votes exprimés pour / contre / en abstention sur l'ensemble des scrutins politiques.",
+        methodology: "Répartition des votes individuels des membres de chaque groupe sur les positions politiques (pour/contre/abstention), hors non-votants — les groupes sans membre actuel (renommés/dissous en cours de législature) sont exclus.",
+        dataShape: "multi-series",
+        unit: "%",
+        // Un item par groupe (nom de série = code/libellé du groupe) — même
+        // cas d'usage que groupes.effectifs.
+        chartVariant: "parliament-group",
+    }),
+    defineStat("groupes", "expression-votes", {
+        scope: "aggregate",
+        title: "Taux d'expression aux scrutins",
+        category: "Votes",
+        keywords: ["expression", "participation", "scrutins", "tous les groupes"],
+        description: "Part des positions politiques (pour/contre/abstention) exprimées par chaque groupe, par rapport à l'ensemble des positions possibles (non-votants inclus).",
+        methodology: "Nombre de positions politiques exprimées, divisé par le nombre total de positions observées (positions politiques + non-votants), par groupe, sur la législature — les groupes sans membre actuel (renommés/dissous en cours de législature) sont exclus.",
+        dataShape: "distribution",
+        unit: "%",
+        chartVariant: "parliament-group",
+    }),
 ];

@@ -3,6 +3,8 @@ import { getGroupeStatPariteUseCase } from "@/app/domains/groupes/use-cases/get-
 import { getGroupeStatEffectifsUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-effectifs.use-case";
 import { getGroupeStatCohesionUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-cohesion.use-case";
 import { getGroupeStatPariteMoyenneUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-parite-moyenne.use-case";
+import { getGroupeStatPositionsVoteUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-positions-vote.use-case";
+import { getGroupeStatExpressionVotesUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-expression-votes.use-case";
 import { prismaGroupesStatsRepository } from "@/app/infrastructure/groupes/repositories/prisma-groupes-stats.repository";
 import { StatHandler } from "@/app/api/statistics/_handlers/stat-handler.types";
 
@@ -48,6 +50,22 @@ export const GROUPES_STAT_HANDLERS: Record<string, StatHandler> = {
         if (!legislature) return null;
 
         const result = await getGroupeStatPariteMoyenneUseCase(prismaGroupesStatsRepository, legislature);
+        if (!isOk(result)) return null;
+        return { shape: "distribution", items: result.data.items };
+    },
+    "positions-de-vote": async (params) => {
+        const legislature = params.filters?.legislature as number | undefined;
+        if (!legislature) return null;
+
+        const result = await getGroupeStatPositionsVoteUseCase(prismaGroupesStatsRepository, legislature);
+        if (!isOk(result)) return null;
+        return { shape: "multi-series", series: result.data.series };
+    },
+    "expression-votes": async (params) => {
+        const legislature = params.filters?.legislature as number | undefined;
+        if (!legislature) return null;
+
+        const result = await getGroupeStatExpressionVotesUseCase(prismaGroupesStatsRepository, legislature);
         if (!isOk(result)) return null;
         return { shape: "distribution", items: result.data.items };
     },

@@ -3,6 +3,9 @@ import { PageSection } from "@/app/(ui)/component-library/template/sections/anch
 import { FEMMES_ASSEMBLEE_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/femmes-assemblee.sections";
 import { FEMINISATION_GROUPES_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/feminisation-groupes.sections";
 import { AGE_DES_DEPUTES_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/age-des-deputes.sections";
+import { EFFECTIFS_GROUPES_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/effectifs-groupes.sections";
+import { POSITIONS_DE_VOTE_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/positions-de-vote.sections";
+import { EXPRESSION_VOTES_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/expression-votes.sections";
 
 /**
  * Regroupement thématique du hub (`chiffres-cles-page-client.tsx`) — "humain"
@@ -103,10 +106,15 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
     {
         slug: "effectifs-groupes",
         title: "La taille des groupes parlementaires",
-        teaser: "Quel est le plus grand groupe, le plus petit, et combien de député·es sont passé·es par chacun depuis le début de la législature.",
+        // Le volet "turnover" (député·es passé·es par un groupe) dépend de
+        // agg_groupes_stats_stabilite, encore "PAS ENCORE VALIDE" côté
+        // deputydex-data — teaser recentré sur l'effectif actuel, seule
+        // donnée fiable disponible pour l'instant (voir
+        // effectifs-groupes.sections.ts).
+        teaser: "Quel est le plus grand groupe, et quel est le plus petit, à l'Assemblée aujourd'hui.",
         icon: UsersRound,
         category: "groupes",
-        sections: [],
+        sections: EFFECTIFS_GROUPES_SECTIONS,
     },
     {
         slug: "stabilite-groupes",
@@ -156,7 +164,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
         teaser: "La répartition pour / contre / abstention de chaque groupe sur l'ensemble des scrutins.",
         icon: PieChart,
         category: "votes",
-        sections: [],
+        sections: POSITIONS_DE_VOTE_SECTIONS,
     },
     {
         slug: "expression-votes",
@@ -164,7 +172,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
         teaser: "Quels groupes s'expriment le plus aux scrutins, et lesquels s'abstiennent le plus souvent.",
         icon: Megaphone,
         category: "votes",
-        sections: [],
+        sections: EXPRESSION_VOTES_SECTIONS,
     },
 
     // ── Activité législative ──────────────────────────────────────────────

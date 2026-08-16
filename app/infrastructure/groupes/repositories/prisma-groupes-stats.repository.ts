@@ -7,8 +7,10 @@ import {
     GroupeStatAgeParGroupeRow,
     GroupeStatCohesionPointEntity,
     GroupeStatEffectifRow,
+    GroupeStatExpressionVoteRow,
     GroupeStatPariteEntity,
     GroupeStatPariteParGroupeRow,
+    GroupeStatPositionVoteRow,
 } from "@/app/domains/groupes/entities/groupe-stats-catalog.entity";
 
 export const prismaGroupesStatsRepository: IGroupesStatsRepository = {
@@ -43,7 +45,8 @@ export const prismaGroupesStatsRepository: IGroupesStatsRepository = {
                 ON agec.groupe_id = rg.groupe_id
                AND agec.legislature = rg.groupe_legislature
             WHERE rg.groupe_legislature = ${legislature}
-              AND rg.code NOT IN ('TBD', 'NI')
+              AND rg.code <> 'TBD'
+              AND rg.code NOT LIKE 'NI%'
             ORDER BY nb_acteurs DESC
         `;
     },
@@ -135,6 +138,52 @@ export const prismaGroupesStatsRepository: IGroupesStatsRepository = {
             WHERE aga.legislature = ${legislature}
               AND rg.code NOT LIKE 'NI%'
             ORDER BY aga.average_age ASC
+        `;
+    },
+
+    async getPositionsVoteParGroupe(legislature: number): Promise<GroupeStatPositionVoteRow[]> {
+        // JOIN sur agg_groupes_effectifs_legislature (nb_acteurs_photo > 0) :
+        // la vue source garde des lignes pour un groupe renommé/dissous en
+        // cours de législature (ex: UDR → UDDPR) tant qu'il a des votes
+        // historiques, même si son effectif actuel est retombé à 0 — voir
+        // IGroupesStatsRepository.getPositionsVoteParGroupe.
+        // "Non inscrits" exclu via `NOT LIKE 'NI%'` (pas `NOT IN (..., 'NI')`) :
+        // le code peut être suffixé par législature (ex: "NI-17"), même
+        // méthodologie que getPariteParGroupe/getAgeParGroupe.
+        return prisma.$queryRaw<GroupeStatPositionVoteRow[]>`
+            SELECT vpp.code AS groupe_code,
+                   vpp.libelle AS groupe_label,
+                   vpp.position,
+                   vpp.pourcentage::float AS pourcentage
+            FROM agg_groupes_stats_votes_positions_politiques vpp
+            JOIN agg_groupes_effectifs_legislature agel
+                ON agel.groupe_id = vpp.groupe_id
+               AND agel.legislature = vpp.legislature
+            WHERE vpp.legislature = ${legislature}
+              AND vpp.code <> 'TBD'
+              AND vpp.code NOT LIKE 'NI%'
+              AND agel.nb_acteurs_photo > 0
+            ORDER BY vpp.code, vpp.position
+        `;
+    },
+
+    async getExpressionVotesParGroupe(legislature: number): Promise<GroupeStatExpressionVoteRow[]> {
+        // Même précaution que getPositionsVoteParGroupe : la vue source garde
+        // des lignes pour un groupe renommé/dissous en cours de législature
+        // tant qu'il a des scrutins historiques — JOIN sur l'effectif COURANT.
+        return prisma.$queryRaw<GroupeStatExpressionVoteRow[]>`
+            SELECT ev.code AS groupe_code,
+                   ev.libelle AS groupe_label,
+                   ev.taux_expression_votes::float AS taux_expression_votes
+            FROM agg_groupes_stats_expression_votes ev
+            JOIN agg_groupes_effectifs_legislature agel
+                ON agel.groupe_id = ev.groupe_id
+               AND agel.legislature = ev.legislature
+            WHERE ev.legislature = ${legislature}
+              AND ev.code <> 'TBD'
+              AND ev.code NOT LIKE 'NI%'
+              AND agel.nb_acteurs_photo > 0
+            ORDER BY ev.taux_expression_votes DESC NULLS LAST
         `;
     },
 };
