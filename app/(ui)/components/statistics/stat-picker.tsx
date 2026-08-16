@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { ButtonLib } from "@/app/(ui)/component-library/atoms/button/button-lib";
 import { CheckboxLib } from "@/app/(ui)/component-library/molecules/checkbox/checkbox-lib";
 import { STATS_CATALOG } from "@/app/(ui)/_shared/statistics/catalog/stats-catalog";
@@ -9,9 +9,11 @@ import {
     getComparableStats,
     groupStatsByCategory,
 } from "@/app/(ui)/_shared/statistics/catalog/stats-catalog.helpers";
+import { StatDefinition } from "@/app/(ui)/_shared/statistics/catalog/stat-definition.types";
 import { StatDomain, StatFetchParams, StatScope } from "@/app/_shared/statistics/stat-scope.types";
 import { ENTITY_RESOLVERS } from "@/app/(ui)/components/statistics/entity-resolvers/entity-resolvers.registry";
 import { isContextReady } from "@/app/(ui)/_shared/statistics/context/is-context-ready";
+import { StatSearch } from "@/app/(ui)/components/statistics/stat-search";
 
 interface StatPickerProps {
     /** ids déjà sélectionnés (ComparatorState.selectedStatIds) — pilote la contrainte domaine/scope */
@@ -76,6 +78,22 @@ export const StatPicker: React.FC<StatPickerProps> = ({
     // ci-dessous), sans quoi le reset n'aurait aucun effet visible tant que
     // l'autre contexte garde une stat sélectionnée.
     const [isClosed, setIsClosed] = useState(false);
+    // Stat visée par un choix fait via StatSearch, tant que le contexte
+    // (entité/législature) n'est pas encore prêt pour l'auto-cocher — voir
+    // l'effet plus bas. Porte domain/scope avec elle (pas juste l'id) pour
+    // que l'auto-cochage ne se déclenche QUE si le picker est toujours sur
+    // le bon domain/scope au moment où le contexte devient prêt (sinon un
+    // changement manuel entre-temps auto-cocherait la mauvaise stat).
+    const [pendingSelect, setPendingSelect] = useState<{ id: string; title: string; domain: StatDomain; scope: StatScope } | null>(null);
+    // Id déjà "consommé" par l'effet d'auto-cochage ci-dessous — empêche de
+    // re-cocher en boucle une stat que l'utilisateur vient de décocher à la
+    // main (BUG corrigé : sans ce garde-fou, pendingSelect ne redevenait
+    // jamais "consommé", donc décocher une stat sélectionnée via StatSearch
+    // la faisait recocher immédiatement au rendu suivant — elle restait
+    // bloquée cochée pour de bon). Un ref, pas un state : la remettre à jour
+    // dans l'effet ne doit pas déclencher de re-render (règle
+    // react-hooks/set-state-in-effect — un ref n'est pas concerné).
+    const firedPendingIdRef = useRef<string | null>(null);
 
     const referenceId = selectedStatIds[0];
     const reference = referenceId ? findStatDefinition(STATS_CATALOG, referenceId) : null;
@@ -115,6 +133,29 @@ export const StatPicker: React.FC<StatPickerProps> = ({
     // paramètres incomplets ferait échouer la requête serveur.
     const isReady = activeDomain ? isContextReady(activeDomain, effectiveScope, context) : false;
 
+    // Auto-coche la stat visée par StatSearch dès que le contexte devient
+    // prêt (entité choisie / législature choisie) — sans ça, choisir un
+    // résultat de recherche qui a besoin d'un EntityResolver ouvrirait
+    // juste le bon domaine/scope sans jamais cocher quoi que ce soit tant
+    // que l'utilisateur n'aurait pas re-cliqué la checkbox lui-même. Le
+    // garde-fou domain/scope protège contre un changement manuel entre
+    // temps (ex: l'utilisateur ouvre un autre domaine avant d'avoir choisi
+    // son élément) qui rendrait pendingSelect périmé.
+    useEffect(() => {
+        if (!pendingSelect) return;
+        // Déjà tiré pour CETTE sélection (id inchangé depuis le dernier
+        // onToggleStat) : on ne retire plus jamais, même si l'utilisateur a
+        // depuis décoché la stat à la main — c'est justement le cas qu'il
+        // faut laisser décoché.
+        if (firedPendingIdRef.current === pendingSelect.id) return;
+        if (selectedStatIds.includes(pendingSelect.id)) return;
+        if (!isReady) return;
+        if (activeDomain !== pendingSelect.domain || effectiveScope !== pendingSelect.scope) return;
+
+        firedPendingIdRef.current = pendingSelect.id;
+        onToggleStat(pendingSelect.id);
+    }, [pendingSelect, isReady, activeDomain, effectiveScope, selectedStatIds, onToggleStat]);
+
     const handleOpenDomain = (domain: StatDomain) => {
         if (!isComparing && rawConstraint && rawConstraint.domain !== domain) {
             onClearSelection();
@@ -123,6 +164,31 @@ export const StatPicker: React.FC<StatPickerProps> = ({
         setOpenDomain(domain);
         setLocalScope("aggregate");
     };
+
+    const handleSearchSelect = (stat: StatDefinition) => {
+        if (!isComparing && rawConstraint && (rawConstraint.domain !== stat.domain || rawConstraint.scope !== stat.scope)) {
+            onClearSelection();
+        }
+        setIsClosed(false);
+        setOpenDomain(stat.domain);
+        setLocalScope(stat.scope);
+        // Déjà coché (résultat re-cliqué) : rien à attendre côté contexte.
+        if (selectedStatIds.includes(stat.id)) {
+            setPendingSelect(null);
+        } else {
+            // Nouvelle tentative de sélection — même si c'est la même stat
+            // qu'une fois déjà "tirée" puis décochée à la main, elle doit
+            // pouvoir se recocher cette fois (re-choisie explicitement).
+            firedPendingIdRef.current = null;
+            setPendingSelect({ id: stat.id, title: stat.title, domain: stat.domain, scope: stat.scope });
+        }
+    };
+
+    // true seulement tant que CE picker attend encore le contexte requis par
+    // une sélection faite via StatSearch — pilote à la fois le message et le
+    // surlignage autour de l'EntityResolver (voir plus bas).
+    const isAwaitingContextForPendingSelect =
+        !!pendingSelect && !isReady && activeDomain === pendingSelect.domain && effectiveScope === pendingSelect.scope;
 
     const handleReset = () => {
         // L'affichage LOCAL de ce picker (isClosed) redémarre toujours à
@@ -133,11 +199,19 @@ export const StatPicker: React.FC<StatPickerProps> = ({
         setIsClosed(true);
         setOpenDomain(null);
         setLocalScope("aggregate");
+        setPendingSelect(null);
         onReset();
     };
 
     return (
         <div className="flex w-full flex-col gap-4 rounded-xl border border-main bg-surface-1 p-4">
+            <StatSearch
+                catalog={STATS_CATALOG}
+                restrictToIds={isComparing ? new Set(comparableForSelection.map((stat) => stat.id)) : undefined}
+                selectedStatIds={selectedStatIds}
+                onSelect={handleSearchSelect}
+            />
+
             <div className="flex items-center justify-between gap-3">
                 <div className="flex flex-1 flex-wrap gap-3">
                     {STATS_CATALOG.map((module) => {
@@ -174,20 +248,35 @@ export const StatPicker: React.FC<StatPickerProps> = ({
 
             {activeDomain && (
                 <div className="flex flex-col gap-4 border-t border-main pt-4">
+                    {isAwaitingContextForPendingSelect && (
+                        <p className="text-sm font-medium text-accent">
+                            Choisis {effectiveScope === "entity" ? "un élément" : "une législature"} ci-dessous pour
+                            charger « {pendingSelect!.title} ».
+                        </p>
+                    )}
+
                     {EntityResolverComponent && (
-                        <EntityResolverComponent
-                            value={context}
-                            scope={effectiveScope}
-                            lockedScope={lockedScope}
-                            otherContext={isComparing ? otherContext : null}
-                            onChange={(newScope, params) => {
-                                if (!isComparing && rawConstraint && rawConstraint.scope !== newScope) {
-                                    onClearSelection();
-                                }
-                                setLocalScope(newScope);
-                                onContextChange(params);
-                            }}
-                        />
+                        <div
+                            className={
+                                isAwaitingContextForPendingSelect
+                                    ? "rounded-lg border-2 border-accent bg-surface-2 p-2"
+                                    : undefined
+                            }
+                        >
+                            <EntityResolverComponent
+                                value={context}
+                                scope={effectiveScope}
+                                lockedScope={lockedScope}
+                                otherContext={isComparing ? otherContext : null}
+                                onChange={(newScope, params) => {
+                                    if (!isComparing && rawConstraint && rawConstraint.scope !== newScope) {
+                                        onClearSelection();
+                                    }
+                                    setLocalScope(newScope);
+                                    onContextChange(params);
+                                }}
+                            />
+                        </div>
                     )}
 
                     {isReady ? (

@@ -1,4 +1,4 @@
-import { findStatDefinition, getComparableStats, groupStatsByCategory } from "@/app/(ui)/_shared/statistics/catalog/stats-catalog.helpers";
+import { findStatDefinition, getComparableStats, groupStatsByCategory, searchStats } from "@/app/(ui)/_shared/statistics/catalog/stats-catalog.helpers";
 import { StatDomainModule } from "@/app/(ui)/_shared/statistics/catalog/stats-domain.types";
 import { StatDefinition } from "@/app/(ui)/_shared/statistics/catalog/stat-definition.types";
 import { Users } from "lucide-react";
@@ -63,6 +63,55 @@ describe("getComparableStats", () => {
 
     it("returns an empty array when nothing matches", () => {
         expect(getComparableStats(CATALOG, { domain: "votes", scope: "aggregate" })).toEqual([]);
+    });
+});
+
+describe("searchStats", () => {
+    it("returns the whole catalog, in registry order, for an empty query", () => {
+        expect(searchStats(CATALOG, "")).toEqual([AGE_DISTRIBUTION, PARITE, ACTEUR_ENTITY, GROUPE_ENTITY]);
+    });
+
+    it("returns the whole catalog for a whitespace-only query", () => {
+        expect(searchStats(CATALOG, "   ")).toEqual([AGE_DISTRIBUTION, PARITE, ACTEUR_ENTITY, GROUPE_ENTITY]);
+    });
+
+    it("matches on title, case-insensitively", () => {
+        expect(searchStats(CATALOG, "DUMMY")).toEqual([AGE_DISTRIBUTION, PARITE, ACTEUR_ENTITY, GROUPE_ENTITY]);
+    });
+
+    it("matches on the domain module label", () => {
+        expect(searchStats(CATALOG, "Groupes")).toEqual([GROUPE_ENTITY]);
+    });
+
+    it("matches on keywords", () => {
+        const parite = makeStat({ id: "acteurs.parite-kw", keywords: ["parité", "genre"] });
+        const catalog: StatDomainModule[] = [{ id: "acteurs", label: "Députés", icon: Users, stats: [parite, AGE_DISTRIBUTION] }];
+
+        expect(searchStats(catalog, "genre")).toEqual([parite]);
+    });
+
+    it("is accent-insensitive", () => {
+        const legislature = makeStat({ id: "legislatures.evolution", domain: "legislatures", category: "Évolution" });
+        const catalog: StatDomainModule[] = [{ id: "legislatures", label: "Législatures", icon: Users, stats: [legislature] }];
+
+        expect(searchStats(catalog, "evolution")).toEqual([legislature]);
+        expect(searchStats(catalog, "légIslatures")).toEqual([legislature]);
+    });
+
+    it("ranks a title match above a description-only match", () => {
+        const titleMatch = makeStat({ id: "acteurs.cohesion-title", title: "Cohésion des groupes" });
+        const descriptionMatch = makeStat({
+            id: "acteurs.other",
+            title: "Autre chose",
+            description: "Parle aussi de cohésion en passant",
+        });
+        const catalog: StatDomainModule[] = [{ id: "acteurs", label: "Députés", icon: Users, stats: [descriptionMatch, titleMatch] }];
+
+        expect(searchStats(catalog, "cohésion")).toEqual([titleMatch, descriptionMatch]);
+    });
+
+    it("returns an empty array when nothing matches", () => {
+        expect(searchStats(CATALOG, "zzz-introuvable")).toEqual([]);
     });
 });
 
