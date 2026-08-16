@@ -2,6 +2,7 @@ import { LucideIcon, Venus, CalendarDays, Vote, Handshake, Users, Briefcase, Fil
 import { PageSection } from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
 import { FEMMES_ASSEMBLEE_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/femmes-assemblee.sections";
 import { FEMINISATION_GROUPES_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/feminisation-groupes.sections";
+import { AGE_DES_DEPUTES_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/age-des-deputes.sections";
 
 export interface KeyFigureTheme {
     /** Segment de route : /statistics/chiffres-cles/<slug> */
@@ -41,7 +42,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
         title: "L'âge des député·es",
         teaser: "Les plus jeunes, les plus expérimenté·es, et la moyenne d'âge par groupe politique.",
         icon: CalendarDays,
-        sections: [],
+        sections: AGE_DES_DEPUTES_SECTIONS,
     },
     {
         slug: "feminisation-groupes",

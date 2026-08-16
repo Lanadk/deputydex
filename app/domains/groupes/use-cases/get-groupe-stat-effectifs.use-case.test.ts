@@ -9,6 +9,7 @@ function makeRepository(overrides: Partial<IGroupesStatsRepository> = {}): IGrou
         getCohesionEvolution: jest.fn().mockResolvedValue([]),
         getPariteParGroupe: jest.fn().mockResolvedValue([]),
         getFeminisationMouvements: jest.fn().mockResolvedValue([]),
+        getAgeParGroupe: jest.fn().mockResolvedValue([]),
         ...overrides,
     };
 }

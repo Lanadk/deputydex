@@ -1,5 +1,6 @@
 import {
     GroupeFeminisationMouvementRow,
+    GroupeStatAgeParGroupeRow,
     GroupeStatCohesionPointEntity,
     GroupeStatEffectifRow,
     GroupeStatPariteEntity,
@@ -31,4 +32,11 @@ export interface IGroupesStatsRepository {
      * pour la définition exacte ("intégré" / "perdu").
      */
     getFeminisationMouvements(legislature: number): Promise<GroupeFeminisationMouvementRow[]>;
+
+    /**
+     * Âge moyen, une ligne par groupe POLITIQUE de la législature (Non inscrits
+     * exclu — même périmètre que `getPariteParGroupe`) — pour un classement.
+     * Source : `agg_groupes_stats_age`.
+     */
+    getAgeParGroupe(legislature: number): Promise<GroupeStatAgeParGroupeRow[]>;
 }

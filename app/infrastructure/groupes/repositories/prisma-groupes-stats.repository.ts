@@ -4,6 +4,7 @@ import { prisma } from "@/app/infrastructure/db/prisma/prisma";
 import { IGroupesStatsRepository } from "@/app/domains/groupes/repositories/IGroupesStatsRepository";
 import {
     GroupeFeminisationMouvementRow,
+    GroupeStatAgeParGroupeRow,
     GroupeStatCohesionPointEntity,
     GroupeStatEffectifRow,
     GroupeStatPariteEntity,
@@ -116,6 +117,24 @@ export const prismaGroupesStatsRepository: IGroupesStatsRepository = {
               AND ag.groupe_id IN (SELECT groupe_id FROM groupes_actuels)
               AND rg.code NOT LIKE 'NI%'
             GROUP BY rg.code, rg.libelle
+        `;
+    },
+
+    async getAgeParGroupe(legislature: number): Promise<GroupeStatAgeParGroupeRow[]> {
+        // "Non inscrits" exclu : même méthodologie que getPariteParGroupe —
+        // ce n'est pas un groupe politique, un âge moyen n'a pas de sens à
+        // comparer pour cette catégorie.
+        return prisma.$queryRaw<GroupeStatAgeParGroupeRow[]>`
+            SELECT rg.code AS groupe_code,
+                   rg.libelle AS groupe_label,
+                   aga.average_age::float AS average_age
+            FROM agg_groupes_stats_age aga
+            JOIN ref_groupes rg
+                ON rg.groupe_id = aga.groupe_id
+               AND rg.groupe_legislature = aga.legislature
+            WHERE aga.legislature = ${legislature}
+              AND rg.code NOT LIKE 'NI%'
+            ORDER BY aga.average_age ASC
         `;
     },
 };

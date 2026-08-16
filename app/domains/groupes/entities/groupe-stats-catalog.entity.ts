@@ -25,3 +25,10 @@ export type GroupeFeminisationMouvementRow = {
     femmes_arrivees: number;
     femmes_parties: number;
 };
+
+export type GroupeStatAgeParGroupeRow = {
+    groupe_code: string;
+    groupe_label: string | null;
+    /** Moyenne d'âge des membres du groupe à la date de référence — arrondie à 1 décimale, source `agg_groupes_stats_age`. */
+    average_age: number;
+};

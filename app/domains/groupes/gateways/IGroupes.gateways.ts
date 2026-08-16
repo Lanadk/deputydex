@@ -7,6 +7,7 @@ import {GroupeComportementDTO} from "@/app/domains/groupes/dto/groupe-comporteme
 import {GroupeActivityDetailsDTO} from "@/app/domains/groupes/dto/groupe-activity-details.dto";
 import {GroupeActivityDTO} from "@/app/domains/groupes/dto/groupe-activity.dto";
 import {GroupesFeminisationDTO} from "@/app/domains/groupes/dto/groupes-feminisation.dto";
+import {GroupesAgeDTO} from "@/app/domains/groupes/dto/groupes-age.dto";
 
 export interface IGroupesGateways {
     getGroupesCards(legislature: number): Promise<GroupeCardDTO[]>;
@@ -28,4 +29,6 @@ export interface IGroupesGateways {
     getGroupeActivityCalendarDetails(code: string, legislature: number, date: string): Promise<GroupeActivityDetailsDTO[]>
 
     getGroupesFeminisation(legislature: number): Promise<GroupesFeminisationDTO>;
+
+    getGroupesAge(legislature: number): Promise<GroupesAgeDTO>;
 }

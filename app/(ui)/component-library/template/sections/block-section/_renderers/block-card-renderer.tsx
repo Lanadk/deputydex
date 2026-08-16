@@ -1,12 +1,13 @@
 import {
     CardConfig,
-    CardDataWrapper, GroupCardData, GroupCardPairData, KpiBarCardData,
+    CardDataWrapper, DeputeCardData, DeputeCardPairData, GroupCardData, GroupCardPairData, KpiBarCardData,
     KpiCardData, SummaryListCardData
 } from "@/app/(ui)/component-library/template/sections/block-section/card-config.types";
 import {KpiCardLib} from "@/app/(ui)/component-library/molecules/cards/kpi-card/kpi-card-lib";
 import {KpiBarCardLib} from "@/app/(ui)/component-library/molecules/cards/kpi-bar-card/kpi-bar-card-lib";
 import {SummaryListCardLib} from "@/app/(ui)/component-library/molecules/cards/summary-list-card/summary-list-card";
 import {GroupCard} from "@/app/(ui)/components/groups/group-card";
+import {DeputeMiniCard} from "@/app/(ui)/components/deputes/depute-mini-card";
 import {getCanonicalGroupTheme} from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
 
 type BlockCardRendererProps = {
@@ -29,6 +30,26 @@ function GroupCardWithCaption({data}: {data: GroupCardData}) {
                 href={data.href}
                 image={data.image}
                 theme={getCanonicalGroupTheme(data.code)}
+            />
+            {data.caption && (
+                <span className="text-sm font-semibold text-subtitle-accent">{data.caption}</span>
+            )}
+        </div>
+    );
+}
+
+/** Pendant de `GroupCardWithCaption` pour un `DeputeMiniCard` — même largeur imposée, même principe de légende. */
+function DeputeCardWithCaption({data}: {data: DeputeCardData}) {
+    return (
+        <div className="flex w-56 shrink-0 flex-col items-center gap-2">
+            <DeputeMiniCard
+                uid={data.uid}
+                fullName={data.fullName}
+                groupeCode={data.groupeCode}
+                age={data.age}
+                image={data.image}
+                href={data.href}
+                theme={getCanonicalGroupTheme(data.groupeCode)}
             />
             {data.caption && (
                 <span className="text-sm font-semibold text-subtitle-accent">{data.caption}</span>
@@ -75,6 +96,24 @@ export function BlockCardRenderer({config, data, loading}: BlockCardRendererProp
                 <div className="flex flex-wrap justify-center gap-6">
                     {d.data.cards.map((c) => (
                         <GroupCardWithCaption key={c.code} data={c}/>
+                    ))}
+                </div>
+            );
+        }
+        case 'depute-card': {
+            const d = data as { data: DeputeCardData };
+            return (
+                <div className="flex justify-center">
+                    <DeputeCardWithCaption data={d.data}/>
+                </div>
+            );
+        }
+        case 'depute-card-pair': {
+            const d = data as { data: DeputeCardPairData };
+            return (
+                <div className="flex flex-wrap justify-center gap-6">
+                    {d.data.cards.map((c) => (
+                        <DeputeCardWithCaption key={c.uid} data={c}/>
                     ))}
                 </div>
             );
