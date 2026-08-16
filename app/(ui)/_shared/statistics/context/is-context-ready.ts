@@ -5,8 +5,8 @@ import { ENTITY_RESOLVERS } from "@/app/(ui)/components/statistics/entity-resolv
  * Un contexte n'est "prêt" que si tout ce qu'un EntityResolver impose est
  * renseigné : une entité en scope "entity" (`context.entityId`), une
  * législature en scope "aggregate" (`context.filters.legislature`) — dès
- * qu'un resolver existe pour ce domaine. Sans resolver (scrutins/
- * legislatures aujourd'hui), rien à attendre : toujours prêt.
+ * qu'un resolver existe pour ce domaine. Sans resolver (legislatures
+ * aujourd'hui), rien à attendre : toujours prêt.
  *
  * Source de vérité unique pour deux usages : ne pas afficher les catégories
  * du picker avant que ce soit prêt (StatPicker), et ne pas fetcher un

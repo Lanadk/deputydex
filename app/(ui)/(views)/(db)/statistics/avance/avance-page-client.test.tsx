@@ -56,9 +56,9 @@ jest.mock("@/app/(ui)/_shared/statistics/catalog/stats-catalog", () => {
         dataShape: "distribution",
     };
 
-    // "scrutins" est le seul domaine du test qui n'a ni entité ni filtre
-    // législature (voir ENTITY_RESOLVERS) : "votes" en a un désormais
-    // (VotesEntityResolver, filtre législature), comme "groupes"/"acteurs".
+    // "scrutins" a lui aussi un filtre législature désormais
+    // (ScrutinsEntityResolver) — effet de bord assumé sur cette stat en
+    // particulier, qui l'ignore complètement (voir ENTITY_RESOLVERS).
     const SCRUTINS_PARTICIPATION = {
         id: "scrutins.participation",
         slug: "participation",
@@ -66,6 +66,21 @@ jest.mock("@/app/(ui)/_shared/statistics/catalog/stats-catalog", () => {
         scope: "aggregate",
         title: "Évolution du taux de participation",
         category: "Participation",
+        keywords: [],
+        methodology: "",
+        dataShape: "timeseries",
+    };
+
+    // "legislatures" reste le seul domaine du test qui n'a ni entité ni
+    // filtre législature (voir ENTITY_RESOLVERS) : sa seule stat est déjà
+    // une évolution toutes législatures confondues.
+    const LEGISLATURES_PARITE = {
+        id: "legislatures.parite",
+        slug: "parite",
+        domain: "legislatures",
+        scope: "aggregate",
+        title: "Évolution de la parité",
+        category: "Composition",
         keywords: [],
         methodology: "",
         dataShape: "timeseries",
@@ -89,7 +104,7 @@ jest.mock("@/app/(ui)/_shared/statistics/catalog/stats-catalog", () => {
             { id: "groupes", label: "Groupes", icon: Users, stats: [GROUPES_EFFECTIFS] },
             { id: "votes", label: "Votes", icon: Users, stats: [VOTE_POSITIONS] },
             { id: "scrutins", label: "Scrutins", icon: Users, stats: [SCRUTINS_PARTICIPATION] },
-            { id: "legislatures", label: "Législatures", icon: Users, stats: [] },
+            { id: "legislatures", label: "Législatures", icon: Users, stats: [LEGISLATURES_PARITE] },
         ],
     };
 });
@@ -234,8 +249,8 @@ describe("AvancePageClient", () => {
     it("hides 'Comparer' for a domain with no entity/population to vary between contexts", () => {
         render(<AvancePageClient />);
 
-        fireEvent.click(screen.getAllByText("Scrutins")[0]);
-        fireEvent.click(screen.getAllByText("Évolution du taux de participation")[0]);
+        fireEvent.click(screen.getAllByText("Législatures")[0]);
+        fireEvent.click(screen.getAllByText("Évolution de la parité")[0]);
 
         expect(screen.queryByText("Comparer")).not.toBeInTheDocument();
         expect(
@@ -260,5 +275,22 @@ describe("AvancePageClient", () => {
         // Deux occurrences désormais : la checkbox du picker + le mock
         // StatViewer qui rend le titre de la définition sélectionnée.
         expect(screen.getAllByText("Répartition des positions de vote").length).toBeGreaterThan(0);
+    });
+
+    it("requires a legislature for 'scrutins' too (ScrutinsEntityResolver) — even for a stat that ignores it", async () => {
+        render(<AvancePageClient />);
+
+        fireEvent.click(screen.getAllByText("Scrutins")[0]);
+
+        // Pas encore prêt : la catégorie ne doit pas apparaître avant le choix
+        // d'une législature, même si `scrutins.participation` (la seule stat
+        // du mock ici) l'ignore complètement une fois affichée — c'est le
+        // domaine entier qui est gated, pas la stat (voir ENTITY_RESOLVERS).
+        expect(screen.queryByText("Évolution du taux de participation")).not.toBeInTheDocument();
+
+        fireEvent.click(await screen.findByText("17ᵉ législature"));
+        fireEvent.click(await screen.findByText("Évolution du taux de participation"));
+
+        expect(screen.getAllByText("Évolution du taux de participation").length).toBeGreaterThan(0);
     });
 });
