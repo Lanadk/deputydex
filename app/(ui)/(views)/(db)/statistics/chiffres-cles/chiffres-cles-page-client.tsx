@@ -12,7 +12,10 @@ function ThemeTile({ theme }: { theme: KeyFigureTheme }) {
     const available = theme.sections.length > 0;
     return (
         <Link href={`/statistics/chiffres-cles/${theme.slug}`}>
-            <div className="flex h-full flex-col gap-3 rounded-xl border border-main bg-surface-1 p-5 transition-colors hover:bg-surface-2">
+            <div className="flex h-full flex-col gap-3 rounded-xl border border-main bg-surface-1 p-5
+                transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:bg-surface-2
+                hover:shadow-md active:translate-y-0 active:scale-[0.97]"
+            >
                 <div className="flex items-start justify-between gap-3">
                     <theme.icon className="h-6 w-6" style={{ color: "var(--accent)" }} />
                     {!available && <BadgeLib text="Bientôt disponible" variant="tertiary" />}
@@ -37,15 +40,13 @@ export default function ChiffresClesPageClient() {
                 </Link>
                 <PageHeaderLib
                     title="Chiffres clés"
-                    subtitle="Les grands chiffres de l'Assemblée nationale, expliqués : qui sont les député·es, comment votent-ils, comment ça évolue."
+                    subtitle="Les grands chiffres de l'Assemblée nationale, expliqués : qui sont les député·es,
+                    comment votent-ils, comment ça évolue."
                     className="mt-3 mb-0"
                 />
             </div>
 
             <div className="flex flex-col gap-10">
-                {/* Une section par catégorie (voir KEY_FIGURE_CATEGORIES) plutôt qu'une
-                    seule grille à plat — sinon les thèmes "votes" (6 à eux seuls) se
-                    retrouvent mélangés aux thèmes "humain", sans logique de lecture. */}
                 {KEY_FIGURE_CATEGORIES.map((category) => {
                     const themes = KEY_FIGURE_THEMES.filter((theme) => theme.category === category.id);
                     if (themes.length === 0) return null;

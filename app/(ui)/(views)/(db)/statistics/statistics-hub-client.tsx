@@ -2,10 +2,10 @@
 
 import React from "react";
 import Link from "next/link";
-import { BarChart3, Sparkles } from "lucide-react";
-import { BaseLayout } from "@/app/(ui)/component-library/template/base-layout/base-layout-lib";
-import { PageHeaderLib } from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
-import { SpanLib } from "@/app/(ui)/component-library/atoms/span/span-lib";
+import {BarChart3, Sparkles} from "lucide-react";
+import {BaseLayout} from "@/app/(ui)/component-library/template/base-layout/base-layout-lib";
+import {PageHeaderLib} from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
+import {SpanLib} from "@/app/(ui)/component-library/atoms/span/span-lib";
 
 /**
  * `/statistics` — plus l'explorateur lui-même (déplacé sous `/statistics/avance`,
@@ -30,8 +30,11 @@ export default function StatisticsHubClient() {
 
             <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
                 <Link href="/statistics/chiffres-cles">
-                    <div className="flex h-full flex-col gap-4 rounded-xl border border-main bg-surface-1 p-6 transition-colors hover:bg-surface-2">
-                        <Sparkles className="h-8 w-8" style={{ color: "var(--accent)" }} />
+                    <div className="flex h-full flex-col gap-4 rounded-xl border border-main bg-surface-1 p-6
+                        transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:bg-surface-2
+                        hover:shadow-md active:translate-y-0 active:scale-[0.97]"
+                    >
+                        <Sparkles className="h-8 w-8" style={{color: "var(--accent)"}}/>
                         <div>
                             <h3 className="text-lg font-semibold">Chiffres clés</h3>
                             <SpanLib className="mt-2 block text-sm leading-relaxed text-subtitle-accent">
@@ -44,8 +47,11 @@ export default function StatisticsHubClient() {
                 </Link>
 
                 <Link href="/statistics/avance">
-                    <div className="flex h-full flex-col gap-4 rounded-xl border border-main bg-surface-1 p-6 transition-colors hover:bg-surface-2">
-                        <BarChart3 className="h-8 w-8" style={{ color: "var(--accent)" }} />
+                    <div className="flex h-full flex-col gap-4 rounded-xl border border-main bg-surface-1 p-6
+                        transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5
+                        hover:bg-surface-2 hover:shadow-md active:translate-y-0 active:scale-[0.97]"
+                    >
+                        <BarChart3 className="h-8 w-8" style={{color: "var(--accent)"}}/>
                         <div>
                             <h3 className="text-lg font-semibold">Mode avancé</h3>
                             <SpanLib className="mt-2 block text-sm leading-relaxed text-subtitle-accent">
