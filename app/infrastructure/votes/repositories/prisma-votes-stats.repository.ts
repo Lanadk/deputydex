@@ -17,7 +17,17 @@ export const prismaVotesStatsRepository: IVotesStatsRepository = {
         return rows[0] ?? { total_pour: 0, total_contre: 0, total_abstentions: 0, total_non_votants: 0 };
     },
 
-    async countVotes(legislature: number): Promise<number> {
+    async countVotes(legislature?: number): Promise<number> {
+        if (legislature == null) {
+            const rows = await prisma.$queryRaw<{ total: number }[]>`
+                SELECT COALESCE(SUM(
+                    total_pour + total_contre + total_abstentions + total_non_votants
+                ), 0)::int AS total
+                FROM scrutins_agregats
+            `;
+            return rows[0]?.total ?? 0;
+        }
+
         const rows = await prisma.$queryRaw<{ total: number }[]>`
             SELECT COALESCE(SUM(
                 sa.total_pour + sa.total_contre + sa.total_abstentions + sa.total_non_votants

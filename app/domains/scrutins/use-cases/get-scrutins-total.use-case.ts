@@ -4,7 +4,7 @@ import { ok, Result } from "@/app/_shared/result-pattern/result";
 
 export async function getScrutinsTotalUseCase(
     repository: IScrutinsStatsRepository,
-    legislature: number
+    legislature?: number
 ): Promise<Result<ScrutinsTotalDTO, never>> {
     const total = await repository.countScrutins(legislature);
     return ok({ total });

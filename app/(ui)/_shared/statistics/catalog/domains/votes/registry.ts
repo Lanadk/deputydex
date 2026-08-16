@@ -21,7 +21,7 @@ export const VOTES_STATS: StatDefinition[] = [
         category: "Positions de vote",
         keywords: ["votes", "total", "cumul", "volume"],
         description: "Le cumul de tous les votes individuels des député·es (pour, contre, abstention et non-votant confondus) sur la législature — pas le nombre de scrutins.",
-        methodology: "Somme des positions de vote enregistrées sur l'ensemble des scrutins de la législature sélectionnée.",
+        methodology: "Somme des positions de vote enregistrées sur l'ensemble des scrutins de la législature sélectionnée ; toutes législatures confondues si aucune législature n'est précisée.",
         dataShape: "scalar",
         unit: "votes",
     }),

@@ -4,7 +4,7 @@ import { ok, Result } from "@/app/_shared/result-pattern/result";
 
 export async function getVotesTotalUseCase(
     repository: IVotesStatsRepository,
-    legislature: number
+    legislature?: number
 ): Promise<Result<VotesTotalDTO, never>> {
     const total = await repository.countVotes(legislature);
     return ok({ total });

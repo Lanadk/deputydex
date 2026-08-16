@@ -18,11 +18,21 @@ export const VOTES_STAT_HANDLERS: Record<string, StatHandler> = {
         return { shape: "distribution", items: result.data.items };
     },
     total: async (params) => {
+        // `legislature` optionnelle : le domaine "votes" n'a pas
+        // d'EntityResolver (voir ENTITY_RESOLVERS), donc pas de filtre
+        // législature disponible en mode Statistiques avancées —
+        // `isContextReady` considère ce domaine "toujours prêt" et fetch
+        // sans attendre de filtre. Sans législature, on somme toutes
+        // législatures confondues plutôt que d'échouer (voir
+        // IVotesStatsRepository.countVotes).
         const legislature = params.filters?.legislature as number | undefined;
-        if (!legislature) return null;
 
         const result = await getVotesTotalUseCase(prismaVotesStatsRepository, legislature);
         if (!isOk(result)) return null;
-        return { shape: "scalar", value: result.data.total, label: "votes" };
+        return {
+            shape: "scalar",
+            value: result.data.total,
+            label: legislature ? "votes" : "votes — toutes législatures confondues",
+        };
     },
 };

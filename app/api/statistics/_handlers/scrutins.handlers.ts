@@ -18,11 +18,17 @@ export const SCRUTINS_STAT_HANDLERS: Record<string, StatHandler> = {
         return { shape: "timeseries", points: result.data.points };
     },
     total: async (params) => {
+        // Voir votes.handlers.ts "total" : "scrutins" n'a pas non plus
+        // d'EntityResolver — même fallback "toutes législatures confondues"
+        // plutôt qu'un échec quand le filtre législature est absent.
         const legislature = params.filters?.legislature as number | undefined;
-        if (!legislature) return null;
 
         const result = await getScrutinsTotalUseCase(prismaScrutinsStatsRepository, legislature);
         if (!isOk(result)) return null;
-        return { shape: "scalar", value: result.data.total, label: "scrutins" };
+        return {
+            shape: "scalar",
+            value: result.data.total,
+            label: legislature ? "scrutins" : "scrutins — toutes législatures confondues",
+        };
     },
 };

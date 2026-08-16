@@ -24,7 +24,15 @@ export const prismaScrutinsStatsRepository: IScrutinsStatsRepository = {
         `;
     },
 
-    async countScrutins(legislature: number): Promise<number> {
+    async countScrutins(legislature?: number): Promise<number> {
+        if (legislature == null) {
+            const rows = await prisma.$queryRaw<{ total: number }[]>`
+                SELECT COUNT(*)::int AS total
+                FROM scrutins
+            `;
+            return rows[0]?.total ?? 0;
+        }
+
         const rows = await prisma.$queryRaw<{ total: number }[]>`
             SELECT COUNT(*)::int AS total
             FROM scrutins

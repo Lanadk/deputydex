@@ -26,7 +26,7 @@ export const SCRUTINS_STATS: StatDefinition[] = [
         keywords: ["scrutins", "total", "nombre", "volume"],
         description: "Le nombre total de scrutins (votes solennels/publics organisés) sur la législature — pas le " +
             "nombre de votes individuels des député·es.",
-        methodology: "Comptage des scrutins enregistrés pour la législature sélectionnée.",
+        methodology: "Comptage des scrutins enregistrés pour la législature sélectionnée ; toutes législatures confondues si aucune législature n'est précisée.",
         dataShape: "scalar",
         unit: "scrutins",
     }),
