@@ -66,7 +66,7 @@ Chaque étape dépend de la précédente : si les tests, le build ou le déploie
 - [`CLAUDE.md`](./CLAUDE.md) — vue d'ensemble de l'architecture, commandes, conventions
 - [`app/1.CLEAN-ARCHI_server_side.md`](./app/1.CLEAN-ARCHI_server_side.md)
 - [`app/2.RESULT-PATTERN_server_side.md`](./app/2.RESULT-PATTERN_server_side.md)
-- [`app/3.DATA-DRIVER_client_side.md`](./app/3.DATA-DRIVER_client_side.md)
+- [`app/3.COMPONENT-LIBRARY_client_side.md`](./app/3.COMPONENT-LIBRARY_client_side.md)
 - [`app/4.CONFIG-DRIVEN_client_side.md`](./app/4.CONFIG-DRIVEN_client_side.md)
 - [`app/5.API-CACHE-STRATEGY.md`](./app/5.API-CACHE-STRATEGY.md)
 

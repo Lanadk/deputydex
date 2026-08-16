@@ -1568,6 +1568,54 @@
     }
 
     /* -------------------------------------------------------
+       Link card (carte cliquable menant vers un lien externe)
+       ------------------------------------------------------- */
+    .link-card {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 16px;
+        border: 1px solid var(--border-main);
+        border-radius: 0.5rem;
+        background-color: var(--surface-1);
+        transition: background-color 0.15s ease, border-color 0.15s ease;
+    }
+
+    .link-card:hover {
+        border-color: var(--accent);
+        background-color: var(--surface-2);
+    }
+
+    .link-card:active {
+        background-color: var(--surface-3);
+    }
+
+    /* -------------------------------------------------------
+       Difficulty gauge
+       ------------------------------------------------------- */
+    .difficulty-gauge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .difficulty-gauge__bars {
+        display: inline-flex;
+        align-items: flex-end;
+        gap: 3px;
+    }
+
+    .difficulty-gauge__bar {
+        border-radius: 2px;
+        transition: background-color 0.2s ease, opacity 0.2s ease;
+    }
+
+    .difficulty-gauge__label {
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    /* -------------------------------------------------------
        Navigation links
        ------------------------------------------------------- */
     .nav-link {
