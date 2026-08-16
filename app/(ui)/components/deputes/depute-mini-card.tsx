@@ -26,7 +26,7 @@ export const DeputeMiniCard: React.FC<DeputeMiniCardProps> = (props) => {
     const accent = props.theme?.badgeBg;
 
     const content = (
-        <div className="flex h-full flex-col items-center gap-3 rounded-lg border border-main bg-surface-2 p-4 text-center transition-all duration-200 ease-out hover:-translate-y-1 hover:shadow-lg active:translate-y-0 active:scale-95 active:shadow-sm cursor-pointer">
+        <div className="flex h-full flex-col items-center gap-3 rounded-lg border border-main bg-surface-2 p-4 text-center transition-[transform,box-shadow] duration-200 ease-out hover:-translate-y-1 hover:shadow-lg active:translate-y-0 active:scale-95 active:shadow-sm cursor-pointer">
             <div
                 className="flex h-20 w-20 items-center justify-center overflow-hidden rounded-full border-2 bg-muted"
                 style={{borderColor: accent}}

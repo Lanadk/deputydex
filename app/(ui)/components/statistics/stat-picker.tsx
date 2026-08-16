@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useEffect, useRef, useState } from "react";
+import { ChevronDown } from "lucide-react";
 import { ButtonLib } from "@/app/(ui)/component-library/atoms/button/button-lib";
 import { CheckboxLib } from "@/app/(ui)/component-library/molecules/checkbox/checkbox-lib";
 import { STATS_CATALOG } from "@/app/(ui)/_shared/statistics/catalog/stats-catalog";
@@ -94,6 +95,23 @@ export const StatPicker: React.FC<StatPickerProps> = ({
     // dans l'effet ne doit pas déclencher de re-render (règle
     // react-hooks/set-state-in-effect — un ref n'est pas concerné).
     const firedPendingIdRef = useRef<string | null>(null);
+    // Catégories d'accordéon ouvertes, indépendamment de leur contenu actuel
+    // — un `Set` alimenté en "cliquet" (on ajoute, on ne retire jamais tout
+    // seul) par l'effet plus bas, plus les clics manuels sur le résumé (voir
+    // onToggle). BUG corrigé : avant, `open` était recalculé à chaque rendu
+    // depuis `selectedStatIds.some(...)`, donc décocher la DERNIÈRE stat
+    // cochée d'une catégorie ouverte la refermait aussitôt.
+    const [openCategories, setOpenCategories] = useState<Set<string>>(new Set());
+    // Dernier `selectedStatIds` déjà pris en compte pour l'auto-ouverture —
+    // voir le bloc "adjuste l'état pendant le rendu" plus bas, pattern
+    // recommandé par React pour "ajuster un état quand une prop change"
+    // (https://react.dev/learn/you-might-not-need-an-effect) plutôt qu'un
+    // useEffect + setState (déclenche `react-hooks/set-state-in-effect`).
+    // `null` au départ (jamais égal à un vrai tableau de props) : garantit
+    // que l'ajustement tourne aussi au tout premier rendu — utile quand une
+    // stat est déjà sélectionnée dès le montage (sélection partagée, ce
+    // picker vient d'apparaître en mode comparaison).
+    const [syncedSelectedStatIds, setSyncedSelectedStatIds] = useState<string[] | null>(null);
 
     const referenceId = selectedStatIds[0];
     const reference = referenceId ? findStatDefinition(STATS_CATALOG, referenceId) : null;
@@ -156,6 +174,24 @@ export const StatPicker: React.FC<StatPickerProps> = ({
         onToggleStat(pendingSelect.id);
     }, [pendingSelect, isReady, activeDomain, effectiveScope, selectedStatIds, onToggleStat]);
 
+    // Ouvre automatiquement toute catégorie qui VIENT de gagner une stat
+    // cochée (utile en comparaison : l'autre contexte peut cocher une stat
+    // dans une catégorie que CE picker a encore repliée) — mais n'en retire
+    // jamais : perdre sa dernière stat cochée ne referme plus la catégorie.
+    // Ajustement pendant le rendu (pas un effet) : React re-render aussitôt
+    // avec le nouvel état avant peinture, sans le aller-retour "commit puis
+    // effet" qui déclencherait react-hooks/set-state-in-effect.
+    if (selectedStatIds !== syncedSelectedStatIds) {
+        setSyncedSelectedStatIds(selectedStatIds);
+        const categoriesWithSelection = new Set(
+            comparableInScope.filter((stat) => selectedStatIds.includes(stat.id)).map((stat) => stat.category)
+        );
+        const missing = [...categoriesWithSelection].filter((c) => !openCategories.has(c));
+        if (missing.length > 0) {
+            setOpenCategories(new Set([...openCategories, ...missing]));
+        }
+    }
+
     const handleOpenDomain = (domain: StatDomain) => {
         if (!isComparing && rawConstraint && rawConstraint.domain !== domain) {
             onClearSelection();
@@ -163,11 +199,18 @@ export const StatPicker: React.FC<StatPickerProps> = ({
         setIsClosed(false);
         setOpenDomain(domain);
         setLocalScope("aggregate");
+        setOpenCategories(new Set());
     };
 
     const handleSearchSelect = (stat: StatDefinition) => {
         if (!isComparing && rawConstraint && (rawConstraint.domain !== stat.domain || rawConstraint.scope !== stat.scope)) {
             onClearSelection();
+        }
+        // Ne vide les catégories ouvertes QUE si on change vraiment de
+        // domaine — un résultat de recherche pour le domaine déjà ouvert ne
+        // doit pas refermer les autres catégories déjà dépliées.
+        if (activeDomain !== stat.domain) {
+            setOpenCategories(new Set());
         }
         setIsClosed(false);
         setOpenDomain(stat.domain);
@@ -200,6 +243,7 @@ export const StatPicker: React.FC<StatPickerProps> = ({
         setOpenDomain(null);
         setLocalScope("aggregate");
         setPendingSelect(null);
+        setOpenCategories(new Set());
         onReset();
     };
 
@@ -225,12 +269,30 @@ export const StatPicker: React.FC<StatPickerProps> = ({
                                 type="button"
                                 disabled={isDisabled}
                                 onClick={() => handleOpenDomain(module.id)}
-                                className={`flex flex-1 min-w-[140px] flex-col items-center gap-2 rounded-xl border p-5 text-center transition-colors ${
-                                    isActive ? "border-accent bg-surface-2" : "border-main bg-surface-1"
-                                } ${isDisabled ? "cursor-not-allowed opacity-40" : "cursor-pointer hover:bg-surface-2"}`}
+                                className={`group flex flex-1 min-w-[140px] flex-col items-center gap-2 rounded-xl border p-5 text-center transition-[transform,box-shadow] duration-200 ${
+                                    isActive ? "border-accent bg-surface-2 shadow-md" : "border-main bg-surface-1"
+                                } ${
+                                    isDisabled
+                                        ? "cursor-not-allowed opacity-40"
+                                        : "cursor-pointer hover:-translate-y-0.5 hover:border-accent hover:bg-surface-2 hover:shadow-md active:translate-y-0 active:scale-[0.97]"
+                                }`}
                             >
-                                <module.icon className="h-6 w-6" style={{ color: isActive ? "var(--accent)" : "var(--subtitle-accent)" }} />
-                                <span className="text-sm font-semibold">{module.label}</span>
+                                <module.icon
+                                    className={`h-6 w-6 ${
+                                        isActive
+                                            ? "text-accent"
+                                            : isDisabled
+                                                ? "text-subtitle-accent"
+                                                : "text-subtitle-accent group-hover:text-accent"
+                                    }`}
+                                />
+                                <span
+                                    className={`text-sm font-semibold ${
+                                        !isActive && !isDisabled ? "group-hover:text-accent" : ""
+                                    }`}
+                                >
+                                    {module.label}
+                                </span>
                             </button>
                         );
                     })}
@@ -247,9 +309,9 @@ export const StatPicker: React.FC<StatPickerProps> = ({
             </div>
 
             {activeDomain && (
-                <div className="flex flex-col gap-4 border-t border-main pt-4">
+                <div className="flex flex-col gap-4 border-t border-main pt-4" style={{ animation: "fadeIn 0.2s ease" }}>
                     {isAwaitingContextForPendingSelect && (
-                        <p className="text-sm font-medium text-accent">
+                        <p className="text-sm font-medium text-accent" style={{ animation: "fadeIn 0.2s ease" }}>
                             Choisis {effectiveScope === "entity" ? "un élément" : "une législature"} ci-dessous pour
                             charger « {pendingSelect!.title} ».
                         </p>
@@ -280,28 +342,43 @@ export const StatPicker: React.FC<StatPickerProps> = ({
                     )}
 
                     {isReady ? (
-                        <div className="flex flex-col gap-2">
+                        <div className="flex flex-col gap-2" style={{ animation: "fadeIn 0.2s ease" }}>
                             {groupStatsByCategory(comparableInScope).map((group) => (
                                 <details
                                     key={group.category}
-                                    // Toujours dépliée si elle contient une stat sélectionnée —
-                                    // utile surtout en comparaison, où la catégorie d'un contexte
-                                    // peut rester repliée alors qu'une stat y est déjà cochée
-                                    // (sélection partagée entre les deux contextes).
-                                    open={group.stats.some((stat) => selectedStatIds.includes(stat.id))}
-                                    className="rounded-lg border border-main bg-surface-2 px-3 py-2"
+                                    // Ouverte si l'utilisateur l'a ouverte (manuellement ou via
+                                    // l'auto-ouverture "vient de gagner une stat cochée", voir
+                                    // l'effet plus haut) — PAS recalculée depuis la sélection
+                                    // actuelle à chaque rendu (sinon décocher la dernière stat
+                                    // d'une catégorie ouverte la refermerait aussitôt).
+                                    open={openCategories.has(group.category)}
+                                    onToggle={(e) => {
+                                        const isOpenNow = e.currentTarget.open;
+                                        setOpenCategories((prev) => {
+                                            const next = new Set(prev);
+                                            if (isOpenNow) next.add(group.category);
+                                            else next.delete(group.category);
+                                            return next;
+                                        });
+                                    }}
+                                    className="group rounded-lg border border-main bg-surface-2 px-3 py-2 hover:border-accent"
                                 >
-                                    <summary className="cursor-pointer text-sm font-semibold text-subtitle-accent">
+                                    <summary className="flex cursor-pointer list-none items-center justify-between text-sm font-semibold text-subtitle-accent hover:text-accent [&::-webkit-details-marker]:hidden">
                                         {group.category}
+                                        <ChevronDown className="h-4 w-4 shrink-0 transition-transform duration-200 group-open:rotate-180" />
                                     </summary>
-                                    <div className="mt-2 flex flex-col gap-1.5 pl-1">
+                                    <div className="mt-2 flex flex-col gap-0.5 pl-1">
                                         {group.stats.map((stat) => (
-                                            <CheckboxLib
+                                            <div
                                                 key={stat.id}
-                                                isChecked={selectedStatIds.includes(stat.id)}
-                                                onToggle={() => onToggleStat(stat.id)}
-                                                label={stat.title}
-                                            />
+                                                className="rounded-md px-1 py-0.5 hover:bg-surface-1"
+                                            >
+                                                <CheckboxLib
+                                                    isChecked={selectedStatIds.includes(stat.id)}
+                                                    onToggle={() => onToggleStat(stat.id)}
+                                                    label={stat.title}
+                                                />
+                                            </div>
                                         ))}
                                     </div>
                                 </details>

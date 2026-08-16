@@ -62,7 +62,7 @@ function StatisticsAdvancedHub() {
                 accessible même si un reset vide selectedDefinitions pendant
                 qu'on est en mode split (sinon plus aucun moyen de sortir). */}
             {(mode === "split" || selectedDefinitions.length > 0) && (
-                <div className="flex items-center justify-between gap-3">
+                <div className="flex items-center justify-between gap-3" style={{ animation: "fadeIn 0.2s ease" }}>
                     <div className="flex flex-col">
                         <SpanLib className="text-subtitle-accent">
                             {selectedDefinitions.length} statistique{selectedDefinitions.length > 1 ? "s" : ""} sélectionnée
@@ -86,13 +86,16 @@ function StatisticsAdvancedHub() {
             )}
 
             {selectedDefinitions.length === 0 ? (
-                <div className="rounded-xl border border-dashed border-main bg-surface-1 p-8 text-center">
+                <div
+                    className="rounded-xl border border-dashed border-main bg-surface-1 p-8 text-center"
+                    style={{ animation: "fadeIn 0.2s ease" }}
+                >
                     <SpanLib className="text-subtitle-accent">
                         Sélectionne une ou plusieurs statistiques ci-dessus pour commencer.
                     </SpanLib>
                 </div>
             ) : (
-                <div className="flex flex-col gap-4">
+                <div className="flex flex-col gap-4" style={{ animation: "fadeIn 0.2s ease" }}>
                     {mode === "split" && (
                         <div className="grid gap-4 lg:grid-cols-2">
                             {contexts.map((context, contextIndex) => (

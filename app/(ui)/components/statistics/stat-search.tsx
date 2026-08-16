@@ -75,7 +75,7 @@ export const StatSearch: React.FC<StatSearchProps> = ({ catalog, restrictToIds, 
                                     key={stat.id}
                                     type="button"
                                     onClick={() => handleSelect(stat)}
-                                    className={`flex flex-col items-start gap-1 px-3 py-2.5 text-left transition-all duration-100 active:scale-[0.98] ${
+                                    className={`flex flex-col items-start gap-1 px-3 py-2.5 text-left transition-transform duration-100 active:scale-[0.98] ${
                                         index > 0 ? "border-t border-main" : ""
                                     } ${isSelected ? "bg-surface-2" : "hover:bg-surface-2"}`}
                                 >
