@@ -94,7 +94,9 @@ export const DashedLineChartLib: React.FC<DashedLineChartLibProps> = ({
                 xAxis={[
                     {
                         scaleType: "point",
-                        data: data.map((d) => d.label),
+                        // Voir LineChartLib : en multi-séries, `dataKey` (pas
+                        // `data`) pour rester relié au `dataset` fourni.
+                        ...(isMultiSeries ? { dataKey: "label" } : { data: data.map((d) => d.label) }),
                         tickLabelStyle: {
                             fill: axisTextColor,
                             color: axisTextColor,

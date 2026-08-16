@@ -48,3 +48,29 @@ export type GroupeStatExpressionVoteRow = {
     /** % de positions politiques (pour/contre/abstention) parmi TOUTES les positions observées (non-votants inclus) — source `agg_groupes_stats_expression_votes`. */
     taux_expression_votes: number | null;
 };
+
+export type GroupeStatParticipationRow = {
+    groupe_code: string;
+    groupe_label: string | null;
+    /** % de scrutins éligibles réellement participés (pour/contre/abstention), moyenne pondérée sur la législature — source `agg_groupes_stats_participation_legislature`. */
+    taux_participation: number | null;
+};
+
+export type GroupeStatParticipationEvolutionPointEntity = {
+    mois: Date;
+    taux_participation_moyen: number | null;
+};
+
+/** Une ligne par (groupe, mois) — TOUS les groupes d'une législature (pas un seul, contrairement à `GroupeStatParticipationEvolutionPointEntity`), pour le graphe superposé par défaut de `entity-chart`. */
+export type GroupeStatParticipationEvolutionTousRow = {
+    groupe_code: string;
+    groupe_label: string | null;
+    mois: Date;
+    taux_participation_moyen: number | null;
+};
+
+/** Ligne "brute" ref_groupes — PAS filtrée sur l'effectif ni sur les VRAIS NI (NI-16/NI-17 inclus, groupes à 0 membre courant inclus) : sert à peupler un sélecteur "n'importe quel groupe ayant existé cette législature", contrairement à `getGroupesCards`/`getEffectifs`. TBD et le groupe "NI (groupe technique)" (ex: PO0) restent exclus, eux ne sont jamais de vrais groupes. */
+export type GroupeListItemRow = {
+    groupe_code: string;
+    groupe_label: string | null;
+};

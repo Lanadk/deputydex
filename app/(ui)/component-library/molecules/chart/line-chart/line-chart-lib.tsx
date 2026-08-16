@@ -94,7 +94,13 @@ export const LineChartLib: React.FC<LineChartLibProps> = ({
                 xAxis={[
                     {
                         scaleType: "point",
-                        data: data.map((d) => d.label),
+                        // En multi-séries, `dataKey` (pas `data`) — avec un
+                        // `dataset` fourni, MUI a besoin de piocher les
+                        // valeurs d'axe dans ce même dataset ; un tableau
+                        // `data` calculé à part n'est pas relié aux lignes du
+                        // dataset et produit un chart vide (voir BarChartLib,
+                        // qui utilise déjà `dataKey` pour son mode dataset).
+                        ...(isMultiSeries ? { dataKey: "label" } : { data: data.map((d) => d.label) }),
                         tickLabelStyle: {
                             fill: axisTextColor,
                             color: axisTextColor,

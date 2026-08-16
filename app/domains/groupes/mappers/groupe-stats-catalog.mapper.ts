@@ -1,14 +1,22 @@
 import {
+    GroupeListItemRow,
     GroupeStatCohesionPointEntity,
     GroupeStatEffectifRow,
     GroupeStatExpressionVoteRow,
+    GroupeStatParticipationEvolutionPointEntity,
+    GroupeStatParticipationEvolutionTousRow,
+    GroupeStatParticipationRow,
     GroupeStatPariteEntity,
     GroupeStatPositionVoteRow,
 } from "@/app/domains/groupes/entities/groupe-stats-catalog.entity";
 import {
+    GroupeListDTO,
     GroupeStatCohesionDTO,
     GroupeStatEffectifsDTO,
     GroupeStatExpressionVotesDTO,
+    GroupeStatParticipationDTO,
+    GroupeStatParticipationEvolutionDTO,
+    GroupeStatParticipationEvolutionTousDTO,
     GroupeStatPariteDTO,
     GroupeStatPositionsVoteDTO,
 } from "@/app/domains/groupes/dto/groupe-stats-catalog.dto";
@@ -78,4 +86,47 @@ export function mapGroupeStatExpressionVotesToDTO(rows: GroupeStatExpressionVote
             value: row.taux_expression_votes ?? 0,
         })),
     };
+}
+
+/** label = CODE du groupe (pas le libellé complet) — même convention que `mapGroupeStatPositionsVoteToDTO`/`mapGroupeStatExpressionVotesToDTO`, pour permettre un lookup fiable par code côté thème (`getGroupesCards`). */
+export function mapGroupeStatParticipationToDTO(rows: GroupeStatParticipationRow[]): GroupeStatParticipationDTO {
+    return {
+        items: rows.map((row) => ({
+            label: row.groupe_code,
+            value: row.taux_participation ?? 0,
+        })),
+    };
+}
+
+export function mapGroupeStatParticipationEvolutionToDTO(rows: GroupeStatParticipationEvolutionPointEntity[]): GroupeStatParticipationEvolutionDTO {
+    return {
+        points: rows.map((row) => ({
+            label: row.mois.toISOString().slice(0, 7),
+            value: row.taux_participation_moyen ?? 0,
+        })),
+    };
+}
+
+/** Une série par groupe (nom = CODE, même convention que `mapGroupeStatPositionsVoteToDTO`), un item par mois — pour le graphe superposé par défaut de `entity-chart` (`groupes.participation-evolution-groupes`). Ordre des groupes préservé (déjà trié par le repository). */
+export function mapGroupeStatParticipationEvolutionTousToDTO(rows: GroupeStatParticipationEvolutionTousRow[]): GroupeStatParticipationEvolutionTousDTO {
+    const byGroupe = new Map<string, { name: string; items: { label: string; value: number }[] }>();
+
+    for (const row of rows) {
+        if (!byGroupe.has(row.groupe_code)) {
+            byGroupe.set(row.groupe_code, { name: row.groupe_code, items: [] });
+        }
+        byGroupe.get(row.groupe_code)!.items.push({
+            label: row.mois.toISOString().slice(0, 7),
+            value: row.taux_participation_moyen ?? 0,
+        });
+    }
+
+    return { series: Array.from(byGroupe.values()) };
+}
+
+export function mapGroupeListToDTO(rows: GroupeListItemRow[]): GroupeListDTO {
+    return rows.map((row) => ({
+        code: row.groupe_code,
+        label: row.groupe_label ?? row.groupe_code,
+    }));
 }

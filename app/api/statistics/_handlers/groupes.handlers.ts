@@ -5,6 +5,9 @@ import { getGroupeStatCohesionUseCase } from "@/app/domains/groupes/use-cases/ge
 import { getGroupeStatPariteMoyenneUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-parite-moyenne.use-case";
 import { getGroupeStatPositionsVoteUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-positions-vote.use-case";
 import { getGroupeStatExpressionVotesUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-expression-votes.use-case";
+import { getGroupeStatParticipationUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-participation.use-case";
+import { getGroupeStatParticipationEvolutionUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-participation-evolution.use-case";
+import { getGroupeStatParticipationEvolutionTousUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-participation-evolution-tous.use-case";
 import { prismaGroupesStatsRepository } from "@/app/infrastructure/groupes/repositories/prisma-groupes-stats.repository";
 import { StatHandler } from "@/app/api/statistics/_handlers/stat-handler.types";
 
@@ -68,5 +71,30 @@ export const GROUPES_STAT_HANDLERS: Record<string, StatHandler> = {
         const result = await getGroupeStatExpressionVotesUseCase(prismaGroupesStatsRepository, legislature);
         if (!isOk(result)) return null;
         return { shape: "distribution", items: result.data.items };
+    },
+    participation: async (params) => {
+        const legislature = params.filters?.legislature as number | undefined;
+        if (!legislature) return null;
+
+        const result = await getGroupeStatParticipationUseCase(prismaGroupesStatsRepository, legislature);
+        if (!isOk(result)) return null;
+        return { shape: "distribution", items: result.data.items };
+    },
+    "participation-evolution": async (params) => {
+        const code = params.entityId;
+        const legislature = params.filters?.legislature as number | undefined;
+        if (!code || !legislature) return null;
+
+        const result = await getGroupeStatParticipationEvolutionUseCase(prismaGroupesStatsRepository, code, legislature);
+        if (!isOk(result)) return null;
+        return { shape: "timeseries", points: result.data.points };
+    },
+    "participation-evolution-groupes": async (params) => {
+        const legislature = params.filters?.legislature as number | undefined;
+        if (!legislature) return null;
+
+        const result = await getGroupeStatParticipationEvolutionTousUseCase(prismaGroupesStatsRepository, legislature);
+        if (!isOk(result)) return null;
+        return { shape: "multi-series", series: result.data.series };
     },
 };

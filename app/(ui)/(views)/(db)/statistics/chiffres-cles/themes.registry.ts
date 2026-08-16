@@ -7,6 +7,7 @@ import { EFFECTIFS_GROUPES_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/c
 import { POSITIONS_DE_VOTE_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/positions-de-vote.sections";
 import { EXPRESSION_VOTES_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/expression-votes.sections";
 import { CATEGORIES_SOCIO_PRO_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/categories-socio-pro.sections";
+import { PARTICIPATION_PRESENCE_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/participation-presence.sections";
 
 /**
  * Regroupement thématique du hub (`chiffres-cles-page-client.tsx`) — "humain"
@@ -157,7 +158,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
         teaser: "Qui vote, qui s'abstient, qui est absent — et comment ça évolue.",
         icon: Vote,
         category: "votes",
-        sections: [],
+        sections: PARTICIPATION_PRESENCE_SECTIONS,
     },
     {
         slug: "positions-de-vote",

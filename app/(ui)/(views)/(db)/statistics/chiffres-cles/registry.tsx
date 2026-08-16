@@ -3,6 +3,7 @@ import { makeRegistryHelper } from "@/app/(ui)/_shared/registry/registry.helper"
 import { CardConfig } from "@/app/(ui)/component-library/template/sections/block-section/card-config.types";
 import { ChartConfig } from "@/app/(ui)/component-library/template/sections/block-section/chart-config.types";
 import { TableConfig } from "@/app/(ui)/component-library/template/sections/block-section/table-config.types";
+import { EntityChartConfig } from "@/app/(ui)/component-library/template/sections/block-section/entity-chart-config.types";
 import { GroupeFeminisationRowDTO } from "@/app/domains/groupes/dto/groupes-feminisation.dto";
 import { GroupeAgeRowDTO } from "@/app/domains/groupes/dto/groupes-age.dto";
 import { GroupeCardDTO } from "@/app/domains/groupes/dto/groupes-card.dto";
@@ -29,6 +30,18 @@ export type GroupeEffectifTableRow = GroupeCardDTO & { rank: number };
 
 /** Table "expression aux scrutins" : construite dans le thème depuis `groupes.expression-votes` (items label=code/value=taux) + `getGroupesCards` pour le libellé complet — pas de DTO domaine dédié. */
 export type GroupeExpressionTableRow = { groupeCode: string; groupeLabel: string; tauxExpressionVotes: number; rank: number };
+
+/**
+ * Table "participation & présence aux scrutins" : `groupes.participation`
+ * a label = CODE (même convention que positions-de-vote/expression-votes) —
+ * construite dans le thème + `getGroupesCards` pour le libellé complet.
+ * `tauxAbsence` = 100 - `tauxParticipation` (complément exact, pas une
+ * nouvelle donnée : un scrutin éligible est soit voté soit non-votant, il
+ * n'y a pas de troisième état) — c'est le volet "présence" du thème
+ * "Participation & présence", à ne pas confondre avec `tauxParticipation`
+ * qui, lui, mesure l'assiduité.
+ */
+export type GroupeParticipationTableRow = { groupeCode: string; groupeLabel: string; tauxParticipation: number; tauxAbsence: number; rank: number };
 
 /**
  * Table "comparaison Assemblée / population EN EMPLOI française" (pas
@@ -74,6 +87,7 @@ const KEY_FIGURES_CARDS: CardConfig[] = [
     { id: "kpi-categorie-ouvriers", displayType: "kpi-card" },
     { id: "kpi-categorie-cadres", displayType: "kpi-card" },
     { id: "kpi-categorie-fonctionnaires", displayType: "kpi-card" },
+    { id: "card-groupes-participation-extremes", displayType: "group-card-pair" },
 ];
 
 const KEY_FIGURES_CHARTS: ChartConfig[] = [
@@ -100,6 +114,13 @@ const KEY_FIGURES_CHARTS: ChartConfig[] = [
         title: "Répartition par catégorie socio-professionnelle",
         theme: "profession",
         displayType: "donut",
+    },
+    {
+        id: "chart-participation-evolution-assemblee",
+        title: "Évolution du taux de participation aux scrutins",
+        subtitle: "Toutes législatures confondues",
+        theme: "participation",
+        displayType: "line",
     },
 ];
 
@@ -148,6 +169,16 @@ const KEY_FIGURES_TABLES: TableConfig<any>[] = [
         getRowKey: (r: GroupeExpressionTableRow) => r.groupeCode,
     } satisfies TableConfig<GroupeExpressionTableRow>,
     {
+        id: "table-participation-groupes",
+        columns: [
+            { id: "rank", header: "N°", align: "center", cell: (r: GroupeParticipationTableRow) => r.rank, width: 48 },
+            { id: "groupe", header: "Groupe", align: "left", cell: (r: GroupeParticipationTableRow) => <GroupCell code={r.groupeCode} label={r.groupeLabel} /> },
+            { id: "taux", header: "Taux de participation", align: "center", cell: (r: GroupeParticipationTableRow) => `${r.tauxParticipation}%` },
+            { id: "absence", header: "Taux d'absence", align: "center", cell: (r: GroupeParticipationTableRow) => `${r.tauxAbsence}%` },
+        ],
+        getRowKey: (r: GroupeParticipationTableRow) => r.groupeCode,
+    } satisfies TableConfig<GroupeParticipationTableRow>,
+    {
         id: "table-categories-socio-pro-population",
         columns: [
             { id: "famille", header: "Famille socio-professionnelle", align: "left", cell: (r: ProfessionPopulationTableRow) => r.famille },
@@ -158,6 +189,20 @@ const KEY_FIGURES_TABLES: TableConfig<any>[] = [
     } satisfies TableConfig<ProfessionPopulationTableRow>,
 ];
 
+const KEY_FIGURES_ENTITY_CHARTS: EntityChartConfig[] = [
+    {
+        id: "entity-chart-participation-groupe",
+        title: "Évolution de la participation par groupe",
+        subtitle: "Cliquez un groupe pour retirer/remettre sa courbe — la liste inclut les Non inscrits et les groupes renommés/dissous en cours de législature (ex: UDR → UDDPLR), chacun avec sa propre période.",
+        statDomain: "groupes",
+        statSlug: "participation-evolution-groupes",
+        displayType: "line-multi",
+        variant: "parliament-group",
+        entityLabel: "Groupes affichés",
+    },
+];
+
 export const card = makeRegistryHelper(KEY_FIGURES_CARDS, "CardConfig");
 export const chart = makeRegistryHelper(KEY_FIGURES_CHARTS, "ChartConfig");
 export const table = makeRegistryHelper(KEY_FIGURES_TABLES, "TableConfig");
+export const entityChart = makeRegistryHelper(KEY_FIGURES_ENTITY_CHARTS, "EntityChartConfig");

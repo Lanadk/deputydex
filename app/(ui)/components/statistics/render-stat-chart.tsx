@@ -26,7 +26,12 @@ function toMultiSeriesDataset(
     series: { name: string; items: { label: string; value: number }[] }[],
     stacked: boolean
 ): { data: MultiDatum[]; series: SeriesConfig[] } {
-    const labels = Array.from(new Set(series.flatMap((s) => s.items.map((item) => item.label))));
+    // Triés : l'ordre d'apparition dans `series` (première série qui
+    // mentionne un label donné) ne correspond pas forcément à l'ordre
+    // chronologique — ex: groupes.participation-evolution-groupes, où
+    // chaque groupe démarre à un mois différent. Un tri lexicographique
+    // suffit ici car tous les labels connus sont au format "YYYY-MM".
+    const labels = Array.from(new Set(series.flatMap((s) => s.items.map((item) => item.label)))).sort();
 
     const seriesConfig: SeriesConfig[] = series.map((s, i) => ({
         dataKey: `s${i}`,

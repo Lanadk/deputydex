@@ -1,4 +1,4 @@
-import { getGroupeStatExpressionVotesUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-expression-votes.use-case";
+import { getGroupeStatParticipationUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-participation.use-case";
 import { IGroupesStatsRepository } from "@/app/domains/groupes/repositories/IGroupesStatsRepository";
 
 function makeRepository(overrides: Partial<IGroupesStatsRepository> = {}): IGroupesStatsRepository {
@@ -20,32 +20,30 @@ function makeRepository(overrides: Partial<IGroupesStatsRepository> = {}): IGrou
     };
 }
 
-describe("getGroupeStatExpressionVotesUseCase", () => {
-    it("maps repository rows to label/value items, one per groupe (label = code)", async () => {
+describe("getGroupeStatParticipationUseCase", () => {
+    it("maps repository rows to label/value items", async () => {
         const repository = makeRepository({
-            getExpressionVotesParGroupe: jest.fn().mockResolvedValue([
-                { groupe_code: "RN", groupe_label: "Rassemblement National", taux_expression_votes: 92.5 },
-                { groupe_code: "LFI", groupe_label: "La France insoumise", taux_expression_votes: 88.1 },
+            getParticipationParGroupe: jest.fn().mockResolvedValue([
+                { groupe_code: "RN", groupe_label: "Rassemblement National", taux_participation: 91.2 },
+                { groupe_code: "LFI", groupe_label: "La France insoumise", taux_participation: 85.4 },
             ]),
         });
 
-        const result = await getGroupeStatExpressionVotesUseCase(repository, 17);
+        const result = await getGroupeStatParticipationUseCase(repository, 17);
 
-        expect(repository.getExpressionVotesParGroupe).toHaveBeenCalledWith(17);
+        expect(repository.getParticipationParGroupe).toHaveBeenCalledWith(17);
         if (!result.success) throw new Error("expected success");
         expect(result.data).toEqual({
             items: [
-                { label: "RN", value: 92.5 },
-                { label: "LFI", value: 88.1 },
+                { label: "RN", value: 91.2 },
+                { label: "LFI", value: 85.4 },
             ],
         });
     });
 
     it("returns ok({items: []}) when there is no data", async () => {
         const repository = makeRepository();
-
-        const result = await getGroupeStatExpressionVotesUseCase(repository, 17);
-
+        const result = await getGroupeStatParticipationUseCase(repository, 17);
         expect(result).toEqual({ success: true, data: { items: [] } });
     });
 });

@@ -4,10 +4,14 @@ import { prisma } from "@/app/infrastructure/db/prisma/prisma";
 import { IGroupesStatsRepository } from "@/app/domains/groupes/repositories/IGroupesStatsRepository";
 import {
     GroupeFeminisationMouvementRow,
+    GroupeListItemRow,
     GroupeStatAgeParGroupeRow,
     GroupeStatCohesionPointEntity,
     GroupeStatEffectifRow,
     GroupeStatExpressionVoteRow,
+    GroupeStatParticipationEvolutionPointEntity,
+    GroupeStatParticipationEvolutionTousRow,
+    GroupeStatParticipationRow,
     GroupeStatPariteEntity,
     GroupeStatPariteParGroupeRow,
     GroupeStatPositionVoteRow,
@@ -184,6 +188,79 @@ export const prismaGroupesStatsRepository: IGroupesStatsRepository = {
               AND ev.code NOT LIKE 'NI%'
               AND agel.nb_acteurs_photo > 0
             ORDER BY ev.taux_expression_votes DESC NULLS LAST
+        `;
+    },
+
+    async getParticipationParGroupe(legislature: number): Promise<GroupeStatParticipationRow[]> {
+        // Même précaution que getExpressionVotesParGroupe : filtrer sur
+        // l'effectif COURANT (groupe renommé/dissous en cours de législature).
+        return prisma.$queryRaw<GroupeStatParticipationRow[]>`
+            SELECT pl.code AS groupe_code,
+                   pl.libelle AS groupe_label,
+                   pl.taux_participation_legislature::float AS taux_participation
+            FROM agg_groupes_stats_participation_legislature pl
+            JOIN agg_groupes_effectifs_legislature agel
+                ON agel.groupe_id = pl.groupe_id
+               AND agel.legislature = pl.legislature
+            WHERE pl.legislature = ${legislature}
+              AND pl.code <> 'TBD'
+              AND pl.code NOT LIKE 'NI%'
+              AND agel.nb_acteurs_photo > 0
+            ORDER BY pl.taux_participation_legislature DESC NULLS LAST
+        `;
+    },
+
+    async getParticipationEvolutionParGroupe(code: string, legislature: number): Promise<GroupeStatParticipationEvolutionPointEntity[]> {
+        // ::float impératif : `taux_participation_moyen_deputes` est un
+        // NUMERIC côté Postgres, que Prisma $queryRaw renvoie en STRING sans
+        // ce cast (perte de précision flottante évitée par design) — passé
+        // tel quel dans un chart, ça casse silencieusement les calculs
+        // numériques (pas d'erreur, juste un rendu vide/faux).
+        return prisma.$queryRaw<GroupeStatParticipationEvolutionPointEntity[]>`
+            SELECT mois, taux_participation_moyen_deputes::float AS taux_participation_moyen
+            FROM agg_groupes_stats_participation_mensuelle
+            WHERE code = ${code}
+              AND legislature = ${legislature}
+            ORDER BY mois ASC
+        `;
+    },
+
+    async getParticipationEvolutionTousGroupes(legislature: number): Promise<GroupeStatParticipationEvolutionTousRow[]> {
+        // Même périmètre que listGroupesLegislature (TBD + "NI (groupe
+        // technique)" exclus, VRAIS NI et groupes à 0 membre courant
+        // inclus) — voir IGroupesStatsRepository.getParticipationEvolutionTousGroupes.
+        // ::float impératif — voir getParticipationEvolutionParGroupe.
+        return prisma.$queryRaw<GroupeStatParticipationEvolutionTousRow[]>`
+            SELECT pm.code AS groupe_code,
+                   pm.libelle AS groupe_label,
+                   pm.mois,
+                   pm.taux_participation_moyen_deputes::float AS taux_participation_moyen
+            FROM agg_groupes_stats_participation_mensuelle pm
+            WHERE pm.legislature = ${legislature}
+              AND pm.code <> 'TBD'
+              AND pm.groupe_id <> 'PO0'
+              AND pm.libelle NOT ILIKE '%technique%'
+            ORDER BY pm.code ASC, pm.mois ASC
+        `;
+    },
+
+    async listGroupesLegislature(legislature: number): Promise<GroupeListItemRow[]> {
+        // PAS de filtre sur l'effectif courant ni sur les VRAIS Non inscrits
+        // (NI-16/NI-17), volontairement — voir IGroupesStatsRepository.listGroupesLegislature.
+        // Exclus : TBD (placeholder technique) et le groupe "NI (groupe
+        // technique)" (ex: groupe_id 'PO0' en 17ᵉ législature, libellé "Non
+        // inscrits (groupe technique)") — ce n'est pas un vrai groupe, juste
+        // un rattachement administratif transitoire ; même détection que
+        // agg_groupes_stats_stabilite.sql (groupe_id = 'PO0' OR libellé
+        // contenant "technique").
+        return prisma.$queryRaw<GroupeListItemRow[]>`
+            SELECT DISTINCT code AS groupe_code, libelle AS groupe_label
+            FROM ref_groupes
+            WHERE groupe_legislature = ${legislature}
+              AND code <> 'TBD'
+              AND groupe_id <> 'PO0'
+              AND libelle NOT ILIKE '%technique%'
+            ORDER BY code ASC
         `;
     },
 };
