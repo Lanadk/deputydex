@@ -7,6 +7,8 @@ function makeRepository(overrides: Partial<IActeursStatsRepository> = {}): IActe
         getAgeDistribution: jest.fn().mockResolvedValue([]),
         getGenderDistribution: jest.fn().mockResolvedValue([]),
         getMandatsCount: jest.fn().mockResolvedValue(0),
+        getProfessionDistribution: jest.fn().mockResolvedValue([]),
+        getProfessionFamilleDistribution: jest.fn().mockResolvedValue([]),
         ...overrides,
     };
 }

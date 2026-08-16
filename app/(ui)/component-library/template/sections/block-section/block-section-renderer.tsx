@@ -28,6 +28,8 @@ export type ParagraphItem =
     | { type: "kpi"; label: string; value: string; trend?: "up" | "down" | "neutral"; trendLabel?: string }
     /** Petit label en gras au-dessus des items suivants — regroupe visuellement un paragraphe qui couvre plusieurs sous-sujets (ex: "Taux de féminisation" puis "Mouvements de femmes") plutôt qu'une liste plate de phrases */
     | { type: "subheading"; content: string }
+    /** Lien de citation externe (ex: source INSEE d'une donnée de référence) — discret, pas une phrase du récit */
+    | { type: "source"; label: string; href: string }
 
 //Blocks
 

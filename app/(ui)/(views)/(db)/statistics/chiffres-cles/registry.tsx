@@ -31,6 +31,17 @@ export type GroupeEffectifTableRow = GroupeCardDTO & { rank: number };
 export type GroupeExpressionTableRow = { groupeCode: string; groupeLabel: string; tauxExpressionVotes: number; rank: number };
 
 /**
+ * Table "comparaison Assemblée / population EN EMPLOI française" (pas
+ * "population active", ni la population générale — voir
+ * `POPULATION_FRANCAISE_PROFESSION_FAMILLE_PCT_BY_LEGISLATURE`, source Insee
+ * enquête Emploi, un millésime par législature) : `pctPopulation` est `null`
+ * pour une famille hors du périmètre de cette source (ex: Retraités,
+ * structurellement hors population en emploi) ou pas encore renseignée — la
+ * cellule affiche alors "Pas de donnée" plutôt qu'un chiffre inventé.
+ */
+export type ProfessionPopulationTableRow = { famille: string; pctAssemblee: number; nbAssemblee: number; pctPopulation: number | null };
+
+/**
  * Cellule "Groupe" cliquable, colorée avec le thème du groupe (même palette
  * que `GroupCard`/les charts "parliament-group") — renvoie vers sa fiche
  * `/groupes/[code]`, pour ne pas juste balancer un classement à plat sans
@@ -58,6 +69,11 @@ const KEY_FIGURES_CARDS: CardConfig[] = [
     { id: "kpi-scrutins-total-legislature", displayType: "kpi-card" },
     { id: "kpi-votes-total-legislature", displayType: "kpi-card" },
     { id: "card-groupes-expression-extremes", displayType: "group-card-pair" },
+    { id: "kpi-categorie-socio-pro-dominante", displayType: "kpi-card" },
+    { id: "kpi-categorie-agriculteurs", displayType: "kpi-card" },
+    { id: "kpi-categorie-ouvriers", displayType: "kpi-card" },
+    { id: "kpi-categorie-cadres", displayType: "kpi-card" },
+    { id: "kpi-categorie-fonctionnaires", displayType: "kpi-card" },
 ];
 
 const KEY_FIGURES_CHARTS: ChartConfig[] = [
@@ -78,6 +94,12 @@ const KEY_FIGURES_CHARTS: ChartConfig[] = [
         title: "Répartition pour / contre / abstention par groupe (en %)",
         theme: "vote-positions",
         displayType: "stacked-bar",
+    },
+    {
+        id: "chart-categories-socio-pro-repartition",
+        title: "Répartition par catégorie socio-professionnelle",
+        theme: "profession",
+        displayType: "donut",
     },
 ];
 
@@ -125,6 +147,15 @@ const KEY_FIGURES_TABLES: TableConfig<any>[] = [
         ],
         getRowKey: (r: GroupeExpressionTableRow) => r.groupeCode,
     } satisfies TableConfig<GroupeExpressionTableRow>,
+    {
+        id: "table-categories-socio-pro-population",
+        columns: [
+            { id: "famille", header: "Famille socio-professionnelle", align: "left", cell: (r: ProfessionPopulationTableRow) => r.famille },
+            { id: "assemblee", header: "% à l'Assemblée", align: "center", cell: (r: ProfessionPopulationTableRow) => `${r.pctAssemblee}% (${r.nbAssemblee})` },
+            { id: "population", header: "% population en emploi française", align: "center", cell: (r: ProfessionPopulationTableRow) => (r.pctPopulation != null ? `${r.pctPopulation}%` : "Pas de donnée") },
+        ],
+        getRowKey: (r: ProfessionPopulationTableRow) => r.famille,
+    } satisfies TableConfig<ProfessionPopulationTableRow>,
 ];
 
 export const card = makeRegistryHelper(KEY_FIGURES_CARDS, "CardConfig");

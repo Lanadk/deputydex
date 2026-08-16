@@ -4,6 +4,8 @@ import { prisma } from "@/app/infrastructure/db/prisma/prisma";
 import { IActeursStatsRepository } from "@/app/domains/acteurs/repositories/IActeursStatsRepository";
 import { AgeDistributionBucketEntity } from "@/app/domains/acteurs/entities/acteur-age-distribution.entity";
 import { GenderDistributionBucketEntity } from "@/app/domains/acteurs/entities/acteur-gender-distribution.entity";
+import { ProfessionDistributionBucketEntity } from "@/app/domains/acteurs/entities/acteur-profession-distribution.entity";
+import { ProfessionFamilleDistributionBucketEntity } from "@/app/domains/acteurs/entities/acteur-profession-famille-distribution.entity";
 import { ActeurEntity } from "@/app/domains/acteurs/entities/acteurs.entity";
 
 export const prismaActeursStatsRepository: IActeursStatsRepository = {
@@ -125,5 +127,47 @@ export const prismaActeursStatsRepository: IActeursStatsRepository = {
             WHERE acteur_uid = ${acteurUid}
         `;
         return rows[0]?.nb_mandats ?? 0;
+    },
+
+    async getProfessionDistribution(legislature: number): Promise<ProfessionDistributionBucketEntity[]> {
+        // `agg_acteurs_stats_professions` a une ligne par (categorie, famille)
+        // — on regroupe par categorie pour la vue d'ensemble ("De quels
+        // horizons professionnels viennent les député·es ?"), la famille
+        // (plus fine) n'est pas utilisée par ce thème.
+        return prisma.$queryRaw<ProfessionDistributionBucketEntity[]>`
+            SELECT profession_categorie, SUM(nb_acteurs)::int AS nb_acteurs
+            FROM agg_acteurs_stats_professions
+            WHERE legislature = ${legislature}
+              AND type_organe = 'ASSEMBLEE'
+            GROUP BY profession_categorie
+            ORDER BY nb_acteurs DESC
+        `;
+    },
+
+    async getProfessionFamilleDistribution(legislature: number): Promise<ProfessionFamilleDistributionBucketEntity[]> {
+        // `agg_acteurs_stats_professions` porte deux variantes d'orthographe
+        // pour la même famille ("Artisans, commerçants, chefs d'entreprises"
+        // vs "...et chefs d'entreprise") — contrairement à la vue équivalente
+        // côté groupes (agg_groupes_stats_professions_familles), celle-ci
+        // n'est pas normalisée. Même normalisation ici, même libellé canonique.
+        return prisma.$queryRaw<ProfessionFamilleDistributionBucketEntity[]>`
+            SELECT profession_famille, SUM(nb_acteurs)::int AS nb_acteurs
+            FROM (
+                SELECT
+                    CASE
+                        WHEN profession_famille IN (
+                            'Artisans, commerçants, chefs d''entreprises',
+                            'Artisans, commerçants et chefs d''entreprise'
+                        ) THEN 'Artisans, commerçants et chefs d''entreprise'
+                        ELSE profession_famille
+                    END AS profession_famille,
+                    nb_acteurs
+                FROM agg_acteurs_stats_professions
+                WHERE legislature = ${legislature}
+                  AND type_organe = 'ASSEMBLEE'
+            ) normalized
+            GROUP BY profession_famille
+            ORDER BY nb_acteurs DESC
+        `;
     },
 };

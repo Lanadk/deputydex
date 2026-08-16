@@ -3,6 +3,7 @@
 import React from "react";
 import { PieChart } from "@mui/x-charts/PieChart";
 import { ChartContainerLib } from "@/app/(ui)/component-library/molecules/chart/wrapper/chart-container-lib";
+import { ChartLegendLib, buildLegendItems } from "@/app/(ui)/component-library/molecules/chart/wrapper/chart-legend-lib";
 import {
     isParliamentGroupVariant,
     mapSeriesToGroupColors,
@@ -22,6 +23,7 @@ interface PieChartLibProps {
     loading?: boolean;
     height?: number;
     emptyLabel?: string;
+    showLegend?: boolean;
     variant?: "default" | "parliament-group";
 }
 
@@ -32,6 +34,7 @@ export const PieChartLib: React.FC<PieChartLibProps> = ({
                                                             loading = false,
                                                             height = 320,
                                                             emptyLabel = "Aucune donnée",
+                                                            showLegend = true,
                                                             variant = "default",
                                                         }) => {
     const empty = data.length === 0;
@@ -48,6 +51,7 @@ export const PieChartLib: React.FC<PieChartLibProps> = ({
             empty={empty}
             emptyLabel={emptyLabel}
             height={height}
+            legend={showLegend && <ChartLegendLib items={buildLegendItems(seriesWithColors, defaultChartColors)} />}
         >
             <PieChart
                 height={height}
@@ -57,6 +61,7 @@ export const PieChartLib: React.FC<PieChartLibProps> = ({
                         data: seriesWithColors,
                     },
                 ]}
+                hideLegend
                 sx={polarChartSx}
             />
         </ChartContainerLib>

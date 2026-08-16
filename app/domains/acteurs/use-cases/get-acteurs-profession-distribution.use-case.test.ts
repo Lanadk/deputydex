@@ -1,4 +1,4 @@
-import { getActeursGenderDistributionUseCase } from "@/app/domains/acteurs/use-cases/get-acteurs-gender-distribution.use-case";
+import { getActeursProfessionDistributionUseCase } from "@/app/domains/acteurs/use-cases/get-acteurs-profession-distribution.use-case";
 import { IActeursStatsRepository } from "@/app/domains/acteurs/repositories/IActeursStatsRepository";
 
 function makeRepository(overrides: Partial<IActeursStatsRepository> = {}): IActeursStatsRepository {
@@ -13,32 +13,24 @@ function makeRepository(overrides: Partial<IActeursStatsRepository> = {}): IActe
     };
 }
 
-describe("getActeursGenderDistributionUseCase", () => {
+describe("getActeursProfessionDistributionUseCase", () => {
     it("maps every bucket to a label/value item, forwarding the legislature filter", async () => {
         const repository = makeRepository({
-            getGenderDistribution: jest.fn().mockResolvedValue([
-                { civilite: "M.", nb_acteurs: 64 },
-                { civilite: "Mme", nb_acteurs: 36 },
+            getProfessionDistribution: jest.fn().mockResolvedValue([
+                { profession_categorie: "Cadres et professions intellectuelles supérieures", nb_acteurs: 320 },
+                { profession_categorie: "Non renseignée", nb_acteurs: 12 },
             ]),
         });
 
-        const result = await getActeursGenderDistributionUseCase(repository, 17);
+        const result = await getActeursProfessionDistributionUseCase(repository, 17);
 
-        expect(repository.getGenderDistribution).toHaveBeenCalledWith(17);
+        expect(repository.getProfessionDistribution).toHaveBeenCalledWith(17);
         if (!result.success) throw new Error("expected success");
         expect(result.data).toEqual({
             items: [
-                { label: "Hommes", value: 64 },
-                { label: "Femmes", value: 36 },
+                { label: "Cadres et professions intellectuelles supérieures", value: 320 },
+                { label: "Non renseignée", value: 12 },
             ],
         });
-    });
-
-    it("calls the repository without a legislature when none is given", async () => {
-        const repository = makeRepository();
-
-        await getActeursGenderDistributionUseCase(repository);
-
-        expect(repository.getGenderDistribution).toHaveBeenCalledWith(undefined);
     });
 });

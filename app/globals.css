@@ -1632,6 +1632,39 @@
 
     .chart-lib__body {
         width: 100%;
+        overflow: hidden;
+    }
+
+    .chart-legend-lib {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 16px;
+        padding-top: 4px;
+    }
+
+    .chart-legend-lib__item {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+        min-width: 0;
+        max-width: 100%;
+    }
+
+    .chart-legend-lib__swatch {
+        width: 10px;
+        height: 10px;
+        min-width: 10px;
+        margin-top: 4px;
+        border-radius: 2px;
+    }
+
+    .chart-legend-lib__label {
+        font-size: 12px;
+        color: var(--foreground);
+        /* Labels longs (ex: catégories socio-professionnelles) : on les
+           laisse passer à la ligne plutôt que de les tronquer — l'objectif
+           de cette légende est justement de garder toute l'info lisible. */
+        overflow-wrap: break-word;
     }
 
     /* -------------------------------------------------------
