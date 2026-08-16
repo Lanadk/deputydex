@@ -6,7 +6,27 @@ import { BaseLayout } from "@/app/(ui)/component-library/template/base-layout/ba
 import { PageHeaderLib } from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
 import { SpanLib } from "@/app/(ui)/component-library/atoms/span/span-lib";
 import { BadgeLib } from "@/app/(ui)/component-library/atoms/badge/badge-lib";
-import { KEY_FIGURE_THEMES } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes.registry";
+import { KEY_FIGURE_CATEGORIES, KEY_FIGURE_THEMES, KeyFigureTheme } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes.registry";
+
+function ThemeTile({ theme }: { theme: KeyFigureTheme }) {
+    const available = theme.sections.length > 0;
+    return (
+        <Link href={`/statistics/chiffres-cles/${theme.slug}`}>
+            <div className="flex h-full flex-col gap-3 rounded-xl border border-main bg-surface-1 p-5 transition-colors hover:bg-surface-2">
+                <div className="flex items-start justify-between gap-3">
+                    <theme.icon className="h-6 w-6" style={{ color: "var(--accent)" }} />
+                    {!available && <BadgeLib text="Bientôt disponible" variant="tertiary" />}
+                </div>
+                <div>
+                    <h3 className="text-base font-semibold">{theme.title}</h3>
+                    <SpanLib className="mt-1 block text-sm leading-relaxed text-subtitle-accent">
+                        {theme.teaser}
+                    </SpanLib>
+                </div>
+            </div>
+        </Link>
+    );
+}
 
 export default function ChiffresClesPageClient() {
     return (
@@ -22,24 +42,23 @@ export default function ChiffresClesPageClient() {
                 />
             </div>
 
-            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                {KEY_FIGURE_THEMES.map((theme) => {
-                    const available = theme.sections.length > 0;
+            <div className="flex flex-col gap-10">
+                {/* Une section par catégorie (voir KEY_FIGURE_CATEGORIES) plutôt qu'une
+                    seule grille à plat — sinon les thèmes "votes" (6 à eux seuls) se
+                    retrouvent mélangés aux thèmes "humain", sans logique de lecture. */}
+                {KEY_FIGURE_CATEGORIES.map((category) => {
+                    const themes = KEY_FIGURE_THEMES.filter((theme) => theme.category === category.id);
+                    if (themes.length === 0) return null;
+
                     return (
-                        <Link key={theme.slug} href={`/statistics/chiffres-cles/${theme.slug}`}>
-                            <div className="flex h-full flex-col gap-3 rounded-xl border border-main bg-surface-1 p-5 transition-colors hover:bg-surface-2">
-                                <div className="flex items-start justify-between gap-3">
-                                    <theme.icon className="h-6 w-6" style={{ color: "var(--accent)" }} />
-                                    {!available && <BadgeLib text="Bientôt disponible" variant="tertiary" />}
-                                </div>
-                                <div>
-                                    <h3 className="text-base font-semibold">{theme.title}</h3>
-                                    <SpanLib className="mt-1 block text-sm leading-relaxed text-subtitle-accent">
-                                        {theme.teaser}
-                                    </SpanLib>
-                                </div>
+                        <section key={category.id}>
+                            <h2 className="mb-4 text-lg font-semibold">{category.label}</h2>
+                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+                                {themes.map((theme) => (
+                                    <ThemeTile key={theme.slug} theme={theme} />
+                                ))}
                             </div>
-                        </Link>
+                        </section>
                     );
                 })}
             </div>
