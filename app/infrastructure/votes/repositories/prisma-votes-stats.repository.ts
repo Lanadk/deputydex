@@ -5,14 +5,28 @@ import { IVotesStatsRepository } from "@/app/domains/votes/repositories/IVotesSt
 import { VotePositionsTotalsEntity } from "@/app/domains/votes/entities/vote-positions-totals.entity";
 
 export const prismaVotesStatsRepository: IVotesStatsRepository = {
-    async getPositionsTotals(): Promise<VotePositionsTotalsEntity> {
+    async getPositionsTotals(legislature?: number): Promise<VotePositionsTotalsEntity> {
+        if (legislature == null) {
+            const rows = await prisma.$queryRaw<VotePositionsTotalsEntity[]>`
+                SELECT
+                    COALESCE(SUM(total_pour), 0)::int AS total_pour,
+                    COALESCE(SUM(total_contre), 0)::int AS total_contre,
+                    COALESCE(SUM(total_abstentions), 0)::int AS total_abstentions,
+                    COALESCE(SUM(total_non_votants), 0)::int AS total_non_votants
+                FROM scrutins_agregats
+            `;
+            return rows[0] ?? { total_pour: 0, total_contre: 0, total_abstentions: 0, total_non_votants: 0 };
+        }
+
         const rows = await prisma.$queryRaw<VotePositionsTotalsEntity[]>`
             SELECT
-                COALESCE(SUM(total_pour), 0)::int AS total_pour,
-                COALESCE(SUM(total_contre), 0)::int AS total_contre,
-                COALESCE(SUM(total_abstentions), 0)::int AS total_abstentions,
-                COALESCE(SUM(total_non_votants), 0)::int AS total_non_votants
-            FROM scrutins_agregats
+                COALESCE(SUM(sa.total_pour), 0)::int AS total_pour,
+                COALESCE(SUM(sa.total_contre), 0)::int AS total_contre,
+                COALESCE(SUM(sa.total_abstentions), 0)::int AS total_abstentions,
+                COALESCE(SUM(sa.total_non_votants), 0)::int AS total_non_votants
+            FROM scrutins_agregats sa
+            JOIN scrutins s ON s.uid = sa.scrutin_uid
+            WHERE s.legislature_snapshot = ${legislature}
         `;
         return rows[0] ?? { total_pour: 0, total_contre: 0, total_abstentions: 0, total_non_votants: 0 };
     },

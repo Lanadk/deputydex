@@ -4,8 +4,9 @@ import { VotePositionsStatDTO } from "@/app/domains/votes/dto/vote-positions-sta
 import { ok, Result } from "@/app/_shared/result-pattern/result";
 
 export async function getVotesPositionsStatUseCase(
-    repository: IVotesStatsRepository
+    repository: IVotesStatsRepository,
+    legislature?: number
 ): Promise<Result<VotePositionsStatDTO, never>> {
-    const totals = await repository.getPositionsTotals();
+    const totals = await repository.getPositionsTotals(legislature);
     return ok(mapVotePositionsStatToDTO(totals));
 }

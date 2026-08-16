@@ -37,4 +37,12 @@ describe("getVotesPositionsStatUseCase", () => {
             ],
         });
     });
+
+    it("passes the legislature filter through to the repository", async () => {
+        const repository = makeRepository();
+
+        await getVotesPositionsStatUseCase(repository, 17);
+
+        expect(repository.getPositionsTotals).toHaveBeenCalledWith(17);
+    });
 });

@@ -12,19 +12,20 @@ import { StatHandler } from "@/app/api/statistics/_handlers/stat-handler.types";
  * `params -> RawStatData` et ne jamais implémenter leur propre cache.
  */
 export const VOTES_STAT_HANDLERS: Record<string, StatHandler> = {
-    positions: async () => {
-        const result = await getVotesPositionsStatUseCase(prismaVotesStatsRepository);
+    // `legislature` optionnelle sur les deux stats : VotesEntityResolver
+    // (voir ENTITY_RESOLVERS) impose déjà son choix avant de rendre ce
+    // domaine "prêt" en mode Statistiques avancées (comportement identique
+    // à groupes/acteurs), mais d'autres appelants (ex: chiffres-clés) restent
+    // libres de ne pas en fournir — dans ce cas on agrège toutes législatures
+    // confondues plutôt que d'échouer.
+    positions: async (params) => {
+        const legislature = params.filters?.legislature as number | undefined;
+
+        const result = await getVotesPositionsStatUseCase(prismaVotesStatsRepository, legislature);
         if (!isOk(result)) return null;
         return { shape: "distribution", items: result.data.items };
     },
     total: async (params) => {
-        // `legislature` optionnelle : le domaine "votes" n'a pas
-        // d'EntityResolver (voir ENTITY_RESOLVERS), donc pas de filtre
-        // législature disponible en mode Statistiques avancées —
-        // `isContextReady` considère ce domaine "toujours prêt" et fetch
-        // sans attendre de filtre. Sans législature, on somme toutes
-        // législatures confondues plutôt que d'échouer (voir
-        // IVotesStatsRepository.countVotes).
         const legislature = params.filters?.legislature as number | undefined;
 
         const result = await getVotesTotalUseCase(prismaVotesStatsRepository, legislature);

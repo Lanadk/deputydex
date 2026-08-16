@@ -56,6 +56,21 @@ jest.mock("@/app/(ui)/_shared/statistics/catalog/stats-catalog", () => {
         dataShape: "distribution",
     };
 
+    // "scrutins" est le seul domaine du test qui n'a ni entité ni filtre
+    // législature (voir ENTITY_RESOLVERS) : "votes" en a un désormais
+    // (VotesEntityResolver, filtre législature), comme "groupes"/"acteurs".
+    const SCRUTINS_PARTICIPATION = {
+        id: "scrutins.participation",
+        slug: "participation",
+        domain: "scrutins",
+        scope: "aggregate",
+        title: "Évolution du taux de participation",
+        category: "Participation",
+        keywords: [],
+        methodology: "",
+        dataShape: "timeseries",
+    };
+
     const GROUPES_EFFECTIFS = {
         id: "groupes.effectifs",
         slug: "effectifs",
@@ -73,7 +88,7 @@ jest.mock("@/app/(ui)/_shared/statistics/catalog/stats-catalog", () => {
             { id: "acteurs", label: "Députés", icon: Users, stats: [AGE_DISTRIBUTION] },
             { id: "groupes", label: "Groupes", icon: Users, stats: [GROUPES_EFFECTIFS] },
             { id: "votes", label: "Votes", icon: Users, stats: [VOTE_POSITIONS] },
-            { id: "scrutins", label: "Scrutins", icon: Users, stats: [] },
+            { id: "scrutins", label: "Scrutins", icon: Users, stats: [SCRUTINS_PARTICIPATION] },
             { id: "legislatures", label: "Législatures", icon: Users, stats: [] },
         ],
     };
@@ -219,12 +234,31 @@ describe("AvancePageClient", () => {
     it("hides 'Comparer' for a domain with no entity/population to vary between contexts", () => {
         render(<AvancePageClient />);
 
-        fireEvent.click(screen.getAllByText("Votes")[0]);
-        fireEvent.click(screen.getAllByText("Répartition des positions de vote")[0]);
+        fireEvent.click(screen.getAllByText("Scrutins")[0]);
+        fireEvent.click(screen.getAllByText("Évolution du taux de participation")[0]);
 
         expect(screen.queryByText("Comparer")).not.toBeInTheDocument();
         expect(
             screen.getByText("Comparaison indisponible : ce domaine n'a pas d'entité ni de filtre à faire varier.")
         ).toBeInTheDocument();
+    });
+
+    it("requires a legislature for 'votes' (VotesEntityResolver, filtre législature seul — pas de portée entité/population)", async () => {
+        render(<AvancePageClient />);
+
+        fireEvent.click(screen.getAllByText("Votes")[0]);
+
+        // Pas encore prêt : la catégorie ne doit pas apparaître avant le choix
+        // d'une législature (même règle que groupes/acteurs).
+        expect(screen.queryByText("Répartition des positions de vote")).not.toBeInTheDocument();
+        expect(screen.queryByText("Un groupe précis")).not.toBeInTheDocument();
+        expect(screen.queryByText("Tous les groupes")).not.toBeInTheDocument();
+
+        fireEvent.click(await screen.findByText("17ᵉ législature"));
+        fireEvent.click(await screen.findByText("Répartition des positions de vote"));
+
+        // Deux occurrences désormais : la checkbox du picker + le mock
+        // StatViewer qui rend le titre de la définition sélectionnée.
+        expect(screen.getAllByText("Répartition des positions de vote").length).toBeGreaterThan(0);
     });
 });
