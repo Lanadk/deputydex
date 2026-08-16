@@ -64,6 +64,14 @@ export const BarChartLib: React.FC<BarChartLibProps> = ({
                 {
                     scaleType: "band" as const,
                     dataKey: "label",
+                    // MUI réserve par défaut une hauteur fixe de 25px pour les
+                    // ticks du bas (constants/index.js, DEFAULT_AXIS_SIZE_HEIGHT)
+                    // — ne s'adapte PAS à la longueur du texte. Combiné au
+                    // conteneur `.chart-lib__body` (hauteur fixe + overflow:
+                    // hidden), un libellé qui déborde de ces 25px est
+                    // silencieusement coupé plutôt que de pousser le
+                    // conteneur. On réserve explicitement plus de place.
+                    height: 36,
                     tickLabelStyle: {
                         fill: axisTextColor,
                         color: axisTextColor,
@@ -85,6 +93,7 @@ export const BarChartLib: React.FC<BarChartLibProps> = ({
                 {
                     scaleType: "band" as const,
                     dataKey: "label",
+                    height: 36,
                     tickLabelStyle: {
                         fill: axisTextColor,
                         color: axisTextColor,

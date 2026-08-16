@@ -153,7 +153,12 @@ export const PARTICIPATION_PRESENCE_SECTIONS: PageSection[] = [
         id: "participation-presence-evolution",
         label: "Comment ça évolue, tous groupes confondus",
         icon: TrendingUp,
-        description: "Le taux de participation aux scrutins n'est pas figé — il varie au fil des mois, et d'une législature à l'autre. Vue d'ensemble ici : la moyenne de l'Assemblée entière, tous groupes et toutes législatures confondus (le détail par groupe est juste en dessous).",
+        description: "Le taux de participation aux scrutins n'est pas figé — il varie au fil des mois, et d'une " +
+            "législature à l'autre. Vue d'ensemble ici : pour chaque scrutin, part de député·es " +
+            "votants (pour/contre/abstention) parmi l'ensemble votants + non-votants — puis moyenne simple " +
+            "de ce taux sur tous les scrutins du mois, tous groupes et toutes législatures confondus " +
+            "(chaque scrutin compte pour 1, sans distinction de groupe — contrairement au classement par " +
+            "groupe juste au-dessus, qui pondère par l'éligibilité de chaque groupe).",
         cols: 4,
         lazy: false,
         gatewayFn: async () => {
@@ -172,7 +177,9 @@ export const PARTICIPATION_PRESENCE_SECTIONS: PageSection[] = [
         id: "participation-presence-evolution-groupe",
         label: "Comment ça évolue, groupe par groupe",
         icon: Users2,
-        description: "Tous les groupes sont superposés par défaut — cliquez un groupe pour retirer ou remettre sa courbe à la volée, y compris les groupes renommés ou dissous en cours de législature (ex: SOC-NUPES → SOC en 16ᵉ législature), chacun avec sa propre période.",
+        description: "Tous les groupes sont superposés par défaut — cliquez un groupe pour retirer ou remettre " +
+            "sa courbe à la volée, y compris les groupes renommés ou dissous en cours de législature " +
+            "(ex: SOC-NUPES → SOC en 16ᵉ législature), chacun avec sa propre période.",
         cols: 4,
         lazy: false,
         gatewayFn: async ({ legislature }: Record<string, unknown>) => {

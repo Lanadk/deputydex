@@ -56,8 +56,13 @@ export const prismaGroupesStatsRepository: IGroupesStatsRepository = {
     },
 
     async getCohesionEvolution(code: string, legislature: number): Promise<GroupeStatCohesionPointEntity[]> {
+        // taux_cohesion est un NUMERIC Postgres — sans cast explicite, prisma.$queryRaw
+        // le renvoie en string malgré le typage TS de $queryRaw<T>() (assertion de
+        // compilation, pas de validation runtime). Même bug que celui qui cassait
+        // silencieusement le domaine numérique de MUI X-Charts en mode dataset
+        // multi-series sur getParticipationEvolutionParGroupe/TousGroupes.
         return prisma.$queryRaw<GroupeStatCohesionPointEntity[]>`
-            SELECT mois, taux_cohesion
+            SELECT mois, taux_cohesion::float AS taux_cohesion
             FROM agg_groupes_stats_cohesion_mensuelle
             WHERE code = ${code}
               AND legislature = ${legislature}

@@ -86,7 +86,12 @@ export const EXPRESSION_VOTES_SECTIONS: PageSection[] = [
         id: "expression-votes-classement",
         label: "L'expression des votes",
         icon: Megaphone,
-        description: "Un groupe peut être présent à presque tous les scrutins sans forcément prendre position — être absent, ou se réfugier dans l'abstention, sont deux façons différentes de ne pas trancher.",
+        description: "\"S'exprimer\" veut dire voter une position politique — pour, contre OU abstention, " +
+            "peu importe laquelle — plutôt que d'être non-votant (absent, ou volontairement non-votant). " +
+            "Le taux d'expression = (votes pour + contre + abstention) / (pour + contre + abstention + non-votants), " +
+            "sur l'ensemble des scrutins de la législature. Un groupe peut donc avoir un taux d'expression élevé " +
+            "tout en s'abstenant très souvent : voter \"abstention\" compte comme s'exprimer, ce n'est pas la même " +
+            "chose que ne pas voter du tout.",
         cols: 4,
         lazy: false,
         gatewayFn: async ({ legislature }: Record<string, unknown>) => {

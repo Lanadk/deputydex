@@ -20,8 +20,10 @@ export const ACTEURS_STATS: StatDefinition[] = [
         title: "Parité femmes / hommes",
         category: "Démographie",
         keywords: ["parité", "genre", "démographie", "députés"],
-        description: "Indique l'équilibre entre hommes et femmes parmi l'ensemble des députés actuellement en fonction.",
-        methodology: "Répartition par genre déclaré, sur l'ensemble des députés recensés.",
+        description: "Indique l'équilibre entre hommes et femmes parmi l'ensemble des députés actuellement " +
+            "en fonction. Taux de féminisation = femmes / (femmes + hommes) × 100.",
+        methodology: "Répartition par genre déclaré (homme/femme), sur l'ensemble des député·es actuellement " +
+            "en mandat pour la législature sélectionnée.",
         dataShape: "distribution",
         unit: "%",
     }),

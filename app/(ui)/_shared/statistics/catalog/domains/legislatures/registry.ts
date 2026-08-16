@@ -10,7 +10,9 @@ export const LEGISLATURES_STATS: StatDefinition[] = [
         category: "Composition",
         keywords: ["parité", "évolution", "législatures"],
         description: "Montre si la part de femmes élues à l'Assemblée progresse ou recule d'une législature à l'autre.",
-        methodology: "Part de femmes élues, comparée d'une législature à l'autre.",
+        methodology: "Pour chaque législature : nombre total de député·es femmes ayant siégé / nombre total de " +
+            "député·es ayant siégé (tous groupes confondus, y compris Non inscrits) × 100 — une valeur par " +
+            "législature, du début de la Vᵉ République à aujourd'hui.",
         dataShape: "timeseries",
         unit: "%",
     }),

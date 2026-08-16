@@ -26,7 +26,7 @@ export const GROUPES_STATS: StatDefinition[] = [
         category: "Composition",
         keywords: ["effectifs", "taille", "membres", "tous les groupes"],
         description: "Compare la taille des différents groupes parlementaires pour situer leur poids respectif à l'Assemblée.",
-        methodology: "Nombre de membres actuellement recensés, par groupe parlementaire.",
+        methodology: "Nombre de membres actuellement recensés (dernière composition connue), par groupe parlementaire.",
         dataShape: "distribution",
         unit: "membres",
         // Un item par groupe (label = code/libellé du groupe) — le cas
@@ -38,7 +38,8 @@ export const GROUPES_STATS: StatDefinition[] = [
         title: "Évolution de la cohésion",
         category: "Cohésion",
         keywords: ["cohésion", "vote", "évolution", "groupe"],
-        description: "Montre si les membres de ce groupe votent de plus en plus, ou de moins en moins, dans le même sens au fil des mois.",
+        description: "Montre si les membres de ce groupe votent de plus en plus, ou de moins en moins, dans le " +
+            "même sens au fil des mois.",
         methodology: "Taux de cohésion de vote du groupe sélectionné, calculé mois par mois sur la législature en cours.",
         dataShape: "timeseries",
         unit: "%",
@@ -54,7 +55,7 @@ export const GROUPES_STATS: StatDefinition[] = [
         category: "Votes",
         keywords: ["positions", "vote", "pour", "contre", "abstention", "tous les groupes"],
         description: "Compare, pour chaque groupe parlementaire, la part de votes exprimés pour / contre / en abstention sur l'ensemble des scrutins politiques.",
-        methodology: "Répartition des votes individuels des membres de chaque groupe sur les positions politiques (pour/contre/abstention), hors non-votants — les groupes sans membre actuel (renommés/dissous en cours de législature) sont exclus.",
+        methodology: "Pour chaque groupe : part de ses votes qui sont \"pour\" / \"contre\" / \"abstention\", sur le total de ses votes exprimés (pour + contre + abstention) de la législature — non-votants exclus du calcul. Les groupes sans membre actuel (renommés/dissous en cours de législature) sont exclus.",
         dataShape: "multi-series",
         unit: "%",
         // Un item par groupe (nom de série = code/libellé du groupe) — même
@@ -66,8 +67,8 @@ export const GROUPES_STATS: StatDefinition[] = [
         title: "Taux d'expression aux scrutins",
         category: "Votes",
         keywords: ["expression", "participation", "scrutins", "tous les groupes"],
-        description: "Part des positions politiques (pour/contre/abstention) exprimées par chaque groupe, par rapport à l'ensemble des positions possibles (non-votants inclus).",
-        methodology: "Nombre de positions politiques exprimées, divisé par le nombre total de positions observées (positions politiques + non-votants), par groupe, sur la législature — les groupes sans membre actuel (renommés/dissous en cours de législature) sont exclus.",
+        description: "\"S'exprimer\" = voter une position politique (pour, contre OU abstention), peu importe laquelle — à l'opposé d'être non-votant (absent, ou volontairement non-votant). Un groupe peut s'exprimer beaucoup tout en s'abstenant souvent : voter \"abstention\" compte comme s'exprimer, contrairement à ne pas voter du tout.",
+        methodology: "Pour chaque groupe : (nombre de votes pour + contre + abstention) / (pour + contre + abstention + non-votants), sur l'ensemble des scrutins de la législature — les groupes sans membre actuel (renommés/dissous en cours de législature) sont exclus. Différent de \"Taux de participation\" (groupes.participation) : ici la base de calcul est le total des POSITIONS observées sur les scrutins couverts, pas l'éligibilité individuelle de chaque député·e reconstituée scrutin par scrutin.",
         dataShape: "distribution",
         unit: "%",
         chartVariant: "parliament-group",

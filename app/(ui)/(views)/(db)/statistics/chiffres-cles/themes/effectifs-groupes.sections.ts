@@ -67,7 +67,10 @@ export const EFFECTIFS_GROUPES_SECTIONS: PageSection[] = [
         id: "effectifs-groupes-classement",
         label: "La taille des groupes parlementaires",
         icon: UsersRound,
-        description: "Les groupes politiques n'ont pas tous le même poids à l'Assemblée — certains rassemblent plusieurs dizaines de député·es, d'autres à peine une poignée.",
+        description: "Les groupes politiques n'ont pas tous le même poids à l'Assemblée — certains rassemblent " +
+            "plusieurs dizaines de député·es, d'autres à peine une poignée. Effectif = nombre de député·es " +
+            "actuellement recensés dans le groupe ; les groupes renommés ou dissous en cours de législature " +
+            "(dont l'effectif actuel est retombé à 0) n'apparaissent pas dans ce classement.",
         cols: 4,
         lazy: false,
         gatewayFn: async ({ legislature }: Record<string, unknown>) => {

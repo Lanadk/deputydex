@@ -68,7 +68,10 @@ export const POSITIONS_DE_VOTE_SECTIONS: PageSection[] = [
         id: "positions-de-vote-classement",
         label: "Comment votent les groupes",
         icon: PieChart,
-        description: "Un même scrutin peut recevoir un \"pour\" massif d'un groupe et un \"contre\" tout aussi massif d'un autre — la répartition varie fortement d'un groupe à l'autre.",
+        description: "Un même scrutin peut recevoir un \"pour\" massif d'un groupe et un \"contre\" tout aussi " +
+            "massif d'un autre — la répartition varie fortement d'un groupe à l'autre. Pour chaque groupe : part " +
+            "de ses votes qui sont \"pour\" / \"contre\" / \"abstention\", sur le total de ses votes exprimés " +
+            "(pour + contre + abstention), non-votants exclus du calcul.",
         cols: 4,
         lazy: false,
         gatewayFn: async ({ legislature }: Record<string, unknown>) => {

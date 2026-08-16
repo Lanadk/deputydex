@@ -72,6 +72,12 @@ export const ScatterChartLib: React.FC<ScatterChartLibProps> = ({
                 xAxis={[
                     {
                         label: xLabel,
+                        // MUI ajoute 20px à la hauteur par défaut (25px) quand
+                        // un `label` est fourni, soit 45px pour DEUX lignes de
+                        // texte (ticks + libellé d'unité) — trop juste combiné
+                        // au conteneur à overflow: hidden, le libellé d'unité
+                        // (ex: "Amendements déposés") se faisait couper.
+                        height: xLabel ? 56 : 36,
                         tickLabelStyle: {
                             fill: axisTextColor,
                             color: axisTextColor,
@@ -86,6 +92,10 @@ export const ScatterChartLib: React.FC<ScatterChartLibProps> = ({
                 yAxis={[
                     {
                         label: yLabel,
+                        // Même logique que xAxis, en largeur : 45px/65px par
+                        // défaut (label ou non) pour loger ticks + libellé
+                        // d'unité pivoté verticalement.
+                        width: yLabel ? 80 : 55,
                         tickLabelStyle: {
                             fill: axisTextColor,
                             color: axisTextColor,

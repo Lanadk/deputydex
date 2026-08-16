@@ -119,7 +119,9 @@ export const AGE_DES_DEPUTES_SECTIONS: PageSection[] = [
         id: "age-des-deputes-individuel",
         label: "Les âges extrêmes",
         icon: CalendarDays,
-        description: "Au-delà des moyennes, qui sont le/la plus jeune et le/la doyen·ne de l'Assemblée ?",
+        description: "Au-delà des moyennes, qui sont le/la plus jeune et le/la doyen·ne de l'Assemblée ? " +
+            "Âge calculé à partir de la date de naissance déclarée, parmi l'ensemble des député·es actuellement " +
+            "en mandat pour la législature sélectionnée.",
         cols: 4,
         lazy: false,
         gatewayFn: async ({ legislature }: Record<string, unknown>) => {
@@ -153,7 +155,8 @@ export const AGE_DES_DEPUTES_SECTIONS: PageSection[] = [
         id: "age-des-deputes-groupes",
         label: "L'âge moyen par groupe",
         icon: Users,
-        description: "La moyenne d'âge des groupes parlementaires n'est pas la même d'un groupe à l'autre.",
+        description: "La moyenne d'âge des groupes parlementaires n'est pas la même d'un groupe à l'autre — " +
+            "moyenne calculée sur l'âge actuel de chaque membre du groupe, pas sur l'âge qu'ils avaient à leur élection.",
         cols: 4,
         lazy: false,
         gatewayFn: async ({ legislature }: Record<string, unknown>) => {

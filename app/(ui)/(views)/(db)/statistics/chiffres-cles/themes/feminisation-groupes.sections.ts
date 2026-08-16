@@ -115,7 +115,11 @@ export const FEMINISATION_GROUPES_SECTIONS: PageSection[] = [
         id: "feminisation-groupes-classement",
         label: "La féminisation des groupes politiques",
         icon: Users,
-        description: "Tous les groupes politiques ne sont pas également féminisés — et ça évolue au fil de la législature.",
+        description: "Tous les groupes politiques ne sont pas également féminisés — et ça évolue au fil de la " +
+            "législature. Taux de féminisation = nombre de femmes / effectif total du groupe × 100, Non inscrits " +
+            "exclus (ce n'est pas un groupe politique). \"Intégrée\" = une députée ayant rejoint le groupe après " +
+            "sa formation initiale en début de législature ; \"partie\" = une députée dont la date de fin " +
+            "d'appartenance au groupe est renseignée (démission du groupe, fin de mandat...).",
         cols: 4,
         lazy: false,
         gatewayFn: async ({ legislature }: Record<string, unknown>) => {

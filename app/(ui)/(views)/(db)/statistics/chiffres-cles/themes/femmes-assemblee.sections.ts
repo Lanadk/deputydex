@@ -26,7 +26,11 @@ export const FEMMES_ASSEMBLEE_SECTIONS: PageSection[] = [
         label: "Les femmes à l'Assemblée nationale",
         icon: Venus,
         description:
-            "La parité à l'Assemblée nationale n'a jamais été atteinte : la part de femmes élues varie fortement d'une législature à l'autre.",
+            "La parité à l'Assemblée nationale n'a jamais été atteinte : la part de femmes élues varie fortement " +
+            "d'une législature à l'autre. " +
+            "Taux de féminisation = nombre de député·es femmes / (femmes + hommes) × 100 — calculé sur l'ensemble " +
+            "des député·es actuellement en mandat pour le graphique de répartition, et sur l'ensemble des député·es " +
+            "ayant siégé pour l'évolution par législature.",
         cols: 4,
         lazy: false,
         gatewayFn: async ({ legislature }: Record<string, unknown>) => {

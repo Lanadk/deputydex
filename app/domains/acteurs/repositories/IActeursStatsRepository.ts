@@ -20,7 +20,15 @@ export interface IActeursStatsRepository {
      */
     getAgeDistribution(legislature?: number): Promise<AgeDistributionBucketEntity[]>;
 
-    /** Même principe que getAgeDistribution, réparti par civilité déclarée. */
+    /**
+     * Répartition par civilité déclarée (homme/femme). `legislature` fourni =
+     * composition "photo" du moment (même source que `legislatures.parite`,
+     * agg_groupes_stats_parite) — PAS un cumul de tous les député·es ayant
+     * occupé un siège pendant la législature (remplacements inclus), contrairement
+     * à `getAgeDistribution` : les deux stats doivent rester comparables à
+     * l'évolution par législature affichée à côté. Omis = tous les acteurs
+     * recensés en base, toutes législatures confondues.
+     */
     getGenderDistribution(legislature?: number): Promise<GenderDistributionBucketEntity[]>;
 
     /** Nombre de mandats de député détenus par cet acteur, toutes législatures confondues. */

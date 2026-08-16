@@ -103,13 +103,28 @@ export const prismaActeursStatsRepository: IActeursStatsRepository = {
 
     async getGenderDistribution(legislature?: number): Promise<GenderDistributionBucketEntity[]> {
         if (legislature != null) {
-            return prisma.$queryRaw<GenderDistributionBucketEntity[]>`
-                SELECT civilite, COUNT(*)::int AS nb_acteurs
-                FROM acteurs a
-                WHERE a.civilite IS NOT NULL
-                  AND EXISTS (SELECT 1 FROM mandats m WHERE m.acteur_uid = a.uid AND m.legislature = ${legislature})
-                GROUP BY civilite
+            // Source alignée sur `legislatures.parite` (agg_groupes_stats_parite,
+            // sommée par législature) — PAS un COUNT sur `mandats` filtré par
+            // EXISTS : ce dernier compte tous les député·es ayant eu un mandat
+            // à un moment de la législature, remplacements en cours de route
+            // inclus, un total structurellement plus élevé que l'effectif réel
+            // à un instant donné. Les deux chiffres divergeaient (et pouvaient
+            // même s'inverser d'une législature à l'autre, le volume de
+            // remplacements variant), ce qui produisait des % différents entre
+            // la répartition affichée ici et l'évolution par législature —
+            // les deux doivent parler de la même population : la composition
+            // "photo" du groupe, pas le cumul de tous ses occupants successifs.
+            const rows = await prisma.$queryRaw<{ nb_hommes: number; nb_femmes: number }[]>`
+                SELECT COALESCE(SUM(nb_hommes), 0)::int AS nb_hommes,
+                       COALESCE(SUM(nb_femmes), 0)::int AS nb_femmes
+                FROM agg_groupes_stats_parite
+                WHERE legislature = ${legislature}
             `;
+            const { nb_hommes, nb_femmes } = rows[0] ?? { nb_hommes: 0, nb_femmes: 0 };
+            return [
+                { civilite: "M.", nb_acteurs: nb_hommes },
+                { civilite: "Mme", nb_acteurs: nb_femmes },
+            ];
         }
 
         return prisma.$queryRaw<GenderDistributionBucketEntity[]>`
