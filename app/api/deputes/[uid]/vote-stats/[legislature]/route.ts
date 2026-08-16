@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getDeputeVoteStatsUseCase } from "@/app/domains/deputes/use-cases/get-depute-vote-stats.use-case";
 import { prismaDeputeVoteStatsRepository } from "@/app/infrastructure/deputes/repositories/prisma-depute-vote-stats.repository";
 import { isOk } from "@/app/_shared/result-pattern/result";
+import { cachedJson, cachedRead } from "@/app/_shared/cache/cached-response";
 
 export async function GET(
     _req: Request,
@@ -9,12 +10,11 @@ export async function GET(
 ): Promise<Response> {
     const { uid, legislature } = await params;
     try {
-        const result = await getDeputeVoteStatsUseCase(
-            prismaDeputeVoteStatsRepository,
-            uid,
-            Number(legislature)
+        const result = await cachedRead(
+            () => getDeputeVoteStatsUseCase(prismaDeputeVoteStatsRepository, uid, Number(legislature)),
+            ["depute-vote-stats", uid, legislature]
         );
-        if (isOk(result)) return NextResponse.json(result.data);
+        if (isOk(result)) return cachedJson(result.data);
         if (result.error === "NOT_FOUND") return NextResponse.json({ error: "Aucune donnée de vote" }, { status: 404 });
         return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
     } catch (e) {

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { isOk } from "@/app/_shared/result-pattern/result";
 import { getDeputeActivityDetailsUseCase } from "@/app/domains/deputes/use-cases/get-depute-activity-details.use-case";
 import { prismaDeputeActivityDetailsRepository } from "@/app/infrastructure/deputes/repositories/prisma-depute-activity-details.repository";
+import { cachedJson, cachedRead } from "@/app/_shared/cache/cached-response";
 
 export async function GET(
     req: Request,
@@ -16,14 +17,17 @@ export async function GET(
     }
 
     try {
-        const result = await getDeputeActivityDetailsUseCase(
-            prismaDeputeActivityDetailsRepository,
-            uid,
-            Number(legislature),
-            new Date(dateParam)
+        const result = await cachedRead(
+            () => getDeputeActivityDetailsUseCase(
+                prismaDeputeActivityDetailsRepository,
+                uid,
+                Number(legislature),
+                new Date(dateParam)
+            ),
+            ["depute-activity-details", uid, legislature, dateParam]
         );
 
-        if (isOk(result)) return NextResponse.json(result.data);
+        if (isOk(result)) return cachedJson(result.data);
         return NextResponse.json({ error: result.error }, { status: 500 });
     } catch (e) {
         console.error(e);

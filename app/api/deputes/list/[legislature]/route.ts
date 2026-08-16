@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { getDeputesListUseCase } from "@/app/domains/deputes/use-cases/get-deputes-list.use-case";
 import { prismaDeputeListRepository } from "@/app/infrastructure/deputes/repositories/prisma-depute-list.repository";
 import { isOk } from "@/app/_shared/result-pattern/result";
+import { cachedJson, cachedRead } from "@/app/_shared/cache/cached-response";
 
 export async function GET(
     _req: Request,
@@ -9,11 +10,11 @@ export async function GET(
 ): Promise<Response> {
     const { legislature } = await params;
     try {
-        const result = await getDeputesListUseCase(
-            prismaDeputeListRepository,
-            Number(legislature)
+        const result = await cachedRead(
+            () => getDeputesListUseCase(prismaDeputeListRepository, Number(legislature)),
+            ["depute-list", legislature]
         );
-        if (isOk(result)) return NextResponse.json(result.data);
+        if (isOk(result)) return cachedJson(result.data);
         return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
     } catch (e) {
         console.error(e);
