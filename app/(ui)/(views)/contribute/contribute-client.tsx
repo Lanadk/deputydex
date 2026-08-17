@@ -37,7 +37,7 @@ import {
 import {FaGithub} from "react-icons/fa";
 
 const ORG_URL = "https://github.com/Lanadk";
-const FRONT_REPO_URL = `${ORG_URL}/deputydex-front`;
+const FRONT_REPO_URL = `${ORG_URL}/deputydex`;
 const DATA_REPO_URL = `${ORG_URL}/deputydex-data`;
 
 type RepoCard = {
@@ -187,7 +187,7 @@ const FRONT_ARCHITECTURE: FrontArchitectureItem[] = [
         description: "Design system interne : des composants techniques génériques, assemblés en pages via des " +
             "templates.",
         difficulty: 3,
-        href: `${FRONT_REPO_URL}/blob/main/app/6.COMPONENT-LIBRARY_client_side.md`,
+        href: `${FRONT_REPO_URL}/blob/main/app/3.COMPONENT-LIBRARY_client_side.md`,
     },
     {
         icon: LayoutGrid,
