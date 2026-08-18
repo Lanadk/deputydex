@@ -8,27 +8,42 @@ import { SpanLib } from "@/app/(ui)/component-library/atoms/span/span-lib";
 import { BadgeLib } from "@/app/(ui)/component-library/atoms/badge/badge-lib";
 import { KEY_FIGURE_CATEGORIES, KEY_FIGURE_THEMES, KeyFigureTheme } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes.registry";
 
+/**
+ * Un thème sans section (voir `themes.registry.ts`) n'a rien à montrer —
+ * `theme-page-client.tsx` n'affiche qu'un message "pas encore disponible"
+ * derrière. Plutôt que de laisser une tuile identique aux autres (border,
+ * hover, mêmes couleurs) pour finalement mener à une page vide, on la grise
+ * ET on retire sa navigation — même convention que les autres éléments
+ * "pas encore dispo" de l'app (`opacity-40` + `cursor-not-allowed`, voir
+ * `stat-picker.tsx`/`legislature-selector.tsx`), pas un style ad hoc.
+ */
 function ThemeTile({ theme }: { theme: KeyFigureTheme }) {
     const available = theme.sections.length > 0;
-    return (
-        <Link href={`/statistics/chiffres-cles/${theme.slug}`}>
-            <div className="flex h-full flex-col gap-3 rounded-xl border border-main bg-surface-1 p-5
-                transition-[transform,box-shadow] duration-200 hover:-translate-y-0.5 hover:bg-surface-2
-                hover:shadow-md active:translate-y-0 active:scale-[0.97]"
-            >
-                <div className="flex items-start justify-between gap-3">
-                    <theme.icon className="h-6 w-6" style={{ color: "var(--accent)" }} />
-                    {!available && <BadgeLib text="Bientôt disponible" variant="tertiary" />}
-                </div>
-                <div>
-                    <h3 className="text-base font-semibold">{theme.title}</h3>
-                    <SpanLib className="mt-1 block text-sm leading-relaxed text-subtitle-accent">
-                        {theme.teaser}
-                    </SpanLib>
-                </div>
+
+    const card = (
+        <div
+            className={`flex h-full flex-col gap-3 rounded-xl border border-main bg-surface-1 p-5 transition-[transform,box-shadow] duration-200 ${
+                available
+                    ? "hover:-translate-y-0.5 hover:bg-surface-2 hover:shadow-md active:translate-y-0 active:scale-[0.97]"
+                    : "cursor-not-allowed opacity-40"
+            }`}
+        >
+            <div className="flex items-start justify-between gap-3">
+                <theme.icon className="h-6 w-6" style={{ color: "var(--accent)" }} />
+                {!available && <BadgeLib text="Bientôt disponible" variant="tertiary" />}
             </div>
-        </Link>
+            <div>
+                <h3 className="text-base font-semibold">{theme.title}</h3>
+                <SpanLib className="mt-1 block text-sm leading-relaxed text-subtitle-accent">
+                    {theme.teaser}
+                </SpanLib>
+            </div>
+        </div>
     );
+
+    if (!available) return card;
+
+    return <Link href={`/statistics/chiffres-cles/${theme.slug}`}>{card}</Link>;
 }
 
 export default function ChiffresClesPageClient() {

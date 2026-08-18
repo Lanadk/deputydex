@@ -5,6 +5,27 @@
 jest.mock("@/app/infrastructure/acteurs/repositories/prisma-acteurs-stats.repository", () => ({
     prismaActeursStatsRepository: { getAgeDistribution: jest.fn() },
 }));
+// `route.ts` -> `stat-handlers.registry.ts` importe SANS condition les
+// handlers des 5 domaines (voir stat-handlers.registry.ts), qui importent
+// chacun leur repository Prisma réel au chargement du module — même si ce
+// fichier ne teste que le domaine "acteurs". Sans ces mocks, charger ce test
+// force la résolution du client Prisma généré (`../generated/prisma`,
+// gitignored) même quand il n'a jamais été généré (`prisma generate`) —
+// exactement ce qui casse la CI sur un checkout propre (le job `test` ne
+// génère pas le client, seul `build` le fait). Les autres domaines n'ont pas
+// besoin d'être exercés ici, juste de ne jamais toucher au vrai module.
+jest.mock("@/app/infrastructure/groupes/repositories/prisma-groupes-stats.repository", () => ({
+    prismaGroupesStatsRepository: {},
+}));
+jest.mock("@/app/infrastructure/votes/repositories/prisma-votes-stats.repository", () => ({
+    prismaVotesStatsRepository: {},
+}));
+jest.mock("@/app/infrastructure/scrutins/repositories/prisma-scrutins-stats.repository", () => ({
+    prismaScrutinsStatsRepository: {},
+}));
+jest.mock("@/app/infrastructure/legislatures/repositories/prisma-legislatures-stats.repository", () => ({
+    prismaLegislaturesStatsRepository: {},
+}));
 
 import { GET } from "@/app/api/statistics/[domain]/[statId]/route";
 import { prismaActeursStatsRepository } from "@/app/infrastructure/acteurs/repositories/prisma-acteurs-stats.repository";

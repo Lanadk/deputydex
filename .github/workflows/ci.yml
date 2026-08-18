@@ -34,6 +34,14 @@ jobs:
       # deploy-front dans deputydex-cd).
       - run: npm install
 
+      # Le client Prisma généré (app/infrastructure/db/generated/prisma) est
+      # gitignored — absent sur un checkout propre. Ne nécessite pas
+      # DB_URL/DATABASE_URL, comme dans le job `build` (génère depuis le
+      # schema, pas de connexion DB). Sans cette étape, tout test qui charge
+      # (même transitivement, sans le mocker) un module touchant Prisma
+      # échoue avec "Cannot find module '../generated/prisma'".
+      - run: npm run prisma:generate
+
       - run: npm run lint
 
       - run: npm test
