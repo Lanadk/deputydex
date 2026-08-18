@@ -59,8 +59,11 @@ function buildEffectifsRecit(data: BlockDataWrapper | undefined): ParagraphItem[
  * "La taille des groupes parlementaires" — classement des groupes par
  * effectif actuel. Zéro nouveau backend : `groupesGateways.getGroupesCards`
  * (déjà consommé par `age-des-deputes`/`feminisation-groupes.sections.ts`)
- * porte déjà `groupeCountMembers` par groupe, filtré des groupes techniques
- * (`TBD`/`NI`) — pas besoin de repasser par `statisticsGateway.fetchStat`.
+ * porte déjà `groupeCountMembers` par groupe — ne filtre plus que le groupe
+ * "NI (groupe technique)" (`TBD`/`PO0`, voir prisma-groupes-cards.repository.ts) ;
+ * les VRAIS Non inscrits (NI-16/NI-17) y sont désormais inclus, comme
+ * n'importe quel autre groupe ayant un effectif. Pas besoin de repasser par
+ * `statisticsGateway.fetchStat`.
  */
 export const EFFECTIFS_GROUPES_SECTIONS: PageSection[] = [
     {
@@ -85,10 +88,23 @@ export const EFFECTIFS_GROUPES_SECTIONS: PageSection[] = [
             // n'a de sens que pour des groupes qui existent encore.
             const withMembers = cards.filter((c) => c.groupeCountMembers > 0);
             const sorted = [...withMembers].sort((a, b) => b.groupeCountMembers - a.groupeCountMembers);
+            // Le classement COMPLET (table + export) garde les VRAIS Non
+            // inscrits — ils ont un effectif réel, pas de raison de les
+            // cacher de la liste.
             const tableRows: GroupeEffectifTableRow[] = sorted.map((g, i) => ({ ...g, rank: i + 1 }));
 
-            const plusGrand = sorted[0] ?? null;
-            const plusPetit = sorted.length > 0 ? sorted[sorted.length - 1] : null;
+            // Les deux CARTES "extrêmes" (et la phrase du récit), en
+            // revanche, ne doivent jamais désigner les Non inscrits comme
+            // "le plus grand"/"le plus petit groupe" : ce n'est pas un
+            // groupe politique organisé, juste un rattachement administratif
+            // pour les député·es sans groupe — même raison que partout
+            // ailleurs (parité, âge, cohésion...) où NI est exclu des
+            // comparaisons de poids politique. Donc "le plus petit groupe"
+            // ici est le plus petit groupe POLITIQUE, pas forcément le
+            // dernier de `sorted` si un NI s'y trouve.
+            const political = sorted.filter((c) => !c.groupeCode.startsWith("NI"));
+            const plusGrand = political[0] ?? null;
+            const plusPetit = political.length > 0 ? political[political.length - 1] : null;
 
             const extremes = [
                 plusGrand && toGroupCardData(plusGrand, "Le plus grand groupe"),

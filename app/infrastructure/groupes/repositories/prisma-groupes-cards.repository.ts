@@ -7,6 +7,16 @@ export const prismaGroupesCardsRepository: IGroupesCardsRepository = {
     async getGroupesCards(legislature: number): Promise<GroupeCardEntity[]> {
         //TODO surement faire un check de ce qu'on veut recupere , car on fetch les groupes ayant existé mais le fetch remonté des nb_acteurs à 0
         try {
+            // Exclus : TBD (placeholder technique) et le groupe "NI (groupe
+            // technique)" (ex: groupe_id 'PO0' en 17ᵉ législature, libellé
+            // "Non inscrits (groupe technique)") — ce n'est pas un vrai
+            // groupe, juste un rattachement administratif transitoire. Les
+            // VRAIS Non inscrits (NI-16, NI-17...) doivent rester visibles,
+            // donc on ne peut pas filtrer sur `code NOT LIKE 'NI%'` (ça
+            // excluait aussi ces vrais groupes) — même détection que
+            // listGroupesLegislature/getParticipationEvolutionTousGroupes
+            // dans prisma-groupes-stats.repository.ts (groupe_id = 'PO0' OU
+            // libellé contenant "technique").
             return await prisma.$queryRaw<GroupeCardEntity[]>`
                 select
                     rg.groupe_id as groupe_id,
@@ -24,7 +34,8 @@ export const prismaGroupesCardsRepository: IGroupesCardsRepository = {
                    and agec.legislature = rg.groupe_legislature
                 where rg.groupe_legislature = ${legislature}
                 and rg.code <> 'TBD'
-                and rg.code not like 'NI%'
+                and rg.groupe_id <> 'PO0'
+                and rg.libelle not ilike '%technique%'
                 order by rg.code asc nulls last, rg.libelle asc nulls last
             `;
         } catch (error) {
