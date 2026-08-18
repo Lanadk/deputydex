@@ -79,12 +79,6 @@ export default function MentionsLegalesClient() {
                                 contact@ottmanbecuwe.com
                             </a>
                         </p>
-                        <p className="text-sm text-subtitle-accent">
-                            Conformément à l’article 6-III-2 de la loi n° 2004-575 du 21 juin 2004 pour
-                            la confiance dans l’économie numérique, les éditeurs de ce site à titre non
-                            professionnel ont communiqué leurs éléments d’identification personnelle à
-                            l’hébergeur mentionné ci-dessous.
-                        </p>
                     </div>
                 </AnchorSectionBlockLib>
 
