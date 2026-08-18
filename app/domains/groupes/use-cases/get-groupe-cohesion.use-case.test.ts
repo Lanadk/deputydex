@@ -6,6 +6,10 @@ describe("getGroupeCohesionUseCase", () => {
     it("returns ok(dto) when the repository resolves data", async () => {
         const entity: GroupeCohesionEntity = {
             evolutionCohesionLegislature: [{ mois: new Date("2024-07-01"), taux_cohesion: 0.92 }],
+            cohesionLegislature: null,
+            couvertureScrutins: null,
+            participationLegislature: null,
+            proximiteGouvernement: null,
         };
         const repository: IGroupeCohesionRepository = {
             getGroupeCohesionLegislature: jest.fn().mockResolvedValue(entity),
