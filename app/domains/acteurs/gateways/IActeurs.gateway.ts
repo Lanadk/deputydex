@@ -11,5 +11,8 @@ export interface IActeursGateway {
 
     getById(id: string): Promise<ActeurDTO | null>;
 
+    /** Députés ayant réellement eu un mandat, toutes législatures confondues (voir prisma-acteurs-stats.repository.ts). */
+    searchDeputies(search?: string): Promise<ActeurDTO[]>;
+
     //TODO export if necessary in the future
 }

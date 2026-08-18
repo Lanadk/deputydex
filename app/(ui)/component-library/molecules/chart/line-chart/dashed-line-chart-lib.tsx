@@ -94,7 +94,13 @@ export const DashedLineChartLib: React.FC<DashedLineChartLibProps> = ({
                 xAxis={[
                     {
                         scaleType: "point",
-                        data: data.map((d) => d.label),
+                        // Voir LineChartLib : en multi-séries, `dataKey` (pas
+                        // `data`) pour rester relié au `dataset` fourni.
+                        ...(isMultiSeries ? { dataKey: "label" } : { data: data.map((d) => d.label) }),
+                        // Voir BarChartLib : hauteur de ticks par défaut fixe
+                        // (25px, ne s'adapte pas au texte) + conteneur à
+                        // overflow: hidden = texte coupé sans marge de sécurité.
+                        height: 36,
                         tickLabelStyle: {
                             fill: axisTextColor,
                             color: axisTextColor,

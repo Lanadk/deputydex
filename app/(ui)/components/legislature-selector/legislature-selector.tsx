@@ -1,6 +1,6 @@
 "use client";
 
-import {useState} from "react";
+import React, {useState} from "react";
 import {usePathname} from "next/navigation";
 import {useLegislature} from "@/app/(ui)/providers/legislature-provider";
 import {ButtonLib} from "@/app/(ui)/component-library/atoms/button/button-lib";
@@ -20,6 +20,16 @@ export function LegislatureSelector() {
         setTrackedPathname(pathname);
         setIsOpen(false);
     }
+
+    // Le hub /statistics n'affiche rien de dépendant d'une législature (juste
+    // deux tuiles de choix) et /statistics/avance gère sa propre notion de
+    // législature PAR CONTEXTE (1 ou 2 en comparaison, voir StatPicker/
+    // EntityResolver) — le sélecteur global n'aurait aucun sens là. Mais
+    // /statistics/chiffres-cles/* consomme, lui, directement ce contexte
+    // global (`useLegislature()` dans theme-page-client.tsx) : sans le
+    // sélecteur ici, il n'y aurait tout simplement AUCUN moyen de changer de
+    // législature sur ces pages.
+    if (pathname === "/statistics" || pathname.startsWith("/statistics/avance")) return null;
 
     if (loading) return null;
 

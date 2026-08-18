@@ -1,7 +1,7 @@
 "use client";
 
 import React from "react";
-import { TrendingUp, TrendingDown, Minus } from "lucide-react";
+import { TrendingUp, TrendingDown, Minus, ExternalLink } from "lucide-react";
 import {ParagraphItem} from "@/app/(ui)/component-library/template/sections/block-section/block-section-renderer";
 
 interface BlockParagraphRendererProps {
@@ -20,6 +20,32 @@ export const BlockParagraphRenderer: React.FC<BlockParagraphRendererProps> = ({ 
         >
             {items.map((item, i) => {
                 switch (item.type) {
+
+                    case "subheading":
+                        return (
+                            <span
+                                key={i}
+                                className="text-xs font-semibold uppercase tracking-wide"
+                                style={{ color: "var(--subtitle-accent)" }}
+                            >
+                                {item.content}
+                            </span>
+                        );
+
+                    case "source":
+                        return (
+                            <a
+                                key={i}
+                                href={item.href}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="inline-flex items-center gap-1 text-xs w-fit hover:underline"
+                                style={{ color: "var(--subtitle-accent)" }}
+                            >
+                                <ExternalLink className="w-3 h-3 shrink-0" />
+                                {item.label}
+                            </a>
+                        );
 
                     case "text":
                         return (

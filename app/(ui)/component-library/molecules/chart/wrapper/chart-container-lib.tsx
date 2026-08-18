@@ -11,6 +11,13 @@ interface ChartContainerLibProps {
     emptyLabel?: string;
     height?: number;
     children: React.ReactNode;
+    /**
+     * Légende rendue APRÈS `.chart-lib__body`, hors de sa hauteur fixe — voir
+     * `ChartLegendLib`. `.chart-lib__body` reste dimensionné pour le dessin
+     * (donut/pie/axes) uniquement ; une légende avec beaucoup d'items pousse
+     * la hauteur de la carte plutôt que de déborder dessus.
+     */
+    legend?: React.ReactNode;
 }
 
 export const ChartContainerLib: React.FC<ChartContainerLibProps> = ({
@@ -21,6 +28,7 @@ export const ChartContainerLib: React.FC<ChartContainerLibProps> = ({
                                                                         emptyLabel = "Aucune donnée",
                                                                         height = 320,
                                                                         children,
+                                                                        legend,
                                                                     }) => {
     return (
         <div className="chart-lib">
@@ -40,6 +48,8 @@ export const ChartContainerLib: React.FC<ChartContainerLibProps> = ({
                     children
                 )}
             </div>
+
+            {!loading && !empty && legend}
         </div>
     );
 };

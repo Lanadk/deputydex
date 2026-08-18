@@ -6,9 +6,15 @@ import {GroupeCohesionDTO} from "@/app/domains/groupes/dto/groupe-cohesion.dto";
 import {GroupeComportementDTO} from "@/app/domains/groupes/dto/groupe-comportement.dto";
 import {GroupeActivityDetailsDTO} from "@/app/domains/groupes/dto/groupe-activity-details.dto";
 import {GroupeActivityDTO} from "@/app/domains/groupes/dto/groupe-activity.dto";
+import {GroupesFeminisationDTO} from "@/app/domains/groupes/dto/groupes-feminisation.dto";
+import {GroupesAgeDTO} from "@/app/domains/groupes/dto/groupes-age.dto";
+import {GroupeListDTO} from "@/app/domains/groupes/dto/groupe-stats-catalog.dto";
 
 export interface IGroupesGateways {
     getGroupesCards(legislature: number): Promise<GroupeCardDTO[]>;
+
+    /** Liste BRUTE (NI + groupes à 0 membre courant inclus) — voir la route `/api/groupes/list/[legislature]`. PAS un remplaçant de `getGroupesCards`. */
+    getGroupesList(legislature: number): Promise<GroupeListDTO>;
 
     getGroupeInfos(code: string, legislature: number): Promise<GroupeInfosDTO>;
 
@@ -25,4 +31,8 @@ export interface IGroupesGateways {
     getGroupeActivityCalendar(code: string, legislature: number): Promise<GroupeActivityDTO>;
 
     getGroupeActivityCalendarDetails(code: string, legislature: number, date: string): Promise<GroupeActivityDetailsDTO[]>
+
+    getGroupesFeminisation(legislature: number): Promise<GroupesFeminisationDTO>;
+
+    getGroupesAge(legislature: number): Promise<GroupesAgeDTO>;
 }

@@ -25,7 +25,7 @@ export const CACHE_TTL_SECONDS = {
 } as const;
 
 /** TTL actuellement actif pour l'ensemble des endpoints de lecture cachés. */
-export const ACTIVE_CACHE_TTL_SECONDS: number = CACHE_TTL_SECONDS.DAY;
+export const ACTIVE_CACHE_TTL_SECONDS: number = CACHE_TTL_SECONDS.NO_CACHE;
 
 /**
  * Tag partagé par toutes les entrées de cache "données parlementaires".

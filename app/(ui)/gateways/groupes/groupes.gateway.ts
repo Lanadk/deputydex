@@ -7,6 +7,9 @@ import {GroupeCohesionDTO} from "@/app/domains/groupes/dto/groupe-cohesion.dto";
 import {GroupeComportementDTO} from "@/app/domains/groupes/dto/groupe-comportement.dto";
 import {GroupeActivityDTO} from "@/app/domains/groupes/dto/groupe-activity.dto";
 import {GroupeActivityDetailsDTO} from "@/app/domains/groupes/dto/groupe-activity-details.dto";
+import {GroupesFeminisationDTO} from "@/app/domains/groupes/dto/groupes-feminisation.dto";
+import {GroupesAgeDTO} from "@/app/domains/groupes/dto/groupes-age.dto";
+import {GroupeListDTO} from "@/app/domains/groupes/dto/groupe-stats-catalog.dto";
 
 export const groupesGateways: IGroupesGateways = {
     async getGroupesCards(legislature: number): Promise<GroupeCardDTO[]> {
@@ -14,6 +17,16 @@ export const groupesGateways: IGroupesGateways = {
 
         if (!res.ok) {
             throw new Error("Failed to get groupes cards");
+        }
+
+        return res.json();
+    },
+
+    async getGroupesList(legislature: number): Promise<GroupeListDTO> {
+        const res = await fetch(`/api/groupes/list/${legislature}`);
+
+        if (!res.ok) {
+            throw new Error("Failed to get groupes list");
         }
 
         return res.json();
@@ -91,6 +104,22 @@ export const groupesGateways: IGroupesGateways = {
         const res = await fetch(`/api/groupes/activity/${code}/${legislature}/details?date=${date}`);
 
         if (!res.ok) throw new Error("Failed to get activity");
+
+        return res.json();
+    },
+
+    async getGroupesFeminisation(legislature: number): Promise<GroupesFeminisationDTO> {
+        const res = await fetch(`/api/groupes/feminisation/${legislature}`);
+
+        if (!res.ok) throw new Error("Failed to get groupes feminisation");
+
+        return res.json();
+    },
+
+    async getGroupesAge(legislature: number): Promise<GroupesAgeDTO> {
+        const res = await fetch(`/api/groupes/age/${legislature}`);
+
+        if (!res.ok) throw new Error("Failed to get groupes age");
 
         return res.json();
     }

@@ -3,6 +3,7 @@
 import React from "react";
 import { PieChart } from "@mui/x-charts/PieChart";
 import { ChartContainerLib } from "@/app/(ui)/component-library/molecules/chart/wrapper/chart-container-lib";
+import { ChartLegendLib, buildLegendItems } from "@/app/(ui)/component-library/molecules/chart/wrapper/chart-legend-lib";
 import {
     isParliamentGroupVariant,
     mapSeriesToGroupColors,
@@ -55,6 +56,7 @@ export const DonutChartLib: React.FC<DonutChartLibProps> = ({
             empty={empty}
             emptyLabel={emptyLabel}
             height={height}
+            legend={showLegend && <ChartLegendLib items={buildLegendItems(seriesWithColors, defaultChartColors)} />}
         >
             <PieChart
                 height={height}
@@ -68,7 +70,7 @@ export const DonutChartLib: React.FC<DonutChartLibProps> = ({
                         cornerRadius: 4,
                     },
                 ]}
-                hideLegend={!showLegend}
+                hideLegend
                 sx={polarChartSx}
             />
         </ChartContainerLib>
