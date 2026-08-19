@@ -14,24 +14,32 @@ import {NAVITEMS} from "@/app/(ui)/components/sidebar/nave-items";
 export default function AppSidebar() {
     const pathname = usePathname();
     const [isMobile, setIsMobile] = useState<boolean | null>(null);
-    const {isOpen, toggle} = useSidebar();
+    const {isOpen, toggle, setOpen} = useSidebar();
     const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
     const activeItem = NAVITEMS.find(item => pathname.startsWith(item.href));
     const sectionLabel = activeItem?.label ?? "DeputeDex";
 
-    useEffect(() => {
-        const check = () => setIsMobile(window.innerWidth < 1024);
-        check();
-        window.addEventListener("resize", check);
-        return () => window.removeEventListener("resize", check);
-    }, []);
-
     //TODO garder le state de la side bar dans les cookies ou jsp , comme ca lors d'un refresh ou d'une navigation entre les pages on garde le même comportement (open ou close)
 
-    //TODO a voir si on veut se comportement
+    // Tant que `isMobile` vaut null (avant le premier effet), le rendu suit uniquement les
+    // classes Tailwind responsive ci-dessous (ouvert en desktop, replié en mobile) donc le SSR
+    // et le tout premier paint client sont identiques : pas de flash "ouvert" sur mobile.
+    // Au montage on détermine le viewport et on aligne isOpen dans le même effet (batché),
+    // pour éviter une frame intermédiaire visible.
     useEffect(() => {
-        if (isMobile && isOpen) toggle();
-    }, [isMobile]);
+        let prevMobile: boolean | null = null;
+        const syncViewport = (isInitial: boolean) => {
+            const mobile = window.innerWidth < 1024;
+            setIsMobile(mobile);
+            if (isInitial) setOpen(!mobile); // 1er rendu : ouvert desktop / fermé mobile
+            else if (mobile && !prevMobile) setOpen(false); // on passe en mobile -> on referme
+            prevMobile = mobile;
+        };
+        syncViewport(true);
+        const handleResize = () => syncViewport(false);
+        window.addEventListener("resize", handleResize);
+        return () => window.removeEventListener("resize", handleResize);
+    }, [setOpen]);
 
     return (
         <>
@@ -47,8 +55,10 @@ export default function AppSidebar() {
             </div>
 
             <aside className={`fixed left-0 top-0 h-full z-50 bg-surface-2 border-r border-main
-                      transition-[width,transform] duration-300 ease-in-out flex flex-col
-                      ${isOpen ? "w-56 shadow-2xl translate-x-0" : "w-14 -translate-x-full lg:translate-x-0"}`}>
+                      flex flex-col
+                      ${isMobile === null
+                          ? "w-14 -translate-x-full lg:w-56 lg:translate-x-0"
+                          : `transition-[width,transform] duration-300 ease-in-out ${isOpen ? "w-56 shadow-2xl translate-x-0" : "w-14 -translate-x-full lg:translate-x-0"}`}`}>
                 {/* Bouton toggle */}
                 <div className="h-14 flex items-center shrink-0 border-b border-main">
                     <div className="w-14 flex items-center justify-center shrink-0">
@@ -142,7 +152,7 @@ export default function AppSidebar() {
             </aside>
 
             {/* Backdrop mobile */}
-            {isOpen && (
+            {isMobile === true && isOpen && (
                 <div
                     className="lg:hidden fixed inset-0 z-40"
                     onClick={toggle}
