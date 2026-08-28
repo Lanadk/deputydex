@@ -6,7 +6,6 @@
 ![typescript](https://img.shields.io/badge/TypeScript-3178C6)
 ![tailwind](https://img.shields.io/badge/TailwindCSS-38BDF8)
 ![prisma](https://img.shields.io/badge/Prisma-Postgres-2D3748)
-![vercel](https://img.shields.io/badge/Deployed%20on-Vercel-black)
 
 ## 📊 Données
 
@@ -21,7 +20,6 @@ Les données sont stockées en **Postgres** et lues via **Prisma** — ce ne son
 - **Styling**: Tailwind CSS
 - **Data**: Postgres + Prisma (client généré dans `app/infrastructure/db/generated/prisma`)
 - **Architecture**: Clean/Hexagonal (voir [`CLAUDE.md`](./CLAUDE.md) pour le détail)
-- **Hosting**: Vercel
 
 ## 🛠️ Développement Local
 
