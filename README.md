@@ -6,6 +6,7 @@
 ![typescript](https://img.shields.io/badge/TypeScript-3178C6)
 ![tailwind](https://img.shields.io/badge/TailwindCSS-38BDF8)
 ![prisma](https://img.shields.io/badge/Prisma-Postgres-2D3748)
+![license](https://img.shields.io/badge/license-AGPL--3.0-blue)
 
 ## 📊 Données
 
@@ -74,3 +75,22 @@ Les contributions sont les bienvenues ! N'hésite pas à :
 - 🐛 Signaler des bugs
 - 💡 Proposer des features
 - 🔧 Soumettre des PRs
+
+Voir [`CONTRIBUTING.md`](./CONTRIBUTING.md) pour le détail (setup, standards
+de code, licence des contributions).
+
+## 📜 Licence
+
+Le code source de ce dépôt (dont la librairie de composants
+`app/(ui)/component-library/`, à l'exception du dossier
+`app/(ui)/component-library/external/` régi par les licences de ses sources
+d'origine) est disponible sous [GNU AGPL-3.0](./LICENSE) — code source
+disponible, forkable et réutilisable, avec obligation de republier le code
+de toute version modifiée déployée publiquement.
+
+Ne sont **pas** couverts par cette licence : le nom « Députédex », son logo
+et son identité visuelle (protégés séparément, pas de réutilisation sans
+autorisation), ainsi que les contenus éditoriaux propres au site. Voir
+[`NOTICE.md`](./NOTICE.md) pour le détail du périmètre, et la page
+[Mentions légales](https://deputydex.fr/mentions-legales) pour la version
+publique de ces informations.

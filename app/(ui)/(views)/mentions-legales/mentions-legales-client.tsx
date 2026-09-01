@@ -39,9 +39,11 @@ export default function MentionsLegalesClient() {
                 <AnchorSectionBlockLib id="copyright" title="Copyright" icon={Copyright} cols={1}>
                     <div className="flex flex-col gap-3">
                         <p>
-                            © {CURRENT_YEAR} Députédex. Sauf mention contraire, l’interface, les visuels,
-                            les textes et le code source du site sont la propriété de leurs auteurs et ne
-                            peuvent être reproduits sans autorisation préalable.
+                            © {CURRENT_YEAR} Députédex. Le code source du site est disponible sous licence
+                            libre (voir « Propriété intellectuelle » ci-dessous). Sauf mention contraire,
+                            le nom « Députédex », son logo, son identité visuelle et les contenus
+                            éditoriaux qui ne relèvent pas du code restent la propriété de leurs auteurs
+                            et ne peuvent être reproduits sans autorisation préalable.
                         </p>
                         <p className="text-subtitle-accent">
                             Les données parlementaires affichées ne sont pas concernées par ce copyright :
@@ -108,15 +110,44 @@ export default function MentionsLegalesClient() {
                 <AnchorSectionBlockLib id="propriete-intellectuelle" title="Propriété intellectuelle" icon={ShieldCheck} cols={1}>
                     <div className="flex flex-col gap-3">
                         <p>
-                            Le code source, la charte graphique, les composants d’interface et les
-                            contenus éditoriaux propres à Députédex (hors données parlementaires) sont
-                            protégés au titre du droit d’auteur et restent la propriété exclusive de
-                            leurs auteurs. Toute reproduction, représentation ou réutilisation, totale
-                            ou partielle, est interdite sans autorisation préalable.
+                            Le code source de Députédex (y compris sa librairie de composants
+                            d’interface, à l’exception des composants adaptés de sources tierces) est
+                            disponible sous licence{" "}
+                            <a
+                                href="https://github.com/Lanadk/deputydex/blob/main/LICENSE"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-accent hover:underline"
+                            >
+                                GNU AGPL-3.0
+                            </a>
+                            . Il peut être librement consulté, audité et réutilisé dans les conditions de
+                            cette licence, qui impose notamment de republier le code source de toute
+                            version modifiée déployée publiquement. Le détail du périmètre (ce qui est
+                            couvert ou non) est précisé dans le fichier{" "}
+                            <a
+                                href="https://github.com/Lanadk/deputydex/blob/main/NOTICE.md"
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-accent hover:underline"
+                            >
+                                NOTICE.md
+                            </a>{" "}
+                            du dépôt.
                         </p>
                         <p>
-                            Les marques, logos et le nom « Députédex » ne peuvent être utilisés sans
-                            accord préalable des auteurs.
+                            Cette licence de code ne porte que sur le droit d’auteur du code : elle ne
+                            confère aucun droit sur la marque, le nom « Députédex » ni son logo. Les
+                            marques, logos et le nom « Députédex » restent la propriété exclusive de
+                            leurs auteurs et ne peuvent être utilisés — y compris par un site ou service
+                            issu d’une réutilisation du code — sans accord préalable des auteurs.
+                        </p>
+                        <p>
+                            La charte graphique et les contenus éditoriaux propres à Députédex qui ne
+                            relèvent pas du code source (textes, visuels, illustrations) restent, sauf
+                            mention contraire, la propriété exclusive de leurs auteurs : toute
+                            reproduction, représentation ou réutilisation, totale ou partielle, en est
+                            interdite sans autorisation préalable.
                         </p>
                     </div>
                 </AnchorSectionBlockLib>

@@ -32,7 +32,8 @@ import {
     LayoutGrid,
     Hexagon,
     Workflow,
-    Lock
+    Lock,
+    Scale
 } from "lucide-react";
 import {FaGithub} from "react-icons/fa";
 
@@ -268,8 +269,9 @@ export default function ContributeClient() {
             <div className="mb-8 border-b border-main pb-6">
                 <PageHeaderLib
                     title="Contribuer"
-                    subtitle="Députédex est un projet open source, réparti sur deux dépôts. Curieux de savoir comment
-                    les données sont calculées, ou envie de mettre les mains dans le code ? C’est par ici."
+                    subtitle="Le code de Députédex est disponible sous licence libre (AGPL-3.0), réparti sur deux
+                    dépôts. Curieux de savoir comment les données sont calculées, ou envie de mettre les mains
+                    dans le code ? C’est par ici."
                 />
             </div>
 
@@ -363,6 +365,28 @@ export default function ContributeClient() {
                                 Envie de comprendre comment un chiffre est obtenu ? Direction{" "}
                                 <code>deputydex-data</code>. Envie d’améliorer une page ou une visualisation ?
                                 Direction <code>deputydex-front</code>
+                            </p>
+
+                            <p className="text-subtitle-accent text-sm flex items-start gap-2">
+                                <Scale className="w-4 h-4 shrink-0 mt-0.5"/>
+                                <span>
+                                    Le code des deux dépôts est disponible sous licence{" "}
+                                    <a
+                                        href={`${FRONT_REPO_URL}/blob/main/LICENSE`}
+                                        target="_blank"
+                                        rel="noopener noreferrer"
+                                        className="text-accent hover:underline"
+                                    >
+                                        AGPL-3.0
+                                    </a>{" "}
+                                    : lisible, forkable et réutilisable, avec republication obligatoire du
+                                    code de toute version modifiée déployée publiquement. Le nom, le logo et
+                                    l’identité visuelle « Députédex » n’en font pas partie et restent
+                                    réservés — voir les{" "}
+                                    <a href="/mentions-legales#propriete-intellectuelle" className="text-accent hover:underline">
+                                        mentions légales
+                                    </a>.
+                                </span>
                             </p>
                         </div>
                     </section>
