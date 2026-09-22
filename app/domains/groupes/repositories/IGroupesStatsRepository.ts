@@ -29,9 +29,7 @@ export interface IGroupesStatsRepository {
      * Score de cohésion moyen sur l'ensemble de la législature, une ligne
      * par groupe POLITIQUE — même précaution que `getParticipationParGroupe` :
      * filtrer sur l'effectif COURANT (TBD/NI exclus). Source
-     * `agg_groupes_stats_cohesion_legislature`, encore "PAS ENCORE VALIDE"
-     * côté deputydex-data (même statut que `agg_groupes_stats_stabilite`) —
-     * à réévaluer si la vue source est retravaillée.
+     * `agg_groupes_stats_cohesion_legislature`.
      */
     getCohesionParGroupe(legislature: number): Promise<GroupeStatCohesionParGroupeRow[]>;
 
@@ -40,8 +38,7 @@ export interface IGroupesStatsRepository {
      * législature (pas un seul) — pour le graphe superposé par défaut de
      * `entity-chart`, même périmètre que `getParticipationEvolutionTousGroupes`
      * (TBD + "NI (groupe technique)" exclus, VRAIS NI et groupes à 0 membre
-     * courant inclus). Source `agg_groupes_stats_cohesion_mensuelle`, encore
-     * "PAS ENCORE VALIDE" côté deputydex-data.
+     * courant inclus). Source `agg_groupes_stats_cohesion_mensuelle`.
      */
     getCohesionEvolutionTousGroupes(legislature: number): Promise<GroupeStatCohesionEvolutionTousRow[]>;
 

@@ -40,7 +40,7 @@ function buildCohesionRecit(data: BlockDataWrapper | undefined): ParagraphItem[]
     const items: ParagraphItem[] = [
         {
             type: "text",
-            content: `Données pour la ${dto.legislature}ᵉ législature — la cohésion mesure la part des votes d'un scrutin où un·e député·e a voté dans le même sens que la position majoritaire de son groupe (pour, contre ou abstention), sur les scrutins où au moins 5 membres du groupe ont voté. Donnée encore en cours de validation côté source.`,
+            content: `Données pour la ${dto.legislature}ᵉ législature — la cohésion mesure la part des votes d'un scrutin où un·e député·e a voté dans le même sens que la position majoritaire de son groupe (pour, contre ou abstention), sur les scrutins où au moins 5 membres du groupe ont voté.`,
         },
     ];
 
@@ -69,12 +69,10 @@ function buildCohesionRecit(data: BlockDataWrapper | undefined): ParagraphItem[]
  * source `agg_groupes_stats_cohesion_mensuelle`) pour l'évolution superposée
  * par groupe — même principe que `participation-presence.sections.ts`.
  *
- * IMPORTANT : les deux vues source sont encore marquées "PAS ENCORE VALIDE"
- * côté deputydex-data (même statut que `agg_groupes_stats_stabilite`, qui a
- * fait exclure le thème `stabilite-groupes`) — construit quand même à la
- * demande explicite, en attendant une validation conjointe avec l'équipe
- * data. Ne pas retirer cet avertissement avant que la vue source elle-même
- * porte "OK VALIDE".
+ * Les deux vues source calculent l'Agreement Index (Hix/Noury/Roland) depuis
+ * les comptages bruts pour/contre/abstention — validé par comparaison
+ * croisée avec Datan.fr (voir agg_groupes_stats_cohesion_legislature.sql
+ * côté deputydex-data pour le détail).
  */
 export const COHESION_GROUPES_SECTIONS: PageSection[] = [
     {
@@ -83,8 +81,7 @@ export const COHESION_GROUPES_SECTIONS: PageSection[] = [
         icon: Vote,
         description: "La cohésion mesure la part des votes d'un·e député·e alignés avec la position majoritaire " +
             "de son groupe (pour, contre ou abstention), sur les scrutins où le groupe a suffisamment voté pour " +
-            "que le calcul soit fiable. Donnée encore en cours de validation côté source — à prendre avec " +
-            "précaution en attendant confirmation de la méthodologie.",
+            "que le calcul soit fiable.",
         cols: 4,
         lazy: false,
         gatewayFn: async ({ legislature }: Record<string, unknown>) => {

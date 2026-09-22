@@ -35,8 +35,6 @@ export type GroupeExpressionTableRow = { groupeCode: string; groupeLabel: string
  * Table "cohesion des groupes" : `groupes.cohesion-legislature` a label =
  * CODE (meme convention que positions-de-vote/expression-votes/participation)
  * - construite dans le theme + `getGroupesCards` pour le libelle complet.
- * Donnee en cours de validation cote source (agg_groupes_stats_cohesion_legislature),
- * voir cohesion-groupes.sections.ts.
  */
 export type GroupeCohesionTableRow = { groupeCode: string; groupeLabel: string; tauxCohesion: number; rank: number };
 
@@ -222,7 +220,7 @@ const KEY_FIGURES_ENTITY_CHARTS: EntityChartConfig[] = [
     {
         id: "entity-chart-cohesion-groupe",
         title: "Évolution de la cohésion par groupe",
-        subtitle: "Cliquez un groupe pour retirer/remettre sa courbe — la liste inclut les Non inscrits et les groupes renommés/dissous en cours de législature (ex: UDR → UDDPLR), chacun avec sa propre période. Donnée en cours de validation côté source.",
+        subtitle: "Cliquez un groupe pour retirer/remettre sa courbe — la liste inclut les Non inscrits et les groupes renommés/dissous en cours de législature (ex: UDR → UDDPLR), chacun avec sa propre période.",
         statDomain: "groupes",
         statSlug: "cohesion-evolution-groupes",
         displayType: "line-multi",
