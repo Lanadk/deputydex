@@ -2,6 +2,8 @@ import {
     GroupeFeminisationMouvementRow,
     GroupeListItemRow,
     GroupeStatAgeParGroupeRow,
+    GroupeStatCohesionEvolutionTousRow,
+    GroupeStatCohesionParGroupeRow,
     GroupeStatCohesionPointEntity,
     GroupeStatEffectifRow,
     GroupeStatExpressionVoteRow,
@@ -22,6 +24,26 @@ export interface IGroupesStatsRepository {
     getEffectifs(legislature: number): Promise<GroupeStatEffectifRow[]>;
 
     getCohesionEvolution(code: string, legislature: number): Promise<GroupeStatCohesionPointEntity[]>;
+
+    /**
+     * Score de cohésion moyen sur l'ensemble de la législature, une ligne
+     * par groupe POLITIQUE — même précaution que `getParticipationParGroupe` :
+     * filtrer sur l'effectif COURANT (TBD/NI exclus). Source
+     * `agg_groupes_stats_cohesion_legislature`, encore "PAS ENCORE VALIDE"
+     * côté deputydex-data (même statut que `agg_groupes_stats_stabilite`) —
+     * à réévaluer si la vue source est retravaillée.
+     */
+    getCohesionParGroupe(legislature: number): Promise<GroupeStatCohesionParGroupeRow[]>;
+
+    /**
+     * Même source que `getCohesionEvolution`, mais TOUS les groupes de la
+     * législature (pas un seul) — pour le graphe superposé par défaut de
+     * `entity-chart`, même périmètre que `getParticipationEvolutionTousGroupes`
+     * (TBD + "NI (groupe technique)" exclus, VRAIS NI et groupes à 0 membre
+     * courant inclus). Source `agg_groupes_stats_cohesion_mensuelle`, encore
+     * "PAS ENCORE VALIDE" côté deputydex-data.
+     */
+    getCohesionEvolutionTousGroupes(legislature: number): Promise<GroupeStatCohesionEvolutionTousRow[]>;
 
     /**
      * Parité, une ligne par groupe POLITIQUE de la législature (Non inscrits

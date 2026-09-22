@@ -6,6 +6,8 @@ import {
     GroupeFeminisationMouvementRow,
     GroupeListItemRow,
     GroupeStatAgeParGroupeRow,
+    GroupeStatCohesionEvolutionTousRow,
+    GroupeStatCohesionParGroupeRow,
     GroupeStatCohesionPointEntity,
     GroupeStatEffectifRow,
     GroupeStatExpressionVoteRow,
@@ -67,6 +69,45 @@ export const prismaGroupesStatsRepository: IGroupesStatsRepository = {
             WHERE code = ${code}
               AND legislature = ${legislature}
             ORDER BY mois ASC
+        `;
+    },
+
+    async getCohesionParGroupe(legislature: number): Promise<GroupeStatCohesionParGroupeRow[]> {
+        // Même précaution que getParticipationParGroupe : filtrer sur
+        // l'effectif COURANT (TBD/NI exclus) plutôt que la seule présence
+        // dans la vue. ::float pour la même raison que getCohesionEvolution
+        // (taux_cohesion est un NUMERIC Postgres).
+        return prisma.$queryRaw<GroupeStatCohesionParGroupeRow[]>`
+            SELECT cl.code AS groupe_code,
+                   cl.libelle AS groupe_label,
+                   cl.taux_cohesion::float AS taux_cohesion
+            FROM agg_groupes_stats_cohesion_legislature cl
+            JOIN agg_groupes_effectifs_legislature agel
+                ON agel.groupe_id = cl.groupe_id
+               AND agel.legislature = cl.legislature
+            WHERE cl.legislature = ${legislature}
+              AND cl.code <> 'TBD'
+              AND cl.code NOT LIKE 'NI%'
+              AND agel.nb_acteurs_photo > 0
+            ORDER BY cl.taux_cohesion DESC NULLS LAST
+        `;
+    },
+
+    async getCohesionEvolutionTousGroupes(legislature: number): Promise<GroupeStatCohesionEvolutionTousRow[]> {
+        // Même périmètre que getParticipationEvolutionTousGroupes (TBD +
+        // "NI (groupe technique)" exclus, VRAIS NI et groupes à 0 membre
+        // courant inclus) — voir IGroupesStatsRepository.getCohesionEvolutionTousGroupes.
+        return prisma.$queryRaw<GroupeStatCohesionEvolutionTousRow[]>`
+            SELECT cm.code AS groupe_code,
+                   cm.libelle AS groupe_label,
+                   cm.mois,
+                   cm.taux_cohesion::float AS taux_cohesion
+            FROM agg_groupes_stats_cohesion_mensuelle cm
+            WHERE cm.legislature = ${legislature}
+              AND cm.code <> 'TBD'
+              AND cm.groupe_id <> 'PO0'
+              AND cm.libelle NOT ILIKE '%technique%'
+            ORDER BY cm.code ASC, cm.mois ASC
         `;
     },
 

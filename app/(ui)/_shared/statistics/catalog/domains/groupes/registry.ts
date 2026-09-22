@@ -49,6 +49,28 @@ export const GROUPES_STATS: StatDefinition[] = [
         // contexte pour le passer en `groupLabel`).
         chartVariant: "parliament-group",
     }),
+    defineStat("groupes", "cohesion-legislature", {
+        scope: "aggregate",
+        title: "Cohésion des groupes",
+        category: "Cohésion",
+        keywords: ["cohésion", "vote", "tous les groupes"],
+        description: "Compare, pour chaque groupe parlementaire, à quel point ses membres votent dans le même sens.",
+        methodology: "Score de cohésion moyen sur l'ensemble de la législature (moyenne non pondérée des taux de cohésion par scrutin, scrutins avec moins de 5 votants du groupe exclus), par groupe — les groupes sans membre actuel (renommés/dissous en cours de législature) sont exclus. Donnée en cours de validation côté source (agg_groupes_stats_cohesion_legislature).",
+        dataShape: "distribution",
+        unit: "%",
+        chartVariant: "parliament-group",
+    }),
+    defineStat("groupes", "cohesion-evolution-groupes", {
+        scope: "aggregate",
+        title: "Évolution de la cohésion, tous groupes",
+        category: "Cohésion",
+        keywords: ["cohésion", "évolution", "tous les groupes"],
+        description: "Compare, mois par mois, la cohésion de vote de tous les groupes parlementaires de la législature.",
+        methodology: "Taux de cohésion mensuel de chaque groupe (scrutins avec moins de 5 votants du groupe exclus). Un groupe renommé/dissous en cours de législature (ex: SOC-NUPES → SOC) apparaît comme deux séries distinctes, chacune sur sa propre période. Donnée en cours de validation côté source (agg_groupes_stats_cohesion_mensuelle).",
+        dataShape: "multi-series",
+        unit: "%",
+        chartVariant: "parliament-group",
+    }),
     defineStat("groupes", "positions-de-vote", {
         scope: "aggregate",
         title: "Positions de vote par groupe",

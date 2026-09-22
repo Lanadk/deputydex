@@ -1,4 +1,4 @@
-import { getGroupeStatParticipationUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-participation.use-case";
+import { getGroupeStatCohesionEvolutionTousUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-cohesion-evolution-tous.use-case";
 import { IGroupesStatsRepository } from "@/app/domains/groupes/repositories/IGroupesStatsRepository";
 
 function makeRepository(overrides: Partial<IGroupesStatsRepository> = {}): IGroupesStatsRepository {
@@ -22,30 +22,30 @@ function makeRepository(overrides: Partial<IGroupesStatsRepository> = {}): IGrou
     };
 }
 
-describe("getGroupeStatParticipationUseCase", () => {
-    it("maps repository rows to label/value items", async () => {
+describe("getGroupeStatCohesionEvolutionTousUseCase", () => {
+    it("groups repository rows by groupe_code into one series per group, converting the 0-1 scale to a %", async () => {
         const repository = makeRepository({
-            getParticipationParGroupe: jest.fn().mockResolvedValue([
-                { groupe_code: "RN", groupe_label: "Rassemblement National", taux_participation: 91.2 },
-                { groupe_code: "LFI", groupe_label: "La France insoumise", taux_participation: 85.4 },
+            getCohesionEvolutionTousGroupes: jest.fn().mockResolvedValue([
+                { groupe_code: "RN", groupe_label: "Rassemblement National", mois: new Date("2024-09-01"), taux_cohesion: 0.912 },
+                { groupe_code: "SOC-NUPES", groupe_label: "Socialistes et apparentés - NUPES", mois: new Date("2022-07-01"), taux_cohesion: null },
             ]),
         });
 
-        const result = await getGroupeStatParticipationUseCase(repository, 17);
+        const result = await getGroupeStatCohesionEvolutionTousUseCase(repository, 17);
 
-        expect(repository.getParticipationParGroupe).toHaveBeenCalledWith(17);
+        expect(repository.getCohesionEvolutionTousGroupes).toHaveBeenCalledWith(17);
         if (!result.success) throw new Error("expected success");
         expect(result.data).toEqual({
-            items: [
-                { label: "RN", value: 91.2 },
-                { label: "LFI", value: 85.4 },
+            series: [
+                { name: "RN", items: [{ label: "2024-09", value: 91.2 }] },
+                { name: "SOC-NUPES", items: [{ label: "2022-07", value: 0 }] },
             ],
         });
     });
 
-    it("returns ok({items: []}) when there is no data", async () => {
+    it("returns ok({series: []}) when there is no data", async () => {
         const repository = makeRepository();
-        const result = await getGroupeStatParticipationUseCase(repository, 17);
-        expect(result).toEqual({ success: true, data: { items: [] } });
+        const result = await getGroupeStatCohesionEvolutionTousUseCase(repository, 17);
+        expect(result).toEqual({ success: true, data: { series: [] } });
     });
 });

@@ -1,4 +1,4 @@
-import { getGroupeStatParticipationUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-participation.use-case";
+import { getGroupeStatCohesionLegislatureUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-cohesion-legislature.use-case";
 import { IGroupesStatsRepository } from "@/app/domains/groupes/repositories/IGroupesStatsRepository";
 
 function makeRepository(overrides: Partial<IGroupesStatsRepository> = {}): IGroupesStatsRepository {
@@ -22,18 +22,18 @@ function makeRepository(overrides: Partial<IGroupesStatsRepository> = {}): IGrou
     };
 }
 
-describe("getGroupeStatParticipationUseCase", () => {
-    it("maps repository rows to label/value items", async () => {
+describe("getGroupeStatCohesionLegislatureUseCase", () => {
+    it("maps repository rows to label/value items, converting the 0-1 scale to a %", async () => {
         const repository = makeRepository({
-            getParticipationParGroupe: jest.fn().mockResolvedValue([
-                { groupe_code: "RN", groupe_label: "Rassemblement National", taux_participation: 91.2 },
-                { groupe_code: "LFI", groupe_label: "La France insoumise", taux_participation: 85.4 },
+            getCohesionParGroupe: jest.fn().mockResolvedValue([
+                { groupe_code: "RN", groupe_label: "Rassemblement National", taux_cohesion: 0.912 },
+                { groupe_code: "LFI", groupe_label: "La France insoumise", taux_cohesion: 0.854 },
             ]),
         });
 
-        const result = await getGroupeStatParticipationUseCase(repository, 17);
+        const result = await getGroupeStatCohesionLegislatureUseCase(repository, 17);
 
-        expect(repository.getParticipationParGroupe).toHaveBeenCalledWith(17);
+        expect(repository.getCohesionParGroupe).toHaveBeenCalledWith(17);
         if (!result.success) throw new Error("expected success");
         expect(result.data).toEqual({
             items: [
@@ -45,7 +45,7 @@ describe("getGroupeStatParticipationUseCase", () => {
 
     it("returns ok({items: []}) when there is no data", async () => {
         const repository = makeRepository();
-        const result = await getGroupeStatParticipationUseCase(repository, 17);
+        const result = await getGroupeStatCohesionLegislatureUseCase(repository, 17);
         expect(result).toEqual({ success: true, data: { items: [] } });
     });
 });
