@@ -1,5 +1,7 @@
 import {
     GroupeListItemRow,
+    GroupeStatCohesionEvolutionTousRow,
+    GroupeStatCohesionParGroupeRow,
     GroupeStatCohesionPointEntity,
     GroupeStatEffectifRow,
     GroupeStatExpressionVoteRow,
@@ -12,6 +14,8 @@ import {
 import {
     GroupeListDTO,
     GroupeStatCohesionDTO,
+    GroupeStatCohesionEvolutionTousDTO,
+    GroupeStatCohesionLegislatureDTO,
     GroupeStatEffectifsDTO,
     GroupeStatExpressionVotesDTO,
     GroupeStatParticipationDTO,
@@ -64,6 +68,33 @@ export function mapGroupeStatCohesionToDTO(rows: GroupeStatCohesionPointEntity[]
  * "Rassemblement National") — trop long pour tenir sur l'axe d'un
  * stacked-bar avec un groupe par barre.
  */
+/** Un item par groupe (label = CODE, même convention que `mapGroupeStatParticipationToDTO`) — convertit l'échelle 0-1 de la vue source en %, arrondi à 1 décimale. */
+export function mapGroupeStatCohesionLegislatureToDTO(rows: GroupeStatCohesionParGroupeRow[]): GroupeStatCohesionLegislatureDTO {
+    return {
+        items: rows.map((row) => ({
+            label: row.groupe_code,
+            value: row.taux_cohesion != null ? Math.round(row.taux_cohesion * 1000) / 10 : 0,
+        })),
+    };
+}
+
+/** Une série par groupe (nom = CODE), un item par mois — même principe que `mapGroupeStatParticipationEvolutionTousToDTO`, avec la même conversion 0-1 → % que `mapGroupeStatCohesionLegislatureToDTO`. */
+export function mapGroupeStatCohesionEvolutionTousToDTO(rows: GroupeStatCohesionEvolutionTousRow[]): GroupeStatCohesionEvolutionTousDTO {
+    const byGroupe = new Map<string, { name: string; items: { label: string; value: number }[] }>();
+
+    for (const row of rows) {
+        if (!byGroupe.has(row.groupe_code)) {
+            byGroupe.set(row.groupe_code, { name: row.groupe_code, items: [] });
+        }
+        byGroupe.get(row.groupe_code)!.items.push({
+            label: row.mois.toISOString().slice(0, 7),
+            value: row.taux_cohesion != null ? Math.round(row.taux_cohesion * 1000) / 10 : 0,
+        });
+    }
+
+    return { series: Array.from(byGroupe.values()) };
+}
+
 export function mapGroupeStatPositionsVoteToDTO(rows: GroupeStatPositionVoteRow[]): GroupeStatPositionsVoteDTO {
     const byGroupe = new Map<string, { name: string; items: { label: string; value: number }[] }>();
 

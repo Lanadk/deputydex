@@ -32,6 +32,13 @@ export type GroupeEffectifTableRow = GroupeCardDTO & { rank: number };
 export type GroupeExpressionTableRow = { groupeCode: string; groupeLabel: string; tauxExpressionVotes: number; rank: number };
 
 /**
+ * Table "cohesion des groupes" : `groupes.cohesion-legislature` a label =
+ * CODE (meme convention que positions-de-vote/expression-votes/participation)
+ * - construite dans le theme + `getGroupesCards` pour le libelle complet.
+ */
+export type GroupeCohesionTableRow = { groupeCode: string; groupeLabel: string; tauxCohesion: number; rank: number };
+
+/**
  * Table "participation & présence aux scrutins" : `groupes.participation`
  * a label = CODE (même convention que positions-de-vote/expression-votes) —
  * construite dans le thème + `getGroupesCards` pour le libellé complet.
@@ -88,6 +95,7 @@ const KEY_FIGURES_CARDS: CardConfig[] = [
     { id: "kpi-categorie-cadres", displayType: "kpi-card" },
     { id: "kpi-categorie-fonctionnaires", displayType: "kpi-card" },
     { id: "card-groupes-participation-extremes", displayType: "group-card-pair" },
+    { id: "card-groupes-cohesion-extremes", displayType: "group-card-pair" },
 ];
 
 const KEY_FIGURES_CHARTS: ChartConfig[] = [
@@ -179,6 +187,15 @@ const KEY_FIGURES_TABLES: TableConfig<any>[] = [
         getRowKey: (r: GroupeParticipationTableRow) => r.groupeCode,
     } satisfies TableConfig<GroupeParticipationTableRow>,
     {
+        id: "table-cohesion-groupes",
+        columns: [
+            { id: "rank", header: "N°", align: "center", cell: (r: GroupeCohesionTableRow) => r.rank, width: 48 },
+            { id: "groupe", header: "Groupe", align: "left", cell: (r: GroupeCohesionTableRow) => <GroupCell code={r.groupeCode} label={r.groupeLabel} /> },
+            { id: "taux", header: "Taux de cohésion", align: "center", cell: (r: GroupeCohesionTableRow) => `${r.tauxCohesion}%` },
+        ],
+        getRowKey: (r: GroupeCohesionTableRow) => r.groupeCode,
+    } satisfies TableConfig<GroupeCohesionTableRow>,
+    {
         id: "table-categories-socio-pro-population",
         columns: [
             { id: "famille", header: "Famille socio-professionnelle", align: "left", cell: (r: ProfessionPopulationTableRow) => r.famille },
@@ -196,6 +213,16 @@ const KEY_FIGURES_ENTITY_CHARTS: EntityChartConfig[] = [
         subtitle: "Cliquez un groupe pour retirer/remettre sa courbe — la liste inclut les Non inscrits et les groupes renommés/dissous en cours de législature (ex: UDR → UDDPLR), chacun avec sa propre période.",
         statDomain: "groupes",
         statSlug: "participation-evolution-groupes",
+        displayType: "line-multi",
+        variant: "parliament-group",
+        entityLabel: "Groupes affichés",
+    },
+    {
+        id: "entity-chart-cohesion-groupe",
+        title: "Évolution de la cohésion par groupe",
+        subtitle: "Cliquez un groupe pour retirer/remettre sa courbe — la liste inclut les Non inscrits et les groupes renommés/dissous en cours de législature (ex: UDR → UDDPLR), chacun avec sa propre période.",
+        statDomain: "groupes",
+        statSlug: "cohesion-evolution-groupes",
         displayType: "line-multi",
         variant: "parliament-group",
         entityLabel: "Groupes affichés",

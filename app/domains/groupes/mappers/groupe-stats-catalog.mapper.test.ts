@@ -1,5 +1,7 @@
 import {
     mapGroupeListToDTO,
+    mapGroupeStatCohesionEvolutionTousToDTO,
+    mapGroupeStatCohesionLegislatureToDTO,
     mapGroupeStatCohesionToDTO,
     mapGroupeStatEffectifsToDTO,
     mapGroupeStatExpressionVotesToDTO,
@@ -48,6 +50,40 @@ describe("mapGroupeStatCohesionToDTO", () => {
     it("defaults a null taux_cohesion to 0", () => {
         const dto = mapGroupeStatCohesionToDTO([{ mois: new Date("2024-09-01"), taux_cohesion: null }]);
         expect(dto).toEqual({ points: [{ label: "2024-09", value: 0 }] });
+    });
+});
+
+describe("mapGroupeStatCohesionLegislatureToDTO", () => {
+    it("maps rows to label/value items, label = CODE, converting the 0-1 scale to a % rounded to 1 decimal", () => {
+        const dto = mapGroupeStatCohesionLegislatureToDTO([
+            { groupe_code: "RN", groupe_label: "Rassemblement National", taux_cohesion: 0.8765 },
+        ]);
+        expect(dto).toEqual({ items: [{ label: "RN", value: 87.7 }] });
+    });
+
+    it("defaults a null taux_cohesion to 0", () => {
+        const dto = mapGroupeStatCohesionLegislatureToDTO([{ groupe_code: "RN", groupe_label: null, taux_cohesion: null }]);
+        expect(dto).toEqual({ items: [{ label: "RN", value: 0 }] });
+    });
+});
+
+describe("mapGroupeStatCohesionEvolutionTousToDTO", () => {
+    it("groups rows by groupe_code into one series per group, named by CODE, converting the 0-1 scale to a %", () => {
+        const dto = mapGroupeStatCohesionEvolutionTousToDTO([
+            { groupe_code: "RN", groupe_label: "Rassemblement National", mois: new Date("2024-09-01"), taux_cohesion: 0.912 },
+            { groupe_code: "SOC-NUPES", groupe_label: "Socialistes et apparentés - NUPES", mois: new Date("2022-07-01"), taux_cohesion: null },
+        ]);
+
+        expect(dto).toEqual({
+            series: [
+                { name: "RN", items: [{ label: "2024-09", value: 91.2 }] },
+                { name: "SOC-NUPES", items: [{ label: "2022-07", value: 0 }] },
+            ],
+        });
+    });
+
+    it("returns an empty series array when there are no rows", () => {
+        expect(mapGroupeStatCohesionEvolutionTousToDTO([])).toEqual({ series: [] });
     });
 });
 

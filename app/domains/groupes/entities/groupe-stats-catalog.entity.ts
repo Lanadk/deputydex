@@ -11,6 +11,19 @@ export type GroupeStatCohesionPointEntity = {
     taux_cohesion: number | null;
 };
 
+export type GroupeStatCohesionParGroupeRow = {
+    groupe_code: string;
+    groupe_label: string | null;
+    taux_cohesion: number | null;
+};
+
+export type GroupeStatCohesionEvolutionTousRow = {
+    groupe_code: string;
+    groupe_label: string | null;
+    mois: Date;
+    taux_cohesion: number | null;
+};
+
 export type GroupeStatPariteParGroupeRow = {
     groupe_code: string;
     groupe_label: string | null;
