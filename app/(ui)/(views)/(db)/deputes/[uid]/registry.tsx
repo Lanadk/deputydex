@@ -193,6 +193,7 @@ const DEPUTE_CARD_REGISTRY: CardConfig[] = [
         id: "kpi-vote-breakdown",
         displayType: "kpi-bar-card",
     },
+    { id: "kpi-presence-taux", displayType: "kpi-card" },
 ];
 
 // ── Charts ───────────────────────────────────────────────────────────────────
