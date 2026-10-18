@@ -1,6 +1,4 @@
 import { NextResponse } from "next/server";
-import { getDeputeVoteStatsUseCase } from "@/app/domains/deputes/use-cases/get-depute-vote-stats.use-case";
-import { prismaDeputeVoteStatsRepository } from "@/app/infrastructure/deputes/repositories/prisma-depute-vote-stats.repository";
 import { isOk } from "@/app/_shared/result-pattern/result";
 import { cachedJson, cachedRead } from "@/app/_shared/cache/cached-response";
 
@@ -25,13 +23,13 @@ export async function GET(
         //     () => getDeputeAveragePresenceRateUseCase(prismaDeputeAveragePresenceRateRepository, uid, Number(legislature)),
         //     ["depute-vote-stats", uid, legislature]
         // );
-        // if (isOk(result)) {
-        //     return cachedJson(result.data);
-        // }
-        // if (result.error === "NOT_FOUND") return NextResponse.json({ error: "Aucune donnée de vote" }, { status: 404 });
-        // return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
+        if (isOk(result)) {
+            return cachedJson(result.data);
+        }
+        if (result.error === "NOT_FOUND") return NextResponse.json({ error: "Aucune donnée de vote" }, { status: 404 });
+        return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
     } catch (e) {
         console.error(e);
-        return NextResponse.json({ error: "Failed to get depute vote stats" }, { status: 500 });
+        return NextResponse.json({ error: "Failed to get depute presence stats" }, { status: 500 });
     }
 }

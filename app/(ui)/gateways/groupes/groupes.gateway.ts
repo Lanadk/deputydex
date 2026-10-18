@@ -125,15 +125,12 @@ export const groupesGateways: IGroupesGateways = {
         return res.json();
     },
 
-    async getGroupPresenceStats(/* code: string, legislature: number */): Promise<GroupPresenceStatsDTO> {
-        const res: GroupPresenceStatsDTO = {
-            averagePresenceRate: 56,
-            monthlyPresenceRate: [
-                { month: "1", presenceRate: 85 },
-                { month: "2", presenceRate: 15 },
-                { month: "3", presenceRate: 42 }
-            ],
-        };
-        return res;
+    async getGroupPresenceStats( code: string, legislature: number ): Promise<GroupPresenceStatsDTO> {
+        const res = await fetch(`/api/groupes/presence-stats/${code}/${legislature}`);
+
+        if (!res.ok)
+            throw new Error("Failed to get group presence stats");
+
+        return res.json();
     },
 };
