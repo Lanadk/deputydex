@@ -9,7 +9,7 @@ import { DeputesCardDTO } from "@/app/domains/deputes/dto/deputes-card.dto";
 import { DeputeActivityDTO } from "@/app/domains/deputes/dto/depute-activity.dto";
 import { DeputeActivityDetailsDTO } from "@/app/domains/deputes/dto/depute-activity-details.dto";
 import { DeputesAgeExtremesDTO } from "@/app/domains/deputes/dto/deputes-age-extremes.dto";
-import { DeputePresenceStatsDTO } from "@/app/domains/deputes/dto/depute-presence-stats.dto";
+import { DeputePresenceRateDTO } from "@/app/domains/deputes/dto/depute-presence-rate.dto";
 
 export const deputesGateway: IDeputesGateways = {
 
@@ -79,10 +79,17 @@ export const deputesGateway: IDeputesGateways = {
         return res.json();
     },
 
-    async getDeputePresenceRate(/* uid: string, legislature: number */): Promise<DeputePresenceStatsDTO> {
-        const res: DeputePresenceStatsDTO = {
+    async getDeputePresenceRate(/* uid: string, legislature: number */): Promise<DeputePresenceRateDTO> {
+        const res: DeputePresenceRateDTO = {
             presenceRate: 75,
         };
         return res;
-    }
+    },
+
+    async getDeputePresenceStats(/* uid: string, legislature: number */): Promise<DeputePresenceRateDTO> {
+        const res: DeputePresenceRateDTO = {
+            presenceRate: 75,
+        };
+        return res;
+    },
 };

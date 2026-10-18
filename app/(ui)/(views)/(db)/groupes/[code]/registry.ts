@@ -69,6 +69,7 @@ const GROUPES_KPI_REGISTRY: CardConfig[] = [
     {id: 'kpi-extreme-plus-jeune', displayType: 'kpi-card'},
     {id: 'kpi-extreme-plus-experimente', displayType: 'kpi-card'},
     {id: 'kpi-extreme-moins-experimente', displayType: 'kpi-card'},
+    {id: 'kpi-group-presence-rate', displayType: 'kpi-card'},
 ];
 
 //Chart registry

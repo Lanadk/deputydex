@@ -1,4 +1,4 @@
-import {CalendarDays, Users, Vote} from "lucide-react";
+import {CalendarDays, Users, Vote, CalendarCheck} from "lucide-react";
 import {MdOutlineGroups2} from "react-icons/md";
 import {activityCalendar, card, chart, table} from "@/app/(ui)/(views)/(db)/groupes/[code]/registry";
 import {PageSection} from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
@@ -309,5 +309,28 @@ export const GROUPES_SECTIONS: PageSection[] = [
         blocks: [
             {type: 'chart', colSpan: 4, config: chart('chart-evolution-participation-legislature')},
         ]
+    },
+    // -- Présence ------------------------------------------------------
+    {
+        id: "présences",
+        label: "Statistiques de présence",
+        icon: CalendarCheck,
+        description: "Taux de présence du député dans l'hémicyle",
+        cols: 4,
+        lazy: false,
+        gatewayFn: async ({ code, legislature }: Record<string, unknown>) => {
+            const [presence] = await Promise.all([
+                groupesGateways.getGroupPresenceRate(code as string, legislature as number),
+            ]);
+            
+            return {
+                "kpi-group-presence-rate": {
+                    data: { label: "taux de présence", value: `${presence.presenceRate}%` },
+                }
+            } as unknown as Record<string, BlockDataWrapper>;
+        },
+        blocks: [
+            { type: "card", colSpan: 1, config: card("kpi-group-presence-rate") },
+        ],
     },
 ];

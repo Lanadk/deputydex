@@ -1,3 +1,3 @@
 export type DeputePresenceStatsDTO = {
-    presenceRate: number;
-};
+  presenceRate: number;
+} 
