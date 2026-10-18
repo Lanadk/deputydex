@@ -315,22 +315,31 @@ export const GROUPES_SECTIONS: PageSection[] = [
         id: "présences",
         label: "Statistiques de présence",
         icon: CalendarCheck,
-        description: "Taux de présence du député dans l'hémicyle",
+        description: "Taux de présence du groupe dans l'hémicyle",
         cols: 4,
         lazy: false,
         gatewayFn: async ({ code, legislature }: Record<string, unknown>) => {
-            const [presence] = await Promise.all([
-                groupesGateways.getGroupPresenceRate(code as string, legislature as number),
+            const [averagePresence, presenceStats] = await Promise.all([
+                groupesGateways.getGroupAveragePresenceRate(code as string, legislature as number),
+                groupesGateways.getGroupPresenceStats(code as string, legislature as number),
             ]);
             
             return {
                 "kpi-group-presence-rate": {
-                    data: { label: "taux de présence", value: `${presence.presenceRate}%` },
-                }
+                    data: { label: "taux de présence moyen", value: `${averagePresence.presenceRate}%` },
+                },
+                "chart-group-monthly-presence-rate": {
+                    type: 'line',
+                    data: (presenceStats.monthlyPresenceRate?? []).map(d => ({
+                        label: d.month,
+                        value: d.presenceRate,
+                    })),
+                },
             } as unknown as Record<string, BlockDataWrapper>;
         },
         blocks: [
             { type: "card", colSpan: 1, config: card("kpi-group-presence-rate") },
+            { type: "chart", colSpan: 2, config: chart("chart-group-monthly-presence-rate")}
         ],
     },
 ];

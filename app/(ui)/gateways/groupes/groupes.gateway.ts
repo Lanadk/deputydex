@@ -10,7 +10,7 @@ import {GroupeActivityDetailsDTO} from "@/app/domains/groupes/dto/groupe-activit
 import {GroupesFeminisationDTO} from "@/app/domains/groupes/dto/groupes-feminisation.dto";
 import {GroupesAgeDTO} from "@/app/domains/groupes/dto/groupes-age.dto";
 import {GroupeListDTO} from "@/app/domains/groupes/dto/groupe-stats-catalog.dto";
-import { GroupPresenceRateDTO } from "@/app/domains/groupes/dto/groupe-presence-rate.dto";
+import { GroupAveragePresenceRateDTO } from "@/app/domains/groupes/dto/groupe-average-presence-rate.dto";
 import { GroupPresenceStatsDTO } from "@/app/domains/groupes/dto/groupe-presence-stats.dto";
 
 export const groupesGateways: IGroupesGateways = {
@@ -126,8 +126,8 @@ export const groupesGateways: IGroupesGateways = {
         return res.json();
     },
 
-    async getGroupPresenceRate(/* code: string, legislature: number */): Promise<GroupPresenceRateDTO> {
-        const res: GroupPresenceRateDTO = {
+    async getGroupAveragePresenceRate(/* code: string, legislature: number */): Promise<GroupAveragePresenceRateDTO> {
+        const res: GroupAveragePresenceRateDTO = {
             presenceRate: 75,
         };
         return res;
@@ -135,7 +135,11 @@ export const groupesGateways: IGroupesGateways = {
 
     async getGroupPresenceStats(/* code: string, legislature: number */): Promise<GroupPresenceStatsDTO> {
         const res: GroupPresenceStatsDTO = {
-            presenceRate: 75,
+            monthlyPresenceRate: [
+                { month: "1", presenceRate: 85 },
+                { month: "2", presenceRate: 15 },
+                { month: "3", presenceRate: 42 }
+            ],
         };
         return res;
     },

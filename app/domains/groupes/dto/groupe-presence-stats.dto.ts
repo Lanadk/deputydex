@@ -1,3 +1,6 @@
 export type GroupPresenceStatsDTO = {
-  presenceRate: number;
+  monthlyPresenceRate: {
+    month: string;
+    presenceRate: number | string | unknown;
+  }[]
 }

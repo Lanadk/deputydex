@@ -137,16 +137,27 @@ export const DEPUTE_SECTIONS: PageSection[] = [
         cols: 4,
         lazy: false,
         gatewayFn: async ({ uid, legislature }: Record<string, unknown>) => {
-            const presence = await deputesGateway.getDeputePresenceStats(uid as string, legislature as number);
+            const [ averagePresence, presenceStats ] = await Promise.all([
+                deputesGateway.getDeputeAveragePresenceRate(uid as string, legislature as number),
+                deputesGateway.getDeputePresenceStats(uid as string, legislature as number),
+            ]);
             
             return {
                 "kpi-presence-taux": {
-                    data: { label: "taux de présence", value: `${presence.presenceRate}%` },
+                    data: { label: "taux de présence moyen", value: `${averagePresence.presenceRate}%` },
+                },
+                "chart-depute-monthly-presence-rate": {
+                    type: "line",
+                    data: (presenceStats.monthlyPresenceRate?? []).map(d => ({
+                        label: d.month,
+                        value: d.presenceRate
+                    })),
                 }
             } as unknown as Record<string, BlockDataWrapper>;
         },
         blocks: [
             { type: "card", colSpan: 1, config: card("kpi-presence-taux") },
+            { type: "chart", colSpan: 2, config: chart("chart-depute-monthly-presence-rate")}
         ],
     },
 

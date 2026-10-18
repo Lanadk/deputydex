@@ -103,6 +103,12 @@ const GROUPE_CHART_REGISTRY: ChartConfig[] = [
         title: 'Evolution de la participation durant la législature',
         theme: 'participation',
         displayType: 'line'
+    },
+    {
+        id: 'chart-group-monthly-presence-rate',
+        title: 'Evolution de la participation du groupe aux séances durant la legislature',
+        theme: 'group-presence',
+        displayType: 'line'
     }
 ];
 
