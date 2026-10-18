@@ -319,14 +319,11 @@ export const GROUPES_SECTIONS: PageSection[] = [
         cols: 4,
         lazy: false,
         gatewayFn: async ({ code, legislature }: Record<string, unknown>) => {
-            const [averagePresence, presenceStats] = await Promise.all([
-                groupesGateways.getGroupAveragePresenceRate(code as string, legislature as number),
-                groupesGateways.getGroupPresenceStats(code as string, legislature as number),
-            ]);
+            const presenceStats = await groupesGateways.getGroupPresenceStats(code as string, legislature as number)
             
             return {
                 "kpi-group-presence-rate": {
-                    data: { label: "taux de présence moyen", value: `${averagePresence.presenceRate}%` },
+                    data: { label: "taux de présence moyen", value: `${presenceStats.averagePresenceRate}%` },
                 },
                 "chart-group-monthly-presence-rate": {
                     type: 'line',

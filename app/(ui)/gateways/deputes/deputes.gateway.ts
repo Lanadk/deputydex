@@ -9,7 +9,6 @@ import { DeputesCardDTO } from "@/app/domains/deputes/dto/deputes-card.dto";
 import { DeputeActivityDTO } from "@/app/domains/deputes/dto/depute-activity.dto";
 import { DeputeActivityDetailsDTO } from "@/app/domains/deputes/dto/depute-activity-details.dto";
 import { DeputesAgeExtremesDTO } from "@/app/domains/deputes/dto/deputes-age-extremes.dto";
-import { DeputeAveragePresenceRateDTO } from "@/app/domains/deputes/dto/depute-average-presence-rate.dto";
 import { DeputePresenceStatsDTO } from "@/app/domains/deputes/dto/depute-presence-stats.dto";
 
 export const deputesGateway: IDeputesGateways = {
@@ -80,21 +79,9 @@ export const deputesGateway: IDeputesGateways = {
         return res.json();
     },
 
-    async getDeputeAveragePresenceRate(/* uid: string, legislature: number */): Promise<DeputeAveragePresenceRateDTO> {
-        const res: DeputeAveragePresenceRateDTO = {
-            presenceRate: 75,
-        };
-        return res;
-    },
-
-    async getDeputePresenceStats(/* uid: string, legislature: number */): Promise<DeputePresenceStatsDTO> {
-        const res: DeputePresenceStatsDTO = {
-            monthlyPresenceRate: [
-                { month: "1", presenceRate: 34 },
-                { month: "2", presenceRate: 54 },
-                { month: "3", presenceRate: 82 },
-            ]
-        };
-        return res;
+    async getDeputePresenceStats( uid: string, legislature: number ): Promise<DeputePresenceStatsDTO> {
+        const res = await fetch(`/api/deputes/${uid}/presence-stats/${legislature}`);
+        if (!res.ok) throw new Error(`Failed to get depute average presence rate`);
+        return res.json();
     },
 };
