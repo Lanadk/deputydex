@@ -168,6 +168,7 @@ export default function AboutUsClient() {
                                                 >
                                                     <ButtonLib
                                                         icon={link.icon}
+                                                        ariaLabel={link.label}
                                                         variant="tertiary"
                                                         size="small"
                                                     />
