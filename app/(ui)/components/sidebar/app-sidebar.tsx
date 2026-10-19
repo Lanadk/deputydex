@@ -47,6 +47,7 @@ export default function AppSidebar() {
             <div className="lg:hidden fixed top-0 left-0 right-0 h-14 z-40 bg-surface-2 border-b border-main flex items-center px-4 gap-3">
                 <ButtonLib
                     icon={Menu}
+                    ariaLabel="Ouvrir le menu"
                     variant="tertiary"
                     size="small"
                     onClick={toggle}

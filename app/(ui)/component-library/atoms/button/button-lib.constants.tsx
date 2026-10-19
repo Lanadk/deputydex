@@ -67,9 +67,9 @@ export const getButtonSections = (message: string, setMessage: (msg: string) => 
         code: BUTTON_CODE_ON_CLICK,
         component: (
             <div className="flex gap-4 items-center flex-wrap">
-                <ButtonLib icon={Plus} size="small" />
-                <ButtonLib icon={FaUser} size="medium" />
-                <ButtonLib icon={Plus} size="large" />
+                <ButtonLib icon={Plus} ariaLabel="Ajouter" size="small" />
+                <ButtonLib icon={FaUser} ariaLabel="Profil" size="medium" />
+                <ButtonLib icon={Plus} ariaLabel="Ajouter" size="large" />
             </div>
         )
     },
