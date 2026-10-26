@@ -20,7 +20,7 @@ Les données sont stockées en **Postgres** et lues via **Prisma** — ce ne son
 - **Framework**: Next.js 16 + TypeScript
 - **Styling**: Tailwind CSS
 - **Data**: Postgres + Prisma (client généré dans `app/infrastructure/db/generated/prisma`)
-- **Architecture**: Clean/Hexagonal (voir [`CLAUDE.md`](./CLAUDE.md) pour le détail)
+- **Architecture**: Clean/Hexagonal
 
 ## 🛠️ Développement Local
 
