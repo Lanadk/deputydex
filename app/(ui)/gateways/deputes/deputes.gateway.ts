@@ -9,6 +9,7 @@ import { DeputesCardDTO } from "@/app/domains/deputes/dto/deputes-card.dto";
 import { DeputeActivityDTO } from "@/app/domains/deputes/dto/depute-activity.dto";
 import { DeputeActivityDetailsDTO } from "@/app/domains/deputes/dto/depute-activity-details.dto";
 import { DeputesAgeExtremesDTO } from "@/app/domains/deputes/dto/deputes-age-extremes.dto";
+import { DeputePresenceStatsDTO } from "@/app/domains/deputes/dto/depute-presence-stats.dto";
 
 export const deputesGateway: IDeputesGateways = {
 
@@ -75,6 +76,12 @@ export const deputesGateway: IDeputesGateways = {
     async getDeputesAgeExtremes(legislature: number): Promise<DeputesAgeExtremesDTO> {
         const res = await fetch(`/api/deputes/age-extremes/${legislature}`);
         if (!res.ok) throw new Error("Failed to get deputes age extremes");
+        return res.json();
+    },
+
+    async getDeputePresenceStats( uid: string, legislature: number ): Promise<DeputePresenceStatsDTO> {
+        const res = await fetch(`/api/deputes/${uid}/presence-stats/${legislature}`);
+        if (!res.ok) throw new Error(`Failed to get depute average presence rate`);
         return res.json();
     },
 };

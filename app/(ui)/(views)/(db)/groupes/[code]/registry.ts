@@ -69,6 +69,7 @@ const GROUPES_KPI_REGISTRY: CardConfig[] = [
     {id: 'kpi-extreme-plus-jeune', displayType: 'kpi-card'},
     {id: 'kpi-extreme-plus-experimente', displayType: 'kpi-card'},
     {id: 'kpi-extreme-moins-experimente', displayType: 'kpi-card'},
+    {id: 'kpi-group-presence-rate', displayType: 'kpi-card'},
 ];
 
 //Chart registry
@@ -101,6 +102,12 @@ const GROUPE_CHART_REGISTRY: ChartConfig[] = [
         id: 'chart-evolution-participation-legislature',
         title: 'Evolution de la participation durant la législature',
         theme: 'participation',
+        displayType: 'line'
+    },
+    {
+        id: 'chart-group-monthly-presence-rate',
+        title: 'Evolution de la participation du groupe aux séances durant la legislature',
+        theme: 'group-presence',
         displayType: 'line'
     }
 ];

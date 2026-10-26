@@ -193,6 +193,7 @@ const DEPUTE_CARD_REGISTRY: CardConfig[] = [
         id: "kpi-vote-breakdown",
         displayType: "kpi-bar-card",
     },
+    { id: "kpi-presence-taux", displayType: "kpi-card" },
 ];
 
 // ── Charts ───────────────────────────────────────────────────────────────────
@@ -205,6 +206,12 @@ const DEPUTE_CHART_REGISTRY: ChartConfig[] = [
         theme: "vote-positions",
         displayType: "donut",
     },
+    {
+        id: "chart-depute-monthly-presence-rate",
+        title: "Evolution de la participation du député aux séances durant la legislature",
+        theme: "depute-presence",
+        displayType: "line",
+    }
 ];
 
 // ── Helpers ──────────────────────────────────────────────────────────────────

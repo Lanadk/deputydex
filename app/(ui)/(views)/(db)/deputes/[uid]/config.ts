@@ -1,4 +1,4 @@
-import { BookOpen, CalendarDays, Vote } from "lucide-react";
+import { BookOpen, CalendarDays, Vote, CalendarCheck } from "lucide-react";
 import { activityCalendar, card, chart, table } from "@/app/(ui)/(views)/(db)/deputes/[uid]/registry";
 import { PageSection } from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
 import { BlockDataWrapper, SectionBlock } from "@/app/(ui)/component-library/template/sections/block-section/block-section-renderer";
@@ -125,6 +125,36 @@ export const DEPUTE_SECTIONS: PageSection[] = [
                 colSpan: 4,
                 ...table("depute-recent-votes-table"),
             } satisfies SectionBlock<DeputeRecentVoteDTO>,
+        ],
+    },
+
+    //-- Présences -----------------------------------------------------------
+    {
+        id: "présences",
+        label: "Statistiques de présence",
+        icon: CalendarCheck,
+        description: "Taux de présence du député dans l'hémicyle",
+        cols: 4,
+        lazy: false,
+        gatewayFn: async ({ uid, legislature }: Record<string, unknown>) => {
+            const presenceStats = await deputesGateway.getDeputePresenceStats(uid as string, legislature as number)
+            
+            return {
+                "kpi-presence-taux": {
+                    data: { label: "taux de présence moyen", value: `${presenceStats.averagePresenceRate}%` },
+                },
+                "chart-depute-monthly-presence-rate": {
+                    type: "line",
+                    data: (presenceStats.monthlyPresenceRate?? []).map(d => ({
+                        label: d.month,
+                        value: d.presenceRate
+                    })),
+                }
+            } as unknown as Record<string, BlockDataWrapper>;
+        },
+        blocks: [
+            { type: "card", colSpan: 1, config: card("kpi-presence-taux") },
+            { type: "chart", colSpan: 2, config: chart("chart-depute-monthly-presence-rate")}
         ],
     },
 

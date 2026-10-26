@@ -10,6 +10,7 @@ import {GroupeActivityDetailsDTO} from "@/app/domains/groupes/dto/groupe-activit
 import {GroupesFeminisationDTO} from "@/app/domains/groupes/dto/groupes-feminisation.dto";
 import {GroupesAgeDTO} from "@/app/domains/groupes/dto/groupes-age.dto";
 import {GroupeListDTO} from "@/app/domains/groupes/dto/groupe-stats-catalog.dto";
+import { GroupPresenceStatsDTO } from "@/app/domains/groupes/dto/groupe-presence-stats.dto";
 
 export const groupesGateways: IGroupesGateways = {
     async getGroupesCards(legislature: number): Promise<GroupeCardDTO[]> {
@@ -122,5 +123,14 @@ export const groupesGateways: IGroupesGateways = {
         if (!res.ok) throw new Error("Failed to get groupes age");
 
         return res.json();
-    }
+    },
+
+    async getGroupPresenceStats( code: string, legislature: number ): Promise<GroupPresenceStatsDTO> {
+        const res = await fetch(`/api/groupes/presence-stats/${code}/${legislature}`);
+
+        if (!res.ok)
+            throw new Error("Failed to get group presence stats");
+
+        return res.json();
+    },
 };
