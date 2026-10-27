@@ -46,8 +46,23 @@ export type GroupeCohesionTableRow = { groupeCode: string; groupeLabel: string; 
  */
 export type GroupeCumulMandatsTableRow = { groupeCode: string; groupeLabel: string; averageCumulatedYears: number; rank: number };
 
-/** Table "proximité entre groupes" : une ligne par PAIRE de groupes — le DTO + le rang (DTO déjà trié par proximité décroissante). */
-export type GroupeProximitePaireTableRow = GroupeProximitePaireDTO & { rank: number };
+/**
+ * Table "proximité entre groupes" : une ligne par PAIRE de groupes — le DTO +
+ * le rang (DTO déjà trié par proximité décroissante) + `groupes` (les deux
+ * codes) pour le filtre "Groupe" : un champ tableau matche si l'un OU l'autre
+ * côté de la paire correspond (voir `applyFilterBarQueryClient`).
+ */
+export type GroupeProximitePaireTableRow = GroupeProximitePaireDTO & { rank: number; groupes: string[] };
+
+/** Options du filtre "Groupe" : les groupes présents dans les paires chargées (donc ceux de LA législature affichée), triés par libellé. */
+function groupeOptionsFromPaires(rows: GroupeProximitePaireTableRow[]): { value: string; label: string }[] {
+    const byCode = new Map<string, string>();
+    for (const r of rows) {
+        byCode.set(r.groupeACode, r.groupeALabel);
+        byCode.set(r.groupeBCode, r.groupeBLabel);
+    }
+    return Array.from(byCode, ([value, label]) => ({ value, label })).sort((a, b) => a.label.localeCompare(b.label, "fr"));
+}
 
 /** Table "proximité avec le groupe de référence du gouvernement" : l'autre groupe de chaque paire impliquant ce groupe de référence. */
 export type GroupeProximiteGouvernementTableRow = GroupeProximiteGouvernementDTO & { rank: number };
@@ -233,6 +248,15 @@ const KEY_FIGURES_TABLES: TableConfig<any>[] = [
         getRowKey: (r: GroupeProximitePaireTableRow) => `${r.groupeACode}-${r.groupeBCode}`,
         // ~10 groupes → ~45 paires : pagination plutôt qu'un mur de lignes.
         pagination: { pageSize: 15 },
+        filter: {
+            sortOptions: [
+                { id: "plus-proches", label: "Plus proches d'abord", field: "tauxProximite", direction: "desc" },
+                { id: "plus-eloignes", label: "Plus éloignés d'abord", field: "tauxProximite", direction: "asc" },
+            ],
+            filterFields: [{ field: "groupes", label: "Groupe", type: "select" }],
+            selectOptionsFromRows: { groupes: groupeOptionsFromPaires },
+            applyMode: "auto",
+        },
     } satisfies TableConfig<GroupeProximitePaireTableRow>,
     {
         id: "table-proximite-gouvernement",

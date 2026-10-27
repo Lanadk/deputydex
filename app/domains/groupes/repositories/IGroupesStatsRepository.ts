@@ -81,9 +81,11 @@ export interface IGroupesStatsRepository {
     /**
      * Proximité de vote entre groupes, une ligne par PAIRE de groupes
      * POLITIQUES (chaque paire une seule fois) : part des scrutins communs où
-     * leurs positions majoritaires sont identiques. Les deux groupes de la
-     * paire doivent avoir un effectif COURANT > 0 (TBD/NI exclus) — même
-     * précaution que `getPositionsVoteParGroupe`. Source :
+     * leurs positions majoritaires sont identiques. TBD/NI exclus, mais PAS
+     * de filtre sur l'effectif COURANT : les anciens codes d'un groupe
+     * renommé en cours de législature (ex: UDR, SOC-NUPES) doivent remonter
+     * pour être additionnés à leur code actuel côté domaine (voir
+     * `groupe-lineage.constants.ts`). Source :
      * `agg_groupes_stats_proximite_votes_legislature`.
      */
     getProximiteParPaire(legislature: number): Promise<GroupeProximitePaireRow[]>;

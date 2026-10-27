@@ -20,8 +20,8 @@ describe("GET /api/groupes/proximite/[legislature]", () => {
 
     it("returns 200 with the pairs sorted by proximity, forwarding legislature as a number", async () => {
         getProximiteParPaire.mockResolvedValue([
-            { groupe_a_code: "LFI", groupe_a_label: "La France insoumise", groupe_b_code: "RN", groupe_b_label: "Rassemblement National", nb_scrutins_communs: 200, taux_proximite: 0.2 },
-            { groupe_a_code: "DEM", groupe_a_label: "Les Démocrates", groupe_b_code: "EPR", groupe_b_label: "Ensemble pour la République", nb_scrutins_communs: 200, taux_proximite: 0.9 },
+            { groupe_a_code: "LFI", groupe_a_label: "La France insoumise", groupe_b_code: "RN", groupe_b_label: "Rassemblement National", nb_scrutins_communs: 200, nb_scrutins_alignes: 40, taux_proximite: 0.2 },
+            { groupe_a_code: "DEM", groupe_a_label: "Les Démocrates", groupe_b_code: "EPR", groupe_b_label: "Ensemble pour la République", nb_scrutins_communs: 200, nb_scrutins_alignes: 180, taux_proximite: 0.9 },
         ]);
 
         const res = await call("17");
