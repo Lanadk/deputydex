@@ -39,6 +39,13 @@ export type GroupeExpressionTableRow = { groupeCode: string; groupeLabel: string
 export type GroupeCohesionTableRow = { groupeCode: string; groupeLabel: string; tauxCohesion: number; rank: number };
 
 /**
+ * Table "ancienneté moyenne des groupes" : `groupes.cumul-mandats` a label =
+ * CODE (même convention que cohesion-legislature) — construite dans le thème
+ * + `getGroupesCards` pour le libellé complet.
+ */
+export type GroupeCumulMandatsTableRow = { groupeCode: string; groupeLabel: string; averageCumulatedYears: number; rank: number };
+
+/**
  * Table "participation & présence aux scrutins" : `groupes.participation`
  * a label = CODE (même convention que positions-de-vote/expression-votes) —
  * construite dans le thème + `getGroupesCards` pour le libellé complet.
@@ -96,6 +103,7 @@ const KEY_FIGURES_CARDS: CardConfig[] = [
     { id: "kpi-categorie-fonctionnaires", displayType: "kpi-card" },
     { id: "card-groupes-participation-extremes", displayType: "group-card-pair" },
     { id: "card-groupes-cohesion-extremes", displayType: "group-card-pair" },
+    { id: "card-groupes-cumul-mandats-extremes", displayType: "group-card-pair" },
 ];
 
 const KEY_FIGURES_CHARTS: ChartConfig[] = [
@@ -195,6 +203,15 @@ const KEY_FIGURES_TABLES: TableConfig<any>[] = [
         ],
         getRowKey: (r: GroupeCohesionTableRow) => r.groupeCode,
     } satisfies TableConfig<GroupeCohesionTableRow>,
+    {
+        id: "table-cumul-mandats-groupes",
+        columns: [
+            { id: "rank", header: "N°", align: "center", cell: (r: GroupeCumulMandatsTableRow) => r.rank, width: 48 },
+            { id: "groupe", header: "Groupe", align: "left", cell: (r: GroupeCumulMandatsTableRow) => <GroupCell code={r.groupeCode} label={r.groupeLabel} /> },
+            { id: "anciennete", header: "Ancienneté moyenne", align: "center", cell: (r: GroupeCumulMandatsTableRow) => `${r.averageCumulatedYears} ans` },
+        ],
+        getRowKey: (r: GroupeCumulMandatsTableRow) => r.groupeCode,
+    } satisfies TableConfig<GroupeCumulMandatsTableRow>,
     {
         id: "table-categories-socio-pro-population",
         columns: [

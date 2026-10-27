@@ -9,6 +9,7 @@ import {
     GroupeStatCohesionEvolutionTousRow,
     GroupeStatCohesionParGroupeRow,
     GroupeStatCohesionPointEntity,
+    GroupeStatCumulMandatsParGroupeRow,
     GroupeStatEffectifRow,
     GroupeStatExpressionVoteRow,
     GroupeStatParticipationEvolutionPointEntity,
@@ -188,6 +189,31 @@ export const prismaGroupesStatsRepository: IGroupesStatsRepository = {
             WHERE aga.legislature = ${legislature}
               AND rg.code NOT LIKE 'NI%'
             ORDER BY aga.average_age ASC
+        `;
+    },
+
+    async getCumulMandatsParGroupe(legislature: number): Promise<GroupeStatCumulMandatsParGroupeRow[]> {
+        // Même périmètre que getCohesionParGroupe (effectif COURANT, TBD/NI
+        // exclus). average_cumulated_years est un NUMERIC Postgres — ::float
+        // impératif, voir getCohesionEvolution. NULL exclu plutôt que ramené
+        // à 0 : un 0 ferait passer le groupe pour "le moins ancien".
+        return prisma.$queryRaw<GroupeStatCumulMandatsParGroupeRow[]>`
+            SELECT cm.groupe_code,
+                   rg.libelle AS groupe_label,
+                   cm.average_cumulated_years::float AS average_cumulated_years
+            FROM agg_groupes_stats_cumul_mandats cm
+            JOIN ref_groupes rg
+                ON rg.groupe_id = cm.groupe_id
+               AND rg.groupe_legislature = cm.legislature
+            JOIN agg_groupes_effectifs_legislature agel
+                ON agel.groupe_id = cm.groupe_id
+               AND agel.legislature = cm.legislature
+            WHERE cm.legislature = ${legislature}
+              AND cm.groupe_code <> 'TBD'
+              AND cm.groupe_code NOT LIKE 'NI%'
+              AND agel.nb_acteurs_photo > 0
+              AND cm.average_cumulated_years IS NOT NULL
+            ORDER BY cm.average_cumulated_years DESC
         `;
     },
 

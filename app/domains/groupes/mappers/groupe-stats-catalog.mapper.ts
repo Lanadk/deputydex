@@ -3,6 +3,7 @@ import {
     GroupeStatCohesionEvolutionTousRow,
     GroupeStatCohesionParGroupeRow,
     GroupeStatCohesionPointEntity,
+    GroupeStatCumulMandatsParGroupeRow,
     GroupeStatEffectifRow,
     GroupeStatExpressionVoteRow,
     GroupeStatParticipationEvolutionPointEntity,
@@ -16,6 +17,7 @@ import {
     GroupeStatCohesionDTO,
     GroupeStatCohesionEvolutionTousDTO,
     GroupeStatCohesionLegislatureDTO,
+    GroupeStatCumulMandatsDTO,
     GroupeStatEffectifsDTO,
     GroupeStatExpressionVotesDTO,
     GroupeStatParticipationDTO,
@@ -93,6 +95,16 @@ export function mapGroupeStatCohesionEvolutionTousToDTO(rows: GroupeStatCohesion
     }
 
     return { series: Array.from(byGroupe.values()) };
+}
+
+/** Un item par groupe (label = CODE, même convention que `mapGroupeStatParticipationToDTO`), value = années, déjà arrondies à 1 décimale par la vue source. Ordre préservé (déjà trié par le repository). */
+export function mapGroupeStatCumulMandatsToDTO(rows: GroupeStatCumulMandatsParGroupeRow[]): GroupeStatCumulMandatsDTO {
+    return {
+        items: rows.map((row) => ({
+            label: row.groupe_code,
+            value: row.average_cumulated_years,
+        })),
+    };
 }
 
 export function mapGroupeStatPositionsVoteToDTO(rows: GroupeStatPositionVoteRow[]): GroupeStatPositionsVoteDTO {
