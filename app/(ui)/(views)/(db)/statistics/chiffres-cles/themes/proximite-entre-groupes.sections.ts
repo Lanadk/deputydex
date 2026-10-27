@@ -117,7 +117,9 @@ function buildGouvernementRecit(data: BlockDataWrapper | undefined): ParagraphIt
  * (distribution/multi-series...) — même choix que `getGroupesAge`.
  * Source : `agg_groupes_stats_proximite_votes_legislature` (OK VALIDE côté
  * deputydex-data) ; méthodologie et périmètre dans
- * `IGroupesStatsRepository.getProximiteParPaire`.
+ * `IGroupesStatsRepository.getProximiteParPaire`. Les groupes renommés en
+ * cours de législature sont additionnés sous leur code actuel côté domaine
+ * (`groupe-lineage.constants.ts`, `groupes-proximite.mapper.ts`).
  *
  * Les deux sections appellent la même route (`useFetchSectionData` tourne
  * par section) — le second appel est servi par le cache serveur de la route
@@ -137,14 +139,19 @@ export const PROXIMITE_ENTRE_GROUPES_SECTIONS: PageSection[] = [
         label: "Quels groupes votent ensemble",
         icon: Network,
         description: "Pour chaque paire de groupes : la part des scrutins où leurs positions majoritaires " +
-            "(pour, contre ou abstention) sont identiques. Seuls les groupes ayant encore des membres sont comparés.",
+            "(pour, contre ou abstention) sont identiques, sur toute la législature. Un groupe renommé en cours de " +
+            "législature compte comme un seul groupe (ex : UDR puis UDDPLR, SOC-NUPES puis SOC).",
         cols: 4,
         lazy: false,
         gatewayFn: async ({ legislature }: Record<string, unknown>) => {
             const leg = legislature as number;
             const { proximite, cards } = await fetchProximite(leg);
 
-            const tableRows: GroupeProximitePaireTableRow[] = proximite.paires.map((p, i) => ({ ...p, rank: i + 1 }));
+            const tableRows: GroupeProximitePaireTableRow[] = proximite.paires.map((p, i) => ({
+                ...p,
+                rank: i + 1,
+                groupes: [p.groupeACode, p.groupeBCode],
+            }));
 
             return {
                 "proximite-paires-recit": { legislature: leg, ...proximite },

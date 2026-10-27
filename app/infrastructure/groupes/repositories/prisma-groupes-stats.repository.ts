@@ -219,32 +219,29 @@ export const prismaGroupesStatsRepository: IGroupesStatsRepository = {
     },
 
     async getProximiteParPaire(legislature: number): Promise<GroupeProximitePaireRow[]> {
-        // Effectif COURANT exigé des DEUX côtés de la paire (même précaution
-        // que getPositionsVoteParGroupe : la vue garde les groupes
-        // renommés/dissous tant qu'ils ont des scrutins historiques).
-        // taux_proximite est un NUMERIC, nb_scrutins_communs un BIGINT
-        // (COUNT) — casts impératifs, voir getCohesionEvolution.
+        // PAS de filtre sur l'effectif COURANT, volontairement (contrairement
+        // à getPositionsVoteParGroupe) : un groupe renommé en cours de
+        // législature (ex: UDR → UDDPLR) n'a plus de membre sous son ancien
+        // code, mais ses scrutins d'avant le renommage doivent être
+        // additionnés à ceux du nouveau code — fait côté domaine
+        // (groupe-lineage.constants.ts). Exclus : TBD, Non inscrits (NI-16,
+        // NI-17 et le groupe technique NI/PO0).
+        // taux_proximite est un NUMERIC, les nb_* des BIGINT (COUNT) — casts
+        // impératifs, voir getCohesionEvolution.
         return prisma.$queryRaw<GroupeProximitePaireRow[]>`
             SELECT p.groupe_a_code,
                    p.groupe_a_libelle AS groupe_a_label,
                    p.groupe_b_code,
                    p.groupe_b_libelle AS groupe_b_label,
                    p.nb_scrutins_communs::int AS nb_scrutins_communs,
+                   p.nb_scrutins_alignes::int AS nb_scrutins_alignes,
                    p.taux_proximite::float AS taux_proximite
             FROM agg_groupes_stats_proximite_votes_legislature p
-            JOIN agg_groupes_effectifs_legislature ea
-                ON ea.groupe_id = p.groupe_a_id
-               AND ea.legislature = p.legislature
-            JOIN agg_groupes_effectifs_legislature eb
-                ON eb.groupe_id = p.groupe_b_id
-               AND eb.legislature = p.legislature
             WHERE p.legislature = ${legislature}
               AND p.groupe_a_code <> 'TBD'
               AND p.groupe_b_code <> 'TBD'
               AND p.groupe_a_code NOT LIKE 'NI%'
               AND p.groupe_b_code NOT LIKE 'NI%'
-              AND ea.nb_acteurs_photo > 0
-              AND eb.nb_acteurs_photo > 0
             ORDER BY p.taux_proximite DESC NULLS LAST
         `;
     },

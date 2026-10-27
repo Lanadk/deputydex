@@ -61,6 +61,8 @@ export type GroupeProximitePaireRow = {
     groupe_b_label: string | null;
     /** Scrutins où les deux groupes ont une position majoritaire politique (pour/contre/abstention). */
     nb_scrutins_communs: number;
+    /** Parmi ces scrutins, ceux où les deux positions majoritaires sont identiques — c'est ce comptage (pas `taux_proximite`) qui permet d'additionner deux codes d'un même groupe renommé. */
+    nb_scrutins_alignes: number;
     /** Part de ces scrutins où les deux positions majoritaires sont identiques — échelle 0-1. */
     taux_proximite: number | null;
 };
