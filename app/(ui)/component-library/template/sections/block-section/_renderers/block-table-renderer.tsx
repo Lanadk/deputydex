@@ -28,6 +28,17 @@ export function BlockTableRenderer({config, data, loading}: BlockTableRendererPr
         return applyFilterBarQueryClient(allRows, query);
     }, [data, query, config.filter]);
 
+    // Options de select dépendantes des données (voir `TableFilterConfig.selectOptionsFromRows`) —
+    // calculées sur TOUTES les lignes chargées, pas les lignes filtrées, sinon
+    // choisir une option ferait disparaître les autres de la liste.
+    const filterFields = useMemo(() => {
+        const fields = config.filter?.filterFields;
+        const fromRows = config.filter?.selectOptionsFromRows;
+        if (!fields || !fromRows) return fields;
+        const allRows = (data ?? []) as never[];
+        return fields.map((f) => (fromRows[f.field] ? {...f, selectOptions: fromRows[f.field](allRows)} : f));
+    }, [config.filter, data]);
+
     const handleQueryChange = (q: FilterBarQuery) => {
         setPage(1);
         setQuery(q);
@@ -53,7 +64,7 @@ export function BlockTableRenderer({config, data, loading}: BlockTableRendererPr
             {config.filter && (
                 <FilterBarLib
                     sortOptions={config.filter.sortOptions}
-                    filterFields={config.filter.filterFields}
+                    filterFields={filterFields}
                     applyMode={config.filter.applyMode}
                     onQueryChange={handleQueryChange}
                 />

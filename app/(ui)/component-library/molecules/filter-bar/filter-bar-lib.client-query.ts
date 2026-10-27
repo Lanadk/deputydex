@@ -34,8 +34,15 @@ function extractConditions(where: FilterBarQuery["where"]) {
         .filter(Boolean) as { field: string; operator: string; value: any }[];
 }
 
-function match(rowValue: any, operator: string, filterValue: any) {
+function match(rowValue: any, operator: string, filterValue: any): boolean {
     if (filterValue === undefined || filterValue === null) return true;
+
+    // Champ multi-valué (ex: les deux groupes d'une paire) : la ligne matche
+    // si AU MOINS UNE des valeurs matche — "égal à SOC" garde toutes les
+    // paires dont SOC fait partie, quel que soit le côté.
+    if (Array.isArray(rowValue)) {
+        return rowValue.some((v) => match(v, operator, filterValue));
+    }
 
     // Normalisation string (simple)
     const a = rowValue ?? "";
