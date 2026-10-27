@@ -4,6 +4,7 @@ import { getGroupeStatEffectifsUseCase } from "@/app/domains/groupes/use-cases/g
 import { getGroupeStatCohesionUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-cohesion.use-case";
 import { getGroupeStatCohesionLegislatureUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-cohesion-legislature.use-case";
 import { getGroupeStatCohesionEvolutionTousUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-cohesion-evolution-tous.use-case";
+import { getGroupeStatCumulMandatsUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-cumul-mandats.use-case";
 import { getGroupeStatPariteMoyenneUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-parite-moyenne.use-case";
 import { getGroupeStatPositionsVoteUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-positions-vote.use-case";
 import { getGroupeStatExpressionVotesUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-expression-votes.use-case";
@@ -62,6 +63,14 @@ export const GROUPES_STAT_HANDLERS: Record<string, StatHandler> = {
         const result = await getGroupeStatCohesionEvolutionTousUseCase(prismaGroupesStatsRepository, legislature);
         if (!isOk(result)) return null;
         return { shape: "multi-series", series: result.data.series };
+    },
+    "cumul-mandats": async (params) => {
+        const legislature = params.filters?.legislature as number | undefined;
+        if (!legislature) return null;
+
+        const result = await getGroupeStatCumulMandatsUseCase(prismaGroupesStatsRepository, legislature);
+        if (!isOk(result)) return null;
+        return { shape: "distribution", items: result.data.items };
     },
     // Pas exposée dans GROUPES_STATS (pas une stat du picker) — usage interne
     // par les insights (voir _shared/statistics/insights/) pour situer une

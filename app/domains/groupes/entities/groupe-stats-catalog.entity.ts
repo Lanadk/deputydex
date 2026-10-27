@@ -46,6 +46,13 @@ export type GroupeStatAgeParGroupeRow = {
     average_age: number;
 };
 
+export type GroupeStatCumulMandatsParGroupeRow = {
+    groupe_code: string;
+    groupe_label: string | null;
+    /** Ancienneté moyenne (années cumulées en mandat de groupe parlementaire, toutes législatures en base) des membres du groupe à la date de référence — arrondie à 1 décimale, source `agg_groupes_stats_cumul_mandats`. */
+    average_cumulated_years: number;
+};
+
 export type GroupeStatPositionVoteRow = {
     groupe_code: string;
     groupe_label: string | null;

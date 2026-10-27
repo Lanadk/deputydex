@@ -3,6 +3,7 @@ import {
     mapGroupeStatCohesionEvolutionTousToDTO,
     mapGroupeStatCohesionLegislatureToDTO,
     mapGroupeStatCohesionToDTO,
+    mapGroupeStatCumulMandatsToDTO,
     mapGroupeStatEffectifsToDTO,
     mapGroupeStatExpressionVotesToDTO,
     mapGroupeStatParticipationToDTO,
@@ -64,6 +65,20 @@ describe("mapGroupeStatCohesionLegislatureToDTO", () => {
     it("defaults a null taux_cohesion to 0", () => {
         const dto = mapGroupeStatCohesionLegislatureToDTO([{ groupe_code: "RN", groupe_label: null, taux_cohesion: null }]);
         expect(dto).toEqual({ items: [{ label: "RN", value: 0 }] });
+    });
+});
+
+describe("mapGroupeStatCumulMandatsToDTO", () => {
+    it("maps rows to label/value items, label = CODE, value = years as-is, order preserved", () => {
+        const dto = mapGroupeStatCumulMandatsToDTO([
+            { groupe_code: "LIOT", groupe_label: "Libertés, Indépendants, Outre-mer et Territoires", average_cumulated_years: 7.4 },
+            { groupe_code: "RN", groupe_label: null, average_cumulated_years: 3.1 },
+        ]);
+        expect(dto).toEqual({ items: [{ label: "LIOT", value: 7.4 }, { label: "RN", value: 3.1 }] });
+    });
+
+    it("returns an empty items array when there are no rows", () => {
+        expect(mapGroupeStatCumulMandatsToDTO([])).toEqual({ items: [] });
     });
 });
 

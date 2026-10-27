@@ -5,6 +5,8 @@ export type GroupeStatCohesionDTO = { points: { label: string; value: number }[]
 export type GroupeStatCohesionLegislatureDTO = { items: { label: string; value: number }[] };
 /** Évolution mensuelle, TOUS les groupes superposés (scope aggregate) — même forme que `GroupeStatParticipationEvolutionTousDTO`. */
 export type GroupeStatCohesionEvolutionTousDTO = { series: { name: string; items: { label: string; value: number }[] }[] };
+/** Ancienneté moyenne par groupe, en années (label = CODE, même convention que `GroupeStatParticipationDTO`). */
+export type GroupeStatCumulMandatsDTO = { items: { label: string; value: number }[] };
 /** Un item "Pour"/"Contre"/"Abstention" par groupe — même forme que le shape `multi-series` de `RawStatData`. */
 export type GroupeStatPositionsVoteDTO = { series: { name: string; items: { label: string; value: number }[] }[] };
 /** Un item par groupe (label = code du groupe, value = taux d'expression en %). */

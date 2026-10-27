@@ -5,6 +5,7 @@ import {
     GroupeStatCohesionEvolutionTousRow,
     GroupeStatCohesionParGroupeRow,
     GroupeStatCohesionPointEntity,
+    GroupeStatCumulMandatsParGroupeRow,
     GroupeStatEffectifRow,
     GroupeStatExpressionVoteRow,
     GroupeStatParticipationEvolutionPointEntity,
@@ -64,6 +65,17 @@ export interface IGroupesStatsRepository {
      * Source : `agg_groupes_stats_age`.
      */
     getAgeParGroupe(legislature: number): Promise<GroupeStatAgeParGroupeRow[]>;
+
+    /**
+     * Ancienneté moyenne, une ligne par groupe POLITIQUE de la législature
+     * (TBD/NI exclus, groupes sans membre courant exclus) — pour un
+     * classement. Source : `agg_groupes_stats_cumul_mandats`, qui somme la
+     * durée des mandats de type GP (appartenance à un groupe) de chaque
+     * membre, toutes législatures présentes en base — c'est donc une
+     * ancienneté "en années de siège", bornée par la profondeur historique
+     * des données chargées, pas un nombre de mandats de député.
+     */
+    getCumulMandatsParGroupe(legislature: number): Promise<GroupeStatCumulMandatsParGroupeRow[]>;
 
     /**
      * Répartition pour/contre/abstention, une ligne par (groupe POLITIQUE,

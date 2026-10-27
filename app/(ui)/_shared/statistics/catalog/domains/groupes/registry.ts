@@ -33,6 +33,17 @@ export const GROUPES_STATS: StatDefinition[] = [
         // d'usage exact du variant.
         chartVariant: "parliament-group",
     }),
+    defineStat("groupes", "cumul-mandats", {
+        scope: "aggregate",
+        title: "Ancienneté moyenne par groupe",
+        category: "Composition",
+        keywords: ["ancienneté", "mandat", "cumul", "expérience", "tous les groupes"],
+        description: "Compare, pour chaque groupe parlementaire, depuis combien d'années ses membres actuels siègent en moyenne à l'Assemblée.",
+        methodology: "Pour chaque membre actuel du groupe : somme des durées de ses appartenances à un groupe parlementaire, sur toutes les législatures présentes dans la base (l'ancienneté est donc bornée par la profondeur historique des données) ; puis moyenne par groupe. Non inscrits et groupes sans membre actuel exclus.",
+        dataShape: "distribution",
+        unit: "ans",
+        chartVariant: "parliament-group",
+    }),
     defineStat("groupes", "cohesion", {
         scope: "entity",
         title: "Évolution de la cohésion",

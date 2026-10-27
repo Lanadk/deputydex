@@ -9,6 +9,7 @@ import { EXPRESSION_VOTES_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/ch
 import { CATEGORIES_SOCIO_PRO_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/categories-socio-pro.sections";
 import { PARTICIPATION_PRESENCE_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/participation-presence.sections";
 import { COHESION_GROUPES_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/cohesion-groupes.sections";
+import { CUMUL_MANDATS_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/cumul-mandats.sections";
 
 /**
  * Regroupement thématique du hub (`chiffres-cles-page-client.tsx`) — "humain"
@@ -75,10 +76,13 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
     {
         slug: "cumul-mandats",
         title: "Le cumul des mandats",
-        teaser: "Ancienneté moyenne par groupe, et qui cumule le plus de mandats à l'Assemblée.",
+        // Volet "qui cumule le plus de mandats" (individuel) pas encore
+        // traité — pas de vue source côté deputydex-data ; teaser recentré
+        // sur l'ancienneté par groupe (voir cumul-mandats.sections.ts).
+        teaser: "Depuis combien d'années les membres de chaque groupe siègent-ils, en moyenne, à l'Assemblée ?",
         icon: History,
         category: "humain",
-        sections: [],
+        sections: CUMUL_MANDATS_SECTIONS,
     },
     {
         slug: "feminisation-groupes",
