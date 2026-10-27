@@ -13,6 +13,7 @@ function makeRepository(overrides: Partial<IGroupesStatsRepository> = {}): IGrou
         getFeminisationMouvements: jest.fn().mockResolvedValue([]),
         getAgeParGroupe: jest.fn().mockResolvedValue([]),
         getCumulMandatsParGroupe: jest.fn().mockResolvedValue([]),
+        getProximiteParPaire: jest.fn().mockResolvedValue([]),
         getPositionsVoteParGroupe: jest.fn().mockResolvedValue([]),
         getExpressionVotesParGroupe: jest.fn().mockResolvedValue([]),
         getParticipationParGroupe: jest.fn().mockResolvedValue([]),

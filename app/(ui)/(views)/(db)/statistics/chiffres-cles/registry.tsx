@@ -7,6 +7,7 @@ import { EntityChartConfig } from "@/app/(ui)/component-library/template/section
 import { GroupeFeminisationRowDTO } from "@/app/domains/groupes/dto/groupes-feminisation.dto";
 import { GroupeAgeRowDTO } from "@/app/domains/groupes/dto/groupes-age.dto";
 import { GroupeCardDTO } from "@/app/domains/groupes/dto/groupes-card.dto";
+import { GroupeProximiteGouvernementDTO, GroupeProximitePaireDTO } from "@/app/domains/groupes/dto/groupes-proximite.dto";
 import { getCanonicalGroupTheme } from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
 
 /**
@@ -44,6 +45,12 @@ export type GroupeCohesionTableRow = { groupeCode: string; groupeLabel: string; 
  * + `getGroupesCards` pour le libellé complet.
  */
 export type GroupeCumulMandatsTableRow = { groupeCode: string; groupeLabel: string; averageCumulatedYears: number; rank: number };
+
+/** Table "proximité entre groupes" : une ligne par PAIRE de groupes — le DTO + le rang (DTO déjà trié par proximité décroissante). */
+export type GroupeProximitePaireTableRow = GroupeProximitePaireDTO & { rank: number };
+
+/** Table "proximité avec le groupe de référence du gouvernement" : l'autre groupe de chaque paire impliquant ce groupe de référence. */
+export type GroupeProximiteGouvernementTableRow = GroupeProximiteGouvernementDTO & { rank: number };
 
 /**
  * Table "participation & présence aux scrutins" : `groupes.participation`
@@ -104,6 +111,8 @@ const KEY_FIGURES_CARDS: CardConfig[] = [
     { id: "card-groupes-participation-extremes", displayType: "group-card-pair" },
     { id: "card-groupes-cohesion-extremes", displayType: "group-card-pair" },
     { id: "card-groupes-cumul-mandats-extremes", displayType: "group-card-pair" },
+    { id: "card-groupes-proximite-plus-proches", displayType: "group-card-pair" },
+    { id: "card-groupes-proximite-plus-eloignes", displayType: "group-card-pair" },
 ];
 
 const KEY_FIGURES_CHARTS: ChartConfig[] = [
@@ -212,6 +221,29 @@ const KEY_FIGURES_TABLES: TableConfig<any>[] = [
         ],
         getRowKey: (r: GroupeCumulMandatsTableRow) => r.groupeCode,
     } satisfies TableConfig<GroupeCumulMandatsTableRow>,
+    {
+        id: "table-proximite-paires",
+        columns: [
+            { id: "rank", header: "N°", align: "center", cell: (r: GroupeProximitePaireTableRow) => r.rank, width: 48 },
+            { id: "groupe-a", header: "Groupe", align: "left", cell: (r: GroupeProximitePaireTableRow) => <GroupCell code={r.groupeACode} label={r.groupeALabel} /> },
+            { id: "groupe-b", header: "Groupe", align: "left", cell: (r: GroupeProximitePaireTableRow) => <GroupCell code={r.groupeBCode} label={r.groupeBLabel} /> },
+            { id: "taux", header: "Votes identiques", align: "center", cell: (r: GroupeProximitePaireTableRow) => `${r.tauxProximite}%` },
+            { id: "communs", header: "Scrutins comparés", align: "center", cell: (r: GroupeProximitePaireTableRow) => r.nbScrutinsCommuns },
+        ],
+        getRowKey: (r: GroupeProximitePaireTableRow) => `${r.groupeACode}-${r.groupeBCode}`,
+        // ~10 groupes → ~45 paires : pagination plutôt qu'un mur de lignes.
+        pagination: { pageSize: 15 },
+    } satisfies TableConfig<GroupeProximitePaireTableRow>,
+    {
+        id: "table-proximite-gouvernement",
+        columns: [
+            { id: "rank", header: "N°", align: "center", cell: (r: GroupeProximiteGouvernementTableRow) => r.rank, width: 48 },
+            { id: "groupe", header: "Groupe", align: "left", cell: (r: GroupeProximiteGouvernementTableRow) => <GroupCell code={r.groupeCode} label={r.groupeLabel} /> },
+            { id: "taux", header: "Votes identiques", align: "center", cell: (r: GroupeProximiteGouvernementTableRow) => `${r.tauxProximite}%` },
+            { id: "communs", header: "Scrutins comparés", align: "center", cell: (r: GroupeProximiteGouvernementTableRow) => r.nbScrutinsCommuns },
+        ],
+        getRowKey: (r: GroupeProximiteGouvernementTableRow) => r.groupeCode,
+    } satisfies TableConfig<GroupeProximiteGouvernementTableRow>,
     {
         id: "table-categories-socio-pro-population",
         columns: [

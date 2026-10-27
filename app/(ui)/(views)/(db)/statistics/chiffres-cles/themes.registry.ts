@@ -1,4 +1,4 @@
-import { LucideIcon, Venus, CalendarDays, Vote, Handshake, Users, Briefcase, FileText, History, Map, RefreshCw, Megaphone, Gauge, PieChart, UsersRound } from "lucide-react";
+import { LucideIcon, Venus, CalendarDays, Vote, Handshake, Users, Briefcase, FileText, History, Map, RefreshCw, Megaphone, Gauge, PieChart, UsersRound, Network } from "lucide-react";
 import { PageSection } from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
 import { FEMMES_ASSEMBLEE_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/femmes-assemblee.sections";
 import { FEMINISATION_GROUPES_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/feminisation-groupes.sections";
@@ -10,6 +10,7 @@ import { CATEGORIES_SOCIO_PRO_SECTIONS } from "@/app/(ui)/(views)/(db)/statistic
 import { PARTICIPATION_PRESENCE_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/participation-presence.sections";
 import { COHESION_GROUPES_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/cohesion-groupes.sections";
 import { CUMUL_MANDATS_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/cumul-mandats.sections";
+import { PROXIMITE_ENTRE_GROUPES_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/proximite-entre-groupes.sections";
 
 /**
  * Regroupement thématique du hub (`chiffres-cles-page-client.tsx`) — "humain"
@@ -140,6 +141,14 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
         icon: Vote,
         category: "votes",
         sections: COHESION_GROUPES_SECTIONS,
+    },
+    {
+        slug: "proximite-entre-groupes",
+        title: "Qui vote avec qui ?",
+        teaser: "Quels groupes votent le plus souvent dans le même sens — et lesquels s'opposent le plus.",
+        icon: Network,
+        category: "votes",
+        sections: PROXIMITE_ENTRE_GROUPES_SECTIONS,
     },
     {
         slug: "proximite-groupe",
