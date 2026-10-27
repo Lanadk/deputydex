@@ -53,6 +53,18 @@ export type GroupeStatCumulMandatsParGroupeRow = {
     average_cumulated_years: number;
 };
 
+/** Une ligne par PAIRE de groupes (A < B par groupe_id, chaque paire n'apparaît qu'une fois) — source `agg_groupes_stats_proximite_votes_legislature`. */
+export type GroupeProximitePaireRow = {
+    groupe_a_code: string;
+    groupe_a_label: string | null;
+    groupe_b_code: string;
+    groupe_b_label: string | null;
+    /** Scrutins où les deux groupes ont une position majoritaire politique (pour/contre/abstention). */
+    nb_scrutins_communs: number;
+    /** Part de ces scrutins où les deux positions majoritaires sont identiques — échelle 0-1. */
+    taux_proximite: number | null;
+};
+
 export type GroupeStatPositionVoteRow = {
     groupe_code: string;
     groupe_label: string | null;

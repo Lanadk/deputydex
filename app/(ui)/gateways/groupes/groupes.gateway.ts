@@ -10,6 +10,7 @@ import {GroupeActivityDetailsDTO} from "@/app/domains/groupes/dto/groupe-activit
 import {GroupesFeminisationDTO} from "@/app/domains/groupes/dto/groupes-feminisation.dto";
 import {GroupesAgeDTO} from "@/app/domains/groupes/dto/groupes-age.dto";
 import {GroupeListDTO} from "@/app/domains/groupes/dto/groupe-stats-catalog.dto";
+import {GroupesProximiteDTO} from "@/app/domains/groupes/dto/groupes-proximite.dto";
 
 export const groupesGateways: IGroupesGateways = {
     async getGroupesCards(legislature: number): Promise<GroupeCardDTO[]> {
@@ -120,6 +121,14 @@ export const groupesGateways: IGroupesGateways = {
         const res = await fetch(`/api/groupes/age/${legislature}`);
 
         if (!res.ok) throw new Error("Failed to get groupes age");
+
+        return res.json();
+    },
+
+    async getGroupesProximite(legislature: number): Promise<GroupesProximiteDTO> {
+        const res = await fetch(`/api/groupes/proximite/${legislature}`);
+
+        if (!res.ok) throw new Error("Failed to get groupes proximite");
 
         return res.json();
     }

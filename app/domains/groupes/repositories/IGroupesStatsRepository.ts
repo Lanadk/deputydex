@@ -1,6 +1,7 @@
 import {
     GroupeFeminisationMouvementRow,
     GroupeListItemRow,
+    GroupeProximitePaireRow,
     GroupeStatAgeParGroupeRow,
     GroupeStatCohesionEvolutionTousRow,
     GroupeStatCohesionParGroupeRow,
@@ -76,6 +77,16 @@ export interface IGroupesStatsRepository {
      * des données chargées, pas un nombre de mandats de député.
      */
     getCumulMandatsParGroupe(legislature: number): Promise<GroupeStatCumulMandatsParGroupeRow[]>;
+
+    /**
+     * Proximité de vote entre groupes, une ligne par PAIRE de groupes
+     * POLITIQUES (chaque paire une seule fois) : part des scrutins communs où
+     * leurs positions majoritaires sont identiques. Les deux groupes de la
+     * paire doivent avoir un effectif COURANT > 0 (TBD/NI exclus) — même
+     * précaution que `getPositionsVoteParGroupe`. Source :
+     * `agg_groupes_stats_proximite_votes_legislature`.
+     */
+    getProximiteParPaire(legislature: number): Promise<GroupeProximitePaireRow[]>;
 
     /**
      * Répartition pour/contre/abstention, une ligne par (groupe POLITIQUE,
