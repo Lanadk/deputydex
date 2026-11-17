@@ -8,7 +8,7 @@ import {useSidebar} from "@/app/(ui)/providers/sidebar-provider";
 import {ButtonLib} from "@/app/(ui)/component-library/atoms/button/button-lib";
 import {SpanLib} from "@/app/(ui)/component-library/atoms/span/span-lib";
 import Tooltip from "@mui/material/Tooltip";
-import {NAVITEMS} from "@/app/(ui)/components/sidebar/nave-items";
+import {isNavItemActive, NAVITEMS} from "@/app/(ui)/components/sidebar/nave-items";
 
 
 export default function AppSidebar() {
@@ -16,7 +16,7 @@ export default function AppSidebar() {
     const [isMobile, setIsMobile] = useState<boolean | null>(null);
     const {isOpen, toggle, setOpen} = useSidebar();
     const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
-    const activeItem = NAVITEMS.find(item => pathname.startsWith(item.href));
+    const activeItem = NAVITEMS.find(item => isNavItemActive(item.href, pathname));
     const sectionLabel = activeItem?.label ?? "DeputeDex";
 
     //TODO garder le state de la side bar dans les cookies ou jsp , comme ca lors d'un refresh ou d'une navigation entre les pages on garde le même comportement (open ou close)
@@ -80,7 +80,7 @@ export default function AppSidebar() {
                 <nav className="flex flex-col gap-1 p-2 pt-3 flex-1 overflow-y-auto min-h-0">
                     {NAVITEMS.map((item, i) => {
                         const Icon = item.icon;
-                        const isActive = pathname.startsWith(item.href);
+                        const isActive = isNavItemActive(item.href, pathname);
                         const showSeparator = i > 0 && NAVITEMS[i - 1].section !== item.section;
 
                         return (

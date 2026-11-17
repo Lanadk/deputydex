@@ -24,6 +24,12 @@ export const deputesGateway: IDeputesGateways = {
         return res.json();
     },
 
+    async getDeputesCardsSample(legislature: number): Promise<DeputesCardDTO[]> {
+        const res = await fetch(`/api/deputes/cards/${legislature}/sample`);
+        if (!res.ok) throw new Error("Failed to get deputes cards sample");
+        return res.json();
+    },
+
     async getDeputeActivityCalendar(uid: string, legislature: number): Promise<DeputeActivityDTO> {
         const res = await fetch(`/api/deputes/${uid}/activity/${legislature}`);
         if (!res.ok) throw new Error("Failed to get depute activity");
