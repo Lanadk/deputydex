@@ -16,12 +16,14 @@ interface BlockDossierListRendererProps<TRow> {
     params: Record<string, unknown>;
 }
 
-export function BlockDossierListRenderer<TRow>({ config, data, params }: BlockDossierListRendererProps<TRow>) {
+export function BlockDossierListRenderer<TRow>({ config, data, loading, params }: BlockDossierListRendererProps<TRow>) {
     const pageSize = config.pageSize ?? 10;
     const [page, setPage] = useState(1);
     const [search, setSearch] = useState("");
     const [sort, setSort] = useState(config.sortOptions?.[0]?.value ?? "");
-    const [activeToggles, setActiveToggles] = useState<Set<string>>(new Set());
+    const [activeToggles, setActiveToggles] = useState<Set<string>>(
+        () => new Set((config.toggles ?? []).filter((t) => t.defaultChecked).map((t) => t.id))
+    );
 
     const rows = useMemo(() => {
         const needle = normalizeForSearch(search);
@@ -40,7 +42,7 @@ export function BlockDossierListRenderer<TRow>({ config, data, params }: BlockDo
         return (
             <div className="chart-lib flex flex-col gap-3">
                 {config.title && <span className="chart-lib__title">{config.title}</span>}
-                <p className="dossier-list__empty">{config.emptyLabel ?? "Aucun résultat"}</p>
+                <p className="dossier-list__empty">{loading ? "Chargement…" : config.emptyLabel ?? "Aucun résultat"}</p>
             </div>
         );
     }
@@ -94,10 +96,10 @@ export function BlockDossierListRenderer<TRow>({ config, data, params }: BlockDo
             ))}
             </div>
 
-            <span className="dossier-list__count">{rows.length} dossier(s)</span>
+            <span className="dossier-list__count">{config.countLabel ? config.countLabel(rows.length) : `${rows.length} résultat(s)`}</span>
 
             <div className="flex flex-col gap-3">
-                {pageRows.length === 0 && <p className="dossier-list__empty">Aucun dossier ne correspond à ces critères.</p>}
+                {pageRows.length === 0 && <p className="dossier-list__empty">{config.noMatchLabel ?? "Aucun résultat ne correspond à ces critères."}</p>}
                 {pageRows.map((row) => (
                     <DossierCardLib
                         key={config.getRowKey(row)}

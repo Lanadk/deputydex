@@ -1678,6 +1678,24 @@
         border-top: 1px solid var(--border-main);
     }
 
+    .dossier-card-lib__group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding-top: 8px;
+    }
+
+    .dossier-card-lib__group-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--foreground);
+    }
+
+    .dossier-card-lib__group-count {
+        font-weight: 400;
+        color: var(--text-muted);
+    }
+
     .dossier-card-lib__item {
         display: flex;
         flex-direction: column;

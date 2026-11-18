@@ -1,4 +1,12 @@
-/** Contribution d'un député à un dossier législatif, sur une législature. */
+/** Rôle de rapporteur tenu par un député à une étape d'un dossier législatif. */
+export type DeputeRapporteurDTO = {
+    /** Ex. "rapporteur", "rapporteur pour avis" */
+    type: string | null;
+    /** Libellé de l'étape, ex. "1ère lecture AN" */
+    etape: string;
+};
+
+/** Contributions d'un député à un dossier législatif, sur une législature (voir GLOSSARY.md). */
 export type DeputeDossierContributionDTO = {
     dossierUid: string;
     titre: string;
@@ -6,9 +14,9 @@ export type DeputeDossierContributionDTO = {
     nbDeposes: number;
     nbAdoptes: number;
     nbCosignes: number;
-    isInitiateur: boolean;
-    /** Rôles de rapporteur tenus sur le dossier (ex. "rapporteur pour avis"). */
-    rolesRapporteur: string[];
+    isAuteurTexte: boolean;
+    isCosignataireTexte: boolean;
+    rapporteurs: DeputeRapporteurDTO[];
     /** Date ISO de la contribution la plus récente, si connue. */
     derniereActivite: string | null;
     lienAN: string;

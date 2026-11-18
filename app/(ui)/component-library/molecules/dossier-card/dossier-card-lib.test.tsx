@@ -1,5 +1,5 @@
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { DossierCardLib, DossierCardItem } from "./dossier-card-lib";
 
@@ -103,6 +103,21 @@ describe("DossierCardLib", () => {
 
         expect(await screen.findByText("n° 5 (Rect)")).toBeInTheDocument();
         expect(screen.queryByRole("button", { name: "Réessayer" })).not.toBeInTheDocument();
+    });
+
+    it("groups the items under one heading per group, in order", async () => {
+        renderCard(jest.fn().mockResolvedValue([
+            { id: "A1", label: "n° 1", group: "Projet de loi n° 1906 · 1ère lecture AN" },
+            { id: "A2", label: "n° 2", group: "Projet de loi n° 1906 · 1ère lecture AN" },
+            { id: "B1", label: "n° 9", group: "Projet de loi n° 2247 · Nouvelle lecture AN" },
+        ]));
+
+        fireEvent.click(screen.getByRole("button", { name: /amendements déposés/i }));
+
+        const first = await screen.findByRole("group", { name: "Projet de loi n° 1906 · 1ère lecture AN (2)" });
+        expect(within(first).getAllByRole("listitem")).toHaveLength(2);
+        const second = screen.getByRole("group", { name: "Projet de loi n° 2247 · Nouvelle lecture AN (1)" });
+        expect(within(second).getByText("n° 9")).toBeInTheDocument();
     });
 
     it("tells the reader when there is nothing to list", async () => {

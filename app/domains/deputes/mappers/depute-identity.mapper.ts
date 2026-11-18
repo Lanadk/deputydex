@@ -1,3 +1,4 @@
+import { anDeputeUrl } from "@/app/_shared/utils/assemblee-nationale";
 import { DeputeIdentityEntity } from "@/app/domains/deputes/entities/depute-identity.entity";
 import { DeputeIdentityDTO } from "@/app/domains/deputes/dto/depute-identity.dto";
 
@@ -32,6 +33,6 @@ export function mapDeputeIdentityEntityToDTO(
         departement: entity.departement,
         numCirco: entity.num_circo,
         legislature,
-        lienAN: `https://www.assemblee-nationale.fr/dyn/deputes/${entity.uid}`,
+        lienAN: anDeputeUrl(entity.uid),
     };
 }

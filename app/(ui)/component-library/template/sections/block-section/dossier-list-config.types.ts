@@ -11,6 +11,8 @@ export type DossierListToggle<TRow> = {
     label: string;
     /** Quand la case est cochée, seules les lignes pour lesquelles `keep` est vrai restent affichées. */
     keep: (row: TRow) => boolean;
+    /** Case cochée au premier rendu */
+    defaultChecked?: boolean;
 };
 
 /**
@@ -27,6 +29,10 @@ export type DossierListConfig<TRow = unknown> = {
     searchPlaceholder?: string;
     /** Message quand aucune ligne n'est chargée (défaut : "Aucun résultat") */
     emptyLabel?: string;
+    /** Compteur de lignes affichées (défaut : "N résultat(s)") */
+    countLabel?: (count: number) => string;
+    /** Message quand la recherche / les filtres ne laissent aucune ligne (défaut générique) */
+    noMatchLabel?: string;
     /** Texte sur lequel porte la recherche (insensible à la casse et aux accents) */
     getSearchText: (row: TRow) => string;
     /** Le premier tri est appliqué par défaut */

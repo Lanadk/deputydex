@@ -32,3 +32,8 @@ export function htmlToPlainText(html: string): string {
         .replace(/\s+/g, " ")
         .trim();
 }
+
+/** Met en majuscule la première lettre (ex. "rapporteur pour avis" → "Rapporteur pour avis"). */
+export function capitalizeFirst(value: string): string {
+    return value.charAt(0).toUpperCase() + value.slice(1);
+}

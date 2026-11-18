@@ -19,6 +19,7 @@ function makeConfig(overrides: Partial<DossierListConfig<Row>> = {}): DossierLis
         pageSize: 2,
         searchPlaceholder: "Rechercher un dossier",
         emptyLabel: "Aucun dossier législatif sur cette législature.",
+        countLabel: (n) => `${n} dossier(s)`,
         getSearchText: (r) => r.titre,
         getRowKey: (r) => r.uid,
         toCard: (r) => ({ title: r.titre, itemsLabel: "Amendements déposés" }),
@@ -103,5 +104,27 @@ describe("BlockDossierListRenderer", () => {
     it("says so when there is no dossier at all", () => {
         renderList(makeConfig(), []);
         expect(screen.getByText("Aucun dossier législatif sur cette législature.")).toBeInTheDocument();
+    });
+
+    it("shows a loading state rather than the empty message while the section loads", () => {
+        render(<BlockDossierListRenderer config={makeConfig()} data={[]} loading={true} params={{}} />);
+
+        expect(screen.getByText("Chargement…")).toBeInTheDocument();
+        expect(screen.queryByText("Aucun dossier législatif sur cette législature.")).not.toBeInTheDocument();
+    });
+
+    it("speaks generically when the config gives no wording of its own", () => {
+        renderList(makeConfig({ countLabel: undefined }));
+        expect(screen.getByText("3 résultat(s)")).toBeInTheDocument();
+    });
+
+    it("applies a toggle checked by default from the first render", () => {
+        renderList(makeConfig({
+            pageSize: 10,
+            toggles: [{ id: "actif", label: "Masquer les co-signatures seules", keep: (r) => r.deposes > 0, defaultChecked: true }],
+        }));
+
+        expect(screen.getByRole("checkbox", { name: "Masquer les co-signatures seules" })).toHaveAttribute("aria-checked", "true");
+        expect(cardTitles()).toEqual(["Projet de loi de finances pour 2026", "Sécurité sociale"]);
     });
 });

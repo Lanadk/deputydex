@@ -6,7 +6,9 @@ export type DeputeDossierContributionEntity = {
     nb_deposes: bigint | number;
     nb_adoptes: bigint | number;
     nb_cosignes: bigint | number;
-    is_initiateur: boolean;
-    roles_rapporteur: string[];
+    is_auteur_texte: boolean;
+    is_cosignataire_texte: boolean;
+    /** jsonb : un élément par rôle distinct ; `etape` = code de l'étape racine (AN1, SN1, CMP…) */
+    rapporteurs: { type: string | null; etape: string }[];
     derniere_activite: Date | null;
 };

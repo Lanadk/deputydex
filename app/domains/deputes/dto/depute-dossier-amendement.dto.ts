@@ -11,4 +11,10 @@ export type DeputeDossierAmendementDTO = {
     /** Exposé sommaire en texte brut. */
     exposeSommaire: string | null;
     lienAN: string;
+    /** Texte amendé (voir GLOSSARY.md) */
+    texte: {
+        uid: string;
+        /** Ex. "Projet de loi n° 1906 · 1ère lecture AN" */
+        libelle: string;
+    };
 };

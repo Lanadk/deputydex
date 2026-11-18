@@ -8,7 +8,7 @@ import { DeputeMandatDTO } from "@/app/domains/deputes/dto/depute-mandat.dto";
 import { DeputeRecentVoteDTO } from "@/app/domains/deputes/dto/depute-recent-vote.dto";
 import { DossierListConfig } from "@/app/(ui)/component-library/template/sections/block-section/dossier-list-config.types";
 import { DeputeDossierContributionDTO } from "@/app/domains/deputes/dto/depute-dossier-contribution.dto";
-import { deputesGateway } from "@/app/(ui)/gateways/deputes/deputes.gateway";
+import { capitalizeFirst } from "@/app/_shared/utils/string";
 
 const VOTE_POSITION_COLORS: Record<string, string> = {
     pour: "#22c55e",
@@ -181,31 +181,32 @@ const DEPUTE_TABLE_REGISTRY: (TableConfig<DeputeMandatDTO> | TableConfig<DeputeR
 
 // ── Dossiers législatifs ─────────────────────────────────────────────────────
 
-function capitalize(value: string): string {
-    return value.charAt(0).toUpperCase() + value.slice(1);
-}
-
-/** Dates "jour seul" de l'open data (minuit UTC) : formatées en UTC pour ne pas glisser d'un jour. */
-function formatDateOnly(iso: string | null): string | null {
-    return iso ? new Date(iso).toLocaleDateString("fr-FR", { timeZone: "UTC" }) : null;
-}
-
+/** Contribution forte (voir GLOSSARY.md) : auteur du texte ou rapporteur — tout sauf de la co-signature. */
 function hasStrongRole(r: DeputeDossierContributionDTO): boolean {
-    return r.isInitiateur || r.rolesRapporteur.length > 0;
+    return r.isAuteurTexte || r.rapporteurs.length > 0;
 }
 
-const DEPUTE_DOSSIER_LIST_REGISTRY: DossierListConfig<DeputeDossierContributionDTO>[] = [
+function roleBadges(r: DeputeDossierContributionDTO): string[] {
+    const texte = r.isAuteurTexte ? ["Auteur du texte"] : r.isCosignataireTexte ? ["Co-signataire du texte"] : [];
+    const rapporteurs = r.rapporteurs.map((rap) => `${capitalizeFirst(rap.type ?? "rapporteur")} · ${rap.etape}`);
+    return [...texte, ...rapporteurs];
+}
+
+/** Affichage seulement : le chargement du détail (`loadItems`) est branché dans config.ts. */
+const DEPUTE_DOSSIER_LIST_REGISTRY: Omit<DossierListConfig<DeputeDossierContributionDTO>, "loadItems">[] = [
     {
         id: "depute-dossiers-list",
         title: "Dossiers législatifs",
-        subtitle: "Textes sur lesquels ce député a déposé ou co-signé des amendements, été rapporteur ou auteur",
+        subtitle: "Textes sur lesquels ce député a déposé ou co-signé des amendements, été rapporteur, auteur ou co-signataire",
         pageSize: 10,
         searchPlaceholder: "Rechercher un dossier",
         emptyLabel: "Aucune contribution à un dossier législatif sur cette législature.",
+        noMatchLabel: "Aucun dossier ne correspond à ces critères.",
+        countLabel: (n) => `${n} dossier(s)`,
         getSearchText: (r) => r.titre,
         getRowKey: (r) => r.dossierUid,
         sortOptions: [
-            // L'API renvoie déjà les dossiers par implication (rôles, puis volume) : tri stable = ordre serveur.
+            // Ordre serveur (repository : auteur/rapporteur, puis déposés, puis co-signatures) ; tri stable.
             { value: "implication", label: "Implication", compare: () => 0 },
             { value: "deposes", label: "Amendements déposés", compare: (a, b) => b.nbDeposes - a.nbDeposes },
             { value: "adoptes", label: "Amendements adoptés", compare: (a, b) => b.nbAdoptes - a.nbAdoptes },
@@ -219,17 +220,16 @@ const DEPUTE_DOSSIER_LIST_REGISTRY: DossierListConfig<DeputeDossierContributionD
             {
                 id: "sans-cosignature-seule",
                 label: "Masquer les co-signatures seules",
+                // Co-signer un amendement ou le texte : contribution faible, masquée par défaut.
                 keep: (r) => r.nbDeposes > 0 || hasStrongRole(r),
+                defaultChecked: true,
             },
         ],
         toCard: (r) => ({
             title: r.titre,
             href: r.lienAN,
             subtitle: r.procedure,
-            badges: [
-                ...(r.isInitiateur ? ["Auteur du texte"] : []),
-                ...r.rolesRapporteur.map(capitalize),
-            ],
+            badges: roleBadges(r),
             stats: [
                 { label: "déposés", value: r.nbDeposes },
                 { label: "adoptés", value: r.nbAdoptes },
@@ -238,23 +238,6 @@ const DEPUTE_DOSSIER_LIST_REGISTRY: DossierListConfig<DeputeDossierContributionD
             itemsLabel: "Amendements déposés",
             emptyLabel: "Aucun amendement déposé par ce député sur ce dossier.",
         }),
-        loadItems: async (r, params) => {
-            const amendements = await deputesGateway.getDeputeDossierAmendements(
-                params.uid as string,
-                params.legislature as number,
-                r.dossierUid
-            );
-            return amendements.map((a) => ({
-                id: a.uid,
-                label: a.numero ? `n° ${a.numero}` : "Amendement",
-                context: a.division,
-                status: a.statut,
-                tone: a.isAdopte ? "success" as const : "neutral" as const,
-                date: formatDateOnly(a.dateDepot),
-                summary: a.exposeSommaire,
-                href: a.lienAN,
-            }));
-        },
     },
 ];
 

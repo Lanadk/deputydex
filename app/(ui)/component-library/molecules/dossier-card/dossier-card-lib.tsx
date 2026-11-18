@@ -8,12 +8,17 @@ export type DossierCardStat = {
     value: number | string;
 };
 
+/** Couleur d'un statut : "success" pour une issue favorable (ex. amendement adopté). */
+export type DossierCardItemTone = "success" | "neutral";
+
 export type DossierCardItem = {
     id: string;
     label: string;
+    /** Intitulé du groupe : les éléments consécutifs de même groupe sont réunis sous un titre */
+    group?: string;
     context?: string | null;
     status?: string | null;
-    tone?: "success" | "neutral";
+    tone?: DossierCardItemTone;
     date?: string | null;
     summary?: string | null;
     href?: string;
@@ -116,29 +121,60 @@ export const DossierCardLib: React.FC<DossierCardLibProps> = ({
 
             {expanded && items?.length === 0 && <p className="dossier-card-lib__state">{emptyLabel}</p>}
 
-            {expanded && items && items.length > 0 && (
-                <ul className="dossier-card-lib__items">
-                    {items.map((item) => (
-                        <li key={item.id} className="dossier-card-lib__item">
-                            <div className="dossier-card-lib__item-head">
-                                {item.href ? (
-                                    <a href={item.href} target="_blank" rel="noopener noreferrer">{item.label}</a>
-                                ) : (
-                                    <span>{item.label}</span>
-                                )}
-                                {item.context && <span className="dossier-card-lib__item-context">{item.context}</span>}
-                                {item.status && (
-                                    <span className={`dossier-card-lib__item-status dossier-card-lib__item-status--${item.tone ?? "neutral"}`}>
-                                        {item.status}
-                                    </span>
-                                )}
-                                {item.date && <span className="dossier-card-lib__item-date">{item.date}</span>}
-                            </div>
-                            {item.summary && <p className="dossier-card-lib__item-summary">{item.summary}</p>}
-                        </li>
-                    ))}
-                </ul>
+            {expanded && items && items.length > 0 && groupItems(items).map(({ group, items: groupItemsList }, index) =>
+                group ? (
+                    <section
+                        key={group}
+                        role="group"
+                        aria-label={`${group} (${groupItemsList.length})`}
+                        className="dossier-card-lib__group"
+                    >
+                        <h4 className="dossier-card-lib__group-title">
+                            {group} <span className="dossier-card-lib__group-count">({groupItemsList.length})</span>
+                        </h4>
+                        <ItemList items={groupItemsList} />
+                    </section>
+                ) : (
+                    <ItemList key={`ungrouped-${index}`} items={groupItemsList} />
+                )
             )}
         </article>
     );
 };
+
+/** Regroupe les éléments consécutifs partageant le même `group` (l'ordre reçu est conservé). */
+function groupItems(items: DossierCardItem[]): { group: string | undefined; items: DossierCardItem[] }[] {
+    const groups: { group: string | undefined; items: DossierCardItem[] }[] = [];
+    for (const item of items) {
+        const last = groups[groups.length - 1];
+        if (last && last.group === item.group) last.items.push(item);
+        else groups.push({ group: item.group, items: [item] });
+    }
+    return groups;
+}
+
+function ItemList({ items }: { items: DossierCardItem[] }) {
+    return (
+        <ul className="dossier-card-lib__items">
+            {items.map((item) => (
+                <li key={item.id} className="dossier-card-lib__item">
+                    <div className="dossier-card-lib__item-head">
+                        {item.href ? (
+                            <a href={item.href} target="_blank" rel="noopener noreferrer">{item.label}</a>
+                        ) : (
+                            <span>{item.label}</span>
+                        )}
+                        {item.context && <span className="dossier-card-lib__item-context">{item.context}</span>}
+                        {item.status && (
+                            <span className={`dossier-card-lib__item-status dossier-card-lib__item-status--${item.tone ?? "neutral"}`}>
+                                {item.status}
+                            </span>
+                        )}
+                        {item.date && <span className="dossier-card-lib__item-date">{item.date}</span>}
+                    </div>
+                    {item.summary && <p className="dossier-card-lib__item-summary">{item.summary}</p>}
+                </li>
+            ))}
+        </ul>
+    );
+}
