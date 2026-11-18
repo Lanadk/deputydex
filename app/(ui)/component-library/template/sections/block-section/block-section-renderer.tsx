@@ -22,6 +22,10 @@ import {
 import {
     BlockEntityChartRenderer
 } from "@/app/(ui)/component-library/template/sections/block-section/_renderers/block-entity-chart-renderer";
+import {DossierListConfig} from "@/app/(ui)/component-library/template/sections/block-section/dossier-list-config.types";
+import {
+    BlockDossierListRenderer
+} from "@/app/(ui)/component-library/template/sections/block-section/_renderers/block-dossier-list-renderer";
 import {
     SectionActions
 } from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
@@ -77,6 +81,10 @@ export type SectionBlock<TRow = unknown> =
     type: "entity-chart";
     colSpan?: ColSpan;
     config: EntityChartConfig;
+} | {
+    type: "dossier-list";
+    colSpan?: ColSpan;
+    config: DossierListConfig<TRow>;
 }
 
 export type BlockDataWrapper =
@@ -163,6 +171,16 @@ export const BlockSectionRenderer: React.FC<BlockSectionRendererProps> = ({
                         config={block.config}
                         data={dataMap[block.config.id] as EntityChartDataWrapper ?? null}
                         legislature={params.legislature as number | undefined}
+                    />
+                );
+
+            case "dossier-list":
+                return (
+                    <BlockDossierListRenderer
+                        config={block.config}
+                        data={dataMap[block.config.id] as unknown[] ?? []}
+                        loading={loading}
+                        params={params}
                     />
                 );
         }

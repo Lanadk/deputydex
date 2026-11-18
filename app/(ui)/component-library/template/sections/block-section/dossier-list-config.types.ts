@@ -1,0 +1,40 @@
+import { DossierCardItem, DossierCardLibProps } from "@/app/(ui)/component-library/molecules/dossier-card/dossier-card-lib";
+
+export type DossierListSortOption<TRow> = {
+    value: string;
+    label: string;
+    compare: (a: TRow, b: TRow) => number;
+};
+
+export type DossierListToggle<TRow> = {
+    id: string;
+    label: string;
+    /** Quand la case est cochée, seules les lignes pour lesquelles `keep` est vrai restent affichées. */
+    keep: (row: TRow) => boolean;
+};
+
+/**
+ * Bloc "dossier-list" : liste de cartes dépliables (DossierCardLib) avec
+ * recherche, tri, filtres à cocher et pagination locale. La donnée est un
+ * tableau de lignes posé sous `dataMap[id]` par le `gatewayFn` de la section.
+ */
+export type DossierListConfig<TRow = unknown> = {
+    id: string;
+    title?: string;
+    subtitle?: string;
+    /** Taille de page (défaut : 10) */
+    pageSize?: number;
+    searchPlaceholder?: string;
+    /** Message quand aucune ligne n'est chargée (défaut : "Aucun résultat") */
+    emptyLabel?: string;
+    /** Texte sur lequel porte la recherche (insensible à la casse et aux accents) */
+    getSearchText: (row: TRow) => string;
+    /** Le premier tri est appliqué par défaut */
+    sortOptions?: DossierListSortOption<TRow>[];
+    toggles?: DossierListToggle<TRow>[];
+    getRowKey: (row: TRow) => string;
+    /** Props de la carte, hors chargement du détail */
+    toCard: (row: TRow) => Omit<DossierCardLibProps, "loadItems">;
+    /** Charge le détail d'une carte au dépliage ; reçoit les params de la page (uid, legislature…) */
+    loadItems: (row: TRow, params: Record<string, unknown>) => Promise<DossierCardItem[]>;
+};

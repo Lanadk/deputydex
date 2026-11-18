@@ -6,6 +6,9 @@ import { ChartConfig } from "@/app/(ui)/component-library/template/sections/bloc
 import { ActivityCalendarConfig } from "@/app/(ui)/component-library/template/sections/block-section/activity-calendar-config.types";
 import { DeputeMandatDTO } from "@/app/domains/deputes/dto/depute-mandat.dto";
 import { DeputeRecentVoteDTO } from "@/app/domains/deputes/dto/depute-recent-vote.dto";
+import { DossierListConfig } from "@/app/(ui)/component-library/template/sections/block-section/dossier-list-config.types";
+import { DeputeDossierContributionDTO } from "@/app/domains/deputes/dto/depute-dossier-contribution.dto";
+import { deputesGateway } from "@/app/(ui)/gateways/deputes/deputes.gateway";
 
 const VOTE_POSITION_COLORS: Record<string, string> = {
     pour: "#22c55e",
@@ -176,6 +179,85 @@ const DEPUTE_TABLE_REGISTRY: (TableConfig<DeputeMandatDTO> | TableConfig<DeputeR
     } as TableConfig<DeputeRecentVoteDTO>,
 ];
 
+// ── Dossiers législatifs ─────────────────────────────────────────────────────
+
+function capitalize(value: string): string {
+    return value.charAt(0).toUpperCase() + value.slice(1);
+}
+
+/** Dates "jour seul" de l'open data (minuit UTC) : formatées en UTC pour ne pas glisser d'un jour. */
+function formatDateOnly(iso: string | null): string | null {
+    return iso ? new Date(iso).toLocaleDateString("fr-FR", { timeZone: "UTC" }) : null;
+}
+
+function hasStrongRole(r: DeputeDossierContributionDTO): boolean {
+    return r.isInitiateur || r.rolesRapporteur.length > 0;
+}
+
+const DEPUTE_DOSSIER_LIST_REGISTRY: DossierListConfig<DeputeDossierContributionDTO>[] = [
+    {
+        id: "depute-dossiers-list",
+        title: "Dossiers législatifs",
+        subtitle: "Textes sur lesquels ce député a déposé ou co-signé des amendements, été rapporteur ou auteur",
+        pageSize: 10,
+        searchPlaceholder: "Rechercher un dossier",
+        emptyLabel: "Aucune contribution à un dossier législatif sur cette législature.",
+        getSearchText: (r) => r.titre,
+        getRowKey: (r) => r.dossierUid,
+        sortOptions: [
+            // L'API renvoie déjà les dossiers par implication (rôles, puis volume) : tri stable = ordre serveur.
+            { value: "implication", label: "Implication", compare: () => 0 },
+            { value: "deposes", label: "Amendements déposés", compare: (a, b) => b.nbDeposes - a.nbDeposes },
+            { value: "adoptes", label: "Amendements adoptés", compare: (a, b) => b.nbAdoptes - a.nbAdoptes },
+            {
+                value: "recent",
+                label: "Activité récente",
+                compare: (a, b) => (b.derniereActivite ?? "").localeCompare(a.derniereActivite ?? ""),
+            },
+        ],
+        toggles: [
+            {
+                id: "sans-cosignature-seule",
+                label: "Masquer les co-signatures seules",
+                keep: (r) => r.nbDeposes > 0 || hasStrongRole(r),
+            },
+        ],
+        toCard: (r) => ({
+            title: r.titre,
+            href: r.lienAN,
+            subtitle: r.procedure,
+            badges: [
+                ...(r.isInitiateur ? ["Auteur du texte"] : []),
+                ...r.rolesRapporteur.map(capitalize),
+            ],
+            stats: [
+                { label: "déposés", value: r.nbDeposes },
+                { label: "adoptés", value: r.nbAdoptes },
+                { label: "co-signés", value: r.nbCosignes },
+            ],
+            itemsLabel: "Amendements déposés",
+            emptyLabel: "Aucun amendement déposé par ce député sur ce dossier.",
+        }),
+        loadItems: async (r, params) => {
+            const amendements = await deputesGateway.getDeputeDossierAmendements(
+                params.uid as string,
+                params.legislature as number,
+                r.dossierUid
+            );
+            return amendements.map((a) => ({
+                id: a.uid,
+                label: a.numero ? `n° ${a.numero}` : "Amendement",
+                context: a.division,
+                status: a.statut,
+                tone: a.isAdopte ? "success" as const : "neutral" as const,
+                date: formatDateOnly(a.dateDepot),
+                summary: a.exposeSommaire,
+                href: a.lienAN,
+            }));
+        },
+    },
+];
+
 // ── Cards ────────────────────────────────────────────────────────────────────
 
 const DEPUTE_CARD_REGISTRY: CardConfig[] = [
@@ -212,4 +294,5 @@ const DEPUTE_CHART_REGISTRY: ChartConfig[] = [
 export const card = makeRegistryHelper(DEPUTE_CARD_REGISTRY, "CardConfig");
 export const table = makeRegistryHelper(DEPUTE_TABLE_REGISTRY as TableConfig[], "TableConfig");
 export const chart = makeRegistryHelper(DEPUTE_CHART_REGISTRY, "ChartConfig");
+export const dossierList = makeRegistryHelper(DEPUTE_DOSSIER_LIST_REGISTRY, "DossierListConfig");
 export const activityCalendar = makeRegistryHelper(DEPUTE_ACTIVITY_CALENDAR_REGISTRY, "ActivityCalendarConfig");

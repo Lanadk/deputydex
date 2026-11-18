@@ -1,10 +1,11 @@
-import { BookOpen, CalendarDays, Vote } from "lucide-react";
-import { activityCalendar, card, chart, table } from "@/app/(ui)/(views)/(db)/deputes/[uid]/registry";
+import { BookOpen, CalendarDays, Landmark, Vote } from "lucide-react";
+import { activityCalendar, card, chart, dossierList, table } from "@/app/(ui)/(views)/(db)/deputes/[uid]/registry";
 import { PageSection } from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
 import { BlockDataWrapper, SectionBlock } from "@/app/(ui)/component-library/template/sections/block-section/block-section-renderer";
 import { deputesGateway } from "@/app/(ui)/gateways/deputes/deputes.gateway";
 import { DeputeMandatDTO } from "@/app/domains/deputes/dto/depute-mandat.dto";
 import { DeputeRecentVoteDTO } from "@/app/domains/deputes/dto/depute-recent-vote.dto";
+import { DeputeDossierContributionDTO } from "@/app/domains/deputes/dto/depute-dossier-contribution.dto";
 
 export const DEPUTE_SECTIONS: PageSection[] = [
     // ── Activité ────────────────────────────────────────────────────────────
@@ -125,6 +126,27 @@ export const DEPUTE_SECTIONS: PageSection[] = [
                 colSpan: 4,
                 ...table("depute-recent-votes-table"),
             } satisfies SectionBlock<DeputeRecentVoteDTO>,
+        ],
+    },
+
+    // ── Dossiers législatifs ───────────────────────────────────────────────
+    {
+        id: "dossiers-legislatifs",
+        label: "Dossiers législatifs",
+        icon: Landmark,
+        description: "Les textes de loi auxquels ce député a contribué sur cette législature : amendements déposés, adoptés ou co-signés, rôle de rapporteur ou d'auteur",
+        cols: 4,
+        lazy: false,
+        gatewayFn: async ({ uid, legislature }: Record<string, unknown>) => {
+            const dossiers = await deputesGateway.getDeputeDossierContributions(uid as string, legislature as number);
+            return { "depute-dossiers-list": dossiers } as Record<string, BlockDataWrapper>;
+        },
+        blocks: [
+            {
+                type: "dossier-list" as const,
+                colSpan: 4,
+                config: dossierList("depute-dossiers-list"),
+            } satisfies SectionBlock<DeputeDossierContributionDTO>,
         ],
     },
 
