@@ -120,4 +120,14 @@ describe("Fiche député — section Dossiers législatifs", () => {
     it("counts dossiers in its own words", () => {
         expect(listConfig().countLabel?.(12)).toBe("12 dossier(s)");
     });
+
+    it("still lets the deputy page render when the dossiers cannot be loaded", async () => {
+        global.fetch = jest.fn().mockResolvedValue({ ok: false, json: async () => ({}) }) as unknown as typeof fetch;
+        const consoleError = jest.spyOn(console, "error").mockImplementation(() => {});
+
+        const dataMap = await section().gatewayFn!({ uid: "PA842029", legislature: 17 });
+
+        expect(dataMap[listConfig().id]).toEqual([]);
+        consoleError.mockRestore();
+    });
 });

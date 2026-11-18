@@ -139,7 +139,14 @@ export const DEPUTE_SECTIONS: PageSection[] = [
         cols: 4,
         lazy: false,
         gatewayFn: async ({ uid, legislature }: Record<string, unknown>) => {
-            const dossiers = await deputesGateway.getDeputeDossierContributions(uid as string, legislature as number);
+            // Une section en échec bloquerait toute la fiche (useFetchSectionData ne gère pas
+            // les rejets) : on retombe sur une liste vide plutôt que de figer la page.
+            const dossiers = await deputesGateway
+                .getDeputeDossierContributions(uid as string, legislature as number)
+                .catch((error) => {
+                    console.error("Dossiers législatifs indisponibles :", error);
+                    return [];
+                });
             return { "depute-dossiers-list": dossiers } as Record<string, BlockDataWrapper>;
         },
         blocks: [
