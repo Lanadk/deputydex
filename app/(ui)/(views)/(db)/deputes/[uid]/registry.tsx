@@ -6,7 +6,7 @@ import { ChartConfig } from "@/app/(ui)/component-library/template/sections/bloc
 import { ActivityCalendarConfig } from "@/app/(ui)/component-library/template/sections/block-section/activity-calendar-config.types";
 import { DeputeMandatDTO } from "@/app/domains/deputes/dto/depute-mandat.dto";
 import { DeputeRecentVoteDTO } from "@/app/domains/deputes/dto/depute-recent-vote.dto";
-import { DossierListConfig } from "@/app/(ui)/component-library/template/sections/block-section/dossier-list-config.types";
+import { ExpandableCardListConfig } from "@/app/(ui)/component-library/template/sections/block-section/expandable-card-list-config.types";
 import { DeputeDossierContributionDTO } from "@/app/domains/deputes/dto/depute-dossier-contribution.dto";
 import { capitalizeFirst } from "@/app/_shared/utils/string";
 
@@ -193,12 +193,12 @@ function roleBadges(r: DeputeDossierContributionDTO): string[] {
 }
 
 /** Affichage seulement : le chargement du détail (`loadItems`) est branché dans config.ts. */
-const DEPUTE_DOSSIER_LIST_REGISTRY: Omit<DossierListConfig<DeputeDossierContributionDTO>, "loadItems">[] = [
+const DEPUTE_DOSSIER_LIST_REGISTRY: Omit<ExpandableCardListConfig<DeputeDossierContributionDTO>, "loadItems">[] = [
     {
         id: "depute-dossiers-list",
         title: "Dossiers législatifs",
         subtitle: "Textes sur lesquels ce député a déposé ou co-signé des amendements, été rapporteur, auteur ou co-signataire",
-        pageSize: 10,
+        pageSize: 5,
         searchPlaceholder: "Rechercher un dossier",
         emptyLabel: "Aucune contribution à un dossier législatif sur cette législature.",
         noMatchLabel: "Aucun dossier ne correspond à ces critères.",
@@ -277,5 +277,5 @@ const DEPUTE_CHART_REGISTRY: ChartConfig[] = [
 export const card = makeRegistryHelper(DEPUTE_CARD_REGISTRY, "CardConfig");
 export const table = makeRegistryHelper(DEPUTE_TABLE_REGISTRY as TableConfig[], "TableConfig");
 export const chart = makeRegistryHelper(DEPUTE_CHART_REGISTRY, "ChartConfig");
-export const dossierList = makeRegistryHelper(DEPUTE_DOSSIER_LIST_REGISTRY, "DossierListConfig");
+export const dossierList = makeRegistryHelper(DEPUTE_DOSSIER_LIST_REGISTRY, "ExpandableCardListConfig");
 export const activityCalendar = makeRegistryHelper(DEPUTE_ACTIVITY_CALENDAR_REGISTRY, "ActivityCalendarConfig");

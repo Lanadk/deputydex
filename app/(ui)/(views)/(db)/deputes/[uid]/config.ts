@@ -130,6 +130,27 @@ export const DEPUTE_SECTIONS: PageSection[] = [
         ],
     },
 
+    // ── Mandats ─────────────────────────────────────────────────────────────
+    {
+        id: "mandats",
+        label: "Historique des mandats",
+        icon: BookOpen,
+        description: "Tous les mandats exercés par ce député au fil de sa carrière politique",
+        cols: 4,
+        lazy: false,
+        gatewayFn: async ({ uid }: Record<string, unknown>) => {
+            const mandats = await deputesGateway.getDeputeMandats(uid as string);
+            return { "depute-mandats-table": mandats } as Record<string, BlockDataWrapper>;
+        },
+        blocks: [
+            {
+                type: "table" as const,
+                colSpan: 4,
+                ...table("depute-mandats-table"),
+            } satisfies SectionBlock<DeputeMandatDTO>,
+        ],
+    },
+
     // ── Dossiers législatifs ───────────────────────────────────────────────
     {
         id: "dossiers-legislatifs",
@@ -151,7 +172,7 @@ export const DEPUTE_SECTIONS: PageSection[] = [
         },
         blocks: [
             {
-                type: "dossier-list" as const,
+                type: "expandable-card-list" as const,
                 colSpan: 4,
                 config: {
                     ...dossierList("depute-dossiers-list"),
@@ -175,27 +196,6 @@ export const DEPUTE_SECTIONS: PageSection[] = [
                     },
                 },
             } satisfies SectionBlock<DeputeDossierContributionDTO>,
-        ],
-    },
-
-    // ── Mandats ─────────────────────────────────────────────────────────────
-    {
-        id: "mandats",
-        label: "Historique des mandats",
-        icon: BookOpen,
-        description: "Tous les mandats exercés par ce député au fil de sa carrière politique",
-        cols: 4,
-        lazy: false,
-        gatewayFn: async ({ uid }: Record<string, unknown>) => {
-            const mandats = await deputesGateway.getDeputeMandats(uid as string);
-            return { "depute-mandats-table": mandats } as Record<string, BlockDataWrapper>;
-        },
-        blocks: [
-            {
-                type: "table" as const,
-                colSpan: 4,
-                ...table("depute-mandats-table"),
-            } satisfies SectionBlock<DeputeMandatDTO>,
         ],
     },
 ];

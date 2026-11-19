@@ -3,15 +3,15 @@
 import { PageHeaderLib } from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
 import { ComponentSectionCodeBlockLib } from "@/app/(ui)/component-library/template/sections/code-block-section/component-section-code-block-lib";
 import { PageContentLib } from "@/app/(ui)/component-library/template/page-content/page-content-lib";
-import { getDossierCardSections } from "@/app/(ui)/component-library/molecules/dossier-card/dossier-card-lib.constants";
+import { getExpandableCardSections } from "@/app/(ui)/component-library/molecules/expandable-card/expandable-card-lib.constants";
 
-export default function DossierCardPage() {
-    const sections = getDossierCardSections();
+export default function ExpandableCardPage() {
+    const sections = getExpandableCardSections();
 
     return (
         <div>
             <PageHeaderLib
-                title="DossierCard"
+                title="ExpandableCard"
                 subtitle="Carte dépliable d'un dossier législatif : résumé, rôles, compteurs et détail chargé à la demande"
             />
 

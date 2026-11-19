@@ -1,9 +1,9 @@
 import React from "react";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { DossierCardLib, DossierCardItem } from "./dossier-card-lib";
+import { ExpandableCardLib, ExpandableCardItem } from "./expandable-card-lib";
 
-const ITEMS: DossierCardItem[] = [
+const ITEMS: ExpandableCardItem[] = [
     {
         id: "AM5",
         label: "n° 5 (Rect)",
@@ -18,7 +18,7 @@ const ITEMS: DossierCardItem[] = [
 
 function renderCard(loadItems = jest.fn().mockResolvedValue(ITEMS)) {
     render(
-        <DossierCardLib
+        <ExpandableCardLib
             title="Projet de loi de finances pour 2026"
             href="https://www.assemblee-nationale.fr/dyn/17/dossiers/PLF_2026"
             subtitle="Projet de loi de finances de l'année"
@@ -34,7 +34,7 @@ function renderCard(loadItems = jest.fn().mockResolvedValue(ITEMS)) {
     return loadItems;
 }
 
-describe("DossierCardLib", () => {
+describe("ExpandableCardLib", () => {
     it("shows the dossier summary while collapsed, without loading its items", () => {
         const loadItems = renderCard();
 
@@ -77,8 +77,8 @@ describe("DossierCardLib", () => {
     });
 
     it("shows a loading state until the items arrive, without fetching twice", async () => {
-        let resolve: (items: DossierCardItem[]) => void = () => {};
-        const loadItems = renderCard(jest.fn(() => new Promise<DossierCardItem[]>((r) => { resolve = r; })));
+        let resolve: (items: ExpandableCardItem[]) => void = () => {};
+        const loadItems = renderCard(jest.fn(() => new Promise<ExpandableCardItem[]>((r) => { resolve = r; })));
         const toggle = screen.getByRole("button", { name: /amendements déposés/i });
 
         fireEvent.click(toggle);

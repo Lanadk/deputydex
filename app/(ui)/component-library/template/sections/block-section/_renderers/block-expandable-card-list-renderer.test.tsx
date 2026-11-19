@@ -1,8 +1,8 @@
 import React from "react";
 import { fireEvent, render, screen, within } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { BlockDossierListRenderer } from "./block-dossier-list-renderer";
-import { DossierListConfig } from "@/app/(ui)/component-library/template/sections/block-section/dossier-list-config.types";
+import { BlockExpandableCardListRenderer } from "./block-expandable-card-list-renderer";
+import { ExpandableCardListConfig } from "@/app/(ui)/component-library/template/sections/block-section/expandable-card-list-config.types";
 
 type Row = { uid: string; titre: string; deposes: number; cosignes: number };
 
@@ -12,7 +12,7 @@ const ROWS: Row[] = [
     { uid: "D3", titre: "Élections municipales", deposes: 0, cosignes: 12 },
 ];
 
-function makeConfig(overrides: Partial<DossierListConfig<Row>> = {}): DossierListConfig<Row> {
+function makeConfig(overrides: Partial<ExpandableCardListConfig<Row>> = {}): ExpandableCardListConfig<Row> {
     return {
         id: "dossiers",
         title: "Dossiers législatifs",
@@ -33,10 +33,10 @@ function cardTitles() {
 }
 
 function renderList(config = makeConfig(), rows: Row[] = ROWS) {
-    render(<BlockDossierListRenderer config={config} data={rows} loading={false} params={{ uid: "PA1", legislature: 17 }} />);
+    render(<BlockExpandableCardListRenderer config={config} data={rows} loading={false} params={{ uid: "PA1", legislature: 17 }} />);
 }
 
-describe("BlockDossierListRenderer", () => {
+describe("BlockExpandableCardListRenderer", () => {
     it("shows one page of dossiers and pages through the rest", () => {
         renderList();
 
@@ -47,6 +47,31 @@ describe("BlockDossierListRenderer", () => {
         fireEvent.click(screen.getByRole("button", { name: "Suivant" }));
 
         expect(cardTitles()).toEqual(["Élections municipales"]);
+    });
+
+    it("goes back to the first page when the data changes (ex. another legislature)", () => {
+        const config = makeConfig();
+        const params = { uid: "PA1", legislature: 17 };
+        const { rerender } = render(<BlockExpandableCardListRenderer config={config} data={ROWS} loading={false} params={params} />);
+        fireEvent.click(screen.getByRole("button", { name: "Suivant" }));
+        expect(screen.getByText(/Page 2 \/ 2/)).toBeInTheDocument();
+
+        const otherLegislatureRows = [...ROWS, { uid: "D4", titre: "Budget rectificatif", deposes: 1, cosignes: 0 }];
+        rerender(<BlockExpandableCardListRenderer config={config} data={otherLegislatureRows} loading={false} params={{ ...params, legislature: 16 }} />);
+
+        expect(screen.getByText(/Page 1 \/ 2/)).toBeInTheDocument();
+        expect(cardTitles()).toEqual(["Projet de loi de finances pour 2026", "Sécurité sociale"]);
+    });
+
+    it("never shows a page past the last one when fewer rows come in", () => {
+        const config = makeConfig();
+        const { rerender } = render(<BlockExpandableCardListRenderer config={config} data={ROWS} loading={false} params={{}} />);
+        fireEvent.click(screen.getByRole("button", { name: "Suivant" }));
+
+        rerender(<BlockExpandableCardListRenderer config={config} data={ROWS.slice(0, 1)} loading={false} params={{}} />);
+
+        expect(screen.getByText(/Page 1 \/ 1/)).toBeInTheDocument();
+        expect(cardTitles()).toEqual(["Projet de loi de finances pour 2026"]);
     });
 
     it("searches titles ignoring case and accents, back on the first page", () => {
@@ -107,7 +132,7 @@ describe("BlockDossierListRenderer", () => {
     });
 
     it("shows a loading state rather than the empty message while the section loads", () => {
-        render(<BlockDossierListRenderer config={makeConfig()} data={[]} loading={true} params={{}} />);
+        render(<BlockExpandableCardListRenderer config={makeConfig()} data={[]} loading={true} params={{}} />);
 
         expect(screen.getByText("Chargement…")).toBeInTheDocument();
         expect(screen.queryByText("Aucun dossier législatif sur cette législature.")).not.toBeInTheDocument();

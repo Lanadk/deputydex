@@ -22,10 +22,10 @@ import {
 import {
     BlockEntityChartRenderer
 } from "@/app/(ui)/component-library/template/sections/block-section/_renderers/block-entity-chart-renderer";
-import {DossierListConfig} from "@/app/(ui)/component-library/template/sections/block-section/dossier-list-config.types";
+import {ExpandableCardListConfig} from "@/app/(ui)/component-library/template/sections/block-section/expandable-card-list-config.types";
 import {
-    BlockDossierListRenderer
-} from "@/app/(ui)/component-library/template/sections/block-section/_renderers/block-dossier-list-renderer";
+    BlockExpandableCardListRenderer
+} from "@/app/(ui)/component-library/template/sections/block-section/_renderers/block-expandable-card-list-renderer";
 import {
     SectionActions
 } from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
@@ -82,9 +82,9 @@ export type SectionBlock<TRow = unknown> =
     colSpan?: ColSpan;
     config: EntityChartConfig;
 } | {
-    type: "dossier-list";
+    type: "expandable-card-list";
     colSpan?: ColSpan;
-    config: DossierListConfig<TRow>;
+    config: ExpandableCardListConfig<TRow>;
 }
 
 export type BlockDataWrapper =
@@ -174,9 +174,9 @@ export const BlockSectionRenderer: React.FC<BlockSectionRendererProps> = ({
                     />
                 );
 
-            case "dossier-list":
+            case "expandable-card-list":
                 return (
-                    <BlockDossierListRenderer
+                    <BlockExpandableCardListRenderer
                         config={block.config}
                         data={dataMap[block.config.id] as unknown[] ?? []}
                         loading={loading}

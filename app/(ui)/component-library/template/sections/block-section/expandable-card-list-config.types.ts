@@ -1,12 +1,12 @@
-import { DossierCardItem, DossierCardLibProps } from "@/app/(ui)/component-library/molecules/dossier-card/dossier-card-lib";
+import { ExpandableCardItem, ExpandableCardLibProps } from "@/app/(ui)/component-library/molecules/expandable-card/expandable-card-lib";
 
-export type DossierListSortOption<TRow> = {
+export type ExpandableCardListSortOption<TRow> = {
     value: string;
     label: string;
     compare: (a: TRow, b: TRow) => number;
 };
 
-export type DossierListToggle<TRow> = {
+export type ExpandableCardListToggle<TRow> = {
     id: string;
     label: string;
     /** Quand la case est cochée, seules les lignes pour lesquelles `keep` est vrai restent affichées. */
@@ -16,11 +16,11 @@ export type DossierListToggle<TRow> = {
 };
 
 /**
- * Bloc "dossier-list" : liste de cartes dépliables (DossierCardLib) avec
+ * Bloc "expandable-card-list" : liste de cartes dépliables (ExpandableCardLib) avec
  * recherche, tri, filtres à cocher et pagination locale. La donnée est un
  * tableau de lignes posé sous `dataMap[id]` par le `gatewayFn` de la section.
  */
-export type DossierListConfig<TRow = unknown> = {
+export type ExpandableCardListConfig<TRow = unknown> = {
     id: string;
     title?: string;
     subtitle?: string;
@@ -36,11 +36,11 @@ export type DossierListConfig<TRow = unknown> = {
     /** Texte sur lequel porte la recherche (insensible à la casse et aux accents) */
     getSearchText: (row: TRow) => string;
     /** Le premier tri est appliqué par défaut */
-    sortOptions?: DossierListSortOption<TRow>[];
-    toggles?: DossierListToggle<TRow>[];
+    sortOptions?: ExpandableCardListSortOption<TRow>[];
+    toggles?: ExpandableCardListToggle<TRow>[];
     getRowKey: (row: TRow) => string;
     /** Props de la carte, hors chargement du détail */
-    toCard: (row: TRow) => Omit<DossierCardLibProps, "loadItems">;
+    toCard: (row: TRow) => Omit<ExpandableCardLibProps, "loadItems">;
     /** Charge le détail d'une carte au dépliage ; reçoit les params de la page (uid, legislature…) */
-    loadItems: (row: TRow, params: Record<string, unknown>) => Promise<DossierCardItem[]>;
+    loadItems: (row: TRow, params: Record<string, unknown>) => Promise<ExpandableCardItem[]>;
 };

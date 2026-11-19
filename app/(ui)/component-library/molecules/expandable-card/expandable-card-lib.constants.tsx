@@ -1,8 +1,8 @@
 "use client"
 
-import { DossierCardItem, DossierCardLib } from "@/app/(ui)/component-library/molecules/dossier-card/dossier-card-lib";
+import { ExpandableCardItem, ExpandableCardLib } from "@/app/(ui)/component-library/molecules/expandable-card/expandable-card-lib";
 
-const DEMO_ITEMS: DossierCardItem[] = [
+const DEMO_ITEMS: ExpandableCardItem[] = [
     {
         id: "am-12",
         label: "n° I-12",
@@ -27,7 +27,7 @@ const DEMO_ITEMS: DossierCardItem[] = [
 
 const delay = <T,>(value: T, ms = 600) => new Promise<T>((resolve) => setTimeout(() => resolve(value), ms));
 
-export const DOSSIER_CARD_CODE_DEFAULT = `<DossierCardLib
+export const EXPANDABLE_CARD_CODE_DEFAULT = `<ExpandableCardLib
   title="Projet de loi de finances pour 2025"
   href="https://www.assemblee-nationale.fr/dyn/17/dossiers/DLR5L17N50198"
   subtitle="Projet de loi de finances de l'année"
@@ -42,7 +42,7 @@ export const DOSSIER_CARD_CODE_DEFAULT = `<DossierCardLib
   loadItems={() => gateway.getItems()}
 />`;
 
-export const DOSSIER_CARD_CODE_EMPTY = `<DossierCardLib
+export const EXPANDABLE_CARD_CODE_EMPTY = `<ExpandableCardLib
   title="Proposition de loi visant à …"
   stats={[{ label: "co-signés", value: 12 }]}
   itemsLabel="Amendements déposés"
@@ -50,18 +50,18 @@ export const DOSSIER_CARD_CODE_EMPTY = `<DossierCardLib
   loadItems={async () => []}
 />`;
 
-export const DOSSIER_CARD_CODE_ERROR = `<DossierCardLib
+export const EXPANDABLE_CARD_CODE_ERROR = `<ExpandableCardLib
   title="Dossier indisponible"
   itemsLabel="Amendements déposés"
   loadItems={() => Promise.reject(new Error("réseau"))}
 />`;
 
-export const getDossierCardSections = () => [
+export const getExpandableCardSections = () => [
     {
         title: "Par défaut (détail chargé au dépliage, groupé par texte)",
-        code: DOSSIER_CARD_CODE_DEFAULT,
+        code: EXPANDABLE_CARD_CODE_DEFAULT,
         component: (
-            <DossierCardLib
+            <ExpandableCardLib
                 title="Projet de loi de finances pour 2025"
                 href="https://www.assemblee-nationale.fr/"
                 subtitle="Projet de loi de finances de l'année"
@@ -78,22 +78,22 @@ export const getDossierCardSections = () => [
     },
     {
         title: "Détail vide",
-        code: DOSSIER_CARD_CODE_EMPTY,
+        code: EXPANDABLE_CARD_CODE_EMPTY,
         component: (
-            <DossierCardLib
+            <ExpandableCardLib
                 title="Proposition de loi visant à …"
                 stats={[{ label: "co-signés", value: 12 }]}
                 itemsLabel="Amendements déposés"
                 emptyLabel="Aucun amendement déposé par ce député sur ce dossier."
-                loadItems={() => delay<DossierCardItem[]>([])}
+                loadItems={() => delay<ExpandableCardItem[]>([])}
             />
         ),
     },
     {
         title: "Erreur de chargement",
-        code: DOSSIER_CARD_CODE_ERROR,
+        code: EXPANDABLE_CARD_CODE_ERROR,
         component: (
-            <DossierCardLib
+            <ExpandableCardLib
                 title="Dossier indisponible"
                 itemsLabel="Amendements déposés"
                 loadItems={() => delay(null).then(() => Promise.reject(new Error("réseau")))}

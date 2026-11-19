@@ -3,47 +3,47 @@
 import React, { useRef, useState } from "react";
 import { BadgeLib } from "@/app/(ui)/component-library/atoms/badge/badge-lib";
 
-export type DossierCardStat = {
+export type ExpandableCardStat = {
     label: string;
     value: number | string;
 };
 
 /** Couleur d'un statut : "success" pour une issue favorable (ex. amendement adopté). */
-export type DossierCardItemTone = "success" | "neutral";
+export type ExpandableCardItemTone = "success" | "neutral";
 
-export type DossierCardItem = {
+export type ExpandableCardItem = {
     id: string;
     label: string;
     /** Intitulé du groupe : les éléments consécutifs de même groupe sont réunis sous un titre */
     group?: string;
     context?: string | null;
     status?: string | null;
-    tone?: DossierCardItemTone;
+    tone?: ExpandableCardItemTone;
     date?: string | null;
     summary?: string | null;
     href?: string;
 };
 
-export type DossierCardLibProps = {
-    /** Titre du dossier */
+export type ExpandableCardLibProps = {
+    /** Titre de la carte */
     title: string;
-    /** Lien externe vers le dossier (ouvert dans un nouvel onglet) */
+    /** Lien externe du titre (ouvert dans un nouvel onglet) */
     href?: string;
     /** Ligne secondaire (ex. type de procédure) */
     subtitle?: string | null;
     /** Rôles mis en avant (ex. "Rapporteur", "Auteur du texte") */
     badges?: string[];
     /** Compteurs affichés sous le titre */
-    stats?: DossierCardStat[];
+    stats?: ExpandableCardStat[];
     /** Libellé du bouton de dépliage et de la liste */
     itemsLabel: string;
     /** Message quand le détail chargé est vide */
     emptyLabel?: string;
     /** Charge le détail au premier dépliage */
-    loadItems: () => Promise<DossierCardItem[]>;
+    loadItems: () => Promise<ExpandableCardItem[]>;
 };
 
-export const DossierCardLib: React.FC<DossierCardLibProps> = ({
+export const ExpandableCardLib: React.FC<ExpandableCardLibProps> = ({
     title,
     href,
     subtitle,
@@ -54,7 +54,7 @@ export const DossierCardLib: React.FC<DossierCardLibProps> = ({
     loadItems,
 }) => {
     const [expanded, setExpanded] = useState(false);
-    const [items, setItems] = useState<DossierCardItem[] | null>(null);
+    const [items, setItems] = useState<ExpandableCardItem[] | null>(null);
     const [failed, setFailed] = useState(false);
     // Une seule requête en vol / réussie : les clics répétés ne relancent rien.
     const requested = useRef(false);
@@ -77,18 +77,18 @@ export const DossierCardLib: React.FC<DossierCardLibProps> = ({
     };
 
     return (
-        <article className="dossier-card-lib" aria-label={title}>
-            <header className="dossier-card-lib__header">
+        <article className="expandable-card-lib" aria-label={title}>
+            <header className="expandable-card-lib__header">
                 {href ? (
-                    <a className="dossier-card-lib__title" href={href} target="_blank" rel="noopener noreferrer">
+                    <a className="expandable-card-lib__title" href={href} target="_blank" rel="noopener noreferrer">
                         {title}
                     </a>
                 ) : (
-                    <span className="dossier-card-lib__title">{title}</span>
+                    <span className="expandable-card-lib__title">{title}</span>
                 )}
-                {subtitle && <span className="dossier-card-lib__subtitle">{subtitle}</span>}
+                {subtitle && <span className="expandable-card-lib__subtitle">{subtitle}</span>}
                 {badges.length > 0 && (
-                    <div className="dossier-card-lib__badges">
+                    <div className="expandable-card-lib__badges">
                         {badges.map((badge) => (
                             <BadgeLib key={badge} text={badge} variant="primary" />
                         ))}
@@ -96,30 +96,30 @@ export const DossierCardLib: React.FC<DossierCardLibProps> = ({
                 )}
             </header>
 
-            <div className="dossier-card-lib__footer">
-                <dl className="dossier-card-lib__stats">
+            <div className="expandable-card-lib__footer">
+                <dl className="expandable-card-lib__stats">
                     {stats.map((stat) => (
-                        <div key={stat.label} className="dossier-card-lib__stat">
+                        <div key={stat.label} className="expandable-card-lib__stat">
                             <dt>{stat.label}</dt>
                             <dd>{stat.value}</dd>
                         </div>
                     ))}
                 </dl>
-                <button type="button" className="dossier-card-lib__toggle" aria-expanded={expanded} onClick={toggle}>
+                <button type="button" className="expandable-card-lib__toggle" aria-expanded={expanded} onClick={toggle}>
                     {itemsLabel}
                 </button>
             </div>
 
-            {expanded && !items && !failed && <p className="dossier-card-lib__state">Chargement…</p>}
+            {expanded && !items && !failed && <p className="expandable-card-lib__state">Chargement…</p>}
 
             {expanded && failed && (
-                <p className="dossier-card-lib__state">
+                <p className="expandable-card-lib__state">
                     Impossible de charger le détail.{" "}
-                    <button type="button" className="dossier-card-lib__retry" onClick={load}>Réessayer</button>
+                    <button type="button" className="expandable-card-lib__retry" onClick={load}>Réessayer</button>
                 </p>
             )}
 
-            {expanded && items?.length === 0 && <p className="dossier-card-lib__state">{emptyLabel}</p>}
+            {expanded && items?.length === 0 && <p className="expandable-card-lib__state">{emptyLabel}</p>}
 
             {expanded && items && items.length > 0 && groupItems(items).map(({ group, items: groupItemsList }, index) =>
                 group ? (
@@ -127,10 +127,10 @@ export const DossierCardLib: React.FC<DossierCardLibProps> = ({
                         key={group}
                         role="group"
                         aria-label={`${group} (${groupItemsList.length})`}
-                        className="dossier-card-lib__group"
+                        className="expandable-card-lib__group"
                     >
-                        <h4 className="dossier-card-lib__group-title">
-                            {group} <span className="dossier-card-lib__group-count">({groupItemsList.length})</span>
+                        <h4 className="expandable-card-lib__group-title">
+                            {group} <span className="expandable-card-lib__group-count">({groupItemsList.length})</span>
                         </h4>
                         <ItemList items={groupItemsList} />
                     </section>
@@ -143,8 +143,8 @@ export const DossierCardLib: React.FC<DossierCardLibProps> = ({
 };
 
 /** Regroupe les éléments consécutifs partageant le même `group` (l'ordre reçu est conservé). */
-function groupItems(items: DossierCardItem[]): { group: string | undefined; items: DossierCardItem[] }[] {
-    const groups: { group: string | undefined; items: DossierCardItem[] }[] = [];
+function groupItems(items: ExpandableCardItem[]): { group: string | undefined; items: ExpandableCardItem[] }[] {
+    const groups: { group: string | undefined; items: ExpandableCardItem[] }[] = [];
     for (const item of items) {
         const last = groups[groups.length - 1];
         if (last && last.group === item.group) last.items.push(item);
@@ -153,26 +153,26 @@ function groupItems(items: DossierCardItem[]): { group: string | undefined; item
     return groups;
 }
 
-function ItemList({ items }: { items: DossierCardItem[] }) {
+function ItemList({ items }: { items: ExpandableCardItem[] }) {
     return (
-        <ul className="dossier-card-lib__items">
+        <ul className="expandable-card-lib__items">
             {items.map((item) => (
-                <li key={item.id} className="dossier-card-lib__item">
-                    <div className="dossier-card-lib__item-head">
+                <li key={item.id} className="expandable-card-lib__item">
+                    <div className="expandable-card-lib__item-head">
                         {item.href ? (
                             <a href={item.href} target="_blank" rel="noopener noreferrer">{item.label}</a>
                         ) : (
                             <span>{item.label}</span>
                         )}
-                        {item.context && <span className="dossier-card-lib__item-context">{item.context}</span>}
+                        {item.context && <span className="expandable-card-lib__item-context">{item.context}</span>}
                         {item.status && (
-                            <span className={`dossier-card-lib__item-status dossier-card-lib__item-status--${item.tone ?? "neutral"}`}>
+                            <span className={`expandable-card-lib__item-status expandable-card-lib__item-status--${item.tone ?? "neutral"}`}>
                                 {item.status}
                             </span>
                         )}
-                        {item.date && <span className="dossier-card-lib__item-date">{item.date}</span>}
+                        {item.date && <span className="expandable-card-lib__item-date">{item.date}</span>}
                     </div>
-                    {item.summary && <p className="dossier-card-lib__item-summary">{item.summary}</p>}
+                    {item.summary && <p className="expandable-card-lib__item-summary">{item.summary}</p>}
                 </li>
             ))}
         </ul>

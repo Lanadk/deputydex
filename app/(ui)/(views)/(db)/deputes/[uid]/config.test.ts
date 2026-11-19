@@ -1,5 +1,5 @@
 import { DEPUTE_SECTIONS } from "@/app/(ui)/(views)/(db)/deputes/[uid]/config";
-import { DossierListConfig } from "@/app/(ui)/component-library/template/sections/block-section/dossier-list-config.types";
+import { ExpandableCardListConfig } from "@/app/(ui)/component-library/template/sections/block-section/expandable-card-list-config.types";
 import { DeputeDossierContributionDTO } from "@/app/domains/deputes/dto/depute-dossier-contribution.dto";
 import { DeputeDossierAmendementDTO } from "@/app/domains/deputes/dto/depute-dossier-amendement.dto";
 
@@ -42,9 +42,9 @@ const section = () => {
 };
 
 const listConfig = () => {
-    const block = section().blocks.find((b) => b.type === "dossier-list");
-    if (!block || block.type !== "dossier-list") throw new Error("bloc dossier-list absent");
-    return block.config as DossierListConfig<DeputeDossierContributionDTO>;
+    const block = section().blocks.find((b) => b.type === "expandable-card-list");
+    if (!block || block.type !== "expandable-card-list") throw new Error("bloc expandable-card-list absent");
+    return block.config as ExpandableCardListConfig<DeputeDossierContributionDTO>;
 };
 
 const hideCosignaturesOnly = () => {
