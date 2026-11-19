@@ -35,7 +35,7 @@ export const prismaDeputeDossiersRepository: IDeputeDossiersRepository = {
     },
 
     async getDeputeDossierAmendements(uid: string, legislature: number, dossierUid: string): Promise<DeputeDossierAmendementEntity[]> {
-        // Groupés par texte (dans l'ordre de dépôt des textes), puis du plus récent au plus ancien.
+        // Pas d'ORDER BY : l'ordre d'affichage est une règle métier, appliquée par le use-case.
         return prisma.$queryRaw<DeputeDossierAmendementEntity[]>`
             SELECT
                 a.uid,
@@ -66,7 +66,6 @@ export const prismaDeputeDossiersRepository: IDeputeDossiersRepository = {
             WHERE a.acteur_uid = ${uid}
               AND a.legislature_snapshot = ${legislature}
               AND d.dossier_ref = ${dossierUid}
-            ORDER BY d.date_depot NULLS LAST, d.uid, a.date_depot DESC NULLS LAST, a.uid DESC
         `;
     },
 };
