@@ -31,7 +31,10 @@ describe("GET /api/groupes/activity/[code]/[legislature]/details", () => {
 
     it("returns 200 with the mapped details, forwarding a parsed Date to the repository", async () => {
         getGroupeActivityDetails.mockResolvedValue([
-            { activity_date: new Date("2024-07-08"), domain: "vote", ref_id: "VTANR5L17V1", meta: { type: "vote" } },
+            {
+                activity_date: new Date("2024-07-08"), domain: "scrutin", ref_id: "VTANR5L17V1", meta: { type: "scrutin" },
+                scrutin_numero: "1", dossier_uid: null, dossier_titre: null, dossier_legislature: null,
+            },
         ]);
 
         const res = await call("REN", "17", "2024-07-08");
@@ -39,7 +42,10 @@ describe("GET /api/groupes/activity/[code]/[legislature]/details", () => {
         expect(getGroupeActivityDetails).toHaveBeenCalledWith("REN", 17, new Date("2024-07-08"));
         expect(res.status).toBe(200);
         expect(await res.json()).toEqual([
-            { date: "2024-07-08", domain: "vote", refId: "VTANR5L17V1", meta: { type: "vote" } },
+            {
+                date: "2024-07-08", domain: "scrutin", refId: "VTANR5L17V1", meta: { type: "scrutin" },
+                lienAN: "https://www.assemblee-nationale.fr/dyn/17/scrutins/1", dossier: null,
+            },
         ]);
     });
 

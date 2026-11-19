@@ -21,9 +21,15 @@ export type KpiBarCardItem = {
     color?: string;
 };
 
+/** Liens optionnels d'une ligne : `href` sur le libellé, `secondaryLink` affiché en dessous. */
+type SummaryListItemLinks = {
+    href?: string;
+    secondaryLink?: { label: string; href: string };
+};
+
 export type SummaryListItem =
-    | { label: string; badge: VariantProps | CustomProps }
-    | { label: string; value: string | number };
+    | ({ label: string; badge: VariantProps | CustomProps } & SummaryListItemLinks)
+    | ({ label: string; value: string | number } & SummaryListItemLinks);
 
 export type SummaryListCardData = {
     title?: string;

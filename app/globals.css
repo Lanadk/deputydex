@@ -1601,6 +1601,16 @@
         text-decoration: underline;
     }
 
+    /* Liens vers l'AN dans les listes (activité d'un jour, derniers votes) */
+    .summary-list-card__link {
+        overflow-wrap: anywhere;
+    }
+
+    a.summary-list-card__link:hover {
+        color: var(--span-clickable);
+        text-decoration: underline;
+    }
+
     .expandable-card-lib__subtitle {
         font-size: 12px;
         color: var(--subtitle-accent);

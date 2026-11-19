@@ -17,6 +17,6 @@ export async function getGroupeActivityDetailsUseCase(
         return err("ERROR")
     }
 
-    const dtos = mapEntityToGroupeActivityDetailsDTO(entities);
+    const dtos = mapEntityToGroupeActivityDetailsDTO(entities, legislature);
     return ok(dtos);
 }

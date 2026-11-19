@@ -12,3 +12,7 @@ export function anDossierUrl(legislature: number, dossierUid: string): string {
 export function anAmendementUrl(legislature: number, amendementUid: string): string {
     return `${AN_BASE_URL}/${legislature}/amendements/${amendementUid}`;
 }
+
+export function anScrutinUrl(legislature: number, scrutinNumero: string): string {
+    return `${AN_BASE_URL}/${legislature}/scrutins/${scrutinNumero}`;
+}

@@ -13,9 +13,9 @@ describe("positionToBadge", () => {
         expect(positionToBadge("abstention")).toEqual({ badge: { text: "Abst.", variant: "tertiary" } });
     });
 
-    it("maps 'non-votant' to a tertiary badge using 'value' instead of 'text'", () => {
+    it("maps 'non-votant' to a tertiary badge labelled Non-votant", () => {
         expect(positionToBadge("non-votant")).toEqual({
-            badge: { value: "Non-votant", variant: "tertiary" },
+            badge: { text: "Non-votant", variant: "tertiary" },
         });
     });
 

@@ -11,7 +11,7 @@ export async function getDeputeRecentVotesUseCase(
 ): Promise<Result<DeputeRecentVoteDTO[], "ERROR">> {
     try {
         const entities = await repository.getDeputeRecentVotes(uid, legislature, limit);
-        return ok(mapDeputeRecentVotesEntitiesToDTOs(entities));
+        return ok(mapDeputeRecentVotesEntitiesToDTOs(entities, legislature));
     } catch {
         return err("ERROR");
     }
