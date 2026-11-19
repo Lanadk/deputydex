@@ -33,14 +33,12 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          # Pas de `cache: npm` : package-lock.json est gitignored dans ce
-          # repo (cf. .gitignore), donc jamais présent sur le runner — le
-          # cache actions/setup-node a besoin d'un lockfile pour sa clé.
+          # Cache du dossier npm, indexé sur package-lock.json (versionné).
+          cache: npm
 
-      # npm ci exige un package-lock.json ; comme il n'est pas commit,
-      # on utilise npm install (même convention que le rôle Ansible
-      # deploy-front dans deputydex-cd).
-      - run: npm install
+      # npm ci installe exactement les versions de package-lock.json (comme le
+      # Dockerfile) et échoue s'il n'est plus synchronisé avec package.json.
+      - run: npm ci
 
       # Le client Prisma généré (app/infrastructure/db/generated/prisma) est
       # gitignored — absent sur un checkout propre. Ne nécessite pas
@@ -71,8 +69,9 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
+          cache: npm
 
-      - run: npm install
+      - run: npm ci
 
       - run: npm run build
 
