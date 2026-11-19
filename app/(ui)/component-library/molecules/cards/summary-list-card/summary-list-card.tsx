@@ -16,8 +16,21 @@ export const SummaryListCardLib: React.FC<SummaryListCardLibProps> = ({title, it
         )}
         <div className="flex flex-col divide-y divide-main">
             {items.map((item, i) => (
-                <div key={i} className="flex items-center justify-between py-2.5">
-                    <span className="text-sm text-primary">{item.label}</span>
+                <div key={i} className="flex items-center justify-between gap-3 py-2.5">
+                    <span className="flex flex-col gap-0.5">
+                        {item.href ? (
+                            <a className="summary-list-card__link text-sm text-primary" href={item.href} target="_blank" rel="noopener noreferrer">
+                                {item.label}
+                            </a>
+                        ) : (
+                            <span className="text-sm text-primary">{item.label}</span>
+                        )}
+                        {item.secondaryLink && (
+                            <a className="summary-list-card__link text-xs text-subtitle-accent" href={item.secondaryLink.href} target="_blank" rel="noopener noreferrer">
+                                {item.secondaryLink.label}
+                            </a>
+                        )}
+                    </span>
                     {"badge" in item
                         ? <BadgeLib {...item.badge} />
                         : <span className="text-sm font-medium text-secondary">{item.value}</span>

@@ -145,7 +145,11 @@ const DEPUTE_TABLE_REGISTRY: (TableConfig<DeputeMandatDTO> | TableConfig<DeputeR
                 id: "titre",
                 header: "Scrutin",
                 align: "left",
-                cell: (r: DeputeRecentVoteDTO) => r.titre ?? "—",
+                cell: (r: DeputeRecentVoteDTO) => r.lienAN && r.titre ? (
+                    <a className="summary-list-card__link" href={r.lienAN} target="_blank" rel="noopener noreferrer">
+                        {r.titre}
+                    </a>
+                ) : r.titre ?? "—",
             },
             {
                 id: "date",

@@ -21,6 +21,10 @@ export type ActivityCalendarDetailItem = {
         type: string;
         [key: string]: any;
     };
+    /** Page de l'amendement ou du scrutin (site de l'AN). */
+    lienAN?: string | null;
+    /** Dossier législatif de l'activité, quand il est connu. */
+    dossier?: { uid: string; titre: string; lienAN: string } | null;
 };
 
 export type ActivityCalendarConfig = {

@@ -38,6 +38,23 @@ Se dit d'un dossier législatif qui n'a pas abouti avant la fin de la législatu
 **Amendement**:
 Proposition de modification d'un texte, déposée par un député (ou le Gouvernement, une commission).
 
+## Scrutins et votes
+
+**Scrutin**:
+Une question mise aux voix de l'Assemblée : un amendement, un article, l'ensemble d'un texte, une motion de censure… Peut être ordinaire ou solennel.
+_Avoid_: Vote (pour désigner la mise aux voix elle-même)
+
+**Vote**:
+La position d'un député sur un scrutin : pour, contre, abstention ou non-votant. Un vote n'est pas une contribution.
+_Avoid_: Scrutin (pour la position d'un député)
+
+**Résultat d'un scrutin**:
+L'issue d'un seul scrutin : adopté ou rejeté. À ne pas confondre avec l'état d'avancement d'un dossier législatif : un amendement rejeté ne fait pas un dossier rejeté.
+_Avoid_: Statut, état d'avancement (pour un scrutin)
+
+**Position majoritaire d'un groupe**:
+La position (pour, contre, abstention) adoptée par le plus grand nombre de membres d'un groupe sur un scrutin.
+
 ## Contributions d'un député
 
 **Contribution**:

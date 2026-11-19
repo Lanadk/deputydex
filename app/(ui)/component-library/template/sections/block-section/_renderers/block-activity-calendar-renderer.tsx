@@ -1,6 +1,6 @@
 "use client";
 
-import { cloneElement, useMemo, useState } from "react";
+import React, { cloneElement, useMemo, useState } from "react";
 import {
     ActivityCalendarConfig,
     ActivityCalendarDataWrapper,
@@ -191,6 +191,10 @@ export function BlockActivityCalendarRenderer({config, data, loading, params, ac
                                     <SummaryListCardLib
                                         items={details.map((item) => ({
                                             label: describeActivity(item),
+                                            href: item.lienAN ?? undefined,
+                                            secondaryLink: item.dossier
+                                                ? { label: item.dossier.titre, href: item.dossier.lienAN }
+                                                : undefined,
                                             badge: {
                                                 text: DOMAIN_LABELS[item.domain] ?? item.domain,
                                                 variant: DOMAIN_BADGE_VARIANTS[item.domain] ?? "secondary",

@@ -9,6 +9,7 @@ export const prismaDeputeRecentVotesRepository: IDeputeRecentVotesRepository = {
         return prisma.$queryRaw<DeputeRecentVoteEntity[]>`
             SELECT
                 s.uid               AS scrutin_uid,
+                s.numero            AS scrutin_numero,
                 s.titre,
                 s.date_scrutin,
                 vd.position,

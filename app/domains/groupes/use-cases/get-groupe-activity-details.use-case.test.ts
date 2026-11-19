@@ -6,7 +6,10 @@ describe("getGroupeActivityDetailsUseCase", () => {
     it("returns ok(dtos) forwarding code/legislature/date to the repository", async () => {
         const date = new Date("2024-07-08");
         const entities: GroupeActivityDetailsEntity[] = [
-            { activity_date: date, domain: "vote", ref_id: "VTANR5L17V1", meta: { type: "vote" } },
+            {
+                activity_date: date, domain: "vote", ref_id: "VTANR5L17V1", meta: { type: "vote" },
+                scrutin_numero: "1", dossier_uid: null, dossier_titre: null, dossier_legislature: null,
+            },
         ];
         const repository: IGroupeActivityDetailsRepository = {
             getGroupeActivityDetails: jest.fn().mockResolvedValue(entities),
@@ -17,7 +20,10 @@ describe("getGroupeActivityDetailsUseCase", () => {
         expect(repository.getGroupeActivityDetails).toHaveBeenCalledWith("REN", 17, date);
         if (!result.success) throw new Error("expected success");
         expect(result.data).toEqual([
-            { date: "2024-07-08", domain: "vote", refId: "VTANR5L17V1", meta: { type: "vote" } },
+            {
+                date: "2024-07-08", domain: "vote", refId: "VTANR5L17V1", meta: { type: "vote" },
+                lienAN: "https://www.assemblee-nationale.fr/dyn/17/scrutins/1", dossier: null,
+            },
         ]);
     });
 
