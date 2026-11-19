@@ -1,8 +1,6 @@
 import React from "react";
 
 export type BaseProps = {
-    /** Identificateur */
-    key?: string;
     /** Texte du badge */
     text: string;
 };
@@ -22,7 +20,6 @@ export type BadgeLibProps = VariantProps | CustomProps;
 
 
 export const BadgeLib: React.FC<BadgeLibProps> = ({
-                                                      key,
                                                       text,
                                                       variant = '',
                                                       style,
@@ -31,7 +28,6 @@ export const BadgeLib: React.FC<BadgeLibProps> = ({
 
     return (
         <span
-            key={key}
             className={
                 isCustom
                     ? `badge-lib`

@@ -1,0 +1,58 @@
+# DeputeDex
+
+Exploration publique de l'activité de l'Assemblée nationale (députés, groupes, scrutins, travail législatif) à partir de l'open data de l'AN.
+
+## Travail législatif
+
+**Dossier législatif**:
+Le parcours complet d'une initiative au Parlement, de son dépôt à son issue (adoption, rejet, promulgation…). Les résolutions en sont aussi.
+_Avoid_: Projet de loi (pour désigner le parcours), loi, dossier parlementaire
+
+**Procédure**:
+Le type d'un dossier législatif, fixé à son ouverture : loi ordinaire, loi de finances, loi constitutionnelle, résolution…
+_Avoid_: Étape, type de texte
+
+**Étape**:
+Un moment du parcours d'un dossier législatif : lecture dans une assemblée, commission mixte paritaire, lecture définitive, Conseil constitutionnel, promulgation.
+_Avoid_: Procédure, acte (pour l'usage courant)
+
+**Texte**:
+Un document sur lequel une assemblée délibère et qui peut être amendé, rattaché à une étape d'un dossier législatif. Les rapports, avis et études d'impact ne sont pas des textes.
+_Avoid_: Document (pour un texte amendable), loi
+
+**Projet de loi**:
+Le texte initial d'un dossier législatif quand son auteur est le Gouvernement.
+_Avoid_: Projet de loi pour désigner le dossier entier
+
+**Proposition de loi**:
+Le texte initial d'un dossier législatif quand son auteur est un parlementaire.
+_Avoid_: PPL (hors abréviation assumée), proposition (seul)
+
+**État d'avancement**:
+La dernière étape atteinte par un dossier législatif et son issue : en discussion à l'AN, en discussion au Sénat, en commission mixte paritaire, adopté définitivement, promulgué, rejeté ou caduc.
+_Avoid_: Statut, état (seul)
+
+**Caduc**:
+Se dit d'un dossier législatif qui n'a pas abouti avant la fin de la législature.
+
+**Amendement**:
+Proposition de modification d'un texte, déposée par un député (ou le Gouvernement, une commission).
+
+## Contributions d'un député
+
+**Contribution**:
+Un acte par lequel un député prend part à un dossier législatif : déposer un amendement, co-signer un amendement, être rapporteur, être auteur du texte ou co-signataire du texte. Un vote n'est pas une contribution.
+_Avoid_: Participation, implication
+
+**Auteur du texte**:
+Le député (ou membre du Gouvernement) qui dépose le texte à l'origine d'un dossier législatif. Un seul par dossier en règle générale.
+_Avoid_: Initiateur
+
+**Co-signataire du texte**:
+Un député qui signe le texte à l'origine d'un dossier législatif aux côtés de son auteur.
+
+**Rapporteur**:
+Un député chargé par une commission, à une étape donnée d'un dossier législatif, d'en examiner le texte et d'en rendre compte : au fond, pour avis, spécial ou général. C'est une contribution à une étape, pas à un texte.
+
+**Législature d'une contribution**:
+La législature pendant laquelle la contribution a eu lieu, indépendamment de celle où le dossier législatif a été ouvert.

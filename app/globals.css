@@ -1568,6 +1568,206 @@
     }
 
     /* -------------------------------------------------------
+       ExpandableCardLib (carte dépliable, détail chargé à la demande)
+       ------------------------------------------------------- */
+    .expandable-card-lib {
+        /* Même vert que la position "Pour" des votes (registry député) */
+        --expandable-card-success: #22c55e;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        padding: 14px 16px;
+        border: 1px solid var(--border-main);
+        border-radius: 10px;
+        background-color: var(--surface-1);
+    }
+
+    .expandable-card-lib__header {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        min-width: 0;
+    }
+
+    .expandable-card-lib__title {
+        font-size: 15px;
+        font-weight: 700;
+        color: var(--foreground);
+        overflow-wrap: anywhere;
+    }
+
+    a.expandable-card-lib__title:hover {
+        color: var(--span-clickable);
+        text-decoration: underline;
+    }
+
+    .expandable-card-lib__subtitle {
+        font-size: 12px;
+        color: var(--subtitle-accent);
+    }
+
+    .expandable-card-lib__badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px;
+        padding-top: 2px;
+    }
+
+    .expandable-card-lib__footer {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px 16px;
+    }
+
+    .expandable-card-lib__stats {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 4px 16px;
+        margin: 0;
+    }
+
+    .expandable-card-lib__stat {
+        display: flex;
+        flex-direction: row-reverse;
+        align-items: baseline;
+        gap: 4px;
+        font-size: 13px;
+    }
+
+    .expandable-card-lib__stat dt {
+        color: var(--text-muted);
+    }
+
+    .expandable-card-lib__stat dd {
+        margin: 0;
+        font-weight: 700;
+        color: var(--foreground);
+    }
+
+    .expandable-card-lib__toggle,
+    .expandable-card-lib__retry {
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--span-clickable);
+        cursor: pointer;
+    }
+
+    .expandable-card-lib__toggle::after {
+        content: " ▾";
+    }
+
+    .expandable-card-lib__toggle[aria-expanded="true"]::after {
+        content: " ▴";
+    }
+
+    .expandable-card-lib__toggle:hover,
+    .expandable-card-lib__retry:hover {
+        text-decoration: underline;
+    }
+
+    .expandable-card-lib__state {
+        font-size: 13px;
+        color: var(--text-muted);
+    }
+
+    .expandable-card-lib__items {
+        display: flex;
+        flex-direction: column;
+        border-top: 1px solid var(--border-main);
+    }
+
+    .expandable-card-lib__group {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding-top: 8px;
+    }
+
+    .expandable-card-lib__group-title {
+        font-size: 13px;
+        font-weight: 700;
+        color: var(--foreground);
+    }
+
+    .expandable-card-lib__group-count {
+        font-weight: 400;
+        color: var(--text-muted);
+    }
+
+    .expandable-card-lib__item {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        padding: 10px 0;
+        border-bottom: 1px solid var(--border-main);
+    }
+
+    .expandable-card-lib__item:last-child {
+        border-bottom: none;
+        padding-bottom: 0;
+    }
+
+    .expandable-card-lib__item-head {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 4px 12px;
+        font-size: 13px;
+    }
+
+    .expandable-card-lib__item-head a {
+        font-weight: 700;
+        color: var(--span-clickable);
+    }
+
+    .expandable-card-lib__item-head a:hover {
+        text-decoration: underline;
+    }
+
+    .expandable-card-lib__item-context,
+    .expandable-card-lib__item-date {
+        color: var(--text-muted);
+    }
+
+    .expandable-card-lib__item-status {
+        font-weight: 600;
+        color: var(--foreground);
+    }
+
+    .expandable-card-lib__item-status--success {
+        color: var(--expandable-card-success);
+    }
+
+    .expandable-card-lib__item-summary {
+        font-size: 13px;
+        line-height: 1.45;
+        color: var(--foreground);
+        display: -webkit-box;
+        -webkit-line-clamp: 3;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .expandable-card-list__toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: flex-end;
+        gap: 8px 16px;
+    }
+
+    .expandable-card-list__toolbar > .input-wrapper {
+        flex: 1 1 240px;
+    }
+
+    .expandable-card-list__count,
+    .expandable-card-list__empty {
+        font-size: 13px;
+        color: var(--text-muted);
+    }
+
+    /* -------------------------------------------------------
        Table actions buttons lib
        ------------------------------------------------------- */
     .table-actions {

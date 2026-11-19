@@ -1,10 +1,12 @@
-import { BookOpen, CalendarDays, Vote } from "lucide-react";
-import { activityCalendar, card, chart, table } from "@/app/(ui)/(views)/(db)/deputes/[uid]/registry";
+import { BookOpen, CalendarDays, Landmark, Vote } from "lucide-react";
+import { activityCalendar, card, chart, dossierList, table } from "@/app/(ui)/(views)/(db)/deputes/[uid]/registry";
 import { PageSection } from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
 import { BlockDataWrapper, SectionBlock } from "@/app/(ui)/component-library/template/sections/block-section/block-section-renderer";
 import { deputesGateway } from "@/app/(ui)/gateways/deputes/deputes.gateway";
+import { formatDateOnlyFr } from "@/app/_shared/utils/date";
 import { DeputeMandatDTO } from "@/app/domains/deputes/dto/depute-mandat.dto";
 import { DeputeRecentVoteDTO } from "@/app/domains/deputes/dto/depute-recent-vote.dto";
+import { DeputeDossierContributionDTO } from "@/app/domains/deputes/dto/depute-dossier-contribution.dto";
 
 export const DEPUTE_SECTIONS: PageSection[] = [
     // ── Activité ────────────────────────────────────────────────────────────
@@ -146,6 +148,54 @@ export const DEPUTE_SECTIONS: PageSection[] = [
                 colSpan: 4,
                 ...table("depute-mandats-table"),
             } satisfies SectionBlock<DeputeMandatDTO>,
+        ],
+    },
+
+    // ── Dossiers législatifs ───────────────────────────────────────────────
+    {
+        id: "dossiers-legislatifs",
+        label: "Dossiers législatifs",
+        icon: Landmark,
+        description: "Les textes de loi auxquels ce député a contribué sur cette législature : amendements déposés, adoptés ou co-signés, rôle de rapporteur ou d'auteur",
+        cols: 4,
+        lazy: false,
+        gatewayFn: async ({ uid, legislature }: Record<string, unknown>) => {
+            // Une section en échec bloquerait toute la fiche (useFetchSectionData ne gère pas
+            // les rejets) : on retombe sur une liste vide plutôt que de figer la page.
+            const dossiers = await deputesGateway
+                .getDeputeDossierContributions(uid as string, legislature as number)
+                .catch((error) => {
+                    console.error("Dossiers législatifs indisponibles :", error);
+                    return [];
+                });
+            return { "depute-dossiers-list": dossiers } as Record<string, BlockDataWrapper>;
+        },
+        blocks: [
+            {
+                type: "expandable-card-list" as const,
+                colSpan: 4,
+                config: {
+                    ...dossierList("depute-dossiers-list"),
+                    loadItems: async (r, { uid, legislature }) => {
+                        const amendements = await deputesGateway.getDeputeDossierAmendements(
+                            uid as string,
+                            legislature as number,
+                            r.dossierUid
+                        );
+                        return amendements.map((a) => ({
+                            id: a.uid,
+                            label: a.numero ? `n° ${a.numero}` : "Amendement",
+                            group: a.texte.libelle,
+                            context: a.division,
+                            status: a.statut,
+                            tone: a.isAdopte ? "success" : "neutral",
+                            date: formatDateOnlyFr(a.dateDepot),
+                            summary: a.exposeSommaire,
+                            href: a.lienAN,
+                        }));
+                    },
+                },
+            } satisfies SectionBlock<DeputeDossierContributionDTO>,
         ],
     },
 ];

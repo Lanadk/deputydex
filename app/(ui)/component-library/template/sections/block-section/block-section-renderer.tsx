@@ -22,6 +22,10 @@ import {
 import {
     BlockEntityChartRenderer
 } from "@/app/(ui)/component-library/template/sections/block-section/_renderers/block-entity-chart-renderer";
+import {ExpandableCardListConfig} from "@/app/(ui)/component-library/template/sections/block-section/expandable-card-list-config.types";
+import {
+    BlockExpandableCardListRenderer
+} from "@/app/(ui)/component-library/template/sections/block-section/_renderers/block-expandable-card-list-renderer";
 import {
     SectionActions
 } from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
@@ -77,6 +81,10 @@ export type SectionBlock<TRow = unknown> =
     type: "entity-chart";
     colSpan?: ColSpan;
     config: EntityChartConfig;
+} | {
+    type: "expandable-card-list";
+    colSpan?: ColSpan;
+    config: ExpandableCardListConfig<TRow>;
 }
 
 export type BlockDataWrapper =
@@ -163,6 +171,16 @@ export const BlockSectionRenderer: React.FC<BlockSectionRendererProps> = ({
                         config={block.config}
                         data={dataMap[block.config.id] as EntityChartDataWrapper ?? null}
                         legislature={params.legislature as number | undefined}
+                    />
+                );
+
+            case "expandable-card-list":
+                return (
+                    <BlockExpandableCardListRenderer
+                        config={block.config}
+                        data={dataMap[block.config.id] as unknown[] ?? []}
+                        loading={loading}
+                        params={params}
                     />
                 );
         }
