@@ -1,4 +1,4 @@
-import { isVoteRebelle, votePositionLabel } from "@/app/domains/scrutins/vote-position";
+import { isVoteRebelle, votePositionLabel } from "@/app/domains/votes/vote-position";
 
 describe("votePositionLabel", () => {
     it("traduit les positions de la base", () => {

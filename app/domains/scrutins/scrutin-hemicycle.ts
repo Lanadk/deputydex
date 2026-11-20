@@ -1,6 +1,6 @@
 import { ScrutinSiegeEntity } from "@/app/domains/scrutins/entities/scrutin-siege.entity";
 import { ScrutinHemicycleDTO, ScrutinSiegeDTO, ScrutinSiegePosition } from "@/app/domains/scrutins/dto/scrutin-hemicycle.dto";
-import { votePositionLabel } from "@/app/domains/scrutins/vote-position";
+import { votePositionLabel } from "@/app/domains/votes/vote-position";
 
 const POSITIONS: readonly ScrutinSiegePosition[] = ["pour", "contre", "abstention", "non_votant", "absent"];
 
