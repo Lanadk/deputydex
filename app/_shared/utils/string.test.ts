@@ -20,6 +20,14 @@ describe("normalizeForSearch", () => {
     it("leaves a string with no diacritics unchanged (aside from casing)", () => {
         expect(normalizeForSearch("Martin")).toBe("martin");
     });
+
+    it("turns the typographic apostrophe into a straight one", () => {
+        expect(normalizeForSearch("L’ensemble")).toBe("l'ensemble");
+    });
+
+    it("collapses inner whitespace", () => {
+        expect(normalizeForSearch("Sécurité   sociale")).toBe("securite sociale");
+    });
 });
 
 describe("htmlToPlainText", () => {

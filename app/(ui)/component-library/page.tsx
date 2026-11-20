@@ -27,6 +27,7 @@ const components = {
         { name: 'DeputyCards', path: '/component-library/molecules/deputy'},
         { name: 'DifficultyGauge', path: '/component-library/molecules/difficulty-gauge'},
         { name: 'ExpandableCard', path: '/component-library/molecules/expandable-card'},
+        { name: 'Hemicycle', path: '/component-library/molecules/hemicycle'},
     ],
     Templates: [
         { name: 'BlockSection', path: '/component-library/template/sections/block-section' },

@@ -1,8 +1,15 @@
+/**
+ * Forme comparable d'un texte pour la recherche : sans accents, en minuscules,
+ * apostrophe typographique (’) ramenée à l'apostrophe droite, espaces réduits.
+ * Ex. « L’Assemblée   Nationale » → "l'assemblee nationale".
+ */
 export function normalizeForSearch(value: string): string {
     return value
         .normalize("NFD")
         .replace(/[̀-ͯ]/g, "")
+        .replace(/[’`]/g, "'")
         .toLowerCase()
+        .replace(/\s+/g, " ")
         .trim();
 }
 

@@ -73,6 +73,24 @@ describe("LegislatureSelector", () => {
         expect(screen.getByText("17ème")).toBeInTheDocument();
     });
 
+    it("renders the selector on the scrutins list — it explores one legislature at a time", () => {
+        mockUsePathname.mockReturnValue("/scrutins");
+        setLegislatureState();
+
+        render(<LegislatureSelector />);
+
+        expect(screen.getByText("17ème")).toBeInTheDocument();
+    });
+
+    it("renders nothing on a scrutin page — a scrutin belongs to a single legislature", () => {
+        mockUsePathname.mockReturnValue("/scrutins/VTANR5L17V10033");
+        setLegislatureState();
+
+        const { container } = render(<LegislatureSelector />);
+
+        expect(container).toBeEmptyDOMElement();
+    });
+
     it("renders nothing while the app-wide legislature is still loading (non-statistics page)", () => {
         mockUsePathname.mockReturnValue("/groupes");
         setLegislatureState({ loading: true });

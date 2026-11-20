@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import { makeRegistryHelper } from "@/app/(ui)/_shared/registry/registry.helper";
 import { CardConfig } from "@/app/(ui)/component-library/template/sections/block-section/card-config.types";
 import { TableConfig } from "@/app/(ui)/component-library/template/sections/block-section/table-config.types";
@@ -145,11 +146,26 @@ const DEPUTE_TABLE_REGISTRY: (TableConfig<DeputeMandatDTO> | TableConfig<DeputeR
                 id: "titre",
                 header: "Scrutin",
                 align: "left",
-                cell: (r: DeputeRecentVoteDTO) => r.lienAN && r.titre ? (
-                    <a className="summary-list-card__link" href={r.lienAN} target="_blank" rel="noopener noreferrer">
-                        {r.titre}
-                    </a>
-                ) : r.titre ?? "—",
+                // Fiche DeputeDex en lien principal, page de l'AN en lien secondaire (issue #170).
+                cell: (r: DeputeRecentVoteDTO) => (
+                    <span>
+                        <Link href={`/scrutins/${r.scrutinUid}`} className="summary-list-card__link">
+                            {r.titre ?? `Scrutin ${r.scrutinUid}`}
+                        </Link>
+                        {r.lienAN && (
+                            <a
+                                href={r.lienAN}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="ml-1 text-xs text-gray-500 hover:underline"
+                                aria-label="Voir le scrutin sur le site de l'Assemblée nationale"
+                                title="Voir sur le site de l'Assemblée nationale"
+                            >
+                                ↗
+                            </a>
+                        )}
+                    </span>
+                ),
             },
             {
                 id: "date",
