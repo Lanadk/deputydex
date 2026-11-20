@@ -8,8 +8,9 @@ export async function getGroupesListUseCase(
     repository: IGroupesStatsRepository,
     legislature: number
 ): Promise<Result<GroupeListDTO, "DB_ERROR">> {
-    const read = await fromRepository(() => repository.listGroupesLegislature(legislature));
-    if (isErr(read)) return read;
+    const result = await fromRepository(() => repository.listGroupesLegislature(legislature));
+    if (isErr(result)) return result;
+    const rows = result.data;
 
-    return ok(mapGroupeListToDTO(read.data));
+    return ok(mapGroupeListToDTO(rows));
 }

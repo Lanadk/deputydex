@@ -8,12 +8,12 @@ export async function getGroupesFeminisationUseCase(
     repository: IGroupesStatsRepository,
     legislature: number
 ): Promise<Result<GroupesFeminisationDTO, "DB_ERROR">> {
-    const read = await fromRepository(() => Promise.all([
+    const result = await fromRepository(() => Promise.all([
         repository.getPariteParGroupe(legislature),
         repository.getFeminisationMouvements(legislature),
     ]));
-    if (isErr(read)) return read;
+    if (isErr(result)) return result;
+    const [pariteRows, mouvementRows] = result.data;
 
-    const [pariteRows, mouvementRows] = read.data;
     return ok(mapEntitiesToGroupesFeminisationDTO(pariteRows, mouvementRows));
 }

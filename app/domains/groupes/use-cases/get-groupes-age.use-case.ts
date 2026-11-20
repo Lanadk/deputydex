@@ -8,8 +8,9 @@ export async function getGroupesAgeUseCase(
     repository: IGroupesStatsRepository,
     legislature: number
 ): Promise<Result<GroupesAgeDTO, "DB_ERROR">> {
-    const read = await fromRepository(() => repository.getAgeParGroupe(legislature));
-    if (isErr(read)) return read;
+    const result = await fromRepository(() => repository.getAgeParGroupe(legislature));
+    if (isErr(result)) return result;
+    const rows = result.data;
 
-    return ok(mapEntitiesToGroupesAgeDTO(read.data));
+    return ok(mapEntitiesToGroupesAgeDTO(rows));
 }

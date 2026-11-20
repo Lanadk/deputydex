@@ -14,8 +14,9 @@ export async function getGroupeLegislaturesUseCase(
     repository: IGroupeLegislaturesRepository,
     groupeCode: string
 ): Promise<Result<GroupeLegislaturesDTO, "DB_ERROR">> {
-    const read = await fromRepository(() => repository.getGroupeLegislatures(groupeCode));
-    if (isErr(read)) return read;
+    const result = await fromRepository(() => repository.getGroupeLegislatures(groupeCode));
+    if (isErr(result)) return result;
+    const entities = result.data;
 
-    return ok(mapEntitiesToGroupeLegislaturesDTO(read.data));
+    return ok(mapEntitiesToGroupeLegislaturesDTO(entities));
 }

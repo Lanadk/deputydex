@@ -10,8 +10,10 @@ export async function getGroupeActivityUseCase(
     legislature: number
 ): Promise<Result<any, "DB_ERROR">> {
 
-    const read = await fromRepository(() => repository.getGroupeActivity(groupeCode, legislature));
-    if (isErr(read)) return read;
+    const result = await fromRepository(() => repository.getGroupeActivity(groupeCode, legislature));
+    if (isErr(result)) return result;
+    const entities = result.data;
 
-    return ok(mapEntityToGroupeActivityDTO(read.data));
+    const dto = mapEntityToGroupeActivityDTO(entities);
+    return ok(dto);
 }

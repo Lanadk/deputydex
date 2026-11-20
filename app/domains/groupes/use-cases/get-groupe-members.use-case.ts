@@ -11,8 +11,10 @@ export async function getGroupeMembersUseCase(
     legislature: number
 ): Promise<Result<GroupeMembersDTO[], "DB_ERROR">> {
 
-    const read = await fromRepository(() => repository.getGroupeMembers(groupeCode, legislature));
-    if (isErr(read)) return read;
+    const result = await fromRepository(() => repository.getGroupeMembers(groupeCode, legislature));
+    if (isErr(result)) return result;
+    const entities = result.data;
 
-    return ok(mapEntityToGroupeMembersDTO(read.data));
+    const dtos = mapEntityToGroupeMembersDTO(entities);
+    return ok(dtos);
 }

@@ -11,11 +11,15 @@ export async function getGroupeInfosUseCase(
     legislature: number
 ): Promise<Result<GroupeInfosDTO, "NOT_FOUND" | "DB_ERROR">> {
 
-    const read = await fromRepository(() => repository.getGroupeInfos(groupeCode, legislature));
-    if (isErr(read)) return read;
+    const result = await fromRepository(() => repository.getGroupeInfos(groupeCode, legislature));
+    if (isErr(result)) return result;
+    const entities = result.data;
 
     // Aucune ligne : le groupe n'existe pas dans cette législature.
-    if (read.data.length === 0) return err("NOT_FOUND");
+    if (entities.length === 0) {
+        return err("NOT_FOUND")
+    }
 
-    return ok(mapEntityToGroupeInfosDTO(legislature, read.data));
+    const dtos = mapEntityToGroupeInfosDTO(legislature, entities);
+    return ok(dtos);
 }

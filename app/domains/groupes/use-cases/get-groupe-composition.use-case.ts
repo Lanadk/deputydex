@@ -11,11 +11,15 @@ export async function getGroupeCompositionUseCase(
     legislature: number
 ): Promise<Result<GroupeCompositionDTO, "NOT_FOUND" | "DB_ERROR">> {
 
-    const read = await fromRepository(() => repository.getGroupeComposition(groupeCode, legislature));
-    if (isErr(read)) return read;
+    const result = await fromRepository(() => repository.getGroupeComposition(groupeCode, legislature));
+    if (isErr(result)) return result;
+    const entity = result.data;
 
     // null : le groupe n'existe pas dans cette législature.
-    if (!read.data) return err("NOT_FOUND");
+    if (!entity) {
+        return err("NOT_FOUND")
+    }
 
-    return ok(mapEntityToGroupeCompositionDTO(read.data));
+    const dto = mapEntityToGroupeCompositionDTO(entity);
+    return ok(dto);
 }

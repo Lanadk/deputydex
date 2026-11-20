@@ -10,11 +10,12 @@ export async function getGroupesProximiteUseCase(
     repository: IGroupesStatsRepository,
     legislature: number
 ): Promise<Result<GroupesProximiteDTO, "DB_ERROR">> {
-    const read = await fromRepository(() => repository.getProximiteParPaire(legislature));
-    if (isErr(read)) return read;
+    const result = await fromRepository(() => repository.getProximiteParPaire(legislature));
+    if (isErr(result)) return result;
+    const rows = result.data;
 
     return ok(mapEntitiesToGroupesProximiteDTO(
-        read.data,
+        rows,
         getGroupeGouvernementReferenceCode(legislature),
         getGroupeLineage(legislature)
     ));

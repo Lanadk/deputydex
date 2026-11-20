@@ -12,8 +12,10 @@ export async function getGroupeActivityDetailsUseCase(
     date: any
 ): Promise<Result<GroupeActivityDetailsDTO[], "DB_ERROR">> {
 
-    const read = await fromRepository(() => repository.getGroupeActivityDetails(groupeCode, legislature, date));
-    if (isErr(read)) return read;
+    const result = await fromRepository(() => repository.getGroupeActivityDetails(groupeCode, legislature, date));
+    if (isErr(result)) return result;
+    const entities = result.data;
 
-    return ok(mapEntityToGroupeActivityDetailsDTO(read.data, legislature));
+    const dtos = mapEntityToGroupeActivityDetailsDTO(entities, legislature);
+    return ok(dtos);
 }

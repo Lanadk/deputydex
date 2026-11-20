@@ -11,8 +11,10 @@ export async function getGroupeCohesionUseCase(
     legislature: number
 ): Promise<Result<GroupeCohesionDTO, "DB_ERROR">> {
 
-    const read = await fromRepository(() => repository.getGroupeCohesionLegislature(groupeCode, legislature));
-    if (isErr(read)) return read;
+    const result = await fromRepository(() => repository.getGroupeCohesionLegislature(groupeCode, legislature));
+    if (isErr(result)) return result;
+    const entities = result.data;
 
-    return ok(mapEntityToGroupeCohesionDTO(read.data));
+    const dto = mapEntityToGroupeCohesionDTO(entities);
+    return ok(dto);
 }
