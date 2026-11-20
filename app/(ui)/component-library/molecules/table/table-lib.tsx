@@ -18,6 +18,8 @@ type TableLibProps<T> = {
 
     loading?: boolean;
     emptyLabel?: string;
+    /** Lignes alternées en fond contrasté (zébrage), pour les tableaux longs. */
+    striped?: boolean;
 };
 
 export function TableLib<T>({
@@ -26,9 +28,10 @@ export function TableLib<T>({
                                 getRowKeyAction,
                                 loading = false,
                                 emptyLabel = "Aucun résultat",
+                                striped = false,
                             }: TableLibProps<T>) {
     return (
-        <div className="table-lib">
+        <div className={striped ? "table-lib table-lib--striped" : "table-lib"}>
             <div className="table-lib__wrap">
                 <table className="table-lib__table">
                     <thead className="table-lib__thead">

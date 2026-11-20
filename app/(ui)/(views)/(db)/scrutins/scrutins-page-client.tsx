@@ -176,6 +176,7 @@ export default function ScrutinsPageClient() {
                     getRowKeyAction={(r) => r.uid}
                     loading={loading}
                     emptyLabel="Aucun scrutin ne correspond à ces critères."
+                    striped={true}
                 />
 
                 <TablePaginationLib

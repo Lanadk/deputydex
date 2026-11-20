@@ -131,6 +131,8 @@
     --surface-2: var(--ui-white);
     --surface-3: var(--ui-surface);
     --field-surface: var(--surface-1);
+    /* Ligne alternée des tableaux zébrés (TableLib `striped`) */
+    --table-row-alt: color-mix(in srgb, var(--foreground) 12%, var(--surface-2));
 
     /* Accents */
     --accent: var(--ui-info);
@@ -349,6 +351,7 @@
     --surface-2: var(--ui-info-strong); /* card bg is blue-deep in dark */
     --surface-3: var(--p1-steel-3);
     --field-surface: var(--surface-1);
+    --table-row-alt: color-mix(in srgb, var(--foreground) 12%, var(--surface-2));
 
     --accent: var(--ui-info);
     --accent-warm: var(--type-yellow); /* yellow replaces red-warm in dark */
@@ -539,6 +542,7 @@
     --surface-2: var(--ui-paper-soft);
     --surface-3: var(--ui-surface);
     --field-surface: var(--surface-1);
+    --table-row-alt: color-mix(in srgb, var(--foreground) 16%, var(--surface-2));
 
     --accent: var(--ui-info);
     --accent-warm: var(--type-yellow);
@@ -1617,6 +1621,11 @@
 
     .table-lib__tr:last-child .table-lib__td {
         border-bottom: none;
+    }
+
+    /* Zébrage : une ligne sur deux en fond contrasté, pour suivre une ligne à l'œil */
+    .table-lib--striped .table-lib__tbody .table-lib__tr:nth-child(even) {
+        background: var(--table-row-alt);
     }
 
     /* -------------------------------------------------------

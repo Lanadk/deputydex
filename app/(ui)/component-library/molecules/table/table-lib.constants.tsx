@@ -129,6 +129,28 @@ function TableNoPaginationExample() {
     );
 }
 
+const CODE_STRIPED = `<TableLib
+  rows={acteurs}
+  columns={columns}
+  getRowKeyAction={(a) => a.id}
+  striped
+/>
+`;
+
+function TableStripedExample() {
+    const acteurs = useMemo(() => makeMockActeurs(12), []);
+
+    return (
+        <TableLib
+            rows={acteurs}
+            columns={columns}
+            getRowKeyAction={(a) => a.id}
+            emptyLabel="Aucun acteur"
+            striped
+        />
+    );
+}
+
 function TableWithLocalPaginationExample() {
     const acteurs = useMemo(() => makeMockActeurs(67), []);
     const [page, setPage] = useState(1);
@@ -310,6 +332,11 @@ export const getTableSections = () => [
         title: "Table — sans pagination (liste courte)",
         code: CODE_NO_PAGINATION,
         component: <TableNoPaginationExample/>,
+    },
+    {
+        title: "Table — lignes zébrées (striped)",
+        code: CODE_STRIPED,
+        component: <TableStripedExample/>,
     },
     {
         title: "Table — pagination locale (client-side)",
