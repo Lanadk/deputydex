@@ -25,6 +25,7 @@ const components = {
         { name: 'Charts', path: '/component-library/molecules/chart' },
         { name: 'Cards', path: '/component-library/molecules/cards'},
         { name: 'DeputyCards', path: '/component-library/molecules/deputy'},
+        { name: 'GroupMiniCard', path: '/component-library/molecules/group-mini-card'},
         { name: 'DifficultyGauge', path: '/component-library/molecules/difficulty-gauge'},
         { name: 'ExpandableCard', path: '/component-library/molecules/expandable-card'},
         { name: 'Hemicycle', path: '/component-library/molecules/hemicycle'},
