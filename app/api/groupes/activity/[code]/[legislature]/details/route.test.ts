@@ -25,7 +25,21 @@ describe("GET /api/groupes/activity/[code]/[legislature]/details", () => {
         const res = await call("REN", "17");
 
         expect(res.status).toBe(400);
-        expect(await res.json()).toEqual({ error: "Missing date" });
+        expect(await res.json()).toEqual(expect.objectContaining({ error: "INVALID_INPUT" }));
+        expect(getGroupeActivityDetails).not.toHaveBeenCalled();
+    });
+
+    it("returns 400 when the 'date' query param is not a date", async () => {
+        const res = await call("REN", "17", "pas-une-date");
+
+        expect(res.status).toBe(400);
+        expect(getGroupeActivityDetails).not.toHaveBeenCalled();
+    });
+
+    it("returns 400 when the legislature is not a number", async () => {
+        const res = await call("REN", "abc", "2024-07-08");
+
+        expect(res.status).toBe(400);
         expect(getGroupeActivityDetails).not.toHaveBeenCalled();
     });
 
@@ -49,15 +63,8 @@ describe("GET /api/groupes/activity/[code]/[legislature]/details", () => {
         ]);
     });
 
-    it("returns 500 when the repository resolves null", async () => {
-        getGroupeActivityDetails.mockResolvedValue(null);
-
-        const res = await call("UNKNOWN", "17", "2024-07-08");
-
-        expect(res.status).toBe(500);
-    });
-
     it("returns 500 when the repository throws", async () => {
+        jest.spyOn(console, "error").mockImplementation(() => {});
         getGroupeActivityDetails.mockRejectedValue(new Error("DB down"));
 
         const res = await call("REN", "17", "2024-07-08");

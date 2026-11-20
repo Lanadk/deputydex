@@ -1,38 +1,24 @@
-import { NextResponse } from "next/server";
-import {isOk} from "@/app/_shared/result-pattern/result";
+import {isErr} from "@/app/_shared/result-pattern/result";
+import {resultToResponse} from "@/app/_shared/result-pattern/result-to-response";
+import {cachedResult} from "@/app/_shared/cache/cached-response";
+import {parseLegislature} from "@/app/domains/legislatures/parse-legislature";
 import {getGroupeActivityUseCase} from "@/app/domains/groupes/use-cases/get-groupe-activity.use-case";
 import {
     prismaGroupeActivityRepository
 } from "@/app/infrastructure/groupes/repositories/prisma-groupe-activity.repository";
-import {cachedJson, cachedRead} from "@/app/_shared/cache/cached-response";
 
 export async function GET(
     _req: Request,
     { params }: { params: Promise<{code: string, legislature: string}> }
 ): Promise<Response> {
-    const { legislature } = await params;
-    const { code }  = await params;
-    const legislatureNumber = Number(legislature);
-    try {
+    const { code, legislature } = await params;
+    const parsed = parseLegislature(legislature);
+    if (isErr(parsed)) return resultToResponse(parsed);
 
-        const result = await cachedRead(
-            () => getGroupeActivityUseCase(prismaGroupeActivityRepository, code, legislatureNumber),
-            ["groupe-activity", code, legislature]
-        );
+    const result = await cachedResult(
+        () => getGroupeActivityUseCase(prismaGroupeActivityRepository, code, parsed.data),
+        ["groupe-activity", code, legislature]
+    );
 
-        if (isOk(result)) {
-            return cachedJson(result.data);
-        }
-
-        return NextResponse.json(
-            { error: result.error },
-            { status: 500 }
-        );
-    } catch (e) {
-        console.error(e);
-        return NextResponse.json(
-            { error: "Failed to get groupes cards" },
-            { status: 500 }
-        );
-    }
+    return resultToResponse(result);
 }

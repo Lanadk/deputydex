@@ -20,8 +20,7 @@ export const prismaGroupeActivityRepository: IGroupeActivityRepository = {
                 ORDER BY mv.activity_date ASC
             `;
         } catch (error) {
-            console.error("Error fetching activity:", error);
-            throw new Error("Failed to fetch activity");
+            throw new Error("Failed to fetch activity", { cause: error });
         }
     }
 };

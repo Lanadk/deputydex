@@ -39,8 +39,7 @@ export const prismaGroupesCardsRepository: IGroupesCardsRepository = {
                 order by rg.code asc nulls last, rg.libelle asc nulls last
             `;
         } catch (error) {
-            console.error("Error fetching group cards:", error);
-            throw new Error("Failed to fetch group cards");
+            throw new Error("Failed to fetch group cards", { cause: error });
         }
 
     }

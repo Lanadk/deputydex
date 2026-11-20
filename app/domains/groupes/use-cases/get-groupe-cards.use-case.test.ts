@@ -34,13 +34,14 @@ describe("getGroupeCardsUseCase", () => {
         });
     });
 
-    it("returns err('ERROR') when the repository resolves null", async () => {
+    it("returns err('DB_ERROR') when the repository throws", async () => {
+        jest.spyOn(console, "error").mockImplementation(() => {});
         const repository: IGroupesCardsRepository = {
-            getGroupesCards: jest.fn().mockResolvedValue(null as unknown as GroupeCardEntity[]),
+            getGroupesCards: jest.fn().mockRejectedValue(new Error("DB down")),
         };
 
         const result = await getGroupeCardsUseCase(repository, 17);
 
-        expect(result).toEqual({ success: false, error: "ERROR" });
+        expect(result).toEqual({ success: false, error: "DB_ERROR" });
     });
 });

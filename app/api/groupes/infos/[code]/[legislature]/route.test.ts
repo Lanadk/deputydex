@@ -43,16 +43,25 @@ describe("GET /api/groupes/infos/[code]/[legislature]", () => {
         expect(await res.json()).toEqual(expect.objectContaining({ groupeCode: "REN" }));
     });
 
-    it("returns 500 (not 404) when the group is not found", async () => {
-        getGroupeInfos.mockResolvedValue(null);
+    it("returns 404 when the group does not exist in this legislature", async () => {
+        getGroupeInfos.mockResolvedValue([]);
 
-        const res = await call("UNKNOWN", "17");
+        const res = await call("INEXISTANT", "17");
 
-        expect(res.status).toBe(500);
-        expect(await res.json()).toEqual({ error: "ERROR" });
+        expect(res.status).toBe(404);
+        expect(await res.json()).toEqual({ error: "NOT_FOUND", message: "Groupe introuvable" });
+    });
+
+    it("returns 400 when the legislature is not a number", async () => {
+        const res = await call("RN", "abc");
+
+        expect(res.status).toBe(400);
+        expect(await res.json()).toEqual({ error: "INVALID_INPUT", message: "Paramètre invalide" });
+        expect(getGroupeInfos).not.toHaveBeenCalled();
     });
 
     it("returns 500 when the repository throws", async () => {
+        jest.spyOn(console, "error").mockImplementation(() => {});
         getGroupeInfos.mockRejectedValue(new Error("DB down"));
 
         const res = await call("REN", "17");

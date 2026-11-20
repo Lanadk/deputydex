@@ -177,8 +177,11 @@ export const prismaGroupeCompositionRepository: IGroupeCompositionRepository = {
             `,
         ]);
 
+        // Pas de fiche pour ce code dans cette législature : le groupe n'existe pas.
+        if (infos.length === 0) return null;
+
         return {
-            groupeCountMembers: infos[0]?.groupe_count_members ?? null,
+            groupeCountMembers: infos[0].groupe_count_members ?? null,
             averageAge: age[0]?.average_age ?? null,
             averageCumulatedYears: mandats[0]?.average_cumulated_years ?? null,
             parite: parite[0] ?? null,

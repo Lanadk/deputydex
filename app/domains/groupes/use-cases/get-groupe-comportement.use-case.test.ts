@@ -18,15 +18,14 @@ describe("getGroupeComportementUseCase", () => {
         expect(result.data.evolutionParticipationLegislature).toEqual([{ key: "2024-07", value: 0.75 }]);
     });
 
-    it("returns err('ERROR') when the repository resolves a falsy value", async () => {
+    it("returns err('DB_ERROR') when the repository throws", async () => {
+        jest.spyOn(console, "error").mockImplementation(() => {});
         const repository: IGroupeComportementRepository = {
-            getGroupeComportementLegislature: jest
-                .fn()
-                .mockResolvedValue(null as unknown as GroupeComportementEntity),
+            getGroupeComportementLegislature: jest.fn().mockRejectedValue(new Error("DB down")),
         };
 
-        const result = await getGroupeComportementUseCase(repository, "UNKNOWN", 17);
+        const result = await getGroupeComportementUseCase(repository, "REN", 17);
 
-        expect(result).toEqual({ success: false, error: "ERROR" });
+        expect(result).toEqual({ success: false, error: "DB_ERROR" });
     });
 });

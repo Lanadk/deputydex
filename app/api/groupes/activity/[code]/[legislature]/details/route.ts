@@ -1,47 +1,30 @@
-import { NextResponse } from "next/server";
-import { isOk } from "@/app/_shared/result-pattern/result";
+import {err, isErr} from "@/app/_shared/result-pattern/result";
+import {resultToResponse} from "@/app/_shared/result-pattern/result-to-response";
+import {cachedResult} from "@/app/_shared/cache/cached-response";
+import {parseLegislature} from "@/app/domains/legislatures/parse-legislature";
+import {getGroupeActivityDetailsUseCase} from "@/app/domains/groupes/use-cases/get-groupe-activity-details.use-case";
 import {
     prismaGroupeActivityDetailsRepository
 } from "@/app/infrastructure/groupes/repositories/prisma-groupe-activity-details.repository";
-import {getGroupeActivityDetailsUseCase} from "@/app/domains/groupes/use-cases/get-groupe-activity-details.use-case";
-import {cachedJson, cachedRead} from "@/app/_shared/cache/cached-response";
-
 
 export async function GET(
     req: Request,
     { params }: { params: Promise<{ code: string; legislature: string }> }
-) {
+): Promise<Response> {
     const { code, legislature } = await params;
-    const { searchParams } = new URL(req.url);
-    const dateParam = searchParams.get("date");
+    const parsed = parseLegislature(legislature);
+    if (isErr(parsed)) return resultToResponse(parsed);
 
-    if (!dateParam) {
-        return NextResponse.json({ error: "Missing date" }, { status: 400 });
+    const dateParam = new URL(req.url).searchParams.get("date");
+    const date = dateParam ? new Date(dateParam) : null;
+    if (!dateParam || !date || Number.isNaN(date.getTime())) {
+        return resultToResponse(err("INVALID_INPUT"), { INVALID_INPUT: "Paramètre date absent ou invalide" });
     }
 
-    const date = new Date(dateParam);
+    const result = await cachedResult(
+        () => getGroupeActivityDetailsUseCase(prismaGroupeActivityDetailsRepository, code, parsed.data, date),
+        ["groupe-activity-details", code, legislature, dateParam]
+    );
 
-    try {
-        const result = await cachedRead(
-            () => getGroupeActivityDetailsUseCase(
-                prismaGroupeActivityDetailsRepository,
-                code,
-                Number(legislature),
-                date!
-            ),
-            ["groupe-activity-details", code, legislature, dateParam]
-        );
-
-        if (isOk(result)) {
-            return cachedJson(result.data);
-        }
-
-        return NextResponse.json({ error: result.error }, { status: 500 });
-    } catch (e) {
-        console.error(e);
-        return NextResponse.json(
-            { error: "Failed to get activity details" },
-            { status: 500 }
-        );
-    }
+    return resultToResponse(result);
 }

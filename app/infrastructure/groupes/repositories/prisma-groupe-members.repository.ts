@@ -42,8 +42,7 @@ export const prismaGroupeMembersRepository: IGroupeMembersRepository = {
             `;
 
         } catch (error) {
-            console.error("Error fetching group infos:", error);
-            throw new Error("Failed to fetch group infos");
+            throw new Error("Failed to fetch group members", { cause: error });
         }
     }
 }

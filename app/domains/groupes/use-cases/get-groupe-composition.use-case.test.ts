@@ -32,13 +32,24 @@ describe("getGroupeCompositionUseCase", () => {
         expect(result.data.groupeParite).toEqual({ homme: 50, femme: 50 });
     });
 
-    it("returns err('ERROR') when the repository resolves null", async () => {
+    it("returns err('NOT_FOUND') when the repository resolves null (unknown group)", async () => {
         const repository: IGroupeCompositionRepository = {
             getGroupeComposition: jest.fn().mockResolvedValue(null),
         };
 
         const result = await getGroupeCompositionUseCase(repository, "UNKNOWN", 17);
 
-        expect(result).toEqual({ success: false, error: "ERROR" });
+        expect(result).toEqual({ success: false, error: "NOT_FOUND" });
+    });
+
+    it("returns err('DB_ERROR') when the repository throws", async () => {
+        jest.spyOn(console, "error").mockImplementation(() => {});
+        const repository: IGroupeCompositionRepository = {
+            getGroupeComposition: jest.fn().mockRejectedValue(new Error("DB down")),
+        };
+
+        const result = await getGroupeCompositionUseCase(repository, "REN", 17);
+
+        expect(result).toEqual({ success: false, error: "DB_ERROR" });
     });
 });

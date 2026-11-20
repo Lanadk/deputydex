@@ -22,18 +22,14 @@ describe("getGroupeCohesionUseCase", () => {
         expect(result.data.evolutionCohesionLegislature).toEqual([{ key: "2024-07", value: 0.92 }]);
     });
 
-    // Le type d'interface déclare un retour non-nullable, mais le use-case se
-    // garde quand même contre un retour falsy — comportement défensif réel,
-    // testé tel quel.
-    it("returns err('ERROR') when the repository resolves a falsy value", async () => {
+    it("returns err('DB_ERROR') when the repository throws", async () => {
+        jest.spyOn(console, "error").mockImplementation(() => {});
         const repository: IGroupeCohesionRepository = {
-            getGroupeCohesionLegislature: jest
-                .fn()
-                .mockResolvedValue(null as unknown as GroupeCohesionEntity),
+            getGroupeCohesionLegislature: jest.fn().mockRejectedValue(new Error("DB down")),
         };
 
-        const result = await getGroupeCohesionUseCase(repository, "UNKNOWN", 17);
+        const result = await getGroupeCohesionUseCase(repository, "REN", 17);
 
-        expect(result).toEqual({ success: false, error: "ERROR" });
+        expect(result).toEqual({ success: false, error: "DB_ERROR" });
     });
 });
