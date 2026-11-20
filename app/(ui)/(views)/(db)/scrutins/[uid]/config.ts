@@ -54,7 +54,7 @@ export const SCRUTIN_SECTIONS: PageSection[] = [
                 colSpan: 4,
                 config: {
                     id: "scrutin-hemicycle",
-                    title: "Qui a voté quoi ?",
+                    title: "Répartition des votes dans l'hémicycle",
                     subtitle: "Chaque député à son siège, coloré selon son vote",
                 },
             },
