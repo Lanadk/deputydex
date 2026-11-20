@@ -1,0 +1,86 @@
+import React from "react";
+import { fireEvent, render, screen } from "@testing-library/react";
+import "@testing-library/jest-dom";
+import { ScrutinHemicyclePlan } from "./scrutin-hemicycle-plan";
+import { HemicycleLegendItem, HemicycleSeatData } from "@/app/(ui)/component-library/template/sections/block-section/hemicycle-config.types";
+
+const SEATS: HemicycleSeatData[] = [
+    { id: "PA1", key: "pour", color: "#2563eb", label: "Alice Martin", sublabel: "SOC · Pour", href: "/deputes/PA1" },
+    { id: "PA2", key: "contre", color: "#dc2626", label: "Bruno Petit", sublabel: "RN · Contre", href: "/deputes/PA2" },
+    { id: "PA3", key: "absent", color: "#d1d5db", label: "Chloé Roux" },
+];
+
+const LEGEND: HemicycleLegendItem[] = [
+    { key: "pour", label: "Pour", color: "#2563eb", count: 1 },
+    { key: "contre", label: "Contre", color: "#dc2626", count: 1 },
+    { key: "absent", label: "Absent", color: "#d1d5db", count: 1 },
+];
+
+function seatElements(container: HTMLElement) {
+    return Array.from(container.querySelectorAll<HTMLElement>(".hemicycle-seat"));
+}
+
+describe("ScrutinHemicyclePlan", () => {
+    it("dessine un siège par député, dans l'ordre reçu, avec la couleur de son vote", () => {
+        const { container } = render(<ScrutinHemicyclePlan ariaLabel="1 pour, 1 contre, 1 absent" seats={SEATS} />);
+        const seats = seatElements(container);
+
+        expect(seats).toHaveLength(3);
+        expect(seats.map((s) => s.style.background)).toEqual(["rgb(37, 99, 235)", "rgb(220, 38, 38)", "rgb(209, 213, 219)"]);
+        expect(screen.getByRole("img", { name: "1 pour, 1 contre, 1 absent" })).toBeInTheDocument();
+    });
+
+    it("affiche une info-bulle avec le député et son vote au survol, sans soulever le siège par défaut", () => {
+        const { container } = render(<ScrutinHemicyclePlan ariaLabel="hémicycle" seats={SEATS} />);
+        const [first] = seatElements(container);
+
+        fireEvent.mouseEnter(first, { clientX: 10, clientY: 10 });
+        expect(screen.getByRole("tooltip")).toHaveTextContent("Alice Martin");
+        expect(screen.getByRole("tooltip")).toHaveTextContent("SOC · Pour");
+        expect(first.style.transform).not.toContain("translateZ");
+
+        fireEvent.mouseLeave(first);
+        expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+    });
+
+    it("soulève le siège survolé quand liftOnHover est activé", () => {
+        const { container } = render(<ScrutinHemicyclePlan ariaLabel="hémicycle" seats={SEATS} liftOnHover />);
+        const [first] = seatElements(container);
+
+        fireEvent.mouseEnter(first, { clientX: 10, clientY: 10 });
+        expect(first.style.transform).toContain("translateZ");
+        expect(screen.getByRole("tooltip")).toBeInTheDocument();
+    });
+
+    it("fait d'un siège avec href un lien vers la fiche, hors tabulation", () => {
+        const { container } = render(<ScrutinHemicyclePlan ariaLabel="hémicycle" seats={SEATS} />);
+        const links = container.querySelectorAll("a.hemicycle-seat");
+
+        expect(links).toHaveLength(2);
+        expect(links[0]).toHaveAttribute("href", "/deputes/PA1");
+        expect(links[0]).toHaveAttribute("tabindex", "-1");
+    });
+
+    it("affiche la légende avec nombre et part, et met une position en avant au clic", () => {
+        const { container } = render(<ScrutinHemicyclePlan ariaLabel="hémicycle" seats={SEATS} legend={LEGEND} />);
+        const contre = screen.getByRole("button", { name: /Contre/ });
+
+        expect(contre).toHaveTextContent("1 · 33 %");
+
+        fireEvent.click(contre);
+        expect(contre).toHaveAttribute("aria-pressed", "true");
+        expect(seatElements(container).map((s) => s.style.opacity)).toEqual(["0.16", "1", "0.16"]);
+
+        fireEvent.click(contre);
+        expect(seatElements(container).map((s) => s.style.opacity)).toEqual(["1", "1", "1"]);
+    });
+
+    it("affiche un titre et un sous-titre optionnels", () => {
+        const { rerender } = render(<ScrutinHemicyclePlan ariaLabel="hémicycle" seats={SEATS} />);
+        expect(screen.queryByRole("heading")).not.toBeInTheDocument();
+
+        rerender(<ScrutinHemicyclePlan ariaLabel="hémicycle" seats={SEATS} title="Qui a voté quoi" subtitle="Chaque député à son siège" />);
+        expect(screen.getByRole("heading", { name: "Qui a voté quoi" })).toBeInTheDocument();
+        expect(screen.getByText("Chaque député à son siège")).toBeInTheDocument();
+    });
+});

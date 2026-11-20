@@ -28,7 +28,6 @@ const components = {
         { name: 'GroupMiniCard', path: '/component-library/molecules/group-mini-card'},
         { name: 'DifficultyGauge', path: '/component-library/molecules/difficulty-gauge'},
         { name: 'ExpandableCard', path: '/component-library/molecules/expandable-card'},
-        { name: 'Hemicycle', path: '/component-library/molecules/hemicycle'},
     ],
     Templates: [
         { name: 'BlockSection', path: '/component-library/template/sections/block-section' },
