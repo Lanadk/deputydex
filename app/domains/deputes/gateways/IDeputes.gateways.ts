@@ -8,6 +8,8 @@ import { DeputesCardDTO } from "@/app/domains/deputes/dto/deputes-card.dto";
 import { DeputeActivityDTO } from "@/app/domains/deputes/dto/depute-activity.dto";
 import { DeputeActivityDetailsDTO } from "@/app/domains/deputes/dto/depute-activity-details.dto";
 import { DeputesAgeExtremesDTO } from "@/app/domains/deputes/dto/deputes-age-extremes.dto";
+import { DeputeDossierContributionDTO } from "@/app/domains/deputes/dto/depute-dossier-contribution.dto";
+import { DeputeDossierAmendementDTO } from "@/app/domains/deputes/dto/depute-dossier-amendement.dto";
 
 export interface IDeputesGateways {
     getDeputesList(legislature: number): Promise<DeputeListItemDTO[]>;
@@ -22,4 +24,6 @@ export interface IDeputesGateways {
     getDeputeRecentVotes(uid: string, legislature: number): Promise<DeputeRecentVoteDTO[]>;
     getDeputeAmendementStats(uid: string, legislature: number): Promise<DeputeAmendementStatsDTO>;
     getDeputesAgeExtremes(legislature: number): Promise<DeputesAgeExtremesDTO>;
+    getDeputeDossierContributions(uid: string, legislature: number): Promise<DeputeDossierContributionDTO[]>;
+    getDeputeDossierAmendements(uid: string, legislature: number, dossierUid: string): Promise<DeputeDossierAmendementDTO[]>;
 }

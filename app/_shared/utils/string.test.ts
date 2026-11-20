@@ -1,4 +1,4 @@
-import { normalizeForSearch } from "@/app/_shared/utils/string";
+import { htmlToPlainText, normalizeForSearch } from "@/app/_shared/utils/string";
 
 describe("normalizeForSearch", () => {
     it("strips accents", () => {
@@ -19,5 +19,31 @@ describe("normalizeForSearch", () => {
 
     it("leaves a string with no diacritics unchanged (aside from casing)", () => {
         expect(normalizeForSearch("Martin")).toBe("martin");
+    });
+
+    it("turns the typographic apostrophe into a straight one", () => {
+        expect(normalizeForSearch("L’ensemble")).toBe("l'ensemble");
+    });
+
+    it("collapses inner whitespace", () => {
+        expect(normalizeForSearch("Sécurité   sociale")).toBe("securite sociale");
+    });
+});
+
+describe("htmlToPlainText", () => {
+    it("strips tags and decodes hex numeric entities", () => {
+        expect(htmlToPlainText("<p>Par cet amendement d&#x2019;appel</p>")).toBe("Par cet amendement d’appel");
+    });
+
+    it("decodes decimal and named entities", () => {
+        expect(htmlToPlainText("A &amp; B &#233;t&#233; &nbsp;C")).toBe("A & B été C");
+    });
+
+    it("keeps paragraphs separated by a single space", () => {
+        expect(htmlToPlainText("<p>Un.</p><p>Deux.</p>")).toBe("Un. Deux.");
+    });
+
+    it("leaves unknown named entities untouched", () => {
+        expect(htmlToPlainText("&foo;")).toBe("&foo;");
     });
 });

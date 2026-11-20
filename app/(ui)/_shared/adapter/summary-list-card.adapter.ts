@@ -4,7 +4,8 @@ import {SummaryListItem} from "@/app/(ui)/component-library/template/sections/bl
 
 type TResult = ScrutinResultDTO["position"] | VotesResultDTO["position"];
 
-type SummaryListItemContent = Omit<SummaryListItem, "label">;
+// Omit distributif : garde la distinction badge | value de l'union.
+type SummaryListItemContent = SummaryListItem extends infer T ? (T extends unknown ? Omit<T, "label"> : never) : never;
 
 export const positionToBadge = (position: TResult): SummaryListItemContent => {
     switch (position) {
@@ -18,7 +19,7 @@ export const positionToBadge = (position: TResult): SummaryListItemContent => {
             return {badge: {text: "Abst.", variant: "tertiary"}};
 
         case "non-votant":
-            return {badge: {value: "Non-votant", variant: "tertiary"}};
+            return {badge: {text: "Non-votant", variant: "tertiary"}};
 
         default:
             return {value: "-"};

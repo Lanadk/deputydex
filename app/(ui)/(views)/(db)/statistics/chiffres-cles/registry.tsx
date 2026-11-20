@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { makeRegistryHelper } from "@/app/(ui)/_shared/registry/registry.helper";
 import { CardConfig } from "@/app/(ui)/component-library/template/sections/block-section/card-config.types";
 import { ChartConfig } from "@/app/(ui)/component-library/template/sections/block-section/chart-config.types";
@@ -8,7 +7,7 @@ import { GroupeFeminisationRowDTO } from "@/app/domains/groupes/dto/groupes-femi
 import { GroupeAgeRowDTO } from "@/app/domains/groupes/dto/groupes-age.dto";
 import { GroupeCardDTO } from "@/app/domains/groupes/dto/groupes-card.dto";
 import { GroupeProximiteGouvernementDTO, GroupeProximitePaireDTO } from "@/app/domains/groupes/dto/groupes-proximite.dto";
-import { getCanonicalGroupTheme } from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
+import { GroupCell } from "@/app/(ui)/components/groups/group-cell";
 
 /**
  * Registre commun card/chart/table pour TOUTES les pages "Chiffres clés"
@@ -90,24 +89,6 @@ export type GroupeParticipationTableRow = { groupeCode: string; groupeLabel: str
  */
 export type ProfessionPopulationTableRow = { famille: string; pctAssemblee: number; nbAssemblee: number; pctPopulation: number | null };
 
-/**
- * Cellule "Groupe" cliquable, colorée avec le thème du groupe (même palette
- * que `GroupCard`/les charts "parliament-group") — renvoie vers sa fiche
- * `/groupes/[code]`, pour ne pas juste balancer un classement à plat sans
- * pouvoir aller creuser un groupe précis.
- */
-function GroupCell({ code, label }: { code: string; label: string }) {
-    const theme = getCanonicalGroupTheme(code);
-    return (
-        <Link
-            href={`/groupes/${code}`}
-            className="inline-flex items-center gap-2 rounded-full px-3 py-1 text-sm font-medium transition-opacity hover:opacity-80"
-            style={{ backgroundColor: theme.badgeBg, color: theme.badgeText }}
-        >
-            {label}
-        </Link>
-    );
-}
 
 const KEY_FIGURES_CARDS: CardConfig[] = [
     { id: "kpi-femmes-part-actuelle", displayType: "kpi-card" },

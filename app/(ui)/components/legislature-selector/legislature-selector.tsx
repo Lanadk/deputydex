@@ -31,6 +31,11 @@ export function LegislatureSelector() {
     // législature sur ces pages.
     if (pathname === "/statistics" || pathname.startsWith("/statistics/avance")) return null;
 
+    // Un scrutin appartient à une seule législature : sur sa fiche (/scrutins/[uid]),
+    // changer de législature n'aurait aucun effet. Le sélecteur reste sur la liste
+    // /scrutins, où il choisit la législature explorée.
+    if (pathname.startsWith("/scrutins/")) return null;
+
     if (loading) return null;
 
     return (

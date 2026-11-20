@@ -15,5 +15,5 @@ export async function getDeputeActivityDetailsUseCase(
         return err("ERROR");
     }
 
-    return ok(mapEntityToDeputeActivityDetailsDTO(entities));
+    return ok(mapEntityToDeputeActivityDetailsDTO(entities, legislature));
 }

@@ -1,4 +1,5 @@
 import React from "react";
+import Link from "next/link";
 import { makeRegistryHelper } from "@/app/(ui)/_shared/registry/registry.helper";
 import { CardConfig } from "@/app/(ui)/component-library/template/sections/block-section/card-config.types";
 import { TableConfig } from "@/app/(ui)/component-library/template/sections/block-section/table-config.types";
@@ -6,6 +7,9 @@ import { ChartConfig } from "@/app/(ui)/component-library/template/sections/bloc
 import { ActivityCalendarConfig } from "@/app/(ui)/component-library/template/sections/block-section/activity-calendar-config.types";
 import { DeputeMandatDTO } from "@/app/domains/deputes/dto/depute-mandat.dto";
 import { DeputeRecentVoteDTO } from "@/app/domains/deputes/dto/depute-recent-vote.dto";
+import { ExpandableCardListConfig } from "@/app/(ui)/component-library/template/sections/block-section/expandable-card-list-config.types";
+import { DeputeDossierContributionDTO } from "@/app/domains/deputes/dto/depute-dossier-contribution.dto";
+import { capitalizeFirst } from "@/app/_shared/utils/string";
 
 const VOTE_POSITION_COLORS: Record<string, string> = {
     pour: "#22c55e",
@@ -142,7 +146,26 @@ const DEPUTE_TABLE_REGISTRY: (TableConfig<DeputeMandatDTO> | TableConfig<DeputeR
                 id: "titre",
                 header: "Scrutin",
                 align: "left",
-                cell: (r: DeputeRecentVoteDTO) => r.titre ?? "—",
+                // Fiche DeputeDex en lien principal, page de l'AN en lien secondaire (issue #170).
+                cell: (r: DeputeRecentVoteDTO) => (
+                    <span>
+                        <Link href={`/scrutins/${r.scrutinUid}`} className="summary-list-card__link">
+                            {r.titre ?? `Scrutin ${r.scrutinUid}`}
+                        </Link>
+                        {r.lienAN && (
+                            <a
+                                href={r.lienAN}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="ml-1 text-xs text-gray-500 hover:underline"
+                                aria-label="Voir le scrutin sur le site de l'Assemblée nationale"
+                                title="Voir sur le site de l'Assemblée nationale"
+                            >
+                                ↗
+                            </a>
+                        )}
+                    </span>
+                ),
             },
             {
                 id: "date",
@@ -174,6 +197,68 @@ const DEPUTE_TABLE_REGISTRY: (TableConfig<DeputeMandatDTO> | TableConfig<DeputeR
         getRowKey: (r: DeputeRecentVoteDTO) => r.scrutinUid,
         pagination: { pageSize: 10 },
     } as TableConfig<DeputeRecentVoteDTO>,
+];
+
+// ── Dossiers législatifs ─────────────────────────────────────────────────────
+
+/** Contribution forte (voir GLOSSARY.md) : auteur du texte ou rapporteur — tout sauf de la co-signature. */
+function hasStrongRole(r: DeputeDossierContributionDTO): boolean {
+    return r.isAuteurTexte || r.rapporteurs.length > 0;
+}
+
+function roleBadges(r: DeputeDossierContributionDTO): string[] {
+    const texte = r.isAuteurTexte ? ["Auteur du texte"] : r.isCosignataireTexte ? ["Co-signataire du texte"] : [];
+    const rapporteurs = r.rapporteurs.map((rap) => `${capitalizeFirst(rap.type ?? "rapporteur")} · ${rap.etape}`);
+    return [...texte, ...rapporteurs];
+}
+
+/** Affichage seulement : le chargement du détail (`loadItems`) est branché dans config.ts. */
+const DEPUTE_DOSSIER_LIST_REGISTRY: Omit<ExpandableCardListConfig<DeputeDossierContributionDTO>, "loadItems">[] = [
+    {
+        id: "depute-dossiers-list",
+        title: "Dossiers législatifs",
+        subtitle: "Textes sur lesquels ce député a déposé ou co-signé des amendements, été rapporteur, auteur ou co-signataire",
+        pageSize: 5,
+        searchPlaceholder: "Rechercher un dossier",
+        emptyLabel: "Aucune contribution à un dossier législatif sur cette législature.",
+        noMatchLabel: "Aucun dossier ne correspond à ces critères.",
+        countLabel: (n) => `${n} dossier(s)`,
+        getSearchText: (r) => r.titre,
+        getRowKey: (r) => r.dossierUid,
+        sortOptions: [
+            // Ordre serveur (repository : auteur/rapporteur, puis déposés, puis co-signatures) ; tri stable.
+            { value: "implication", label: "Implication", compare: () => 0 },
+            { value: "deposes", label: "Amendements déposés", compare: (a, b) => b.nbDeposes - a.nbDeposes },
+            { value: "adoptes", label: "Amendements adoptés", compare: (a, b) => b.nbAdoptes - a.nbAdoptes },
+            {
+                value: "recent",
+                label: "Activité récente",
+                compare: (a, b) => (b.derniereActivite ?? "").localeCompare(a.derniereActivite ?? ""),
+            },
+        ],
+        toggles: [
+            {
+                id: "sans-cosignature-seule",
+                label: "Masquer les co-signatures seules",
+                // Co-signer un amendement ou le texte : contribution faible, masquée par défaut.
+                keep: (r) => r.nbDeposes > 0 || hasStrongRole(r),
+                defaultChecked: true,
+            },
+        ],
+        toCard: (r) => ({
+            title: r.titre,
+            href: r.lienAN,
+            subtitle: r.procedure,
+            badges: roleBadges(r),
+            stats: [
+                { label: "déposés", value: r.nbDeposes },
+                { label: "adoptés", value: r.nbAdoptes },
+                { label: "co-signés", value: r.nbCosignes },
+            ],
+            itemsLabel: "Amendements déposés",
+            emptyLabel: "Aucun amendement déposé par ce député sur ce dossier.",
+        }),
+    },
 ];
 
 // ── Cards ────────────────────────────────────────────────────────────────────
@@ -212,4 +297,5 @@ const DEPUTE_CHART_REGISTRY: ChartConfig[] = [
 export const card = makeRegistryHelper(DEPUTE_CARD_REGISTRY, "CardConfig");
 export const table = makeRegistryHelper(DEPUTE_TABLE_REGISTRY as TableConfig[], "TableConfig");
 export const chart = makeRegistryHelper(DEPUTE_CHART_REGISTRY, "ChartConfig");
+export const dossierList = makeRegistryHelper(DEPUTE_DOSSIER_LIST_REGISTRY, "ExpandableCardListConfig");
 export const activityCalendar = makeRegistryHelper(DEPUTE_ACTIVITY_CALENDAR_REGISTRY, "ActivityCalendarConfig");

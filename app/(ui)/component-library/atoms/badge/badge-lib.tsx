@@ -1,8 +1,6 @@
 import React from "react";
 
 export type BaseProps = {
-    /** Identificateur */
-    key?: string;
     /** Texte du badge */
     text: string;
 };
@@ -22,16 +20,15 @@ export type BadgeLibProps = VariantProps | CustomProps;
 
 
 export const BadgeLib: React.FC<BadgeLibProps> = ({
-                                                      key,
                                                       text,
                                                       variant = '',
                                                       style,
                                                   }) => {
-    const isCustom = !!style && !!variant;
+    // Badge personnalisé : couleurs passées par `style`, sans classe de variante.
+    const isCustom = !!style;
 
     return (
         <span
-            key={key}
             className={
                 isCustom
                     ? `badge-lib`
