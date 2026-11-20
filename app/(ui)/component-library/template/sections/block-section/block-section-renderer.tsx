@@ -29,6 +29,12 @@ import {
 import {
     SectionActions
 } from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
+import {
+    HemicycleConfig, HemicycleDataWrapper
+} from "@/app/(ui)/component-library/template/sections/block-section/hemicycle-config.types";
+import {
+    BlockHemicycleRenderer
+} from "@/app/(ui)/component-library/template/sections/block-section/_renderers/block-hemicycle-renderer";
 
 export type ColSpan = 1 | 2 | 3 | 4;
 export type ParagraphItem =
@@ -85,6 +91,10 @@ export type SectionBlock<TRow = unknown> =
     type: "expandable-card-list";
     colSpan?: ColSpan;
     config: ExpandableCardListConfig<TRow>;
+} | {
+    type: "hemicycle";
+    colSpan?: ColSpan;
+    config: HemicycleConfig;
 }
 
 export type BlockDataWrapper =
@@ -92,6 +102,7 @@ export type BlockDataWrapper =
     | CardDataWrapper
     | ActivityCalendarDataWrapper
     | EntityChartDataWrapper
+    | HemicycleDataWrapper
     | unknown[]; // table rows
 
 type BlockSectionRendererProps = {
@@ -181,6 +192,15 @@ export const BlockSectionRenderer: React.FC<BlockSectionRendererProps> = ({
                         data={dataMap[block.config.id] as unknown[] ?? []}
                         loading={loading}
                         params={params}
+                    />
+                );
+
+            case "hemicycle":
+                return (
+                    <BlockHemicycleRenderer
+                        config={block.config}
+                        data={dataMap[block.config.id] as HemicycleDataWrapper ?? null}
+                        loading={loading}
                     />
                 );
         }

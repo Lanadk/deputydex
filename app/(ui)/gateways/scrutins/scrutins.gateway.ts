@@ -3,6 +3,7 @@ import { ScrutinDetailDTO } from "@/app/domains/scrutins/dto/scrutin-detail.dto"
 import { ScrutinGroupeVoteDTO } from "@/app/domains/scrutins/dto/scrutin-groupe-vote.dto";
 import { ScrutinDeputeVoteDTO } from "@/app/domains/scrutins/dto/scrutin-depute-vote.dto";
 import { ScrutinListPageDTO } from "@/app/domains/scrutins/dto/scrutin-list.dto";
+import { ScrutinHemicycleDTO } from "@/app/domains/scrutins/dto/scrutin-hemicycle.dto";
 import { ScrutinListRawParams } from "@/app/domains/scrutins/filters/scrutin-list.filters";
 
 export const scrutinsGateway: IScrutinsGateways = {
@@ -31,6 +32,12 @@ export const scrutinsGateway: IScrutinsGateways = {
     async getScrutinVotes(uid: string): Promise<ScrutinDeputeVoteDTO[]> {
         const res = await fetch(`/api/scrutins/${encodeURIComponent(uid)}/votes`);
         if (!res.ok) throw new Error("Failed to get scrutin votes");
+        return res.json();
+    },
+
+    async getScrutinHemicycle(uid: string): Promise<ScrutinHemicycleDTO> {
+        const res = await fetch(`/api/scrutins/${encodeURIComponent(uid)}/hemicycle`);
+        if (!res.ok) throw new Error("Failed to get scrutin hemicycle");
         return res.json();
     },
 };

@@ -11,6 +11,7 @@ function repository(overrides: Partial<IScrutinDetailRepository> = {}): IScrutin
         getScrutin: jest.fn().mockResolvedValue(null),
         getScrutinGroupes: jest.fn().mockResolvedValue([]),
         getScrutinVotes: jest.fn().mockResolvedValue([]),
+        getScrutinSieges: jest.fn().mockResolvedValue([]),
         ...overrides,
     };
 }
