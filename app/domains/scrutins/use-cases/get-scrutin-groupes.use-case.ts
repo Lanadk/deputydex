@@ -1,4 +1,5 @@
-import { Result, ok, err } from "@/app/_shared/result-pattern/result";
+import { Result, ok, isErr } from "@/app/_shared/result-pattern/result";
+import { fromRepository } from "@/app/_shared/result-pattern/app-error";
 import { IScrutinDetailRepository } from "@/app/domains/scrutins/repositories/IScrutinDetailRepository";
 import { ScrutinGroupeVoteDTO } from "@/app/domains/scrutins/dto/scrutin-groupe-vote.dto";
 import { mapScrutinGroupeVotesEntitiesToDTOs } from "@/app/domains/scrutins/mappers/scrutin-groupe-vote.mapper";
@@ -15,12 +16,10 @@ export function sortScrutinGroupes(groupes: ScrutinGroupeVoteDTO[]): ScrutinGrou
 export async function getScrutinGroupesUseCase(
     repository: IScrutinDetailRepository,
     uid: string
-): Promise<Result<ScrutinGroupeVoteDTO[], "ERROR">> {
-    try {
-        const entities = await repository.getScrutinGroupes(uid);
-        return ok(sortScrutinGroupes(mapScrutinGroupeVotesEntitiesToDTOs(entities)));
-    } catch (e) {
-        console.error(e);
-        return err("ERROR");
-    }
+): Promise<Result<ScrutinGroupeVoteDTO[], "DB_ERROR">> {
+    const result = await fromRepository(() => repository.getScrutinGroupes(uid));
+    if (isErr(result)) return result;
+    const entities = result.data;
+
+    return ok(sortScrutinGroupes(mapScrutinGroupeVotesEntitiesToDTOs(entities)));
 }

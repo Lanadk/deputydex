@@ -11,11 +11,20 @@ describe("getLastUpdateUseCase", () => {
         expect(result).toEqual({ success: true, data: date });
     });
 
-    it("returns err('ERROR') when the repository resolves null", async () => {
+    it("returns err('NOT_FOUND') when no import date is recorded (null)", async () => {
         const repository: IDataSetsRepository = { getLastUpdate: jest.fn().mockResolvedValue(null) };
 
         const result = await getLastUpdateUseCase(repository);
 
-        expect(result).toEqual({ success: false, error: "ERROR" });
+        expect(result).toEqual({ success: false, error: "NOT_FOUND" });
+    });
+
+    it("returns err('DB_ERROR') when the repository throws", async () => {
+        jest.spyOn(console, "error").mockImplementation(() => {});
+        const repository: IDataSetsRepository = { getLastUpdate: jest.fn().mockRejectedValue(new Error("DB down")) };
+
+        const result = await getLastUpdateUseCase(repository);
+
+        expect(result).toEqual({ success: false, error: "DB_ERROR" });
     });
 });

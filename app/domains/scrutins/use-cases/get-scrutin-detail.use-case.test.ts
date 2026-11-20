@@ -35,9 +35,10 @@ describe("getScrutinDetailUseCase", () => {
         expect(!isOk(result) && result.error).toBe("NOT_FOUND");
     });
 
-    it("renvoie ERROR quand le repository échoue", async () => {
+    it("renvoie DB_ERROR quand le repository échoue", async () => {
+        jest.spyOn(console, "error").mockImplementation(() => {});
         const result = await getScrutinDetailUseCase(repository({ getScrutin: jest.fn().mockRejectedValue(new Error("boom")) }), "VTX");
-        expect(!isOk(result) && result.error).toBe("ERROR");
+        expect(!isOk(result) && result.error).toBe("DB_ERROR");
     });
 });
 

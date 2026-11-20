@@ -1,4 +1,5 @@
-import { Result, ok, err } from "@/app/_shared/result-pattern/result";
+import { Result, ok, isErr } from "@/app/_shared/result-pattern/result";
+import { fromRepository } from "@/app/_shared/result-pattern/app-error";
 import { IDeputeDossiersRepository } from "@/app/domains/deputes/repositories/IDeputeDossiersRepository";
 import { DeputeDossierAmendementDTO } from "@/app/domains/deputes/dto/depute-dossier-amendement.dto";
 import { DeputeDossierAmendementEntity } from "@/app/domains/deputes/entities/depute-dossier-amendement.entity";
@@ -37,12 +38,10 @@ export async function getDeputeDossierAmendementsUseCase(
     uid: string,
     legislature: number,
     dossierUid: string
-): Promise<Result<DeputeDossierAmendementDTO[], "ERROR">> {
-    try {
-        const entities = await repository.getDeputeDossierAmendements(uid, legislature, dossierUid);
-        return ok(mapDeputeDossierAmendementsEntitiesToDTOs(sortDossierAmendements(entities)));
-    } catch (e) {
-        console.error(e);
-        return err("ERROR");
-    }
+): Promise<Result<DeputeDossierAmendementDTO[], "DB_ERROR">> {
+    const result = await fromRepository(() => repository.getDeputeDossierAmendements(uid, legislature, dossierUid));
+    if (isErr(result)) return result;
+    const entities = result.data;
+
+    return ok(mapDeputeDossierAmendementsEntitiesToDTOs(sortDossierAmendements(entities)));
 }

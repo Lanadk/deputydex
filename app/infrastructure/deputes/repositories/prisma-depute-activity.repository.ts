@@ -20,8 +20,7 @@ export const prismaDeputeActivityRepository: IDeputeActivityRepository = {
                 ORDER BY activity_date ASC
             `;
         } catch (error) {
-            console.error("Error fetching depute activity:", error);
-            throw new Error("Failed to fetch depute activity");
+            throw new Error("Failed to fetch depute activity", { cause: error });
         }
     },
 };

@@ -2,7 +2,8 @@ import "server-only";
 
 import type { FilterBarQuery } from "@/app/_shared/filtering/filter-bar.types";
 import {ExportFormat, ExportResult} from "@/app/_shared/export/export.types";
-import { Result, ok } from "@/app/_shared/result-pattern/result";
+import { Result, ok, isErr } from "@/app/_shared/result-pattern/result";
+import { fromRepository } from "@/app/_shared/result-pattern/app-error";
 import { toCsv, type CsvColumn } from "@/app/_shared/export/csv";
 import { sanitizeFilterBarQuery } from "@/app/_shared/filtering/filter-bar-sanitize";
 
@@ -26,12 +27,14 @@ export async function exportActeursUseCase(
     repository: IActeursRepository,
     rawQuery: FilterBarQuery,
     opts: ExportOpts
-): Promise<Result<ExportResult, never>> {
+): Promise<Result<ExportResult, "DB_ERROR">> {
     const query = sanitizeFilterBarQuery(rawQuery, SANITIZE_OPTIONS);
 
     const maxRows = Math.min(Math.max(1, opts.maxRows ?? 5000), 20000);
 
-    const rows = await repository.findManyForExport(query, maxRows);
+    const result = await fromRepository(() => repository.findManyForExport(query, maxRows));
+    if (isErr(result)) return result;
+    const rows = result.data;
     const dto = mapActeursToDTO(rows as any[]);
 
     if (opts.format === "json") {

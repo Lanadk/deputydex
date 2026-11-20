@@ -14,8 +14,7 @@ export const prismaDataSetsRepository: IDataSetsRepository = {
 
             return last?.createdAt ?? null;
         } catch (error) {
-            console.error("Error fetching datasets lastUpdate:", error);
-            throw new Error("Failed to fetch datasets lastUpdate");
+            throw new Error("Failed to fetch datasets lastUpdate", { cause: error });
         }
     },
 };

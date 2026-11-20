@@ -29,7 +29,7 @@ describe("GET /api/legislatures/current", () => {
         const res = await GET();
 
         expect(res.status).toBe(404);
-        expect(await res.json()).toEqual({ error: "NOT_FOUND" });
+        expect(await res.json()).toEqual({ error: "NOT_FOUND", message: "Aucune législature en cours" });
     });
 
     it("returns 500 when the repository throws", async () => {

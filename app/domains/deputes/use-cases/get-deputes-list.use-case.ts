@@ -1,4 +1,5 @@
-import { Result, ok, err } from "@/app/_shared/result-pattern/result";
+import { Result, ok, isErr } from "@/app/_shared/result-pattern/result";
+import { fromRepository } from "@/app/_shared/result-pattern/app-error";
 import { IDeputeListRepository } from "@/app/domains/deputes/repositories/IDeputeListRepository";
 import { DeputeListItemDTO } from "@/app/domains/deputes/dto/depute-list-item.dto";
 import { mapDeputeListItemEntityToDTO } from "@/app/domains/deputes/mappers/depute-list-item.mapper";
@@ -6,11 +7,10 @@ import { mapDeputeListItemEntityToDTO } from "@/app/domains/deputes/mappers/depu
 export async function getDeputesListUseCase(
     repository: IDeputeListRepository,
     legislature: number
-): Promise<Result<DeputeListItemDTO[], "ERROR">> {
-    try {
-        const entities = await repository.getDeputesList(legislature);
-        return ok(entities.map(mapDeputeListItemEntityToDTO));
-    } catch {
-        return err("ERROR");
-    }
+): Promise<Result<DeputeListItemDTO[], "DB_ERROR">> {
+    const result = await fromRepository(() => repository.getDeputesList(legislature));
+    if (isErr(result)) return result;
+    const entities = result.data;
+
+    return ok(entities.map(mapDeputeListItemEntityToDTO));
 }

@@ -23,15 +23,16 @@ describe("GET /api/datasets/lastupdate", () => {
         expect(await res.json()).toBe("2026-08-10T03:00:00.000Z");
     });
 
-    it("returns 500 when the repository resolves null", async () => {
+    it("returns 404 when no import date is recorded yet", async () => {
         getLastUpdate.mockResolvedValue(null);
 
         const res = await GET();
 
-        expect(res.status).toBe(500);
+        expect(res.status).toBe(404);
     });
 
     it("returns 500 when the repository throws", async () => {
+        jest.spyOn(console, "error").mockImplementation(() => {});
         getLastUpdate.mockRejectedValue(new Error("DB down"));
 
         const res = await GET();

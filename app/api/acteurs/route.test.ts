@@ -47,9 +47,10 @@ describe("POST /api/acteurs", () => {
         expect(res.status).toBe(500);
     });
 
-    it("returns 500 when the request body is not valid JSON", async () => {
+    it("returns 400 when the request body is not valid JSON", async () => {
         const res = await POST(new Request("http://localhost/api/acteurs", { method: "POST", body: "not-json" }));
 
-        expect(res.status).toBe(500);
+        expect(res.status).toBe(400);
+        expect(await res.json()).toEqual({ error: "INVALID_INPUT", message: "Corps JSON invalide" });
     });
 });
