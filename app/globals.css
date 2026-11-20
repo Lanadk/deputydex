@@ -443,7 +443,12 @@
     --p1-red-1: #fde8e7;
     --p1-red-2: #f6b7b3;
     --p1-red-3: #c85048;
-    --p1-red-4: #a82028;
+    /* red-4 / green-4 : paire distinguable par les daltoniens (protanopie,
+       deutéranopie, tritanopie) — l'écart passe par la luminosité (bordeaux
+       très foncé vs vert-bleu), pas seulement par la teinte. Contraste texte
+       >= 4.5 sur blanc et sur ligne zébrée. Ancienne paire #a82028 / #1f7a45 :
+       quasi identique pour un deutéranope. */
+    --p1-red-4: #800002;
 
     --p1-blue-1: #e8f4ff;
     --p1-blue-2: #bfe3ff;
@@ -453,7 +458,7 @@
     --p1-green-1: #e6f6ec;
     --p1-green-2: #a7dfb9;
     --p1-green-3: #3fa865;
-    --p1-green-4: #1f7a45;
+    --p1-green-4: #157568;
 
     --p1-white-1: #ffffff;
     --p1-white-2: #f7f9fc;
