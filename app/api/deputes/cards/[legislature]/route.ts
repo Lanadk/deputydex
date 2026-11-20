@@ -1,23 +1,22 @@
-import { NextResponse } from "next/server";
+import { isErr } from "@/app/_shared/result-pattern/result";
+import { resultToResponse } from "@/app/_shared/result-pattern/result-to-response";
+import { cachedResult } from "@/app/_shared/cache/cached-response";
+import { parseLegislature } from "@/app/domains/legislatures/parse-legislature";
 import { getDeputesCardsUseCase } from "@/app/domains/deputes/use-cases/get-deputes-cards.use-case";
 import { prismaDeputesCardsRepository } from "@/app/infrastructure/deputes/repositories/prisma-deputes-cards.repository";
-import { isOk } from "@/app/_shared/result-pattern/result";
-import { cachedJson, cachedRead } from "@/app/_shared/cache/cached-response";
 
 export async function GET(
     _req: Request,
     { params }: { params: Promise<{ legislature: string }> }
 ): Promise<Response> {
     const { legislature } = await params;
-    try {
-        const result = await cachedRead(
-            () => getDeputesCardsUseCase(prismaDeputesCardsRepository, Number(legislature)),
-            ["depute-cards", legislature]
-        );
-        if (isOk(result)) return cachedJson(result.data);
-        return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
-    } catch (e) {
-        console.error(e);
-        return NextResponse.json({ error: "Failed to get deputes cards" }, { status: 500 });
-    }
+    const parsed = parseLegislature(legislature);
+    if (isErr(parsed)) return resultToResponse(parsed);
+
+    const result = await cachedResult(
+        () => getDeputesCardsUseCase(prismaDeputesCardsRepository, parsed.data),
+        ["depute-cards", legislature]
+    );
+
+    return resultToResponse(result);
 }
