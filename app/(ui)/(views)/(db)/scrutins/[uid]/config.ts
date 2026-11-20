@@ -48,7 +48,17 @@ export const SCRUTIN_SECTIONS: PageSection[] = [
             };
             return { "scrutin-hemicycle": data } as Record<string, BlockDataWrapper>;
         },
-        blocks: [{ type: "hemicycle", colSpan: 4, config: { id: "scrutin-hemicycle" } }],
+        blocks: [
+            {
+                type: "hemicycle",
+                colSpan: 4,
+                config: {
+                    id: "scrutin-hemicycle",
+                    title: "Qui a voté quoi ?",
+                    subtitle: "Chaque député à son siège, coloré selon son vote",
+                },
+            },
+        ],
     },
 
     // ── Résultat ────────────────────────────────────────────────────────────
