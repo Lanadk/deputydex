@@ -94,9 +94,11 @@ export default function RootLayout({
                 <MuiProvider>
                     <SidebarProvider>
                         <LegislatureProvider>
+                        {/* Premier élément focusable : saute la sidebar (seul landmark main = celui-ci) */}
+                        <a href="#contenu" className="skip-link">Aller au contenu</a>
                         <div className="flex min-h-screen">
                             <AppSidebar />
-                            <main className="flex-1 pt-14 lg:pt-0">
+                            <main id="contenu" tabIndex={-1} className="flex-1 pt-14 lg:pt-0">
                                 {children}
                             </main>
                             <ThemeSwitcherLib/>

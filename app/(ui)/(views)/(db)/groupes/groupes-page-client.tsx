@@ -51,7 +51,7 @@ export default function GroupesPageClient() {
                     />
                 </div>
 
-                <main className="flex flex-col gap-6 w-full mx-auto">
+                <div className="flex flex-col gap-6 w-full mx-auto">
                     <div className="relative z-30 grid w-full grid-cols-1 gap-2 lg:grid-cols-2 items-start">
                         <GroupIntro/>
                         <GroupResume
@@ -87,7 +87,7 @@ export default function GroupesPageClient() {
                             );
                         })}
                     </div>
-                </main>
+                </div>
             </BaseLayout>
         </>
     );

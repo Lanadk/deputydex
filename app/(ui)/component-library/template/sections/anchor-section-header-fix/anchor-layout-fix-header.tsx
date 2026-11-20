@@ -50,14 +50,14 @@ export const AnchorLayoutFixHeader: React.FC<AnchorLayoutFixHeaderProps> = ({
                         </aside>
                     )}
 
-                    <main className="flex-1 min-w-0 flex flex-col">
+                    <div className="flex-1 min-w-0 flex flex-col">
                         {fixedBar && (
                             <div className="border-b border-main py-3 mb-6">
                                 {fixedBar}
                             </div>
                         )}
                         {children}
-                    </main>
+                    </div>
                 </div>
             </BaseLayout>
         </AnchorSectionProvider>

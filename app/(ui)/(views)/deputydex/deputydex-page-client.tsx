@@ -112,7 +112,7 @@ export default function DeputydexPageClient() {
                     <SpanLib className="text-subtitle-accent">Aucun résultat</SpanLib>
                 </div>
             ) : (
-                <main ref={parentRef} className="w-full">
+                <div ref={parentRef} className="w-full">
                     <div
                         style={{
                             height: rowVirtualizer.getTotalSize(),
@@ -154,7 +154,7 @@ export default function DeputydexPageClient() {
                             );
                         })}
                     </div>
-                </main>
+                </div>
             )}
         </AnchorLayoutFixHeader>
     );

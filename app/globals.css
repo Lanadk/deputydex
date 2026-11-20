@@ -760,6 +760,35 @@
 @layer components {
 
     /* -------------------------------------------------------
+       Lien d'évitement « Aller au contenu » (layout racine)
+       Premier élément focusable de la page, visible au focus seulement.
+       ------------------------------------------------------- */
+    .skip-link {
+        position: fixed;
+        top: 8px;
+        left: 8px;
+        z-index: 1000;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        background-color: var(--btn-primary-bg);
+        color: var(--btn-primary-text);
+        transform: translateY(-200%);
+    }
+
+    .skip-link:focus-visible {
+        transform: none;
+        outline: 2px solid var(--toggle-focus);
+        outline-offset: 2px;
+    }
+
+    /* Cible du lien d'évitement : focusable par script (tabIndex -1), sans contour */
+    #contenu:focus {
+        outline: none;
+    }
+
+    /* -------------------------------------------------------
        SideBar component
        ------------------------------------------------------- */
     .sidebar-link {

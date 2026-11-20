@@ -155,7 +155,7 @@ export default function ScrutinsPageClient() {
                 />
             </div>
 
-            <main className="flex flex-col gap-4 w-full">
+            <div className="flex flex-col gap-4 w-full">
                 <div className="grid grid-cols-1 gap-3 sm:grid-cols-2 lg:grid-cols-5 items-end">
                     <div className="sm:col-span-2 lg:col-span-1">
                         <InputLib label="Recherche" placeholder="Rechercher dans le titre" value={search} onChange={setSearch} />
@@ -187,7 +187,7 @@ export default function ScrutinsPageClient() {
                     onPrevAction={() => setPage((p) => Math.max(1, p - 1))}
                     onNextAction={() => setPage((p) => Math.min(pageCount, p + 1))}
                 />
-            </main>
+            </div>
         </BaseLayout>
     );
 }

@@ -14,9 +14,9 @@ export const metadata: Metadata = {
 export default function DonationPage() {
     return (
         <div>
-            <main>
+            <div>
                 <p></p>
-            </main>
+            </div>
         </div>
     );
 }
