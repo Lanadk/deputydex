@@ -93,6 +93,7 @@ export function BlockTableRenderer({config, data, loading}: BlockTableRendererPr
                 getRowKeyAction={config.getRowKey}
                 loading={loading}
                 emptyLabel="Aucun résultat"
+                striped={config.striped}
             />
 
             {config.pagination && (

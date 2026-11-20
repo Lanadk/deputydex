@@ -64,6 +64,7 @@ const SCRUTIN_TABLE_REGISTRY: (TableConfig<ScrutinGroupeVoteDTO> | TableConfig<S
             },
         ],
         getRowKey: (r) => r.groupeCode,
+        striped: true,
     } satisfies TableConfig<ScrutinGroupeVoteDTO>,
     {
         id: "scrutin-votes-table",
@@ -113,6 +114,7 @@ const SCRUTIN_TABLE_REGISTRY: (TableConfig<ScrutinGroupeVoteDTO> | TableConfig<S
             },
         ],
         getRowKey: (r) => r.deputeUid,
+        striped: true,
         pagination: { pageSize: 20 },
         filter: {
             sortOptions: [
