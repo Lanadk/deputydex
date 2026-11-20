@@ -36,14 +36,14 @@ export const SCRUTIN_SECTIONS: PageSection[] = [
                 seats: sieges.map((s) => ({
                     id: s.deputeUid,
                     key: s.position,
-                    color: hemicycleSeatColor(s.position) ?? "#d1d5db",
+                    color: hemicycleSeatColor(s.position) ?? "var(--vote-absent)",
                     label: s.nomComplet,
                     sublabel: [s.groupeCode ? groupes[s.groupeCode] ?? s.groupeCode : null, s.positionLabel].filter(Boolean).join(" · "),
                     href: `/deputes/${s.deputeUid}`,
                 })),
                 legend: HEMICYCLE_LEGENDE
                     .filter(({ key }) => key !== "non_votant" || totaux.non_votant > 0)
-                    .map(({ key, label }) => ({ key, label, color: hemicycleSeatColor(key) ?? "#d1d5db", count: totaux[key] })),
+                    .map(({ key, label }) => ({ key, label, color: hemicycleSeatColor(key) ?? "var(--vote-absent)", count: totaux[key] })),
                 ariaLabel: `Hémicycle du scrutin : ${totaux.pour} pour, ${totaux.contre} contre, ${totaux.abstention} abstentions, ${totaux.absent} absents`,
             };
             return { "scrutin-hemicycle": data } as Record<string, BlockDataWrapper>;

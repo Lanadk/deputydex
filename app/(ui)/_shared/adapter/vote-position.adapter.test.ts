@@ -1,13 +1,15 @@
 import { hemicycleSeatColor, votePositionColor } from "@/app/(ui)/_shared/adapter/vote-position.adapter";
 
 describe("votePositionColor (tableaux, barres, textes)", () => {
-    it("colore « pour » en vert et « contre » en rouge", () => {
-        expect(votePositionColor("pour")).toBe("#22c55e");
-        expect(votePositionColor("contre")).toBe("#ef4444");
+    it("utilise les tokens de vote du design system", () => {
+        expect(votePositionColor("pour")).toBe("var(--vote-pour)");
+        expect(votePositionColor("contre")).toBe("var(--vote-contre)");
+        expect(votePositionColor("abstention")).toBe("var(--vote-abstention)");
     });
 
-    it("colore les non-votants, stockés « non_votant » en base", () => {
-        expect(votePositionColor("non_votant")).toBe("#64748b");
+    it("colore les non-votants, stockés « non_votant » en base, et les absents", () => {
+        expect(votePositionColor("non_votant")).toBe("var(--vote-non-votant)");
+        expect(votePositionColor("absent")).toBe("var(--vote-absent)");
     });
 
     it("ne renvoie rien sans position ou pour une position inconnue", () => {
@@ -17,9 +19,14 @@ describe("votePositionColor (tableaux, barres, textes)", () => {
 });
 
 describe("hemicycleSeatColor (sièges de l'hémicycle)", () => {
-    it("colore « pour » en bleu, pour se distinguer sur le plan 3D", () => {
-        expect(hemicycleSeatColor("pour")).toBe("#2563eb");
-        expect(hemicycleSeatColor("contre")).toBe("#dc2626");
-        expect(hemicycleSeatColor("absent")).toBe("#d1d5db");
+    it("utilise les tokens propres à l'hémicycle pour les positions exprimées", () => {
+        expect(hemicycleSeatColor("pour")).toBe("var(--vote-hemicycle-pour)");
+        expect(hemicycleSeatColor("contre")).toBe("var(--vote-hemicycle-contre)");
+        expect(hemicycleSeatColor("abstention")).toBe("var(--vote-hemicycle-abstention)");
+    });
+
+    it("partage les gris des tableaux pour les non-votants et les absents", () => {
+        expect(hemicycleSeatColor("absent")).toBe("var(--vote-absent)");
+        expect(hemicycleSeatColor("non_votant")).toBe("var(--vote-non-votant)");
     });
 });
