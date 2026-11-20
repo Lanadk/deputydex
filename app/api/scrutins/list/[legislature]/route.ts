@@ -1,9 +1,10 @@
-import { NextResponse } from "next/server";
+import { isErr } from "@/app/_shared/result-pattern/result";
+import { resultToResponse } from "@/app/_shared/result-pattern/result-to-response";
+import { cachedResult } from "@/app/_shared/cache/cached-response";
+import { parseLegislature } from "@/app/domains/legislatures/parse-legislature";
 import { getScrutinsListUseCase } from "@/app/domains/scrutins/use-cases/get-scrutins-list.use-case";
 import { parseScrutinListFilters } from "@/app/domains/scrutins/filters/scrutin-list.filters";
 import { prismaScrutinListRepository } from "@/app/infrastructure/scrutins/repositories/prisma-scrutin-list.repository";
-import { isOk } from "@/app/_shared/result-pattern/result";
-import { cachedJson, cachedRead } from "@/app/_shared/cache/cached-response";
 
 /**
  * GET /api/scrutins/list/[legislature]?portee=&q=&resultat=&type=&objet=&page=&pageSize=
@@ -14,8 +15,11 @@ export async function GET(
     { params }: { params: Promise<{ legislature: string }> }
 ): Promise<Response> {
     const { legislature } = await params;
+    const parsed = parseLegislature(legislature);
+    if (isErr(parsed)) return resultToResponse(parsed);
+
     const search = new URL(req.url).searchParams;
-    const filters = parseScrutinListFilters(Number(legislature), {
+    const filters = parseScrutinListFilters(parsed.data, {
         portee: search.get("portee"),
         q: search.get("q"),
         resultat: search.get("resultat"),
@@ -25,15 +29,10 @@ export async function GET(
         pageSize: search.get("pageSize"),
     });
 
-    try {
-        const result = await cachedRead(
-            () => getScrutinsListUseCase(prismaScrutinListRepository, filters),
-            ["scrutins-list", JSON.stringify(filters)]
-        );
-        if (isOk(result)) return cachedJson(result.data);
-        return NextResponse.json({ error: "Erreur serveur" }, { status: 500 });
-    } catch (e) {
-        console.error(e);
-        return NextResponse.json({ error: "Failed to get scrutins" }, { status: 500 });
-    }
+    const result = await cachedResult(
+        () => getScrutinsListUseCase(prismaScrutinListRepository, filters),
+        ["scrutins-list", JSON.stringify(filters)]
+    );
+
+    return resultToResponse(result);
 }
