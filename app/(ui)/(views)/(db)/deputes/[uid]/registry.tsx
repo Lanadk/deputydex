@@ -10,18 +10,7 @@ import { DeputeRecentVoteDTO } from "@/app/domains/deputes/dto/depute-recent-vot
 import { ExpandableCardListConfig } from "@/app/(ui)/component-library/template/sections/block-section/expandable-card-list-config.types";
 import { DeputeDossierContributionDTO } from "@/app/domains/deputes/dto/depute-dossier-contribution.dto";
 import { capitalizeFirst } from "@/app/_shared/utils/string";
-
-const VOTE_POSITION_COLORS: Record<string, string> = {
-    pour: "#22c55e",
-    contre: "#ef4444",
-    abstention: "#f59e0b",
-    nonvotant: "#94a3b8",
-};
-
-function votePositionColor(position: string | null): string | undefined {
-    if (!position) return undefined;
-    return VOTE_POSITION_COLORS[position.toLowerCase()];
-}
+import { votePositionColor } from "@/app/(ui)/_shared/adapter/vote-position.adapter";
 
 const TYPE_ORGANE_LABELS: Record<string, string> = {
     ASSEMBLEE: "Assemblée nationale",

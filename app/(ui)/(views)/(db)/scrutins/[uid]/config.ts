@@ -8,7 +8,7 @@ import { ScrutinDeputeVoteDTO } from "@/app/domains/scrutins/dto/scrutin-depute-
 import { ScrutinSiegePosition } from "@/app/domains/scrutins/dto/scrutin-hemicycle.dto";
 import { ScrutinDetailDTO } from "@/app/domains/scrutins/dto/scrutin-detail.dto";
 import { HemicycleDataWrapper } from "@/app/(ui)/component-library/template/sections/block-section/hemicycle-config.types";
-import { votePositionColor } from "@/app/(ui)/_shared/adapter/vote-position.adapter";
+import { hemicycleSeatColor, votePositionColor } from "@/app/(ui)/_shared/adapter/vote-position.adapter";
 
 const kpi = (label: string, value: number | null) => ({ data: { label, value: value ?? "—" } });
 
@@ -36,19 +36,29 @@ export const SCRUTIN_SECTIONS: PageSection[] = [
                 seats: sieges.map((s) => ({
                     id: s.deputeUid,
                     key: s.position,
-                    color: votePositionColor(s.position) ?? "#d1d5db",
+                    color: hemicycleSeatColor(s.position) ?? "var(--vote-absent)",
                     label: s.nomComplet,
                     sublabel: [s.groupeCode ? groupes[s.groupeCode] ?? s.groupeCode : null, s.positionLabel].filter(Boolean).join(" · "),
                     href: `/deputes/${s.deputeUid}`,
                 })),
                 legend: HEMICYCLE_LEGENDE
                     .filter(({ key }) => key !== "non_votant" || totaux.non_votant > 0)
-                    .map(({ key, label }) => ({ key, label, color: votePositionColor(key) ?? "#d1d5db", count: totaux[key] })),
+                    .map(({ key, label }) => ({ key, label, color: hemicycleSeatColor(key) ?? "var(--vote-absent)", count: totaux[key] })),
                 ariaLabel: `Hémicycle du scrutin : ${totaux.pour} pour, ${totaux.contre} contre, ${totaux.abstention} abstentions, ${totaux.absent} absents`,
             };
             return { "scrutin-hemicycle": data } as Record<string, BlockDataWrapper>;
         },
-        blocks: [{ type: "hemicycle", colSpan: 4, config: { id: "scrutin-hemicycle" } }],
+        blocks: [
+            {
+                type: "hemicycle",
+                colSpan: 4,
+                config: {
+                    id: "scrutin-hemicycle",
+                    title: "Répartition des votes dans l'hémicycle",
+                    subtitle: "Chaque député à son siège, coloré selon son vote",
+                },
+            },
+        ],
     },
 
     // ── Résultat ────────────────────────────────────────────────────────────

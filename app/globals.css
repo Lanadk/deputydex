@@ -26,6 +26,12 @@
     --p1-blue-3: #70b8f0; /* base     */
     --p1-blue-4: #2b5aa6; /* deep     */
 
+    /* Greens — success scale */
+    --p1-green-1: #e6f6ec; /* lightest */
+    --p1-green-2: #a7dfb9; /* light    */
+    --p1-green-3: #3fa865; /* base     */
+    --p1-green-4: #1f7a45; /* deep     */
+
     /* Whites — surface / paper scale */
     --p1-white-1: #ffffff; /* pure           */
     --p1-white-2: #f7f9fc; /* neutral paper  */
@@ -63,12 +69,27 @@
     --chart-8: var(--p2-5);
 
     /* -------------------------------------------------------
+       Votes — positions de vote (thème clair)
+       Tableaux, barres, textes : --vote-*. Hémicycle (plan 3D) :
+       --vote-hemicycle-*, alignés sur les couleurs de graphique.
+       ------------------------------------------------------- */
+    --vote-pour: var(--p1-green-3);
+    --vote-contre: var(--p1-red-3);
+    --vote-abstention: var(--p2-5);
+    --vote-non-votant: var(--p1-steel-3);
+    --vote-absent: var(--p1-steel-1);
+    --vote-hemicycle-pour: var(--chart-1);
+    --vote-hemicycle-contre: var(--chart-2);
+    --vote-hemicycle-abstention: var(--chart-3);
+
+    /* -------------------------------------------------------
        UI ALIASES — P1 → semantic meaning
        Maps palette shades to functional roles.
        Use these in semantic tokens, never raw P1 vars.
        ------------------------------------------------------- */
 
     --ui-danger: var(--p1-red-4);
+    --ui-success: var(--p1-green-4);
     --ui-warm: var(--p1-red-3);
     --ui-red-light: var(--p1-red-2);
 
@@ -244,6 +265,11 @@
     --p1-blue-3: #70b8f0;
     --p1-blue-4: #2b5aa6;
 
+    --p1-green-1: #e6f6ec;
+    --p1-green-2: #a7dfb9;
+    --p1-green-3: #3fa865;
+    --p1-green-4: #1f7a45;
+
     --p1-white-1: #ffffff;
     --p1-white-2: #f7f9fc;
     --p1-white-3: #f0f0f8;
@@ -274,8 +300,23 @@
     --chart-7: var(--p1-red-2);
     --chart-8: var(--p2-5);
 
+    /* -------------------------------------------------------
+       Votes — positions de vote (thème sombre)
+       Tableaux, barres, textes : --vote-*. Hémicycle (plan 3D) :
+       --vote-hemicycle-*, alignés sur les couleurs de graphique.
+       ------------------------------------------------------- */
+    --vote-pour: var(--p1-green-3);
+    --vote-contre: var(--p1-red-3);
+    --vote-abstention: var(--p2-4);
+    --vote-non-votant: var(--p1-steel-2);
+    --vote-absent: var(--p1-steel-3);
+    --vote-hemicycle-pour: var(--chart-1);
+    --vote-hemicycle-contre: var(--chart-2);
+    --vote-hemicycle-abstention: var(--chart-3);
+
     /* UI aliases */
     --ui-danger: var(--p1-red-4);
+    --ui-success: var(--p1-green-4);
     --ui-warm: var(--p1-red-3);
     --ui-red-light: var(--p1-red-2);
 
@@ -409,6 +450,11 @@
     --p1-blue-3: #70b8f0;
     --p1-blue-4: #2b5aa6;
 
+    --p1-green-1: #e6f6ec;
+    --p1-green-2: #a7dfb9;
+    --p1-green-3: #3fa865;
+    --p1-green-4: #1f7a45;
+
     --p1-white-1: #ffffff;
     --p1-white-2: #f7f9fc;
     --p1-white-3: #f0f0f8;
@@ -439,8 +485,23 @@
     --chart-7: var(--p2-3);
     --chart-8: var(--p2-5);
 
+    /* -------------------------------------------------------
+       Votes — positions de vote (thème accessible)
+       Tableaux, barres, textes : --vote-*. Hémicycle (plan 3D) :
+       --vote-hemicycle-*, alignés sur les couleurs de graphique.
+       ------------------------------------------------------- */
+    --vote-pour: var(--p1-green-4);
+    --vote-contre: var(--p1-red-4);
+    --vote-abstention: var(--p2-5);
+    --vote-non-votant: var(--p1-steel-4);
+    --vote-absent: var(--p1-steel-2);
+    --vote-hemicycle-pour: var(--chart-1);
+    --vote-hemicycle-contre: var(--chart-2);
+    --vote-hemicycle-abstention: var(--chart-3);
+
     /* UI aliases — contrast-first remapping */
     --ui-danger: var(--p1-red-4);
+    --ui-success: var(--p1-green-4);
     --ui-warm: var(--p1-red-3);
     --ui-red-light: var(--p1-red-2);
 
@@ -1572,7 +1633,7 @@
        ------------------------------------------------------- */
     .expandable-card-lib {
         /* Même vert que la position "Pour" des votes (registry député) */
-        --expandable-card-success: #22c55e;
+        --expandable-card-success: var(--ui-success);
         display: flex;
         flex-direction: column;
         gap: 10px;
