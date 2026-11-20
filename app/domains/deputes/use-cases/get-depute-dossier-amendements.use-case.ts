@@ -41,7 +41,8 @@ export async function getDeputeDossierAmendementsUseCase(
     try {
         const entities = await repository.getDeputeDossierAmendements(uid, legislature, dossierUid);
         return ok(mapDeputeDossierAmendementsEntitiesToDTOs(sortDossierAmendements(entities)));
-    } catch {
+    } catch (e) {
+        console.error(e);
         return err("ERROR");
     }
 }

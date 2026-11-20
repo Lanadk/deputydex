@@ -9,10 +9,11 @@ export function mapDeputeRecentVoteEntityToDTO(entity: DeputeRecentVoteEntity, l
         date: entity.date_scrutin?.toISOString() ?? null,
         position: entity.position,
         groupePosition: entity.groupe_position,
+        // Ne pas voter (`non_votant` en base) n'est pas un vote rebelle.
         isRebel:
             entity.groupe_position !== null &&
             entity.position !== entity.groupe_position &&
-            entity.position !== 'nonVotant',
+            entity.position !== "non_votant",
         lienAN: entity.scrutin_numero ? anScrutinUrl(legislature, entity.scrutin_numero) : null,
     };
 }

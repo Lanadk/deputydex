@@ -27,4 +27,27 @@ describe("mapDeputeRecentVoteEntityToDTO", () => {
 
         expect(dto.lienAN).toBeNull();
     });
+
+    describe("isRebel", () => {
+        const vote = (position: string, groupe_position: string | null) =>
+            mapDeputeRecentVoteEntityToDTO({
+                scrutin_uid: "VTANR5L17V3878", scrutin_numero: "3878", titre: null, date_scrutin: null, position, groupe_position,
+            }, 17);
+
+        it("is false when the deputy follows the group", () => {
+            expect(vote("pour", "pour").isRebel).toBe(false);
+        });
+
+        it("is true for an abstention when the group voted", () => {
+            expect(vote("abstention", "contre").isRebel).toBe(true);
+        });
+
+        it("is false for a deputy who did not vote — not voting is not a rebel vote", () => {
+            expect(vote("non_votant", "pour").isRebel).toBe(false);
+        });
+
+        it("is false when the group has no majority position", () => {
+            expect(vote("contre", null).isRebel).toBe(false);
+        });
+    });
 });

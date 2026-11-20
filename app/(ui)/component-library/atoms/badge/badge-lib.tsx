@@ -24,7 +24,8 @@ export const BadgeLib: React.FC<BadgeLibProps> = ({
                                                       variant = '',
                                                       style,
                                                   }) => {
-    const isCustom = !!style && !!variant;
+    // Badge personnalisé : couleurs passées par `style`, sans classe de variante.
+    const isCustom = !!style;
 
     return (
         <span
