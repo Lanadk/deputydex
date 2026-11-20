@@ -63,7 +63,25 @@ describe("GET /api/statistics/[domain]/[statId]", () => {
         expect(res.status).toBe(404);
     });
 
+    it("returns 400 when 'filters' is not valid JSON", async () => {
+        const res = await call("acteurs", "age-distribution", "?filters=pas-du-json");
+
+        expect(res.status).toBe(400);
+        expect(getAgeDistribution).not.toHaveBeenCalled();
+    });
+
+    it("returns 400 when a parameter required by the stat is missing (professions without legislature)", async () => {
+        const res = await call("acteurs", "professions");
+
+        expect(res.status).toBe(400);
+        expect(await res.json()).toEqual({
+            error: "INVALID_INPUT",
+            message: "Paramètre requis absent pour la stat acteurs/professions",
+        });
+    });
+
     it("returns 500 when the repository throws", async () => {
+        jest.spyOn(console, "error").mockImplementation(() => {});
         getAgeDistribution.mockRejectedValue(new Error("DB down"));
 
         const res = await call("acteurs", "age-distribution");
