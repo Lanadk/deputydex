@@ -13,15 +13,18 @@ import { SCRUTIN_SECTIONS } from "@/app/(ui)/(views)/(db)/scrutins/[uid]/config"
 
 // Un scrutin appartient à une seule législature : la page ne dépend pas du
 // sélecteur de législature global, seulement de l'uid du scrutin.
-export default function ScrutinPageClient({ uid }: { uid: string }) {
+export default function ScrutinPageClient({ uid, initialScrutin }: { uid: string; initialScrutin: ScrutinDetailDTO | null }) {
     const [readyCount, setReadyCount] = useState(0);
-    const [scrutin, setScrutin] = useState<ScrutinDetailDTO>();
+    const [scrutin, setScrutin] = useState<ScrutinDetailDTO | null>(initialScrutin);
 
-    const params = useMemo(() => ({ uid }), [uid]);
+    // Le scrutin lu par la page serveur est passé aux sections (Résultat) : pas de second appel.
+    const params = useMemo(() => ({ uid, scrutin: initialScrutin }), [uid, initialScrutin]);
 
+    // Repli : la page serveur n'a pas pu le lire (erreur), le client le charge lui-même.
     useEffect(() => {
+        if (initialScrutin) return;
         scrutinsGateway.getScrutin(uid).then(setScrutin).catch(console.error);
-    }, [uid]);
+    }, [uid, initialScrutin]);
 
     const sectionsToAwait = useMemo(() => SCRUTIN_SECTIONS.filter((s) => s.gatewayFn && !s.lazy), []);
     const allReady = readyCount >= sectionsToAwait.length;

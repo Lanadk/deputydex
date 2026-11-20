@@ -4,6 +4,7 @@ export type ScrutinListItemEntity = {
     date_scrutin: Date | null;
     titre: string | null;
     type_scrutin_code: string | null;
+    type_scrutin_libelle: string | null;
     resultat_code: string | null;
     /** Objet déduit du titre ("ensemble", "article", "amendement", "motion", "autre") */
     objet: string;

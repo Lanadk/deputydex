@@ -3,15 +3,14 @@ import { BadgeLib } from "@/app/(ui)/component-library/atoms/badge/badge-lib";
 import { ScrutinDetailDTO } from "@/app/domains/scrutins/dto/scrutin-detail.dto";
 import { formatDateOnlyFr } from "@/app/_shared/utils/date";
 import { capitalizeFirst } from "@/app/_shared/utils/string";
-
-const RESULTAT_COLORS = { adopte: "#16a34a", rejete: "#dc2626" };
+import { scrutinResultatColor } from "@/app/(ui)/_shared/adapter/scrutin-resultat.adapter";
 
 export type ScrutinHeaderProps = {
     scrutin: ScrutinDetailDTO;
 };
 
 export const ScrutinHeader: React.FC<ScrutinHeaderProps> = ({ scrutin }) => {
-    const resultatColor = scrutin.resultat.isAdopte ? RESULTAT_COLORS.adopte : RESULTAT_COLORS.rejete;
+    const resultatColor = scrutinResultatColor(scrutin.resultat.isAdopte);
     const date = formatDateOnlyFr(scrutin.date);
 
     return (

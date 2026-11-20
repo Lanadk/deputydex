@@ -29,23 +29,28 @@ export function buildScrutinHemicycle(entities: ScrutinSiegeEntity[]): ScrutinHe
         if (prefere) parPlace.set(entity.place, entity);
     }
 
-    const sieges: ScrutinSiegeDTO[] = [...parPlace.values()]
-        .sort((a, b) => b.place - a.place)
-        .map((e) => {
-            const position = siegePosition(e.position);
-            return {
-                place: e.place,
-                deputeUid: e.depute_uid,
-                nomComplet: [e.prenom, e.nom].filter(Boolean).join(" ") || e.depute_uid,
-                groupeCode: e.groupe_code,
-                groupeLabel: e.groupe_label ?? e.groupe_code,
-                position,
-                positionLabel: position === "absent" ? "Absent" : votePositionLabel(position),
-            };
-        });
+    const retenus = [...parPlace.values()].sort((a, b) => b.place - a.place);
+
+    const sieges: ScrutinSiegeDTO[] = retenus.map((e) => {
+        const position = siegePosition(e.position);
+        return {
+            place: e.place,
+            deputeUid: e.depute_uid,
+            nomComplet: [e.prenom, e.nom].filter(Boolean).join(" ") || e.depute_uid,
+            groupeCode: e.groupe_code,
+            position,
+            positionLabel: position === "absent" ? "Absent" : votePositionLabel(position),
+        };
+    });
+
+    // Libellés des groupes envoyés une seule fois (et non sur chacun des ~577 sièges).
+    const groupes: Record<string, string> = {};
+    for (const e of retenus) {
+        if (e.groupe_code && !groupes[e.groupe_code]) groupes[e.groupe_code] = e.groupe_label ?? e.groupe_code;
+    }
 
     const totaux = Object.fromEntries(POSITIONS.map((p) => [p, 0])) as Record<ScrutinSiegePosition, number>;
     for (const siege of sieges) totaux[siege.position]++;
 
-    return { sieges, totaux };
+    return { sieges, groupes, totaux };
 }

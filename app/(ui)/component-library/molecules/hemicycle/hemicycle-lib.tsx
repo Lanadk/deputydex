@@ -1,7 +1,6 @@
 "use client";
 
 import React, { useMemo, useState } from "react";
-import { useRouter } from "next/navigation";
 
 /*
  * Plan d'hémicycle PROVISOIRE (SVG simple), en attendant celui de la branche
@@ -77,7 +76,6 @@ function seatRadius(total: number): number {
 }
 
 export const HemicycleLib: React.FC<HemicycleLibProps> = ({ seats, legend = [], ariaLabel }) => {
-    const router = useRouter();
     const [hovered, setHovered] = useState<number | null>(null);
     const [highlight, setHighlight] = useState<string | null>(null);
 
@@ -94,7 +92,7 @@ export const HemicycleLib: React.FC<HemicycleLibProps> = ({ seats, legend = [], 
                         const p = points[i];
                         if (!p) return null;
                         const dimmed = highlight !== null && seat.key !== highlight;
-                        return (
+                        const circle = (
                             <circle
                                 key={seat.id}
                                 cx={p.x}
@@ -104,12 +102,19 @@ export const HemicycleLib: React.FC<HemicycleLibProps> = ({ seats, legend = [], 
                                 opacity={dimmed ? 0.15 : 1}
                                 stroke={hovered === i ? "currentColor" : "none"}
                                 strokeWidth={2}
-                                style={{ cursor: seat.href ? "pointer" : "default", transition: "opacity .2s, r .15s" }}
+                                style={{ transition: "opacity .2s, r .15s" }}
                                 onMouseEnter={() => setHovered(i)}
                                 onMouseLeave={() => setHovered((h) => (h === i ? null : h))}
-                                onClick={() => seat.href && router.push(seat.href)}
                             />
                         );
+                        // Lien natif, comme les autres composants de la librairie. Hors tabulation :
+                        // des centaines de sièges seraient autant d'arrêts clavier, l'alternative
+                        // accessible étant fournie par l'appelant (ex. liste nominative).
+                        return seat.href ? (
+                            <a key={seat.id} href={seat.href} tabIndex={-1} aria-label={seat.label}>
+                                {circle}
+                            </a>
+                        ) : circle;
                     })}
                 </svg>
 

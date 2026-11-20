@@ -46,10 +46,20 @@ describe("buildScrutinHemicycle", () => {
     });
 
     it("compose le nom complet, et retombe sur l'uid et le code du groupe quand ils manquent", () => {
-        const { sieges } = buildScrutinHemicycle([
+        const { sieges, groupes } = buildScrutinHemicycle([
             { place: 1, depute_uid: "PA9", prenom: null, nom: null, groupe_code: "RN", groupe_label: null, position: "pour" },
         ]);
 
-        expect(sieges[0]).toMatchObject({ nomComplet: "PA9", groupeCode: "RN", groupeLabel: "RN" });
+        expect(sieges[0]).toMatchObject({ nomComplet: "PA9", groupeCode: "RN" });
+        expect(groupes).toEqual({ RN: "RN" });
+    });
+
+    it("donne le libellé de chaque groupe une seule fois, pas sur chaque siège", () => {
+        const { sieges, groupes } = buildScrutinHemicycle([
+            siege(1, "PA1", "pour", "SOC"), siege(2, "PA2", "contre", "SOC"), siege(3, "PA3", null, "RN"), siege(4, "PA4", null, null),
+        ]);
+
+        expect(groupes).toEqual({ SOC: "Groupe SOC", RN: "Groupe RN" });
+        expect(sieges.every((s) => !("groupeLabel" in s))).toBe(true);
     });
 });

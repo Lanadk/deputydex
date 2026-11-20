@@ -62,6 +62,7 @@ export const prismaScrutinListRepository: IScrutinListRepository = {
                     s.date_scrutin,
                     s.titre,
                     s.type_scrutin_code,
+                    s.type_scrutin_libelle,
                     s.resultat_code,
                     ${OBJET_SQL} AS objet,
                     a.total_pour,

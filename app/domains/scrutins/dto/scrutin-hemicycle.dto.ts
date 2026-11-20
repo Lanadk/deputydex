@@ -7,8 +7,8 @@ export type ScrutinSiegeDTO = {
     place: number;
     deputeUid: string;
     nomComplet: string;
+    /** Code du groupe ; son libellé est dans `ScrutinHemicycleDTO.groupes` (non répété sur chaque siège) */
     groupeCode: string | null;
-    groupeLabel: string | null;
     position: ScrutinSiegePosition;
     positionLabel: string;
 };
@@ -17,5 +17,7 @@ export type ScrutinSiegeDTO = {
 export type ScrutinHemicycleDTO = {
     /** Rangés de la gauche vers la droite de la salle (numéro de siège décroissant) */
     sieges: ScrutinSiegeDTO[];
+    /** Libellé de chaque groupe présent, par code */
+    groupes: Record<string, string>;
     totaux: Record<ScrutinSiegePosition, number>;
 };

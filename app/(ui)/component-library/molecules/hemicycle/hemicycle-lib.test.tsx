@@ -3,9 +3,6 @@ import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { computeHemicyclePoints, HemicycleLib, HemicycleLibSeat } from "./hemicycle-lib";
 
-const push = jest.fn();
-jest.mock("next/navigation", () => ({ useRouter: () => ({ push }) }));
-
 const SEATS: HemicycleLibSeat[] = [
     { id: "PA1", key: "pour", color: "#2563eb", label: "Alice Martin", sublabel: "SOC · Pour", href: "/deputes/PA1" },
     { id: "PA2", key: "contre", color: "#dc2626", label: "Bruno Petit", sublabel: "RN · Contre" },
@@ -35,8 +32,6 @@ describe("computeHemicyclePoints", () => {
 });
 
 describe("HemicycleLib", () => {
-    beforeEach(() => push.mockClear());
-
     it("dessine un siège par député, avec un résumé pour les lecteurs d'écran", () => {
         const { container } = render(<HemicycleLib ariaLabel="1 pour, 1 contre, 1 absent" seats={SEATS} />);
 
@@ -55,13 +50,14 @@ describe("HemicycleLib", () => {
         expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
     });
 
-    it("ouvre la fiche du député au clic, et ne fait rien pour un siège sans lien", () => {
+    it("fait d'un siège avec href un lien vers la fiche, hors tabulation ; un siège sans href n'est pas un lien", () => {
         const { container } = render(<HemicycleLib ariaLabel="hémicycle" seats={SEATS} />);
+        const links = container.querySelectorAll("a");
 
-        fireEvent.click(circles(container)[0]);
-        fireEvent.click(circles(container)[1]);
-        expect(push).toHaveBeenCalledTimes(1);
-        expect(push).toHaveBeenCalledWith("/deputes/PA1");
+        expect(links).toHaveLength(1);
+        expect(links[0]).toHaveAttribute("href", "/deputes/PA1");
+        expect(links[0]).toHaveAttribute("tabindex", "-1");
+        expect(links[0]).toContainElement(circles(container)[0]);
     });
 
     it("met une catégorie en avant depuis la légende, et la désélectionne au second clic", () => {

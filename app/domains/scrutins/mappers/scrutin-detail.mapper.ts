@@ -1,14 +1,7 @@
 import { ScrutinDetailEntity } from "@/app/domains/scrutins/entities/scrutin-detail.entity";
 import { ScrutinDetailDTO } from "@/app/domains/scrutins/dto/scrutin-detail.dto";
 import { anScrutinUrl } from "@/app/_shared/utils/assemblee-nationale";
-
-/** Valeur de `scrutins.resultat_code` pour un scrutin adopté (open data AN). */
-export const RESULTAT_SCRUTIN_ADOPTE = "adopté";
-
-export function resultatLibelle(code: string | null): string | null {
-    if (!code) return null;
-    return code === RESULTAT_SCRUTIN_ADOPTE ? "Adopté" : "Rejeté";
-}
+import { RESULTAT_SCRUTIN_ADOPTE, resultatLibelle } from "@/app/domains/scrutins/scrutin-labels";
 
 export function mapScrutinDetailEntityToDTO(entity: ScrutinDetailEntity): ScrutinDetailDTO {
     return {

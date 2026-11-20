@@ -6,6 +6,7 @@ import { scrutinsGateway } from "@/app/(ui)/gateways/scrutins/scrutins.gateway";
 import { ScrutinGroupeVoteDTO } from "@/app/domains/scrutins/dto/scrutin-groupe-vote.dto";
 import { ScrutinDeputeVoteDTO } from "@/app/domains/scrutins/dto/scrutin-depute-vote.dto";
 import { ScrutinSiegePosition } from "@/app/domains/scrutins/dto/scrutin-hemicycle.dto";
+import { ScrutinDetailDTO } from "@/app/domains/scrutins/dto/scrutin-detail.dto";
 import { HemicycleDataWrapper } from "@/app/(ui)/component-library/template/sections/block-section/hemicycle-config.types";
 import { votePositionColor } from "@/app/(ui)/_shared/adapter/vote-position.adapter";
 
@@ -30,14 +31,14 @@ export const SCRUTIN_SECTIONS: PageSection[] = [
         cols: 4,
         lazy: false,
         gatewayFn: async ({ uid }: Record<string, unknown>) => {
-            const { sieges, totaux } = await scrutinsGateway.getScrutinHemicycle(uid as string);
+            const { sieges, groupes, totaux } = await scrutinsGateway.getScrutinHemicycle(uid as string);
             const data: HemicycleDataWrapper = {
                 seats: sieges.map((s) => ({
                     id: s.deputeUid,
                     key: s.position,
                     color: votePositionColor(s.position) ?? "#d1d5db",
                     label: s.nomComplet,
-                    sublabel: [s.groupeLabel, s.positionLabel].filter(Boolean).join(" · "),
+                    sublabel: [s.groupeCode ? groupes[s.groupeCode] ?? s.groupeCode : null, s.positionLabel].filter(Boolean).join(" · "),
                     href: `/deputes/${s.deputeUid}`,
                 })),
                 legend: HEMICYCLE_LEGENDE
@@ -58,8 +59,9 @@ export const SCRUTIN_SECTIONS: PageSection[] = [
         description: "Totaux du scrutin : votants, suffrages exprimés, majorité requise et répartition des voix",
         cols: 4,
         lazy: false,
-        gatewayFn: async ({ uid }: Record<string, unknown>) => {
-            const { totaux } = await scrutinsGateway.getScrutin(uid as string);
+        gatewayFn: async ({ uid, scrutin }: Record<string, unknown>) => {
+            // Scrutin déjà lu par la page serveur (voir page.tsx) ; sinon on le charge.
+            const { totaux } = (scrutin as ScrutinDetailDTO | null) ?? await scrutinsGateway.getScrutin(uid as string);
             const pour = totaux.pour ?? 0;
             const contre = totaux.contre ?? 0;
             const abstentions = totaux.abstentions ?? 0;

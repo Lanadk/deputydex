@@ -14,6 +14,7 @@ import { scrutinsGateway } from "@/app/(ui)/gateways/scrutins/scrutins.gateway";
 import { ScrutinListItemDTO, ScrutinListPageDTO } from "@/app/domains/scrutins/dto/scrutin-list.dto";
 import { formatDateOnlyFr } from "@/app/_shared/utils/date";
 import { capitalizeFirst } from "@/app/_shared/utils/string";
+import { scrutinResultatColor } from "@/app/(ui)/_shared/adapter/scrutin-resultat.adapter";
 
 /** Valeur des options « tous » : SelectLib réserve "" à son placeholder, et le serveur ignore toute valeur inconnue. */
 const ALL = "tous";
@@ -27,10 +28,11 @@ const RESULTAT_OPTIONS = [
     { value: "adopte", label: "Adopté" },
     { value: "rejete", label: "Rejeté" },
 ];
+// Libellés de l'open data, tels qu'affichés dans la liste et sur la fiche scrutin.
 const TYPE_OPTIONS = [
     { value: ALL, label: "Tous les types" },
-    { value: "SPO", label: "Ordinaire" },
-    { value: "SPS", label: "Solennel" },
+    { value: "SPO", label: "Scrutin public ordinaire" },
+    { value: "SPS", label: "Scrutin public solennel" },
     { value: "MOC", label: "Motion de censure" },
 ];
 const OBJET_OPTIONS = [
@@ -42,7 +44,6 @@ const OBJET_OPTIONS = [
     { value: "autre", label: "Autre" },
 ];
 
-const RESULTAT_COLORS = { adopte: "#16a34a", rejete: "#dc2626" };
 const SEARCH_DEBOUNCE_MS = 300;
 
 const COLUMNS: ColumnDef<ScrutinListItemDTO>[] = [
@@ -63,7 +64,7 @@ const COLUMNS: ColumnDef<ScrutinListItemDTO>[] = [
                     {r.titre ? capitalizeFirst(r.titre) : `Scrutin n° ${r.numero ?? r.uid}`}
                 </Link>
                 <span className="text-xs text-gray-500">
-                    n° {r.numero ?? "—"} · {r.objet.libelle} · {r.type.libelle ?? "—"}
+                    n° {r.numero ?? "—"} · {r.objet.libelle} · {r.type.libelle ? capitalizeFirst(r.type.libelle) : "—"}
                 </span>
             </div>
         ),
@@ -75,7 +76,7 @@ const COLUMNS: ColumnDef<ScrutinListItemDTO>[] = [
         cell: (r) => r.resultat.libelle ? (
             <BadgeLib
                 text={r.resultat.libelle}
-                style={{ color: "white", backgroundColor: r.resultat.isAdopte ? RESULTAT_COLORS.adopte : RESULTAT_COLORS.rejete }}
+                style={{ color: "white", backgroundColor: scrutinResultatColor(r.resultat.isAdopte) }}
             />
         ) : "—",
     },

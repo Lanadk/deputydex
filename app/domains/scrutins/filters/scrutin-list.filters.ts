@@ -1,3 +1,5 @@
+import { normalizeForSearch } from "@/app/_shared/utils/string";
+
 /**
  * Filtres de la liste des scrutins, appliqués côté serveur.
  * Toute valeur inconnue est ignorée (filtre absent) plutôt que de faire échouer la requête.
@@ -49,14 +51,7 @@ function positiveInt(value: string | null | undefined, fallback: number): number
 }
 
 function normalizeRecherche(value: string | null | undefined): string | null {
-    const normalized = (value ?? "")
-        .normalize("NFD")
-        .replace(/[̀-ͯ]/g, "")
-        .replace(/[’`]/g, "'")
-        .toLowerCase()
-        .replace(/\s+/g, " ")
-        .trim();
-    return normalized || null;
+    return normalizeForSearch(value ?? "") || null;
 }
 
 export function parseScrutinListFilters(legislature: number, raw: ScrutinListRawParams): ScrutinListFilters {
