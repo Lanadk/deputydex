@@ -36,15 +36,15 @@ describe("GET /api/groupes/comportement/[code]/[legislature]", () => {
         });
     });
 
-    it("returns 500 when the repository resolves a falsy value", async () => {
-        getGroupeComportementLegislature.mockResolvedValue(null);
+    it("returns 400 when the legislature is not a number", async () => {
+        const res = await call("REN", "abc");
 
-        const res = await call("UNKNOWN", "17");
-
-        expect(res.status).toBe(500);
+        expect(res.status).toBe(400);
+        expect(getGroupeComportementLegislature).not.toHaveBeenCalled();
     });
 
     it("returns 500 when the repository throws", async () => {
+        jest.spyOn(console, "error").mockImplementation(() => {});
         getGroupeComportementLegislature.mockRejectedValue(new Error("DB down"));
 
         const res = await call("REN", "17");

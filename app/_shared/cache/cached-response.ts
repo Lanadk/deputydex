@@ -1,6 +1,36 @@
 import { NextResponse } from "next/server";
 import { unstable_cache } from "next/cache";
 import { ACTIVE_CACHE_TTL_SECONDS, CACHE_TTL_SECONDS, PARLIAMENT_DATA_CACHE_TAG } from "@/app/_shared/cache/cache.config";
+import { Result } from "@/app/_shared/result-pattern/result";
+
+/** Porte un `Result` en `DB_ERROR` hors de `unstable_cache`, qui ne met pas en cache ce qui lève. */
+class UncachedFailure<E> extends Error {
+    constructor(readonly result: Result<never, E>) {
+        super("uncached failure");
+    }
+}
+
+/**
+ * `cachedRead` pour un use-case qui renvoie un `Result` : le succès et les
+ * erreurs métier (`NOT_FOUND`…) sont mis en cache, mais PAS `DB_ERROR` — une
+ * panne passagère de la base ne doit pas rester servie pendant tout le TTL.
+ */
+export async function cachedResult<T, E>(
+    fn: () => Promise<Result<T, E>>,
+    keyParts: string[],
+    extraTags: string[] = []
+): Promise<Result<T, E>> {
+    try {
+        return await cachedRead(async () => {
+            const result = await fn();
+            if (!result.success && result.error === "DB_ERROR") throw new UncachedFailure(result);
+            return result;
+        }, keyParts, extraTags);
+    } catch (e) {
+        if (e instanceof UncachedFailure) return e.result as Result<T, E>;
+        throw e;
+    }
+}
 
 /**
  * Exécute `fn` derrière le cache serveur Next.js (`unstable_cache`).

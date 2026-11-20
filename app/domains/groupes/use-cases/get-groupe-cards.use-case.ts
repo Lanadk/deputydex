@@ -1,5 +1,6 @@
 import {GroupeCardDTO} from "@/app/domains/groupes/dto/groupes-card.dto";
-import {Result, ok, err} from "@/app/_shared/result-pattern/result"
+import {isErr, ok, Result} from "@/app/_shared/result-pattern/result"
+import {fromRepository} from "@/app/_shared/result-pattern/app-error";
 import {IGroupesCardsRepository} from "@/app/domains/groupes/repositories/IGroupesCardsRepository";
 import {mapEntityToDTO} from "@/app/domains/groupes/mappers/groupes-cards.mapper";
 
@@ -7,14 +8,10 @@ import {mapEntityToDTO} from "@/app/domains/groupes/mappers/groupes-cards.mapper
 export async function getGroupeCardsUseCase(
     groupesCardsRepository: IGroupesCardsRepository,
     legislature: number
-): Promise<Result<GroupeCardDTO[] , "ERROR">> {
+): Promise<Result<GroupeCardDTO[], "DB_ERROR">> {
 
-    const entities = await groupesCardsRepository.getGroupesCards(legislature);
+    const read = await fromRepository(() => groupesCardsRepository.getGroupesCards(legislature));
+    if (isErr(read)) return read;
 
-    if (!entities) {
-        return err("ERROR")
-    }
-
-    const dtos = mapEntityToDTO(legislature, entities);
-    return ok(dtos);
+    return ok(mapEntityToDTO(legislature, read.data));
 }

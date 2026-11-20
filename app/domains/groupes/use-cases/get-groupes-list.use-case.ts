@@ -1,12 +1,15 @@
 import { IGroupesStatsRepository } from "@/app/domains/groupes/repositories/IGroupesStatsRepository";
 import { mapGroupeListToDTO } from "@/app/domains/groupes/mappers/groupe-stats-catalog.mapper";
 import { GroupeListDTO } from "@/app/domains/groupes/dto/groupe-stats-catalog.dto";
-import { ok, Result } from "@/app/_shared/result-pattern/result";
+import { isErr, ok, Result } from "@/app/_shared/result-pattern/result";
+import { fromRepository } from "@/app/_shared/result-pattern/app-error";
 
 export async function getGroupesListUseCase(
     repository: IGroupesStatsRepository,
     legislature: number
-): Promise<Result<GroupeListDTO, never>> {
-    const rows = await repository.listGroupesLegislature(legislature);
-    return ok(mapGroupeListToDTO(rows));
+): Promise<Result<GroupeListDTO, "DB_ERROR">> {
+    const read = await fromRepository(() => repository.listGroupesLegislature(legislature));
+    if (isErr(read)) return read;
+
+    return ok(mapGroupeListToDTO(read.data));
 }

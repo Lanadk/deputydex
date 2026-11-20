@@ -1,4 +1,5 @@
-import {err, ok, Result} from "@/app/_shared/result-pattern/result";
+import {isErr, ok, Result} from "@/app/_shared/result-pattern/result";
+import {fromRepository} from "@/app/_shared/result-pattern/app-error";
 import {IGroupeActivityDetailsRepository} from "@/app/domains/groupes/repositories/IGroupeActivityDetailsRepository";
 import {GroupeActivityDetailsDTO} from "@/app/domains/groupes/dto/groupe-activity-details.dto";
 import {mapEntityToGroupeActivityDetailsDTO} from "@/app/domains/groupes/mappers/groupe-activity-details.mapper";
@@ -9,14 +10,10 @@ export async function getGroupeActivityDetailsUseCase(
     groupeCode: string,
     legislature: number,
     date: any
-): Promise<Result<GroupeActivityDetailsDTO[], "ERROR">> {
+): Promise<Result<GroupeActivityDetailsDTO[], "DB_ERROR">> {
 
-    const entities = await repository.getGroupeActivityDetails(groupeCode, legislature, date);
+    const read = await fromRepository(() => repository.getGroupeActivityDetails(groupeCode, legislature, date));
+    if (isErr(read)) return read;
 
-    if (!entities) {
-        return err("ERROR")
-    }
-
-    const dtos = mapEntityToGroupeActivityDetailsDTO(entities, legislature);
-    return ok(dtos);
+    return ok(mapEntityToGroupeActivityDetailsDTO(read.data, legislature));
 }

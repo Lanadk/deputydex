@@ -1,4 +1,5 @@
-import { ok, Result } from "@/app/_shared/result-pattern/result";
+import { isErr, ok, Result } from "@/app/_shared/result-pattern/result";
+import { fromRepository } from "@/app/_shared/result-pattern/app-error";
 import { IGroupesStatsRepository } from "@/app/domains/groupes/repositories/IGroupesStatsRepository";
 import { GroupesFeminisationDTO } from "@/app/domains/groupes/dto/groupes-feminisation.dto";
 import { mapEntitiesToGroupesFeminisationDTO } from "@/app/domains/groupes/mappers/groupes-feminisation.mapper";
@@ -6,11 +7,13 @@ import { mapEntitiesToGroupesFeminisationDTO } from "@/app/domains/groupes/mappe
 export async function getGroupesFeminisationUseCase(
     repository: IGroupesStatsRepository,
     legislature: number
-): Promise<Result<GroupesFeminisationDTO, never>> {
-    const [pariteRows, mouvementRows] = await Promise.all([
+): Promise<Result<GroupesFeminisationDTO, "DB_ERROR">> {
+    const read = await fromRepository(() => Promise.all([
         repository.getPariteParGroupe(legislature),
         repository.getFeminisationMouvements(legislature),
-    ]);
+    ]));
+    if (isErr(read)) return read;
 
+    const [pariteRows, mouvementRows] = read.data;
     return ok(mapEntitiesToGroupesFeminisationDTO(pariteRows, mouvementRows));
 }
