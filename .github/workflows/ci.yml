@@ -9,11 +9,19 @@ name: CI + Trigger prod deploy
 # Sur une pull request vers main, seuls `test` et `build` tournent (checks
 # exigés par le ruleset avant merge) ; preview Vercel et déploiement prod
 # restent réservés au push sur main.
+#
+# `edited` : une PR dont on change la base vers main (ex. PR empilée sur une
+# branche déjà mergée) doit être vérifiée, sinon les checks exigés ne viennent
+# jamais. On relance TOUJOURS test + build sur `edited`, même pour un simple
+# changement de titre : sauter les jobs les marquerait « skipped », ce que
+# GitHub compte comme réussi pour un check exigé — modifier le titre d'une PR
+# en échec suffirait alors à la rendre mergeable.
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+    types: [opened, synchronize, reopened, edited]
 
 # Push main : une seule pipeline à la fois, jamais annulée (déploiement prod).
 # PR : un groupe par PR, un nouveau push annule la vérification en cours.

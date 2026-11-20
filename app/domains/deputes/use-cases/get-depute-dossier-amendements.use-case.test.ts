@@ -72,8 +72,14 @@ describe("getDeputeDossierAmendementsUseCase", () => {
         expect(isOk(result) && result.data.map((d) => d.uid)).toEqual(["A2", "A1"]);
     });
 
-    it("renvoie une erreur si le repository échoue", async () => {
-        const result = await getDeputeDossierAmendementsUseCase(repository(new Error("boom")), "PA1", 17, "DL1");
+    it("renvoie une erreur si le repository échoue, et la logue côté serveur", async () => {
+        const log = jest.spyOn(console, "error").mockImplementation(() => {});
+        const boom = new Error("boom");
+
+        const result = await getDeputeDossierAmendementsUseCase(repository(boom), "PA1", 17, "DL1");
+
         expect(isErr(result)).toBe(true);
+        expect(log).toHaveBeenCalledWith(boom);
+        log.mockRestore();
     });
 });

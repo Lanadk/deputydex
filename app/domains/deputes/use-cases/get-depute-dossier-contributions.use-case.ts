@@ -11,7 +11,9 @@ export async function getDeputeDossierContributionsUseCase(
     try {
         const entities = await repository.getDeputeDossierContributions(uid, legislature);
         return ok(mapDeputeDossierContributionsEntitiesToDTOs(entities));
-    } catch {
+    } catch (e) {
+        // Sans ce log, une erreur SQL (ex. vue d'agrégation absente) est invisible côté serveur.
+        console.error(e);
         return err("ERROR");
     }
 }
