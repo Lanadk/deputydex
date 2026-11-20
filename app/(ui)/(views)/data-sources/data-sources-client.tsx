@@ -27,7 +27,7 @@ export default function DataSourcesClient() {
             </div>
 
             <PageContentLib>
-                <main className="flex flex-col gap-8">
+                <div className="flex flex-col gap-8">
 
                     {/* ORIGINE */}
                     <section className="chart-lib">
@@ -188,7 +188,7 @@ export default function DataSourcesClient() {
                         </div>
                     </section>
 
-                </main>
+                </div>
             </PageContentLib>
         </BaseLayout>
     );

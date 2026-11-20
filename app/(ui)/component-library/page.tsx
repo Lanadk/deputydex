@@ -17,7 +17,6 @@ const components = {
         { name: 'Checkbox', path: '/component-library/molecules/checkbox' },
         { name: 'Input', path: '/component-library/molecules/input' },
         { name: 'Select', path: '/component-library/molecules/select' },
-        { name: 'Page-Header', path: '/component-library/molecules/page-header' },
         { name: 'Activity-calendar', path: '/component-library/molecules/activity-calendar' },
         { name: 'Filter-bar', path: '/component-library/molecules/filter-bar' },
         { name: 'Filter-group', path: '/component-library/molecules/filter-group' },
@@ -30,6 +29,7 @@ const components = {
         { name: 'ExpandableCard', path: '/component-library/molecules/expandable-card'},
     ],
     Templates: [
+        { name: 'Page-Header', path: '/component-library/template/headers/page-header' },
         { name: 'BlockSection', path: '/component-library/template/sections/block-section' },
         { name: 'AnchorSection', path: '/component-library/template/sections/anchor-section' },
     ],

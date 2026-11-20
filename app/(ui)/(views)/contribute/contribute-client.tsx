@@ -276,7 +276,7 @@ export default function ContributeClient() {
             </div>
 
             <PageContentLib>
-                <main className="flex flex-col gap-8">
+                <div className="flex flex-col gap-8">
 
                     {/* COMMENT CONTRIBUER */}
                     <section className="chart-lib">
@@ -503,7 +503,7 @@ export default function ContributeClient() {
                         </div>
                     </section>
 
-                </main>
+                </div>
             </PageContentLib>
         </BaseLayout>
     );
