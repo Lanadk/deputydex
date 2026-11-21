@@ -4,6 +4,7 @@ import {
     ClientPerfRecord,
     SectionTimingRecord,
 } from "@/app/_shared/dev-perf/dev-perf.types";
+import { parseServerTiming } from "@/app/_shared/dev-perf/dev-perf.timing";
 
 /**
  * « Requête » mesurée, tirée des `keyParts` de `cachedResult` : leur premier
@@ -183,8 +184,8 @@ export type PageVisit = {
     durationMs: number;
 };
 
-/** Mesures du navigateur regroupées par visite de page, de la plus récente à la plus ancienne. */
-export function groupPageVisits(records: ClientPerfRecord[], limit = 10): PageVisit[] {
+/** Toutes les visites, de la plus ancienne à la plus récente (les mesures arrivent dans l'ordre). */
+function buildVisits(records: ClientPerfRecord[]): PageVisit[] {
     const visits = new Map<string, PageVisit>();
     for (const r of records) {
         const visit = visits.get(r.visitId) ?? { visitId: r.visitId, path: r.path, sections: [], fetches: [], durationMs: 0 };
@@ -193,13 +194,69 @@ export function groupPageVisits(records: ClientPerfRecord[], limit = 10): PageVi
         visit.durationMs = Math.max(visit.durationMs, r.startMs + r.durationMs);
         visits.set(r.visitId, visit);
     }
-    // Les mesures arrivent dans l'ordre : la dernière visite insérée est la plus récente.
-    return [...visits.values()]
-        .reverse()
-        .slice(0, limit)
-        .map((v) => ({
-            ...v,
-            sections: [...v.sections].sort((a, b) => a.startMs - b.startMs),
-            fetches: [...v.fetches].sort((a, b) => a.startMs - b.startMs),
-        }));
+    return [...visits.values()].map((v) => ({
+        ...v,
+        sections: [...v.sections].sort((a, b) => a.startMs - b.startMs),
+        fetches: [...v.fetches].sort((a, b) => a.startMs - b.startMs),
+    }));
+}
+
+/** Mesures du navigateur regroupées par visite de page, de la plus récente à la plus ancienne. */
+export function groupPageVisits(records: ClientPerfRecord[], limit = 10): PageVisit[] {
+    return buildVisits(records).reverse().slice(0, limit);
+}
+
+/** Résumé d'une visite, pour comparer deux visites d'une même page. */
+export type VisitStats = {
+    /** Jusqu'à la dernière donnée reçue (ms depuis le début de la visite) */
+    durationMs: number;
+    apiCalls: number;
+    /** Appels servis par le cache serveur (d'après leur en-tête Server-Timing) */
+    cachedCalls: number;
+    /** Somme du temps SQL des appels (chacun mesuré côté serveur) */
+    sqlMs: number;
+};
+
+function visitStats(visit: PageVisit): VisitStats {
+    const timings = visit.fetches.map((f) => parseServerTiming(f.serverTiming));
+    return {
+        durationMs: visit.durationMs,
+        apiCalls: visit.fetches.length,
+        cachedCalls: timings.filter((t) => t?.cacheHit).length,
+        sqlMs: timings.reduce((sum, t) => sum + (t?.sqlMs ?? 0), 0),
+    };
+}
+
+export type PageComparison = { path: string; visits: number; first: VisitStats; last: VisitStats };
+
+/**
+ * Pour chaque page visitée au moins deux fois : sa première et sa dernière
+ * visite. Avec le cache actif, la première exécute le SQL et la dernière est
+ * servie par le cache : l'écart mesure le gain du cache sur cette page.
+ * Pages de la plus récemment visitée à la plus ancienne.
+ */
+export function comparePageVisits(records: ClientPerfRecord[]): PageComparison[] {
+    const byPath = new Map<string, PageVisit[]>();
+    for (const v of buildVisits(records)) byPath.set(v.path, [...(byPath.get(v.path) ?? []), v]);
+
+    return [...byPath.entries()]
+        .filter(([, visits]) => visits.length >= 2)
+        .map(([path, visits]) => ({
+            path,
+            visits: visits.length,
+            first: visitStats(visits[0]),
+            last: visitStats(visits[visits.length - 1]),
+        }))
+        .reverse();
+}
+
+/**
+ * Gain du cache serveur sur une requête : réduction de la durée moyenne
+ * (part entre 0 et 1, et ms gagnées). null tant qu'il manque des appels
+ * avec ou sans cache pour comparer.
+ */
+export function cacheGain(request: RequestSummary): { ratio: number; savedMs: number } | null {
+    if (!request.withoutCache.count || !request.withCache.count) return null;
+    const savedMs = request.withoutCache.avgMs - request.withCache.avgMs;
+    return { ratio: request.withoutCache.avgMs > 0 ? savedMs / request.withoutCache.avgMs : 0, savedMs };
 }

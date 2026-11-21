@@ -1,4 +1,6 @@
 import {
+    cacheGain,
+    comparePageVisits,
     domainChartRows,
     endpointDomain,
     endpointFamily,
@@ -134,6 +136,52 @@ describe("totaux par domaine et données des graphiques", () => {
         expect(shortRequestLabel("depute-amendement-stats")).toBe("amendement-stats");
         expect(shortRequestLabel("stat/acteurs/parite")).toBe("acteurs/parite");
         expect(shortRequestLabel("datasets")).toBe("datasets");
+    });
+});
+
+describe("comparePageVisits", () => {
+    const timing = (sqlMs: number, hit: boolean) =>
+        `total;dur=1.0, db;dur=${sqlMs.toFixed(1)};desc="1 SQL", cache;desc="${hit ? "hit" : "miss"}", endpoint;desc="groupe-members"`;
+    const apiCall = (visitId: string, path: string, startMs: number, durationMs: number, sqlMs: number, hit: boolean): ClientPerfRecord =>
+        ({ kind: "fetch", visitId, path, url: "/api/x", startMs, durationMs, status: 200, serverTiming: timing(sqlMs, hit) });
+
+    it("compare la première et la dernière visite d'une même page (cache froid puis chaud)", () => {
+        const [rn] = comparePageVisits([
+            apiCall("v1", "/groupes/RN", 0, 400, 300, false),
+            apiCall("v1", "/groupes/RN", 10, 200, 150, false),
+            apiCall("v2", "/deputydex", 0, 50, 20, false),
+            apiCall("v3", "/groupes/RN", 0, 30, 0, true),
+            apiCall("v3", "/groupes/RN", 5, 20, 0, true),
+        ]);
+
+        expect(rn).toEqual({
+            path: "/groupes/RN",
+            visits: 2,
+            first: { durationMs: 400, apiCalls: 2, cachedCalls: 0, sqlMs: 450 },
+            last: { durationMs: 30, apiCalls: 2, cachedCalls: 2, sqlMs: 0 },
+        });
+    });
+
+    it("ignore les pages visitées une seule fois", () => {
+        expect(comparePageVisits([apiCall("v1", "/scrutins", 0, 10, 5, false)])).toEqual([]);
+    });
+});
+
+describe("cacheGain", () => {
+    const request = (withoutCacheMs: number, withoutCount: number, withCacheMs: number, withCount: number) => ({
+        family: "groupe-members", calls: withoutCount + withCount,
+        withoutCache: { count: withoutCount, avgMs: withoutCacheMs, p95Ms: withoutCacheMs, avgSqlMs: 0, avgSqlCount: 0 },
+        withCache: { count: withCount, avgMs: withCacheMs, p95Ms: withCacheMs },
+        network: { count: 0, avgMs: 0, p95Ms: 0 },
+    });
+
+    it("donne la réduction de durée et les ms gagnées grâce au cache", () => {
+        expect(cacheGain(request(200, 1, 4, 3))).toEqual({ ratio: 0.98, savedMs: 196 });
+    });
+
+    it("vaut null tant qu'il manque des appels avec ou sans cache", () => {
+        expect(cacheGain(request(200, 2, 0, 0))).toBeNull();
+        expect(cacheGain(request(0, 0, 4, 2))).toBeNull();
     });
 });
 

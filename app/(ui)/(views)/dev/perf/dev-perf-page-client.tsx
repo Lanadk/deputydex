@@ -8,6 +8,8 @@ import { ToggleSwitchLib } from "@/app/(ui)/component-library/molecules/toggle-s
 import { KpiCardLib } from "@/app/(ui)/component-library/molecules/cards/kpi-card/kpi-card-lib";
 import { DevPerfSnapshot } from "@/app/_shared/dev-perf/dev-perf.types";
 import {
+    cacheGain,
+    comparePageVisits,
     domainChartRows,
     DurationStats,
     groupPageVisits,
@@ -15,6 +17,7 @@ import {
     requestChartRows,
     slowestQueries,
     summarizeByDomain,
+    VisitStats,
 } from "@/app/_shared/dev-perf/dev-perf.aggregate";
 import { BarChartLib, BarChartSeriesConfig } from "@/app/(ui)/component-library/molecules/chart/bar-chart/bar-chart-lib";
 import { parseServerTiming } from "@/app/_shared/dev-perf/dev-perf.timing";
@@ -30,6 +33,11 @@ const PERF_CHART_SERIES: BarChartSeriesConfig[] = [
     { dataKey: "reseau", label: "Réseau (navigateur)" },
 ];
 
+const VISIT_COMPARISON_SERIES: BarChartSeriesConfig[] = [
+    { dataKey: "premiere", label: "Première visite" },
+    { dataKey: "derniere", label: "Dernière visite" },
+];
+
 function formatMs(ms: number): string {
     return ms >= 1000 ? `${(ms / 1000).toFixed(2)} s` : `${Math.round(ms)} ms`;
 }
@@ -37,6 +45,25 @@ function formatMs(ms: number): string {
 /** « moy. / p95 (n) », ou « — » sans mesure. */
 function formatStats(s: DurationStats): string {
     return s.count ? `${formatMs(s.avgMs)} / ${formatMs(s.p95Ms)} (${s.count})` : "—";
+}
+
+/** « −98 % (101 ms) », ou « — » tant qu'il manque des appels avec ou sans cache. */
+function formatGain(gain: { ratio: number; savedMs: number } | null): string {
+    if (!gain) return "—";
+    return `${gain.ratio >= 0 ? "−" : "+"}${Math.abs(Math.round(gain.ratio * 100))} % (${formatMs(Math.abs(gain.savedMs))})`;
+}
+
+/** « 473 ms · SQL 794 ms · cache 0/10 » */
+function formatVisit(v: VisitStats): string {
+    return `${formatMs(v.durationMs)} · SQL ${formatMs(v.sqlMs)} · cache ${v.cachedCalls}/${v.apiCalls}`;
+}
+
+/** Écart de la dernière visite par rapport à la première : « −312 ms (−66 %) ». */
+function formatDelta(firstMs: number, lastMs: number): string {
+    const delta = lastMs - firstMs;
+    const pct = firstMs > 0 ? Math.round((delta / firstMs) * 100) : 0;
+    const sign = delta <= 0 ? "−" : "+";
+    return `${sign}${formatMs(Math.abs(delta))} (${sign}${Math.abs(pct)} %)`;
 }
 
 function SectionTitle({ title, hint }: { title: string; hint: string }) {
@@ -168,6 +195,7 @@ export default function DevPerfPageClient() {
     const domains = useMemo(() => summarizeByDomain(snapshot.apiCalls, snapshot.client), [snapshot]);
     const queries = useMemo(() => slowestQueries(snapshot.apiCalls), [snapshot.apiCalls]);
     const visits = useMemo(() => groupPageVisits(snapshot.client), [snapshot.client]);
+    const comparisons = useMemo(() => comparePageVisits(snapshot.client), [snapshot.client]);
 
     const calls = snapshot.apiCalls;
     const sqlCount = calls.reduce((sum, c) => sum + c.sqlCount, 0);
@@ -219,6 +247,57 @@ export default function DevPerfPageClient() {
 
             <section className="mb-10">
                 <SectionTitle
+                    title="Même page : première visite / dernière visite"
+                    hint="Pour chaque page visitée au moins deux fois. Avec le cache actif (DEV_PERF_CACHE=true), la première visite exécute le SQL et la suivante est servie par le cache : l'écart mesure son gain."
+                />
+                {comparisons.length === 0 ? (
+                    <p className="text-sm text-subtitle-accent">
+                        Visite une même page deux fois (par exemple une fiche, puis reviens dessus) pour la comparer.
+                    </p>
+                ) : (
+                    <div className="flex flex-col gap-4">
+                        <div className="rounded-lg border border-main bg-card p-4">
+                            <BarChartLib
+                                subtitle="Durée jusqu'à la dernière donnée (ms)"
+                                data={comparisons.map((c) => ({
+                                    label: c.path,
+                                    premiere: Math.round(c.first.durationMs),
+                                    derniere: Math.round(c.last.durationMs),
+                                }))}
+                                series={VISIT_COMPARISON_SERIES}
+                                height={260}
+                            />
+                        </div>
+                        <div className="overflow-x-auto rounded-lg border border-main bg-card p-4">
+                            <table className="w-full text-sm">
+                                <thead>
+                                    <tr>
+                                        <th className={th}>Page</th>
+                                        <th className={thNum}>Visites</th>
+                                        <th className={thNum}>Première visite</th>
+                                        <th className={thNum}>Dernière visite</th>
+                                        <th className={thNum}>Écart</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    {comparisons.map((c) => (
+                                        <tr key={c.path}>
+                                            <td className={`${td} font-mono`}>{c.path}</td>
+                                            <td className={tdNum}>{c.visits}</td>
+                                            <td className={tdNum}>{formatVisit(c.first)}</td>
+                                            <td className={tdNum}>{formatVisit(c.last)}</td>
+                                            <td className={tdNum}>{formatDelta(c.first.durationMs, c.last.durationMs)}</td>
+                                        </tr>
+                                    ))}
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                )}
+            </section>
+
+            <section className="mb-10">
+                <SectionTitle
                     title="Par domaine et par requête"
                     hint="Côté serveur : sans cache (use-case exécuté, avec son SQL) et avec cache. Côté navigateur : durée réseau (fetch complet). Format « moyenne / p95 (nombre de mesures) ». Requêtes de la plus lente à la plus rapide (p95 sans cache)."
                 />
@@ -252,6 +331,7 @@ export default function DevPerfPageClient() {
                                             <th className={thNum}>dont SQL</th>
                                             <th className={thNum}>Requêtes SQL</th>
                                             <th className={thNum}>Serveur avec cache</th>
+                                            <th className={thNum}>Gain du cache</th>
                                             <th className={thNum}>Réseau (navigateur)</th>
                                         </tr>
                                     </thead>
@@ -263,6 +343,7 @@ export default function DevPerfPageClient() {
                                                 <td className={tdNum}>{r.withoutCache.count ? formatMs(r.withoutCache.avgSqlMs) : "—"}</td>
                                                 <td className={tdNum}>{r.withoutCache.count ? r.withoutCache.avgSqlCount.toFixed(1) : "—"}</td>
                                                 <td className={tdNum}>{formatStats(r.withCache)}</td>
+                                                <td className={tdNum}>{formatGain(cacheGain(r))}</td>
                                                 <td className={tdNum}>{formatStats(r.network)}</td>
                                             </tr>
                                         ))}
