@@ -2613,3 +2613,187 @@
         .hemicycle-seat { animation: none; transition: none; }
     }
 }
+
+/* =========================================================
+   Accueil (mur de cartes) — feat/accueil-hemicycle (#161)
+   Couleurs : uniquement des tokens de thème → suivent les
+   thèmes clair / sombre / accessible.
+   ========================================================= */
+@layer components {
+
+    .page-pill {
+        align-self: flex-start;
+        font-size: 12px;
+        font-weight: 600;
+        color: var(--subtitle-accent);
+        border: 1px solid var(--border-main);
+        border-radius: 999px;
+        padding: 5px 12px;
+    }
+
+    /* -------------------------------------------------------
+       Accueil
+       Les bascules se font en container queries sur la largeur RÉELLE de
+       la page (écran moins la sidebar, ouverte ou repliée), pas sur la
+       largeur de l'écran :
+       - large  (≥ 980px)   texte à gauche, mur à droite
+       - moyen  (< 980px)   texte au-dessus, mur en dessous
+       - étroit (≤ 600px)   mobile
+       Réglages (surchargés par largeur plus bas) :
+       --home-hero-top    espace au-dessus du logo
+       --home-gutter      marges latérales du texte
+       --home-wall-height hauteur de la zone du mur
+       --home-wall-top    position verticale du mur (plus petit = plus haut)
+       --home-wall-scale  taille du mur
+       ------------------------------------------------------- */
+    .home {
+        --home-hero-top: clamp(24px, 7vh, 72px);
+        --home-gutter: 56px;
+        --home-wall-height: 760px;
+        --home-wall-top: 30%;
+        --home-wall-scale: 1;
+
+        container: home / inline-size;
+        overflow: hidden;
+    }
+
+    /* Mise en page portée par un enfant : une container query ne peut pas
+       styler le conteneur (.home) lui-même, seulement ses descendants. */
+    .home__layout {
+        display: flex;
+        flex-wrap: wrap;
+        min-height: 100vh;
+    }
+
+    /* Sous lg, la sidebar devient un bandeau fixe de 3.5rem (main a pt-14). */
+    @media (max-width: 1023px) {
+        .home__layout { min-height: calc(100dvh - 3.5rem); }
+    }
+
+    .home__hero {
+        position: relative;
+        z-index: 2;
+        flex: 1 1 420px; /* 420 + 560 (mur) = 980 : seuil du passage en colonne */
+        min-width: 0;
+        max-width: 620px;
+        padding: var(--home-hero-top) 32px 56px var(--home-gutter);
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-start;
+        gap: 22px;
+    }
+
+    .home__title {
+        margin: 0;
+        /* cqi = % de la largeur de la page (pas de l'écran) : le titre suit la place réelle. */
+        font-size: clamp(36px, 4.4cqi, 64px);
+        line-height: 1.02;
+        font-weight: 800;
+        letter-spacing: -.03em;
+        text-wrap: balance;
+    }
+
+    .home__lead {
+        max-width: 480px;
+        text-wrap: pretty;
+    }
+
+    /* Mur de cartes incliné */
+    .card-wall {
+        position: relative;
+        flex: 1 1 560px;
+        min-width: 0;
+        min-height: var(--home-wall-height);
+        overflow: hidden;
+        perspective: 1600px;
+        perspective-origin: 50% 35%;
+    }
+
+    .card-wall__plane {
+        position: absolute;
+        left: 52%;
+        top: var(--home-wall-top);
+        width: 1200px;
+        height: 1400px;
+        margin: -700px 0 0 -600px;
+        display: flex;
+        justify-content: center;
+        gap: 18px;
+        overflow: hidden;
+        transform: rotateX(58deg) rotateZ(-24deg) scale(var(--home-wall-scale));
+    }
+
+    .card-wall__col {
+        flex: 0 0 150px;
+        display: flex;
+        flex-direction: column;
+        gap: 18px;
+        padding-bottom: 18px; /* = gap : boucle exacte à -50% */
+        animation: card-wall-climb 40s linear infinite;
+    }
+
+    @keyframes card-wall-climb {
+        from { transform: translateY(0); }
+        to { transform: translateY(-50%); }
+    }
+
+    .card-wall__fade {
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+    }
+
+    .card-wall__fade--left {
+        background: linear-gradient(90deg,
+            var(--background) 0%,
+            color-mix(in srgb, var(--background) 75%, transparent) 14%,
+            transparent 42%);
+    }
+
+    .card-wall__fade--vertical {
+        background: linear-gradient(180deg,
+            var(--background) 0%,
+            transparent 18%,
+            transparent 78%,
+            var(--background) 100%);
+    }
+
+    /* Moyen : le texte passe au-dessus du mur ; le mur prend toute la hauteur restante. */
+    @container home (max-width: 979px) {
+        .home__layout {
+            --home-hero-top: 32px;
+            --home-gutter: 32px;
+            --home-wall-height: 560px;
+            --home-wall-top: 45%;
+            --home-wall-scale: .8;
+
+            flex-direction: column;
+            flex-wrap: nowrap;
+        }
+
+        .home__hero { flex: 0 0 auto; max-width: none; padding-bottom: 8px; }
+        .card-wall { flex: 1 0 auto; }
+        .home__title { font-size: clamp(36px, 7cqi, 60px); }
+        .card-wall__fade--left { display: none; }
+    }
+
+    /* Étroit (mobile) : marges de 16px, boutons pleine largeur, mur à 5 colonnes. */
+    @container home (max-width: 600px) {
+        .home__layout {
+            --home-hero-top: 16px;
+            --home-gutter: 16px;
+            --home-wall-height: 400px;
+            --home-wall-scale: .55;
+        }
+
+        .home__hero { padding-right: 16px; gap: 16px; }
+        .home__title { font-size: clamp(30px, 9cqi, 40px); }
+        .home__hero a { flex: 1 1 100%; }
+        .home__hero .btn-lib { width: 100%; justify-content: center; }
+        .card-wall__col:nth-child(n+6) { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .card-wall__col { animation: none; }
+    }
+}

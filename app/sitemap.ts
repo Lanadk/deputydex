@@ -11,6 +11,7 @@ const STATIC_ROUTES: MetadataRoute.Sitemap = [
     { url: `${SITE_URL}/`, changeFrequency: "weekly", priority: 1 },
     { url: `${SITE_URL}/deputydex`, changeFrequency: "weekly", priority: 0.8 },
     { url: `${SITE_URL}/groupes`, changeFrequency: "daily", priority: 0.9 },
+    { url: `${SITE_URL}/hemicycle`, changeFrequency: "weekly", priority: 0.8 },
     { url: `${SITE_URL}/statistics`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/statistics/chiffres-cles`, changeFrequency: "weekly", priority: 0.7 },
     { url: `${SITE_URL}/statistics/avance`, changeFrequency: "weekly", priority: 0.7 },

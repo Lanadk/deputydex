@@ -14,6 +14,7 @@ import { DeputeDossierAmendementDTO } from "@/app/domains/deputes/dto/depute-dos
 export interface IDeputesGateways {
     getDeputesList(legislature: number): Promise<DeputeListItemDTO[]>;
     getDeputesCards(legislature: number): Promise<DeputesCardDTO[]>;
+    getDeputesCardsSample(legislature: number): Promise<DeputesCardDTO[]>;
     getDeputeActivityCalendar(uid: string, legislature: number): Promise<DeputeActivityDTO>;
     getDeputeActivityCalendarDetails(uid: string, legislature: number, date: string): Promise<DeputeActivityDetailsDTO[]>;
     getDeputeIdentity(uid: string, legislature: number): Promise<DeputeIdentityDTO>;
