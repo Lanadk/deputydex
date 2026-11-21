@@ -102,7 +102,8 @@ export const prismaScrutinDetailRepository: IScrutinDetailRepository = {
                 a.nom,
                 COALESCE(rgv.code, grp.code, vd.groupe_id)      AS groupe_code,
                 COALESCE(rgv.libelle, grp.libelle)              AS groupe_label,
-                vd.position
+                vd.position,
+                photo.photo_path
             FROM s
             JOIN mandats m
                 ON m.legislature = s.legislature
@@ -131,6 +132,14 @@ export const prismaScrutinDetailRepository: IScrutinDetailRepository = {
                 ORDER BY (rg.code LIKE 'NI%')::int, ag.date_debut DESC
                 LIMIT 1
             ) grp ON TRUE
+            -- Photo : celle de la législature du scrutin, à défaut la plus récente.
+            LEFT JOIN LATERAL (
+                SELECT NULLIF(rap.photo_path, 'null') AS photo_path
+                FROM ref_acteurs_photos rap
+                WHERE rap.acteur_uid = m.acteur_uid
+                ORDER BY (rap.legislature = s.legislature) DESC, rap.legislature DESC
+                LIMIT 1
+            ) photo ON TRUE
         `;
     },
 };

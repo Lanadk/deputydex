@@ -40,6 +40,7 @@ export function buildScrutinHemicycle(entities: ScrutinSiegeEntity[]): ScrutinHe
             groupeCode: e.groupe_code,
             position,
             positionLabel: position === "absent" ? "Absent" : votePositionLabel(position),
+            photoUrl: e.photo_path,
         };
     });
 

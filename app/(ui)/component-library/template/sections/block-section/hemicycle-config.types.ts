@@ -10,6 +10,18 @@ export type HemicycleSeatData = {
     sublabel?: string;
     /** Page ouverte au clic sur le siège */
     href?: string;
+    /** Photo affichée dans l'info-bulle (avatar) ; initiales du `label` à défaut */
+    image?: string;
+    /** Couleurs de l'info-bulle (ex. thème du groupe du député) ; couleurs du site à défaut */
+    tooltipTheme?: HemicycleTooltipTheme;
+};
+
+export type HemicycleTooltipTheme = {
+    /** Fond (couleur ou dégradé CSS) */
+    background: string;
+    /** Texte, lisible sur `background` */
+    text: string;
+    border: string;
 };
 
 export type HemicycleLegendItem = {
@@ -25,6 +37,8 @@ export type HemicycleConfig = {
     /** Titre optionnel, centré au-dessus du plan */
     title?: string;
     subtitle?: string;
+    /** Taille des sièges (1 = taille d'origine du plan) ; 1.2 par défaut, ~1.4 au plus */
+    seatScale?: number;
 };
 
 /** Donnée posée sous `dataMap[config.id]` par le `gatewayFn` de la section. */

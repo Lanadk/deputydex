@@ -1,8 +1,15 @@
 import { DeputesCardDTO } from "@/app/domains/deputes/dto/deputes-card.dto";
 import { GroupeCardDTO } from "@/app/domains/groupes/dto/groupes-card.dto";
 import { compareGroupesGaucheDroite } from "@/app/domains/groupes/constants/groupe-ordre-hemicycle.constants";
-import { getGroupFullLabel } from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
+import { getCanonicalGroupTheme, getGroupFullLabel } from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
 import { normalizeForSearch } from "@/app/_shared/utils/string";
+import { HemicycleTooltipTheme } from "@/app/(ui)/component-library/template/sections/block-section/hemicycle-config.types";
+
+/** Info-bulle d'un siège aux couleurs du groupe du député (thème « non-inscrits » à défaut). */
+export function groupeTooltipTheme(groupeCode: string | null): HemicycleTooltipTheme {
+    const theme = getCanonicalGroupTheme(groupeCode);
+    return { background: `linear-gradient(135deg, ${theme.bg[0]}, ${theme.bg[1]})`, text: theme.text, border: theme.border };
+}
 
 export type HemicycleGroupe = {
     /** Code brut du groupe (ex: "LFI-NFP", "NI-17") — sert au filtre `/deputydex?groupe=`. */

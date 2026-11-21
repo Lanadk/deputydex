@@ -8,6 +8,7 @@ import { ScrutinDeputeVoteDTO } from "@/app/domains/scrutins/dto/scrutin-depute-
 import { ScrutinSiegePosition } from "@/app/domains/scrutins/dto/scrutin-hemicycle.dto";
 import { ScrutinDetailDTO } from "@/app/domains/scrutins/dto/scrutin-detail.dto";
 import { HemicycleDataWrapper } from "@/app/(ui)/component-library/template/sections/block-section/hemicycle-config.types";
+import { groupeTooltipTheme } from "@/app/(ui)/_shared/adapter/hemicycle.adapter";
 import { hemicycleSeatColor, votePositionColor } from "@/app/(ui)/_shared/adapter/vote-position.adapter";
 
 const kpi = (label: string, value: number | null) => ({ data: { label, value: value ?? "—" } });
@@ -40,6 +41,8 @@ export const SCRUTIN_SECTIONS: PageSection[] = [
                     label: s.nomComplet,
                     sublabel: [s.groupeCode ? groupes[s.groupeCode] ?? s.groupeCode : null, s.positionLabel].filter(Boolean).join(" · "),
                     href: `/deputes/${s.deputeUid}`,
+                    image: s.photoUrl ?? undefined,
+                    tooltipTheme: groupeTooltipTheme(s.groupeCode),
                 })),
                 legend: HEMICYCLE_LEGENDE
                     .filter(({ key }) => key !== "non_votant" || totaux.non_votant > 0)

@@ -5,7 +5,7 @@ import { ScrutinHemicyclePlan } from "./scrutin-hemicycle-plan";
 import { HemicycleLegendItem, HemicycleSeatData } from "@/app/(ui)/component-library/template/sections/block-section/hemicycle-config.types";
 
 const SEATS: HemicycleSeatData[] = [
-    { id: "PA1", key: "pour", color: "#2563eb", label: "Alice Martin", sublabel: "SOC · Pour", href: "/deputes/PA1" },
+    { id: "PA1", key: "pour", color: "#2563eb", label: "Alice Martin", sublabel: "SOC · Pour", href: "/deputes/PA1", image: "/tribun/17/photos/PA1.jpg" },
     { id: "PA2", key: "contre", color: "#dc2626", label: "Bruno Petit", sublabel: "RN · Contre", href: "/deputes/PA2" },
     { id: "PA3", key: "absent", color: "#d1d5db", label: "Chloé Roux" },
 ];
@@ -43,6 +43,46 @@ describe("ScrutinHemicyclePlan", () => {
         expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
     });
 
+    it("affiche la photo du député dans l'info-bulle, ou ses initiales s'il n'en a pas", () => {
+        const { container } = render(<ScrutinHemicyclePlan ariaLabel="hémicycle" seats={SEATS} />);
+        const [first, second] = seatElements(container);
+
+        fireEvent.mouseEnter(first, { clientX: 10, clientY: 10 });
+        expect(screen.getByRole("img", { name: "Alice Martin" })).toBeInTheDocument();
+
+        fireEvent.mouseLeave(first);
+        fireEvent.mouseEnter(second, { clientX: 10, clientY: 10 });
+        expect(screen.queryByRole("img", { name: "Bruno Petit" })).not.toBeInTheDocument();
+        expect(screen.getByRole("tooltip")).toHaveTextContent("BP");
+    });
+
+    it("colore l'info-bulle avec le thème du siège, et garde les couleurs du site sans thème", () => {
+        const themed: HemicycleSeatData[] = [
+            { ...SEATS[0], tooltipTheme: { background: "rgb(0, 49, 137)", text: "rgb(255, 255, 255)", border: "rgb(0, 49, 137)" } },
+            SEATS[1],
+        ];
+        const { container } = render(<ScrutinHemicyclePlan ariaLabel="hémicycle" seats={themed} />);
+        const [first, second] = seatElements(container);
+
+        fireEvent.mouseEnter(first, { clientX: 10, clientY: 10 });
+        expect(screen.getByRole("tooltip")).toHaveStyle({ background: "rgb(0, 49, 137)", color: "rgb(255, 255, 255)" });
+
+        fireEvent.mouseLeave(first);
+        fireEvent.mouseEnter(second, { clientX: 10, clientY: 10 });
+        expect(screen.getByRole("tooltip")).toHaveClass("bg-surface-1");
+    });
+
+    it("règle la taille des sièges (1.2 par défaut, paramétrable)", () => {
+        const { container, rerender } = render(<ScrutinHemicyclePlan ariaLabel="hémicycle" seats={SEATS} />);
+        const stage = () => container.querySelector<HTMLElement>(".hemicycle-stage")!;
+
+        expect(stage().style.getPropertyValue("--hemi-seat-scale")).toBe("1.2");
+
+        rerender(<ScrutinHemicyclePlan ariaLabel="hémicycle" seats={SEATS} seatScale={1.1} />);
+        expect(stage().style.getPropertyValue("--hemi-seat-scale")).toBe("1.1");
+        expect(seatElements(container).every((s) => s.classList.contains("hemicycle-seat--hoverable"))).toBe(true);
+    });
+
     it("soulève le siège survolé quand liftOnHover est activé", () => {
         const { container } = render(<ScrutinHemicyclePlan ariaLabel="hémicycle" seats={SEATS} liftOnHover />);
         const [first] = seatElements(container);
@@ -73,6 +113,23 @@ describe("ScrutinHemicyclePlan", () => {
 
         fireEvent.click(contre);
         expect(seatElements(container).map((s) => s.style.opacity)).toEqual(["1", "1", "1"]);
+    });
+
+    it("ne réagit plus au survol des sièges grisés quand une position est mise en avant", () => {
+        const { container } = render(<ScrutinHemicyclePlan ariaLabel="hémicycle" seats={SEATS} legend={LEGEND} />);
+        const [first, second] = seatElements(container);
+
+        fireEvent.mouseEnter(first, { clientX: 10, clientY: 10 });
+        expect(screen.getByRole("tooltip")).toHaveTextContent("Alice Martin");
+
+        // Mise en avant de « Contre » : Alice (Pour) est grisée, son info-bulle disparaît.
+        fireEvent.click(screen.getByRole("button", { name: /Contre/ }));
+        expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+        expect(first.style.pointerEvents).toBe("none");
+
+        fireEvent.mouseEnter(second, { clientX: 10, clientY: 10 });
+        expect(screen.getByRole("tooltip")).toHaveTextContent("Bruno Petit");
+        expect(second.style.pointerEvents).toBe("");
     });
 
     it("affiche un titre et un sous-titre optionnels", () => {

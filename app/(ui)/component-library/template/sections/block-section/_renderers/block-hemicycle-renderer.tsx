@@ -19,7 +19,9 @@ export function BlockHemicycleRenderer({ config, data, loading }: BlockHemicycle
     return (
         <div className="chart-lib flex flex-col gap-3">
             {data && data.seats.length > 0 ? (
-                <div className="mx-auto w-full max-w-2xl">
+                // Les sièges sont en % du plan : plus le plan est large, plus ils sont
+                // gros (et faciles à survoler). Toute la largeur du bloc, 896 px au plus.
+                <div className="mx-auto w-full max-w-4xl">
                     {/* Titre et sous-titre optionnels du bloc, centrés au-dessus du plan */}
                     <ScrutinHemicyclePlan
                         seats={data.seats}
@@ -27,6 +29,7 @@ export function BlockHemicycleRenderer({ config, data, loading }: BlockHemicycle
                         ariaLabel={data.ariaLabel}
                         title={config.title}
                         subtitle={config.subtitle}
+                        seatScale={config.seatScale}
                     />
                 </div>
             ) : (

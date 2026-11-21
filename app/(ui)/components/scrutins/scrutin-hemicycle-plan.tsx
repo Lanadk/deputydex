@@ -3,6 +3,7 @@
 import React, { useMemo, useRef, useState } from "react";
 import { computeHemicycleSeats } from "@/app/(ui)/components/hemicycle/hemicycle-seats";
 import { HemicycleLegendItem, HemicycleSeatData } from "@/app/(ui)/component-library/template/sections/block-section/hemicycle-config.types";
+import { AvatarLib } from "@/app/(ui)/component-library/atoms/badge-avatar/avatar-picture-lib";
 
 type ScrutinHemicyclePlanProps = {
     /** Sièges dans l'ordre de la salle, de la gauche vers la droite */
@@ -18,12 +19,19 @@ type ScrutinHemicyclePlanProps = {
      * sur la fiche scrutin, l'info-bulle suffit et le soulèvement masque les voisins.
      */
     liftOnHover?: boolean;
+    /**
+     * Taille des sièges, en multiple de la taille d'origine du plan (1). Plus gros,
+     * ils sont plus faciles à survoler ; au-delà de ~1.4, ils se touchent.
+     */
+    seatScale?: number;
 };
+
+export const DEFAULT_SEAT_SCALE = 1.2;
 
 /**
  * Hémicycle d'un scrutin sur le plan 3D de #161 : réutilise le calcul des positions
  * (`computeHemicycleSeats`) et les styles `hemicycle-*`, sans modifier ces composants.
- * Ajoute la couleur par vote, une info-bulle au survol (député, groupe, vote) et la
+ * Ajoute la couleur par vote, une info-bulle au survol (photo, député, groupe, vote) et la
  * mise en avant d'une position depuis la légende.
  *
  * Les variables --hemi-* sont posées ici : sa page les pose sur `.hemicycle-page`,
@@ -37,7 +45,16 @@ const STAGE_VARS = {
 
 type Hover = { index: number; x: number; y: number };
 
-export function ScrutinHemicyclePlan({ seats, legend = [], ariaLabel, title, subtitle, liftOnHover = false }: ScrutinHemicyclePlanProps) {
+export function ScrutinHemicyclePlan({
+    seats,
+    legend = [],
+    ariaLabel,
+    title,
+    subtitle,
+    liftOnHover = false,
+    seatScale = DEFAULT_SEAT_SCALE,
+}: ScrutinHemicyclePlanProps) {
+    const stageVars = { ...STAGE_VARS, "--hemi-seat-scale": String(seatScale) } as React.CSSProperties;
     const containerRef = useRef<HTMLDivElement>(null);
     const [hover, setHover] = useState<Hover | null>(null);
     const [highlight, setHighlight] = useState<string | null>(null);
@@ -46,7 +63,11 @@ export function ScrutinHemicyclePlan({ seats, legend = [], ariaLabel, title, sub
     // dans l'ordre gauche → droite ; l'ordre des sièges reçus fait le reste.
     const positions = useMemo(() => computeHemicycleSeats([{ code: "salle", count: seats.length }]), [seats.length]);
     const total = positions.length;
-    const hoveredSeat = hover ? seats[hover.index] : null;
+    // Un siège grisé par la mise en avant d'une position n'a pas d'info-bulle
+    // (y compris s'il était survolé au moment du clic sur la légende).
+    const isOnSeat = (seat: HemicycleSeatData | undefined) => !!seat && (highlight === null || seat.key === highlight);
+    const hoveredSeat = hover && isOnSeat(seats[hover.index]) ? seats[hover.index] : null;
+    const tooltipTheme = hoveredSeat?.tooltipTheme;
 
     // Le plan est incliné en 3D : l'info-bulle suit la souris plutôt que la position
     // (déformée par la perspective) du siège.
@@ -66,14 +87,14 @@ export function ScrutinHemicyclePlan({ seats, legend = [], ariaLabel, title, sub
             )}
 
             <div ref={containerRef} className="relative">
-                <div className="hemicycle-stage" style={STAGE_VARS} role="img" aria-label={ariaLabel}>
+                <div className="hemicycle-stage" style={stageVars} role="img" aria-label={ariaLabel}>
                     <div className="hemicycle-plane">
                         <div className="hemicycle-glow" />
                         {positions.map((p, i) => {
                             const seat = seats[i];
                             if (!seat) return null;
-                            const isOn = highlight === null || seat.key === highlight;
-                            const isHovered = hover?.index === i;
+                            const isOn = isOnSeat(seat);
+                            const isHovered = isOn && hover?.index === i;
                             const lift = liftOnHover && isHovered ? "translateZ(30px) scale(1.6) " : highlight && isOn ? "translateZ(18px) " : "";
                             const style: React.CSSProperties = {
                                 left: `${p.left.toFixed(2)}%`,
@@ -84,6 +105,9 @@ export function ScrutinHemicyclePlan({ seats, legend = [], ariaLabel, title, sub
                                 opacity: isOn ? 1 : 0.16,
                                 outline: isHovered && !liftOnHover ? "2px solid var(--foreground)" : undefined,
                                 cursor: seat.href ? "pointer" : "default",
+                                // Siège grisé : ni survol ni clic, la souris passe au travers
+                                // (vers les sièges mis en avant, soulevés au-dessus).
+                                pointerEvents: isOn ? undefined : "none",
                             };
                             const handlers = {
                                 onMouseEnter: trackHover(i),
@@ -92,9 +116,9 @@ export function ScrutinHemicyclePlan({ seats, legend = [], ariaLabel, title, sub
                             };
                             // Lien natif hors tabulation : la liste nominative de la fiche sert d'accès clavier.
                             return seat.href ? (
-                                <a key={seat.id} href={seat.href} tabIndex={-1} className="hemicycle-seat" style={style} {...handlers} />
+                                <a key={seat.id} href={seat.href} tabIndex={-1} className="hemicycle-seat hemicycle-seat--hoverable" style={style} {...handlers} />
                             ) : (
-                                <div key={seat.id} className="hemicycle-seat" style={style} {...handlers} />
+                                <div key={seat.id} className="hemicycle-seat hemicycle-seat--hoverable" style={style} {...handlers} />
                             );
                         })}
                     </div>
@@ -103,11 +127,24 @@ export function ScrutinHemicyclePlan({ seats, legend = [], ariaLabel, title, sub
                 {hover && hoveredSeat && (
                     <div
                         role="tooltip"
-                        className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full rounded-md border border-main bg-surface-1 px-3 py-2 text-sm shadow-lg whitespace-nowrap"
-                        style={{ left: hover.x, top: hover.y - 12 }}
+                        className={`pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full flex items-center gap-3 rounded-md border py-2 pl-2 pr-3 text-sm shadow-lg whitespace-nowrap ${tooltipTheme ? "" : "border-main bg-surface-1"}`}
+                        style={{
+                            left: hover.x,
+                            top: hover.y - 12,
+                            ...(tooltipTheme && { background: tooltipTheme.background, color: tooltipTheme.text, borderColor: tooltipTheme.border }),
+                        }}
                     >
-                        <div className="font-semibold">{hoveredSeat.label}</div>
-                        {hoveredSeat.sublabel && <div className="text-xs text-subtitle-accent">{hoveredSeat.sublabel}</div>}
+                        {/* key : un avatar neuf par député, sinon une photo en erreur
+                            garderait les initiales pour les sièges survolés ensuite. */}
+                        <AvatarLib key={hoveredSeat.id} src={hoveredSeat.image} name={hoveredSeat.label} size="medium" />
+                        <div>
+                            <div className="font-semibold">{hoveredSeat.label}</div>
+                            {hoveredSeat.sublabel && (
+                                // Sur fond de groupe, la couleur secondaire du site ne serait pas
+                                // lisible : on garde la couleur du texte, atténuée.
+                                <div className={`text-xs ${tooltipTheme ? "opacity-85" : "text-subtitle-accent"}`}>{hoveredSeat.sublabel}</div>
+                            )}
+                        </div>
                     </div>
                 )}
             </div>
