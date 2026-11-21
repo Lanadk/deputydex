@@ -51,6 +51,28 @@ describe('SpanLib', () => {
         expect(handleClick).toHaveBeenCalledTimes(3);
     });
 
+    it('is a keyboard-reachable button when clickable (Enter / Space)', () => {
+        const handleClick = jest.fn();
+        render(<SpanLib onClick={handleClick}>Clavier</SpanLib>);
+
+        const span = screen.getByRole('button', { name: 'Clavier' });
+        expect(span).toHaveAttribute('tabindex', '0');
+
+        fireEvent.keyDown(span, { key: 'Enter' });
+        fireEvent.keyDown(span, { key: ' ' });
+        fireEvent.keyDown(span, { key: 'a' });
+
+        expect(handleClick).toHaveBeenCalledTimes(2);
+    });
+
+    it('is plain text without onClick (no role, not focusable)', () => {
+        render(<SpanLib>Texte</SpanLib>);
+        const span = screen.getByText('Texte');
+
+        expect(span).not.toHaveAttribute('role');
+        expect(span).not.toHaveAttribute('tabindex');
+    });
+
     it('works without onClick handler', () => {
         render(<SpanLib>No Handler</SpanLib>);
         const span = screen.getByText('No Handler');
