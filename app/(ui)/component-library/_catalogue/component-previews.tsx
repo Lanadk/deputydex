@@ -37,7 +37,7 @@ import { getAnchorSectionLibSections } from "@/app/(ui)/component-library/templa
  */
 const noop = () => {};
 
-// `width` : largeur de rendu avant réduction (440 = taille réelle, 800 ≈ ×0,55).
+// `width` : largeur de rendu du composant (l'aperçu fait au moins 560 px de large).
 export const COMPONENT_PREVIEWS: Record<string, ComponentPreview> = {
     // Atoms
     '/component-library/atoms/button': { width: 440, render: () => getButtonSections("", noop)[0].component },
@@ -50,13 +50,13 @@ export const COMPONENT_PREVIEWS: Record<string, ComponentPreview> = {
     '/component-library/molecules/checkbox': { width: 440, render: () => getCheckboxSections(true, noop, true, noop, [], noop)[3].component },
     '/component-library/molecules/toggle-switch': { width: 440, render: () => getToggleSwitchSections(true, noop, false, noop, true, noop, false, noop, true, noop)[0].component },
     '/component-library/molecules/filter-group': { width: 600, render: () => getFilterGroupSections()[1].component },
-    '/component-library/molecules/filter-bar': { width: 800, render: () => getFilterBarSections()[0].component },
-    '/component-library/molecules/table': { width: 800, render: () => getTableSections()[1].component },
+    '/component-library/molecules/filter-bar': { width: 1000, render: () => getFilterBarSections()[0].component },
+    '/component-library/molecules/table': { width: 1000, render: () => getTableSections()[1].component },
     '/component-library/molecules/chart': { width: 700, render: () => getChartSection()[0].component },
-    '/component-library/molecules/activity-calendar': { width: 900, render: () => getActivityCalendarSections()[0].component },
+    '/component-library/molecules/activity-calendar': { width: 1000, render: () => getActivityCalendarSections()[0].component },
     '/component-library/molecules/difficulty-gauge': { width: 440, render: () => getDifficultyGaugeSections()[0].component },
     '/component-library/molecules/cards': { width: 600, render: () => getCardsSections()[2].component },
-    '/component-library/molecules/deputy': { width: 800, render: () => getDeputyCardSections()[0].component },
+    '/component-library/molecules/deputy': { width: 1000, render: () => getDeputyCardSections()[0].component },
     '/component-library/molecules/group-mini-card': { width: 700, render: () => getGroupMiniCardSections()[0].component },
     '/component-library/molecules/expandable-card': { width: 700, render: () => getExpandableCardSections()[0].component },
     '/component-library/molecules/page-state': { width: 700, render: () => getPageStateSections()[0].component },
@@ -67,6 +67,6 @@ export const COMPONENT_PREVIEWS: Record<string, ComponentPreview> = {
     '/component-library/template/base-layout': { width: 700, render: () => getBaseLayoutSections()[0].component },
     '/component-library/template/page-content': { width: 600, render: () => getPageContentSections()[0].component },
     '/component-library/template/headers/page-header': { width: 700, render: () => getPageHeaderSections()[0].component },
-    '/component-library/template/sections/block-section': { width: 800, render: () => getBlockSectionLibSections()[2].component },
-    '/component-library/template/sections/anchor-section': { width: 800, render: () => getAnchorSectionLibSections()[0].component },
+    '/component-library/template/sections/block-section': { width: 1000, render: () => getBlockSectionLibSections()[2].component },
+    '/component-library/template/sections/anchor-section': { width: 1000, render: () => getAnchorSectionLibSections()[0].component },
 };

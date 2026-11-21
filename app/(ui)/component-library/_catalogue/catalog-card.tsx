@@ -1,6 +1,7 @@
 "use client"
 
 import React, { useEffect, useLayoutEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import Link from "next/link";
 import { SpanLib } from "@/app/(ui)/component-library/atoms/span/span-lib";
 
@@ -8,8 +9,9 @@ export type ComponentPreview = {
     /** Rendu réel du composant, monté seulement pendant le survol. */
     render: () => React.ReactNode;
     /**
-     * Largeur (px) à laquelle le composant est rendu avant réduction dans la
-     * fenêtre d'aperçu. Petit composant → petite largeur → presque taille réelle.
+     * Largeur (px) à laquelle le composant est rendu. L'aperçu prend cette
+     * largeur (au moins MIN_PANEL_WIDTH) et ne réduit le composant que si
+     * l'écran est trop étroit.
      */
     width?: number;
 };
@@ -22,22 +24,26 @@ type CatalogCardProps = {
 };
 
 // Délai avant d'afficher l'aperçu : balayer la grille à la souris ne doit pas
-// faire clignoter une fenêtre par carte traversée.
-const OPEN_DELAY_MS = 180;
-// Dimensions utiles de la fenêtre d'aperçu (cf. .lib-catalog-preview dans globals.css).
-const VIEWPORT_WIDTH = 440;
-const VIEWPORT_MAX_HEIGHT = 240;
-const DEFAULT_STAGE_WIDTH = 800;
+// ouvrir une fenêtre par carte traversée.
+const OPEN_DELAY_MS = 250;
+const DEFAULT_RENDER_WIDTH = 800;
+const MIN_PANEL_WIDTH = 560;
+// Marges autour de l'aperçu, et hauteur de son en-tête.
+const SCREEN_MARGIN = 48;
+const HEADER_HEIGHT = 46;
 
-/** Rend le composant à `width` px puis le réduit pour tenir dans la fenêtre. */
-function PreviewStage({ preview }: { preview: ComponentPreview }) {
+/** Rend le composant à sa largeur, réduit seulement s'il ne tient pas dans l'écran. */
+function PreviewPanel({ name, preview }: { name: string; preview: ComponentPreview }) {
     const stageRef = useRef<HTMLDivElement>(null);
     const [contentHeight, setContentHeight] = useState<number | null>(null);
-    const width = preview.width ?? DEFAULT_STAGE_WIDTH;
-    const scale = Math.min(1, VIEWPORT_WIDTH / width);
 
-    // La hauteur de la fenêtre suit celle du composant (graphiques et tableaux
-    // se dimensionnent après le montage, d'où le ResizeObserver).
+    const renderWidth = Math.max(preview.width ?? DEFAULT_RENDER_WIDTH, MIN_PANEL_WIDTH);
+    const availableWidth = window.innerWidth - 2 * SCREEN_MARGIN;
+    const maxViewportHeight = window.innerHeight * 0.85 - HEADER_HEIGHT;
+    const scale = Math.min(1, availableWidth / renderWidth);
+
+    // La hauteur suit celle du composant (graphiques et tableaux se
+    // dimensionnent après le montage, d'où le ResizeObserver).
     useLayoutEffect(() => {
         const el = stageRef.current;
         if (!el) return;
@@ -48,37 +54,43 @@ function PreviewStage({ preview }: { preview: ComponentPreview }) {
         return () => observer.disconnect();
     }, []);
 
-    const height = contentHeight === null
-        ? VIEWPORT_MAX_HEIGHT
-        : Math.min(VIEWPORT_MAX_HEIGHT, Math.ceil(contentHeight * scale));
-    const overflows = contentHeight !== null && contentHeight * scale > VIEWPORT_MAX_HEIGHT;
+    const scaledHeight = contentHeight === null ? maxViewportHeight : contentHeight * scale;
+    const overflows = scaledHeight > maxViewportHeight;
 
     return (
-        <div
-            className={`lib-catalog-preview__viewport ${overflows ? "lib-catalog-preview__viewport--fade" : ""}`}
-            style={{ height }}
-        >
-            {/* inert : l'aperçu ne capte ni le focus ni les clics. */}
-            <div
-                ref={stageRef}
-                className="lib-catalog-preview__stage"
-                style={{ width, transform: `scale(${scale})` }}
-                inert
-            >
-                {preview.render()}
+        <>
+            <div className="lib-catalog-backdrop" aria-hidden="true" />
+            <div className="lib-catalog-preview" style={{ width: renderWidth * scale }} aria-hidden="true">
+                <div className="lib-catalog-preview__header">
+                    <SpanLib>Aperçu</SpanLib>
+                    <SpanLib className="lib-catalog-preview__name">{name}</SpanLib>
+                </div>
+                <div
+                    className={`lib-catalog-preview__viewport ${overflows ? "lib-catalog-preview__viewport--fade" : ""}`}
+                    style={{ height: Math.ceil(Math.min(scaledHeight, maxViewportHeight)) }}
+                >
+                    {/* inert : l'aperçu ne capte ni le focus ni les clics. */}
+                    <div
+                        ref={stageRef}
+                        className="lib-catalog-preview__stage"
+                        style={{ width: renderWidth, transform: `scale(${scale})` }}
+                        inert
+                    >
+                        {preview.render()}
+                    </div>
+                </div>
             </div>
-        </div>
+        </>
     );
 }
 
 /**
  * Carte du catalogue de la component-library. Au survol (ou au focus clavier),
- * affiche une fenêtre d'aperçu avec le composant réel, réduit et non interactif.
- * L'aperçu s'ouvre sous la carte, ou au-dessus si la carte est en bas de l'écran.
+ * affiche au centre de l'écran un grand aperçu du composant réel, non interactif,
+ * sur un voile flouté. L'aperçu se ferme dès que la souris quitte la carte.
  */
 export function CatalogCard({ name, description, path, preview }: CatalogCardProps) {
-    const [placement, setPlacement] = useState<"above" | "below" | null>(null);
-    const cardRef = useRef<HTMLDivElement>(null);
+    const [isOpen, setIsOpen] = useState(false);
     const timer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
     useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
@@ -86,22 +98,16 @@ export function CatalogCard({ name, description, path, preview }: CatalogCardPro
     const open = () => {
         if (!preview) return;
         if (timer.current) clearTimeout(timer.current);
-        timer.current = setTimeout(() => {
-            const rect = cardRef.current?.getBoundingClientRect();
-            const isLowOnScreen = !!rect && rect.top > window.innerHeight / 2;
-            setPlacement(isLowOnScreen ? "above" : "below");
-        }, OPEN_DELAY_MS);
+        timer.current = setTimeout(() => setIsOpen(true), OPEN_DELAY_MS);
     };
 
     const close = () => {
         if (timer.current) clearTimeout(timer.current);
-        setPlacement(null);
+        setIsOpen(false);
     };
 
-    // L'aperçu est frère du lien, pas enfant : il peut contenir des liens et
-    // boutons, interdits à l'intérieur d'un <a>.
     return (
-        <div ref={cardRef} className="relative h-full" onMouseEnter={open} onMouseLeave={close}>
+        <div className="h-full" onMouseEnter={open} onMouseLeave={close}>
             <Link
                 href={path}
                 onFocus={open}
@@ -114,15 +120,9 @@ export function CatalogCard({ name, description, path, preview }: CatalogCardPro
                 </p>
             </Link>
 
-            {placement && preview && (
-                <div className={`lib-catalog-preview lib-catalog-preview--${placement}`} aria-hidden="true">
-                    <div className="lib-catalog-preview__header">
-                        <SpanLib>Aperçu</SpanLib>
-                        <SpanLib className="lib-catalog-preview__name">{name}</SpanLib>
-                    </div>
-                    <PreviewStage preview={preview} />
-                </div>
-            )}
+            {/* Portail vers <body> : l'aperçu se centre sur l'écran sans dépendre
+                des parents (un parent avec `transform` décalerait un `position: fixed`). */}
+            {isOpen && preview && createPortal(<PreviewPanel name={name} preview={preview} />, document.body)}
         </div>
     );
 }
