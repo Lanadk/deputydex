@@ -19,11 +19,26 @@ export const SpanLib: React.FC<SpanLibProps> = ({
                                                     className,
                                                     style,
                                                 }) => {
+    // Cliquable : rôle bouton, atteignable au clavier (Tab) et activable avec Entrée / Espace.
+    const interactive = onClick
+        ? {
+            role: "button",
+            tabIndex: 0,
+            onClick,
+            onKeyDown: (e: React.KeyboardEvent<HTMLSpanElement>) => {
+                if (e.key === "Enter" || e.key === " ") {
+                    e.preventDefault();
+                    onClick();
+                }
+            },
+        }
+        : {};
+
     return (
         <span
             className={`span-lib ${onClick ? 'span-lib--clickable' : ''} ${className}`}
             style={style}
-            onClick={onClick}
+            {...interactive}
         >
             {children}
         </span>

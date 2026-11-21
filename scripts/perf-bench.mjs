@@ -66,6 +66,9 @@ function findBrowser(explicit) {
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
 
+/** Valeur venue des arguments, affichée sur une seule ligne (sans retour à la ligne ni tabulation). */
+const forLog = (value) => String(value).replace(/[\n\r\t]/g, "_");
+
 async function waitForDevTools(port) {
     for (let i = 0; i < 50; i++) {
         try {
@@ -125,7 +128,7 @@ async function main() {
             for (const path of args.pages) {
                 await tab.send("Page.navigate", { url: `${args.base}${path}` });
                 await sleep(args.wait);
-                console.log(`passage ${run}/${args.runs} · ${path}`);
+                console.log(`passage ${run}/${args.runs} · ${forLog(path)}`);
             }
         }
         // Quitter la dernière page envoie ses dernières mesures (CLS, INP).
@@ -145,8 +148,10 @@ async function main() {
     mkdirSync(dirname(out), { recursive: true });
     writeFileSync(out, JSON.stringify({ kind: "deputydex-perf-bench", label, createdAt, base: args.base, runs: args.runs, pages: args.pages, snapshot }, null, 2));
 
-    console.log(`\n${snapshot.apiCalls.length} appels API et ${snapshot.client.length} mesures navigateur enregistrés.`);
-    console.log(`Résultat : ${out} — à importer dans /dev/perf, onglet « Comparaison ».`);
+    // Compteurs tirés de la réponse de l'API : uniquement des nombres dans le log.
+    const count = (list) => (Array.isArray(list) ? list.length : 0);
+    console.log(`\n${forLog(count(snapshot.apiCalls))} appels API et ${forLog(count(snapshot.client))} mesures navigateur enregistrés.`);
+    console.log(`Résultat : ${forLog(out)} — à importer dans /dev/perf, onglet « Comparaison ».`);
 }
 
 main().catch((e) => {

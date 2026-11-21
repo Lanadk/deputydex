@@ -96,7 +96,8 @@ function normalizeGroupKey(value: string | null | undefined): string {
         .replace(/&/g, " ET ")
         .replace(/['']/g, "")
         .replace(/[^A-Z0-9]+/g, "_")
-        .replace(/^_+|_+$/g, "");
+        // Un seul « _ » possible à chaque bout : la ligne précédente fusionne les séparateurs.
+        .replace(/^_|_$/g, "");
 }
 
 function getGroupTheme(group: string | null | undefined): GroupTheme {

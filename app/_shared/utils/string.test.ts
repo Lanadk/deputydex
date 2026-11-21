@@ -46,4 +46,15 @@ describe("htmlToPlainText", () => {
     it("leaves unknown named entities untouched", () => {
         expect(htmlToPlainText("&foo;")).toBe("&foo;");
     });
+
+    it("keeps an unclosed « < » as text and still strips the tags that follow", () => {
+        expect(htmlToPlainText("a < b <p>c</p>")).toBe("a < b c");
+    });
+
+    it("stays fast on a long text full of unclosed « < »", () => {
+        const start = performance.now();
+        htmlToPlainText("<".repeat(50_000) + "x");
+        // Linéaire : quelques ms ; l'ancienne regex (<[^>]*>) mettait ~1 s ici.
+        expect(performance.now() - start).toBeLessThan(200);
+    });
 });

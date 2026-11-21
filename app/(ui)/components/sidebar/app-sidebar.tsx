@@ -151,10 +151,12 @@ export default function AppSidebar() {
                 </Tooltip>
             </aside>
 
-            {/* Backdrop mobile */}
+            {/* Backdrop mobile : un clic à côté du menu le ferme (vrai bouton, nommé pour les lecteurs d'écran). */}
             {isMobile === true && isOpen && (
-                <div
-                    className="lg:hidden fixed inset-0 z-40"
+                <button
+                    type="button"
+                    aria-label="Fermer le menu"
+                    className="lg:hidden fixed inset-0 z-40 cursor-default bg-transparent border-0 p-0"
                     onClick={toggle}
                 />
             )}
