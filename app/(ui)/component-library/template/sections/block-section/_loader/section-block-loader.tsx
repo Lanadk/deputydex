@@ -31,14 +31,12 @@ export function SectionBlockLoader({ section, params, onReady, hideHeader = fals
 
     const hasCalledReady = useRef(false);
 
-    // Une seule fois par section (hasCalledReady) : un onReady recréé à chaque rendu
-    // (fonction inline du parent) relance l'effet sans rappeler onReady.
     useEffect(() => {
         if (!loading && !hasCalledReady.current) {
             hasCalledReady.current = true;
             onReady();
         }
-    }, [loading, onReady]);
+    }, [loading]);
 
     const blocks = section.blocks.map((block, i) => (
         <BlockSectionRenderer
