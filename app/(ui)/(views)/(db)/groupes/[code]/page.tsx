@@ -1,4 +1,8 @@
 import type { Metadata } from "next";
+import { notFound } from "next/navigation";
+import { getGroupeLegislaturesUseCase } from "@/app/domains/groupes/use-cases/get-groupe-legislatures.use-case";
+import { prismaGroupeLegislaturesRepository } from "@/app/infrastructure/groupes/repositories/prisma-groupe-legislatures.repository";
+import { isUnknownEntity } from "@/app/(ui)/_shared/routing/unknown-entity";
 import GroupePageClient from "@/app/(ui)/(views)/(db)/groupes/[code]/groupe-page-client";
 import { getCurrentLegislatureUseCase } from "@/app/domains/legislatures/use-cases/get-current-legislature.use-case";
 import { prismaLegislaturesRepository } from "@/app/infrastructure/legislatures/repositories/prisma-legislatures.repository";
@@ -49,6 +53,10 @@ export default async function GroupePage({
     params: Promise<{ code: string }>;
 }) {
     const { code } = await params;
+
+    // Code de groupe n'ayant existé dans aucune législature : 404 (une panne de la base n'en est pas une).
+    const legislatures = await getGroupeLegislaturesUseCase(prismaGroupeLegislaturesRepository, code);
+    if (isUnknownEntity(legislatures)) notFound();
 
     return <GroupePageClient code={code} />;
 }

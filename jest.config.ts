@@ -8,7 +8,9 @@ const config: Config = {
     transform: {
         '^.+\\.tsx?$': ['ts-jest', {
             tsconfig: {
-                jsx: 'react',
+                // Même runtime JSX que Next (automatique) : un fichier .tsx n'a
+                // pas à importer React pour être testé (ex. les page.tsx serveur).
+                jsx: 'react-jsx',
             },
         }],
     },

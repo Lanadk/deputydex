@@ -27,6 +27,7 @@ const components = {
         { name: 'GroupMiniCard', path: '/component-library/molecules/group-mini-card'},
         { name: 'DifficultyGauge', path: '/component-library/molecules/difficulty-gauge'},
         { name: 'ExpandableCard', path: '/component-library/molecules/expandable-card'},
+        { name: 'PageState', path: '/component-library/molecules/page-state'},
     ],
     Templates: [
         { name: 'Page-Header', path: '/component-library/template/headers/page-header' },

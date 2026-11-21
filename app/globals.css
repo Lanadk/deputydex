@@ -864,6 +864,46 @@
     }
 
     /* -------------------------------------------------------
+       PageStateLib (404, erreur… : état de page centré)
+       ------------------------------------------------------- */
+    .page-state-lib {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        min-height: 60vh;
+        padding: 48px 24px;
+        text-align: center;
+    }
+
+    .page-state-lib__code {
+        font-size: 72px;
+        font-weight: 800;
+        line-height: 1;
+        color: var(--accent);
+    }
+
+    .page-state-lib__title {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--title-accent);
+    }
+
+    .page-state-lib__description {
+        max-width: 520px;
+        color: var(--subtitle-accent);
+    }
+
+    .page-state-lib__actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 12px;
+    }
+
+    /* -------------------------------------------------------
        BadgeLib
        ------------------------------------------------------- */
     .badge-lib {
