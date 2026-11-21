@@ -26,7 +26,7 @@ type ScrutinHemicyclePlanProps = {
     seatScale?: number;
 };
 
-export const DEFAULT_SEAT_SCALE = 1.3;
+export const DEFAULT_SEAT_SCALE = 1.2;
 
 /**
  * Hémicycle d'un scrutin sur le plan 3D de #161 : réutilise le calcul des positions

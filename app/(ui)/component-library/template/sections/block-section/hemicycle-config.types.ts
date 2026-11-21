@@ -37,7 +37,7 @@ export type HemicycleConfig = {
     /** Titre optionnel, centré au-dessus du plan */
     title?: string;
     subtitle?: string;
-    /** Taille des sièges (1 = taille d'origine du plan) ; 1.3 par défaut, ~1.4 au plus */
+    /** Taille des sièges (1 = taille d'origine du plan) ; 1.2 par défaut, ~1.4 au plus */
     seatScale?: number;
 };
 

@@ -72,11 +72,11 @@ describe("ScrutinHemicyclePlan", () => {
         expect(screen.getByRole("tooltip")).toHaveClass("bg-surface-1");
     });
 
-    it("règle la taille des sièges (1.3 par défaut, paramétrable)", () => {
+    it("règle la taille des sièges (1.2 par défaut, paramétrable)", () => {
         const { container, rerender } = render(<ScrutinHemicyclePlan ariaLabel="hémicycle" seats={SEATS} />);
         const stage = () => container.querySelector<HTMLElement>(".hemicycle-stage")!;
 
-        expect(stage().style.getPropertyValue("--hemi-seat-scale")).toBe("1.3");
+        expect(stage().style.getPropertyValue("--hemi-seat-scale")).toBe("1.2");
 
         rerender(<ScrutinHemicyclePlan ariaLabel="hémicycle" seats={SEATS} seatScale={1.1} />);
         expect(stage().style.getPropertyValue("--hemi-seat-scale")).toBe("1.1");
