@@ -31,7 +31,9 @@ function toMultiSeriesDataset(
     // chronologique — ex: groupes.participation-evolution-groupes, où
     // chaque groupe démarre à un mois différent. Un tri lexicographique
     // suffit ici car tous les labels connus sont au format "YYYY-MM".
-    const labels = Array.from(new Set(series.flatMap((s) => s.items.map((item) => item.label)))).sort();
+    const labels = Array.from(new Set(series.flatMap((s) => s.items.map((item) => item.label)))).sort((a, b) =>
+        a.localeCompare(b)
+    );
 
     const seriesConfig: SeriesConfig[] = series.map((s, i) => ({
         dataKey: `s${i}`,

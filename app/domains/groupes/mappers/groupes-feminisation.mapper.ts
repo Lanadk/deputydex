@@ -35,20 +35,15 @@ export function mapEntitiesToGroupesFeminisationDTO(
         })
         .sort((a, b) => b.pctFemmes - a.pctFemmes);
 
-    const withArrivees = groupes.filter((g) => g.femmesArrivees > 0);
-    const withParties = groupes.filter((g) => g.femmesParties > 0);
+    // Premier groupe au maximum (égalité : le premier rencontré l'emporte) ; null si aucun.
+    const maxBy = (list: GroupeFeminisationRowDTO[], value: (g: GroupeFeminisationRowDTO) => number) =>
+        list.reduce<GroupeFeminisationRowDTO | null>((max, g) => (max === null || value(g) > value(max) ? g : max), null);
 
     return {
         groupes,
         plusFeminise: groupes[0] ?? null,
         moinsFeminise: groupes.length > 0 ? groupes[groupes.length - 1] : null,
-        plusDeFemmesIntegrees:
-            withArrivees.length > 0
-                ? withArrivees.reduce((max, g) => (g.femmesArrivees > max.femmesArrivees ? g : max))
-                : null,
-        plusDeFemmesParties:
-            withParties.length > 0
-                ? withParties.reduce((max, g) => (g.femmesParties > max.femmesParties ? g : max))
-                : null,
+        plusDeFemmesIntegrees: maxBy(groupes.filter((g) => g.femmesArrivees > 0), (g) => g.femmesArrivees),
+        plusDeFemmesParties: maxBy(groupes.filter((g) => g.femmesParties > 0), (g) => g.femmesParties),
     };
 }

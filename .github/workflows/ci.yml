@@ -168,7 +168,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install Vercel CLI
-        run: npm install --global vercel@latest
+        # Version figée : à monter volontairement (npm view vercel version).
+        # La CLI n'a pas de script d'installation : --ignore-scripts ne change rien.
+        run: npm install --global --ignore-scripts vercel@66.6.0
 
       - name: Pull Vercel project settings
         run: vercel pull --yes --environment=preview --token=$VERCEL_TOKEN
@@ -193,7 +195,8 @@ jobs:
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-      - uses: peter-evans/repository-dispatch@v3
+      # Épinglée sur le commit de la v3.0.0 (action tierce qui reçoit un jeton).
+      - uses: peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0 # v3.0.0
         with:
           token: ${{ secrets.CD_DISPATCH_TOKEN }}
           repository: lanadk/deputydex-cd

@@ -105,7 +105,7 @@ export function ActeursWithPaginationExample() {
     useEffect(() => {
         let cancelled = false;
 
-        (async () => {
+        void (async () => {
             setLoading(true);
             try {
                 const res = await acteursGateway.search(query, page, pageSize);
