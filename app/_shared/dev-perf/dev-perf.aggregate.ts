@@ -2,6 +2,7 @@ import {
     ApiCallRecord,
     ClientFetchRecord,
     ClientPerfRecord,
+    ComponentRenderRecord,
     SectionTimingRecord,
     WebVitalName,
     WebVitalRecord,
@@ -225,6 +226,8 @@ function buildVisits(records: ClientPerfRecord[]): PageVisit[] {
             ?? { visitId: r.visitId, path: r.path, sections: [], fetches: [], vitals: [], durationMs: 0, at: 0 };
         if (r.kind === "vital") {
             visit.vitals.push(r);
+        } else if (r.kind === "render") {
+            // Rendus des composants : onglet à part (summarizeComponentRenders), sans effet sur la visite.
         } else {
             if (r.kind === "section") visit.sections.push(r);
             else visit.fetches.push(r);
@@ -336,6 +339,61 @@ export function summarizePages(records: ClientPerfRecord[]): PageSummary[] {
             };
         })
         .sort((a, b) => b.lastVisit.at - a.lastVisit.at);
+}
+
+// ── Rendu des composants ──────────────────────────────────────────────────
+
+/*
+ * Un bloc est monté AVANT l'arrivée de ses données (état de chargement) : son
+ * montage est donc presque gratuit, et le vrai travail de rendu (dessin du
+ * graphique, lignes du tableau) se fait à un rendu suivant. On juge donc un
+ * bloc sur l'ensemble de ses rendus — dont le plus long —, pas sur son montage.
+ */
+
+export type ComponentRenderSummary = {
+    blockType: string;
+    blockId: string;
+    /** Pages où le bloc a été rendu */
+    paths: string[];
+    /** Tous les rendus du bloc (montage compris) */
+    renders: DurationStats;
+    /** Premier rendu du bloc (montage, en général avant les données) */
+    mount: DurationStats;
+    /** Temps de rendu cumulé, tous rendus confondus */
+    totalMs: number;
+};
+
+/**
+ * Temps de rendu React de chaque bloc (graphique, tableau…), toutes pages
+ * confondues, du plus lent au plus rapide (rendu le plus long, puis cumul).
+ */
+export function summarizeComponentRenders(records: ClientPerfRecord[]): ComponentRenderSummary[] {
+    const renders = records.filter((r): r is ComponentRenderRecord => r.kind === "render");
+    return [...groupBy(renders, (r) => `${r.blockType}|${r.blockId}`).values()]
+        .map((list) => ({
+            blockType: list[0].blockType,
+            blockId: list[0].blockId,
+            paths: [...new Set(list.map((r) => r.path))],
+            renders: durationStats(list.map((r) => r.durationMs)),
+            mount: durationStats(list.filter((r) => r.phase === "mount").map((r) => r.durationMs)),
+            totalMs: list.reduce((s, r) => s + r.durationMs, 0),
+        }))
+        .sort((a, b) => b.renders.maxMs - a.renders.maxMs || b.totalMs - a.totalMs);
+}
+
+/**
+ * Par type de bloc (« chart:bar », « table »…) : durée des rendus (moyenne, p95,
+ * plus long), pour repérer le type de composant le plus coûteux à afficher.
+ */
+export function summarizeRendersByType(records: ClientPerfRecord[]): { blockType: string; blocks: number; renders: DurationStats }[] {
+    const renders = records.filter((r): r is ComponentRenderRecord => r.kind === "render");
+    return [...groupBy(renders, (r) => r.blockType).entries()]
+        .map(([blockType, list]) => ({
+            blockType,
+            blocks: new Set(list.map((r) => r.blockId)).size,
+            renders: durationStats(list.map((r) => r.durationMs)),
+        }))
+        .sort((a, b) => b.renders.p95Ms - a.renders.p95Ms || b.renders.maxMs - a.renders.maxMs);
 }
 
 // ── SQL ───────────────────────────────────────────────────────────────────

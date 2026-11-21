@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import {DevPerfProfiler} from "@/app/(ui)/_shared/dev-perf/dev-perf-profiler";
 import {BlockChartRenderer} from "@/app/(ui)/component-library/template/sections/block-section/_renderers/block-chart-renderer";
 import {
     BlockParagraphRenderer
@@ -208,7 +209,25 @@ export const BlockSectionRenderer: React.FC<BlockSectionRendererProps> = ({
 
     return (
         <div className={colSpanClass}>
-            {rendered}
+            {/* Outil de perf (dev seulement) : temps de rendu React de chaque bloc. Sans l'outil, rendu direct. */}
+            <DevPerfProfiler type={profiledBlockType(block)} id={profiledBlockId(block)}>{rendered}</DevPerfProfiler>
         </div>
     );
 };
+
+/** Type de bloc pour l'outil de perf, précisé pour un graphique (« chart:bar »). */
+function profiledBlockType(block: SectionBlock): string {
+    return block.type === "chart" ? `chart:${block.config.displayType}` : block.type;
+}
+
+/** Identifiant du bloc dans la config de la page (un paragraphe statique n'en a pas). */
+function profiledBlockId(block: SectionBlock): string {
+    switch (block.type) {
+        case "table":
+            return block.id;
+        case "paragraph":
+            return "dataId" in block ? block.dataId : "texte";
+        default:
+            return block.config.id;
+    }
+}

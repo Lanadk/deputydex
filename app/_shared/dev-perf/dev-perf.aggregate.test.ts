@@ -13,7 +13,9 @@ import {
     percentile,
     percentileProfile,
     summarizeByDomain,
+    summarizeComponentRenders,
     summarizePages,
+    summarizeRendersByType,
 } from "@/app/_shared/dev-perf/dev-perf.aggregate";
 import { ApiCallRecord, ClientFetchRecord, ClientPerfRecord } from "@/app/_shared/dev-perf/dev-perf.types";
 
@@ -248,6 +250,59 @@ describe("alertes : beaucoup de SQL, réponses lourdes", () => {
 
         expect(members.bytes).toEqual({ avg: 2000, max: 3000 });
         expect(HEAVY_RESPONSE_BYTES).toBe(102400);
+    });
+});
+
+describe("rendu des composants", () => {
+    const render = (blockType: string, blockId: string, phase: "mount" | "update", durationMs: number, path = "/groupes/RN"): ClientPerfRecord =>
+        ({ kind: "render", at: 1, visitId: "v", path, blockType, blockId, phase, durationMs });
+    const records = [
+        render("chart:bar", "chart-cohesion", "mount", 40),
+        render("chart:bar", "chart-cohesion", "update", 12),
+        render("chart:bar", "chart-cohesion", "mount", 60, "/groupes/LFI"),
+        render("table", "table-membres", "mount", 8),
+        render("table", "table-membres", "update", 3),
+        render("table", "table-membres", "update", 5),
+    ];
+
+    it("regroupe les rendus par bloc : tous les rendus, plus long, montage, cumul, pages", () => {
+        const [chart, table] = summarizeComponentRenders(records);
+
+        expect(chart).toMatchObject({
+            blockType: "chart:bar",
+            blockId: "chart-cohesion",
+            paths: ["/groupes/RN", "/groupes/LFI"],
+            renders: { count: 3, maxMs: 60 },
+            mount: { count: 2, avgMs: 50 },
+            totalMs: 112,
+        });
+        expect(table).toMatchObject({ blockId: "table-membres", renders: { count: 3, maxMs: 8 }, mount: { count: 1, avgMs: 8 }, totalMs: 16 });
+    });
+
+    it("juge un bloc sur son rendu le plus long, même quand ce n'est pas le montage (données arrivées après)", () => {
+        const [slowest] = summarizeComponentRenders([
+            render("chart:line", "chart-rapide", "mount", 5),
+            render("table", "table-lourde", "mount", 0.2),
+            render("table", "table-lourde", "update", 30),
+        ]);
+
+        expect(slowest.blockId).toBe("table-lourde");
+    });
+
+    it("résume les rendus par type de bloc, du plus coûteux au moins coûteux (p95)", () => {
+        expect(summarizeRendersByType(records)).toEqual([
+            { blockType: "chart:bar", blocks: 1, renders: expect.objectContaining({ count: 3, p95Ms: 60, maxMs: 60 }) },
+            { blockType: "table", blocks: 1, renders: expect.objectContaining({ count: 3, p95Ms: 8 }) },
+        ]);
+    });
+
+    it("n'allonge pas la durée d'une visite de page", () => {
+        const [page] = summarizePages([
+            fetchOf("groupe-members", 100, { visitId: "v", path: "/groupes/RN", startMs: 0, at: 1 }),
+            ...records.map((r) => ({ ...r, visitId: "v" })),
+        ]);
+
+        expect(page.first.durationMs).toBe(100);
     });
 });
 

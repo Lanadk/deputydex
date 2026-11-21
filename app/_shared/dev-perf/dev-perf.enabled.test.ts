@@ -68,14 +68,15 @@ describe("outil de perf activé (NEXT_PUBLIC_DEV_PERF=true)", () => {
     it("expose les mesures et accepte celles du navigateur (dont les Web Vitals) via /api/dev/perf", async () => {
         const section = { kind: "section", at: 1_000, visitId: "v1", path: "/groupes/RN", sectionId: "kpi", startMs: 5, durationMs: 40, ok: true };
         const vital = { kind: "vital", at: 1_200, visitId: "v1", path: "/groupes/RN", name: "LCP", value: 820 };
+        const render = { kind: "render", at: 1_300, visitId: "v1", path: "/groupes/RN", blockType: "chart:bar", blockId: "c1", phase: "mount", durationMs: 12 };
         const post = await POST(localRequest("/api/dev/perf", {
             method: "POST",
-            body: JSON.stringify([section, vital, { kind: "inconnu" }, { ...vital, name: "XYZ" }]),
+            body: JSON.stringify([section, vital, render, { kind: "inconnu" }, { ...vital, name: "XYZ" }, { ...render, phase: "xyz" }]),
         }));
 
         expect(post.status).toBe(204);
         const snapshot = await (await GET(localRequest("/api/dev/perf"))).json();
-        expect(snapshot.client).toEqual([section, vital]);
+        expect(snapshot.client).toEqual([section, vital, render]);
     });
 
     it("répond 404 à une requête qui ne vient pas de la machine, même outil activé", async () => {

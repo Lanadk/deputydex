@@ -60,6 +60,17 @@ function enqueue(record: ClientPerfRecord) {
 }
 
 /**
+ * Rendu d'un bloc du moteur de sections, appelé par le `<Profiler>` de
+ * BlockSectionRenderer (`id` = "type|identifiant"). Signature de `onRender` de React.
+ */
+export function recordComponentRender(id: string, phase: "mount" | "update" | "nested-update", actualDuration: number) {
+    if (!DEV_PERF_ENABLED || isIgnoredPath(window.location.pathname)) return;
+    const [blockType, blockId] = id.split("|");
+    const v = currentVisit();
+    enqueue({ kind: "render", at: Date.now(), visitId: v.id, path: v.path, blockType, blockId: blockId ?? "", phase, durationMs: actualDuration });
+}
+
+/**
  * Web Vital de la page en cours (`useReportWebVitals`, voir DevPerfRecorder).
  * CLS et INP ne sont souvent connus qu'au moment où l'on quitte la page : les
  * mesures en attente partent aussi quand la page est masquée.

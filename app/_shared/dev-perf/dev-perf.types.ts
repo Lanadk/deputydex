@@ -76,7 +76,25 @@ export type WebVitalRecord = {
     value: number;
 };
 
-export type ClientPerfRecord = SectionTimingRecord | ClientFetchRecord | WebVitalRecord;
+/**
+ * Un rendu React d'un bloc du moteur de sections (graphique, tableau…),
+ * mesuré par `<Profiler>` : temps passé par React à rendre le bloc et ses enfants.
+ */
+export type ComponentRenderRecord = {
+    kind: "render";
+    at: number;
+    visitId: string;
+    path: string;
+    /** Type de bloc, précisé pour un graphique (ex. "chart:bar", "table", "hemicycle") */
+    blockType: string;
+    /** Identifiant du bloc dans la config de la page (ex. "chart-scrutin-positions") */
+    blockId: string;
+    /** mount : premier rendu ; update : rendu suivant (données reçues, redimensionnement…) */
+    phase: "mount" | "update" | "nested-update";
+    durationMs: number;
+};
+
+export type ClientPerfRecord = SectionTimingRecord | ClientFetchRecord | WebVitalRecord | ComponentRenderRecord;
 
 /** Contenu renvoyé par GET /api/dev/perf. */
 export type DevPerfSnapshot = {

@@ -1,4 +1,13 @@
-import { deltaColor, durationColor } from "@/app/(ui)/_shared/adapter/duration.adapter";
+import { deltaColor, durationColor, renderDurationColor } from "@/app/(ui)/_shared/adapter/duration.adapter";
+
+describe("renderDurationColor", () => {
+    it("orange au-delà d'une image (16 ms), rouge à partir d'une tâche longue (50 ms)", () => {
+        expect(renderDurationColor(15.9)).toBeUndefined();
+        expect(renderDurationColor(16)).toBe("var(--ui-warning)");
+        expect(renderDurationColor(49.9)).toBe("var(--ui-warning)");
+        expect(renderDurationColor(50)).toBe("var(--ui-danger)");
+    });
+});
 
 describe("deltaColor", () => {
     it("vert si plus rapide, rouge si plus lent, rien sous le bruit de ±10 %", () => {

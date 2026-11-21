@@ -30,6 +30,10 @@ function isClientRecord(r: unknown): r is ClientPerfRecord {
     if (x.kind === "vital") {
         return typeof x.value === "number" && (WEB_VITAL_NAMES as readonly unknown[]).includes(x.name);
     }
+    if (x.kind === "render") {
+        return typeof x.blockType === "string" && typeof x.blockId === "string"
+            && ["mount", "update", "nested-update"].includes(x.phase as string) && typeof x.durationMs === "number";
+    }
     return (x.kind === "section" || x.kind === "fetch") && typeof x.startMs === "number" && typeof x.durationMs === "number";
 }
 

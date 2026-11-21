@@ -13,13 +13,14 @@ import { ALL_REQUESTS, LiveTab } from "@/app/(ui)/components/dev-perf/live-tab";
 import { RequestsTab } from "@/app/(ui)/components/dev-perf/requests-tab";
 import { PagesTab } from "@/app/(ui)/components/dev-perf/pages-tab";
 import { SqlTab } from "@/app/(ui)/components/dev-perf/sql-tab";
+import { RendersTab } from "@/app/(ui)/components/dev-perf/renders-tab";
 import { CompareTab } from "@/app/(ui)/components/dev-perf/compare-tab";
 
 const REFRESH_MS = 2000;
 const API = "/api/dev/perf";
 const TABS_ID = "dev-perf";
 
-type TabId = "direct" | "requetes" | "pages" | "sql" | "comparaison";
+type TabId = "direct" | "requetes" | "pages" | "rendu" | "sql" | "comparaison";
 
 /**
  * Page /dev/perf : charge les mesures (toutes les 2 s en direct) et les
@@ -72,6 +73,10 @@ export default function DevPerfPageClient() {
     const domains = useMemo(() => summarizeByDomain(snapshot.apiCalls, snapshot.client), [snapshot]);
     const pages = useMemo(() => summarizePages(snapshot.client), [snapshot.client]);
     const sqlQueries = useMemo(() => groupSqlQueries(snapshot.apiCalls), [snapshot.apiCalls]);
+    const renderedBlocks = useMemo(
+        () => new Set(snapshot.client.flatMap((r) => (r.kind === "render" ? [`${r.blockType}|${r.blockId}`] : []))).size,
+        [snapshot.client]
+    );
     // ALL_REQUESTS et non "" : SelectLib affiche son placeholder pour une valeur vide.
     const familyOptions = useMemo(() => [
         { value: ALL_REQUESTS, label: "Toutes les requêtes" },
@@ -87,6 +92,7 @@ export default function DevPerfPageClient() {
         { id: "direct", label: "En direct" },
         { id: "requetes", label: "Requêtes API", badge: domains.reduce((n, d) => n + d.requests.length, 0) },
         { id: "pages", label: "Pages & rendu", badge: pages.length },
+        { id: "rendu", label: "Rendu des composants", badge: renderedBlocks },
         { id: "sql", label: "SQL", badge: sqlQueries.length },
         { id: "comparaison", label: "Comparaison" },
     ];
@@ -145,6 +151,7 @@ export default function DevPerfPageClient() {
                 )}
                 {tab === "requetes" && <RequestsTab domains={domains} selectedFamily={family} onSelectFamily={followRequest} />}
                 {tab === "pages" && <PagesTab pages={pages} selectedPath={selectedPath} onSelectPath={setSelectedPath} />}
+                {tab === "rendu" && <RendersTab client={snapshot.client} />}
                 {tab === "sql" && <SqlTab queries={sqlQueries} />}
                 {tab === "comparaison" && <CompareTab snapshot={snapshot} />}
             </div>
