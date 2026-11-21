@@ -23,6 +23,7 @@ export async function GET(): Promise<Response> {
 function isClientRecord(r: unknown): r is ClientPerfRecord {
     const x = r as Partial<ClientPerfRecord> | null;
     return !!x && (x.kind === "section" || x.kind === "fetch")
+        && typeof x.at === "number"
         && typeof x.visitId === "string" && typeof x.path === "string"
         && typeof x.startMs === "number" && typeof x.durationMs === "number";
 }

@@ -73,6 +73,7 @@ function installFetchMeasure() {
         const response = await base(input, init);
         enqueue({
             kind: "fetch",
+            at: Date.now(),
             visitId: v.id,
             path: v.path,
             url: url.pathname + url.search,
@@ -105,6 +106,7 @@ export function measureSection<P, R>(sectionId: string, gatewayFn: (params: P) =
         } finally {
             enqueue({
                 kind: "section",
+                at: Date.now(),
                 visitId: v.id,
                 path: v.path,
                 sectionId,

@@ -32,6 +32,8 @@ export type ApiCallRecord = {
 /** Une section du moteur de sections, mesurée dans le navigateur. */
 export type SectionTimingRecord = {
     kind: "section";
+    /** Horodatage de fin (ms depuis epoch), pour la vue en direct */
+    at: number;
     /** Identifiant de la visite de page (une par chargement ou navigation) */
     visitId: string;
     path: string;
@@ -45,6 +47,8 @@ export type SectionTimingRecord = {
 /** Un appel `fetch` vers /api/, mesuré dans le navigateur. */
 export type ClientFetchRecord = {
     kind: "fetch";
+    /** Horodatage de fin (ms depuis epoch), pour la vue en direct */
+    at: number;
     visitId: string;
     path: string;
     url: string;

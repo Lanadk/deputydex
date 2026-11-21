@@ -10,3 +10,10 @@
  * qui donne des mesures sans les biais du mode dev.
  */
 export const DEV_PERF_ENABLED = process.env.NEXT_PUBLIC_DEV_PERF === "true";
+
+/**
+ * Nombre de mesures gardées en mémoire du serveur par catégorie (les plus
+ * anciennes sont oubliées). Une visite de page produit ~20 à 30 mesures
+ * navigateur : 2 000 couvrent une session de travail d'une centaine de pages.
+ */
+export const DEV_PERF_MAX_RECORDS = 2000;

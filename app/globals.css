@@ -20,6 +20,10 @@
     --p1-red-3: #c85048; /* base     */
     --p1-red-4: #a82028; /* deep     */
 
+    /* Orange — avertissement (ex. durée lente sur /dev/perf) */
+    --p1-orange-3: #e8912d; /* base : sur fond sombre */
+    --p1-orange-4: #b45309; /* deep : texte sur fond clair (contraste ≈ 5:1 sur blanc) */
+
     /* Blues — info / primary scale */
     --p1-blue-1: #e8f4ff; /* lightest */
     --p1-blue-2: #bfe3ff; /* light    */
@@ -90,6 +94,7 @@
 
     --ui-danger: var(--p1-red-4);
     --ui-success: var(--p1-green-4);
+    --ui-warning: var(--p1-orange-4);
     --ui-warm: var(--p1-red-3);
     --ui-red-light: var(--p1-red-2);
 
@@ -262,6 +267,9 @@
     --p1-red-3: #c85048;
     --p1-red-4: #a82028;
 
+    --p1-orange-3: #e8912d;
+    --p1-orange-4: #b45309;
+
     --p1-blue-1: #e8f4ff;
     --p1-blue-2: #bfe3ff;
     --p1-blue-3: #70b8f0;
@@ -319,6 +327,7 @@
     /* UI aliases */
     --ui-danger: var(--p1-red-4);
     --ui-success: var(--p1-green-4);
+    --ui-warning: var(--p1-orange-3); /* plus clair : lisible sur les fonds sombres */
     --ui-warm: var(--p1-red-3);
     --ui-red-light: var(--p1-red-2);
 
@@ -453,6 +462,9 @@
        quasi identique pour un deutéranope. */
     --p1-red-4: #800002;
 
+    --p1-orange-3: #e8912d;
+    --p1-orange-4: #b45309;
+
     --p1-blue-1: #e8f4ff;
     --p1-blue-2: #bfe3ff;
     --p1-blue-3: #70b8f0;
@@ -510,6 +522,7 @@
     /* UI aliases — contrast-first remapping */
     --ui-danger: var(--p1-red-4);
     --ui-success: var(--p1-green-4);
+    --ui-warning: var(--p1-orange-4);
     --ui-warm: var(--p1-red-3);
     --ui-red-light: var(--p1-red-2);
 

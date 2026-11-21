@@ -1,7 +1,5 @@
 import { ApiCallRecord, ClientPerfRecord, DevPerfSnapshot } from "@/app/_shared/dev-perf/dev-perf.types";
-
-/** Nombre de mesures gardées en mémoire par catégorie (les plus anciennes sont oubliées). */
-export const DEV_PERF_MAX_RECORDS = 500;
+import { DEV_PERF_MAX_RECORDS } from "@/app/_shared/dev-perf/dev-perf.config";
 
 type Store = { apiCalls: ApiCallRecord[]; client: ClientPerfRecord[]; nextId: number };
 

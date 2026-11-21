@@ -1,35 +1,70 @@
 import {
-    cacheGain,
-    comparePageVisits,
+    cacheSpeedup,
+    distributionChartRows,
     domainChartRows,
+    durationStats,
     endpointDomain,
     endpointFamily,
-    groupPageVisits,
+    groupSqlQueries,
+    liveData,
     percentile,
-    requestChartRows,
-    shortRequestLabel,
-    slowestQueries,
+    percentileProfile,
     summarizeByDomain,
+    summarizePages,
 } from "@/app/_shared/dev-perf/dev-perf.aggregate";
-import { ApiCallRecord, ClientPerfRecord } from "@/app/_shared/dev-perf/dev-perf.types";
+import { ApiCallRecord, ClientFetchRecord, ClientPerfRecord } from "@/app/_shared/dev-perf/dev-perf.types";
 
+let nextId = 1;
 function call(family: string, totalMs: number, overrides: Partial<ApiCallRecord> = {}): ApiCallRecord {
     return {
-        id: 1, at: 0, endpoint: `${family}/RN/17`, family, status: 200,
+        id: nextId++, at: 0, endpoint: `${family}/RN/17`, family, status: 200,
         totalMs, sqlMs: totalMs / 2, sqlCount: 2, cacheHit: false, queries: [],
         ...overrides,
     };
 }
 
-describe("percentile", () => {
+function fetchOf(family: string, durationMs: number, overrides: Partial<ClientFetchRecord> = {}): ClientFetchRecord {
+    return {
+        kind: "fetch", at: 0, visitId: "v", path: "/p", url: `/api/${family}`, startMs: 0, durationMs, status: 200,
+        serverTiming: `total;dur=1.0, db;dur=1.0;desc="1 SQL", cache;desc="miss", endpoint;desc="${family}"`,
+        ...overrides,
+    };
+}
+
+describe("percentile / durationStats", () => {
     it("prend le rang le plus proche, quel que soit l'ordre reçu", () => {
         expect(percentile([30, 10, 20, 40], 50)).toBe(20);
         expect(percentile([30, 10, 20, 40], 95)).toBe(40);
-        expect(percentile([7], 95)).toBe(7);
+        expect(percentile([], 95)).toBe(0);
     });
 
-    it("vaut 0 pour une liste vide", () => {
-        expect(percentile([], 95)).toBe(0);
+    it("résume une série (0 partout si elle est vide)", () => {
+        expect(durationStats([10, 30, 20])).toEqual({ count: 3, avgMs: 20, p95Ms: 30, maxMs: 30 });
+        expect(durationStats([])).toEqual({ count: 0, avgMs: 0, p95Ms: 0, maxMs: 0 });
+    });
+});
+
+describe("percentileProfile / distributionChartRows", () => {
+    // 1, 2, … 100 ms : chaque percentile tombe sur sa propre valeur.
+    const durations = Array.from({ length: 100 }, (_, i) => i + 1);
+
+    it("donne p25, p50, p75, p90 et p95, quel que soit l'ordre reçu", () => {
+        expect(percentileProfile([...durations].reverse())).toEqual({
+            count: 100,
+            values: { 25: 25, 50: 50, 75: 75, 90: 90, 95: 95 },
+        });
+        expect(percentileProfile([])).toEqual({ count: 0, values: { 25: 0, 50: 0, 75: 0, 90: 0, 95: 0 } });
+    });
+
+    it("donne une barre par percentile, une série par durée", () => {
+        const rows = distributionChartRows({
+            browser: percentileProfile(durations),
+            server: percentileProfile(durations.map((d) => d / 2)),
+            database: percentileProfile([]),
+        });
+
+        expect(rows.map((r) => r.label)).toEqual(["p25", "p50", "p75", "p90", "p95"]);
+        expect(rows[1]).toEqual({ label: "p50", navigateur: 50, serveur: 25, base: 0 });
     });
 });
 
@@ -45,24 +80,18 @@ describe("endpointFamily / endpointDomain", () => {
         expect(endpointDomain("groupes-age")).toBe("groupes");
         expect(endpointDomain("depute-identity")).toBe("deputes");
         expect(endpointDomain("scrutin-hemicycle")).toBe("scrutins");
-        expect(endpointDomain("legislature-current")).toBe("legislatures");
         expect(endpointDomain("stat/acteurs/parite")).toBe("statistics");
         expect(endpointDomain("nouveau-truc")).toBe("autres");
     });
 });
 
 describe("summarizeByDomain", () => {
-    const fetchOf = (family: string, durationMs: number): ClientPerfRecord => ({
-        kind: "fetch", visitId: "v", path: "/p", url: `/api/${family}`, startMs: 0, durationMs, status: 200,
-        serverTiming: `total;dur=1.0, db;dur=1.0;desc="1 SQL", cache;desc="miss", endpoint;desc="${family}"`,
-    });
-
-    it("sépare sans cache / avec cache côté serveur, et ajoute la durée réseau du navigateur", () => {
+    it("regroupe tous les appels d'une requête : serveur, sans cache (SQL), avec cache, navigateur", () => {
         const [groupes] = summarizeByDomain(
             [
                 call("groupe-members", 100, { sqlMs: 80, sqlCount: 2 }),
                 call("groupe-members", 300, { sqlMs: 240, sqlCount: 2 }),
-                call("groupe-members", 4, { cacheHit: true, sqlMs: 0, sqlCount: 0 }),
+                call("groupe-members", 0.4, { cacheHit: true, sqlMs: 0, sqlCount: 0 }),
             ],
             [fetchOf("groupe-members", 150), fetchOf("groupe-members", 350)],
         );
@@ -70,145 +99,156 @@ describe("summarizeByDomain", () => {
         expect(groupes.domain).toBe("groupes");
         expect(groupes.requests[0]).toMatchObject({
             family: "groupe-members",
-            calls: 3,
+            server: { count: 3, maxMs: 300 },
             withoutCache: { count: 2, avgMs: 200, p95Ms: 300, avgSqlMs: 160, avgSqlCount: 2 },
-            withCache: { count: 1, avgMs: 4, p95Ms: 4 },
+            withCache: { count: 1, avgMs: 0.4 },
             network: { count: 2, avgMs: 250, p95Ms: 350 },
         });
     });
 
     it("range les domaines par nom et leurs requêtes de la plus lente à la plus rapide", () => {
-        const domains = summarizeByDomain(
-            [call("scrutin-detail", 5), call("groupe-cohesion", 10), call("groupe-members", 300)],
-            [],
-        );
+        const domains = summarizeByDomain([call("scrutin-detail", 5), call("groupe-cohesion", 10), call("groupe-members", 300)], []);
 
         expect(domains.map((d) => d.domain)).toEqual(["groupes", "scrutins"]);
         expect(domains[0].requests.map((r) => r.family)).toEqual(["groupe-members", "groupe-cohesion"]);
-        expect(domains[0].requests[0].network.count).toBe(0);
     });
 });
 
-describe("slowestQueries", () => {
-    it("garde les requêtes les plus lentes toutes routes confondues, avec leur endpoint", () => {
-        const top = slowestQueries([
-            call("a", 0, { endpoint: "a/1", queries: [{ text: "SELECT 1", durationMs: 5, offsetMs: 0 }, { text: "SELECT 2", durationMs: 50, offsetMs: 0 }] }),
-            call("b", 0, { endpoint: "b/1", queries: [{ text: "SELECT 3", durationMs: 20, offsetMs: 0 }] }),
-        ], 2);
+describe("cacheSpeedup", () => {
+    const [request] = summarizeByDomain([
+        call("groupe-members", 52, { sqlMs: 46 }),
+        call("groupe-members", 0.4, { cacheHit: true, sqlMs: 0 }),
+    ], [])[0].requests;
 
-        expect(top.map((q) => [q.text, q.endpoint])).toEqual([["SELECT 2", "a/1"], ["SELECT 3", "b/1"]]);
-    });
-});
+    it("donne les durées sans et avec cache et le facteur d'accélération (pas un pourcentage négatif)", () => {
+        const speedup = cacheSpeedup(request)!;
 
-describe("totaux par domaine et données des graphiques", () => {
-    // groupe-members : 2 appels sans cache (100 et 300 ms, SQL 80 et 240), 1 avec cache (4 ms)
-    // groupe-cohesion : 2 appels sans cache (10 et 30 ms, SQL 5 et 15)
-    const domains = summarizeByDomain([
-        call("groupe-members", 100, { sqlMs: 80 }),
-        call("groupe-members", 300, { sqlMs: 240 }),
-        call("groupe-members", 4, { cacheHit: true, sqlMs: 0, sqlCount: 0 }),
-        call("groupe-cohesion", 10, { sqlMs: 5 }),
-        call("groupe-cohesion", 30, { sqlMs: 15 }),
-    ], []);
-
-    it("calcule les moyennes du domaine pondérées par le nombre d'appels", () => {
-        expect(domains[0]).toMatchObject({
-            domain: "groupes",
-            withoutCache: { count: 4, avgMs: 110, avgSqlMs: 85 },
-            withCache: { count: 1, avgMs: 4 },
-            network: { count: 0, avgMs: 0 },
-        });
+        expect(speedup.withoutMs).toBe(52);
+        expect(speedup.withMs).toBe(0.4);
+        expect(speedup.factor).toBeCloseTo(130);
+        expect(speedup.savedMs).toBeCloseTo(51.6);
     });
 
-    it("donne une barre par requête : SQL + hors SQL empilés = serveur sans cache", () => {
-        expect(requestChartRows(domains[0].requests)).toEqual([
-            { label: "members", sql: 160, horsSql: 40, cache: 4, reseau: 0 },
-            { label: "cohesion", sql: 10, horsSql: 10, cache: 0, reseau: 0 },
-        ]);
-    });
+    it("plafonne le facteur quand la réponse du cache mesure 0 ms", () => {
+        const [instant] = summarizeByDomain([call("a-b", 10), call("a-b", 0, { cacheHit: true })], [])[0].requests;
 
-    it("donne une barre par domaine pour la vue d'ensemble", () => {
-        expect(domainChartRows(domains)).toEqual([{ label: "groupes", sql: 85, horsSql: 25, cache: 4, reseau: 0 }]);
-    });
-
-    it("raccourcit le nom d'une requête dans le graphique de son domaine", () => {
-        expect(shortRequestLabel("groupe-cohesion")).toBe("cohesion");
-        expect(shortRequestLabel("depute-amendement-stats")).toBe("amendement-stats");
-        expect(shortRequestLabel("stat/acteurs/parite")).toBe("acteurs/parite");
-        expect(shortRequestLabel("datasets")).toBe("datasets");
-    });
-});
-
-describe("comparePageVisits", () => {
-    const timing = (sqlMs: number, hit: boolean) =>
-        `total;dur=1.0, db;dur=${sqlMs.toFixed(1)};desc="1 SQL", cache;desc="${hit ? "hit" : "miss"}", endpoint;desc="groupe-members"`;
-    const apiCall = (visitId: string, path: string, startMs: number, durationMs: number, sqlMs: number, hit: boolean): ClientPerfRecord =>
-        ({ kind: "fetch", visitId, path, url: "/api/x", startMs, durationMs, status: 200, serverTiming: timing(sqlMs, hit) });
-
-    it("compare la première et la dernière visite d'une même page (cache froid puis chaud)", () => {
-        const [rn] = comparePageVisits([
-            apiCall("v1", "/groupes/RN", 0, 400, 300, false),
-            apiCall("v1", "/groupes/RN", 10, 200, 150, false),
-            apiCall("v2", "/deputydex", 0, 50, 20, false),
-            apiCall("v3", "/groupes/RN", 0, 30, 0, true),
-            apiCall("v3", "/groupes/RN", 5, 20, 0, true),
-        ]);
-
-        expect(rn).toEqual({
-            path: "/groupes/RN",
-            visits: 2,
-            first: { durationMs: 400, apiCalls: 2, cachedCalls: 0, sqlMs: 450 },
-            last: { durationMs: 30, apiCalls: 2, cachedCalls: 2, sqlMs: 0 },
-        });
-    });
-
-    it("ignore les pages visitées une seule fois", () => {
-        expect(comparePageVisits([apiCall("v1", "/scrutins", 0, 10, 5, false)])).toEqual([]);
-    });
-});
-
-describe("cacheGain", () => {
-    const request = (withoutCacheMs: number, withoutCount: number, withCacheMs: number, withCount: number) => ({
-        family: "groupe-members", calls: withoutCount + withCount,
-        withoutCache: { count: withoutCount, avgMs: withoutCacheMs, p95Ms: withoutCacheMs, avgSqlMs: 0, avgSqlCount: 0 },
-        withCache: { count: withCount, avgMs: withCacheMs, p95Ms: withCacheMs },
-        network: { count: 0, avgMs: 0, p95Ms: 0 },
-    });
-
-    it("donne la réduction de durée et les ms gagnées grâce au cache", () => {
-        expect(cacheGain(request(200, 1, 4, 3))).toEqual({ ratio: 0.98, savedMs: 196 });
+        expect(cacheSpeedup(instant)!.factor).toBe(1000);
     });
 
     it("vaut null tant qu'il manque des appels avec ou sans cache", () => {
-        expect(cacheGain(request(200, 2, 0, 0))).toBeNull();
-        expect(cacheGain(request(0, 0, 4, 2))).toBeNull();
+        const [missOnly] = summarizeByDomain([call("groupe-members", 52)], [])[0].requests;
+
+        expect(cacheSpeedup(missOnly)).toBeNull();
     });
 });
 
-describe("groupPageVisits", () => {
-    const section = (visitId: string, sectionId: string, startMs: number, durationMs: number): ClientPerfRecord =>
-        ({ kind: "section", visitId, path: `/p/${visitId}`, sectionId, startMs, durationMs, ok: true });
-    const fetchRec = (visitId: string, startMs: number, durationMs: number): ClientPerfRecord =>
-        ({ kind: "fetch", visitId, path: `/p/${visitId}`, url: "/api/x", startMs, durationMs, status: 200, serverTiming: null });
+describe("domainChartRows", () => {
+    it("donne par domaine la base de données et le reste du serveur (empilés), et le navigateur — sans la série du cache", () => {
+        const domains = summarizeByDomain(
+            [call("groupe-members", 100, { sqlMs: 80 }), call("groupe-cohesion", 20, { sqlMs: 10 }), call("groupe-cohesion", 1, { cacheHit: true })],
+            [fetchOf("groupe-members", 150)],
+        );
 
-    it("regroupe par visite, la plus récente d'abord, sections triées par début", () => {
-        const visits = groupPageVisits([
-            section("v1", "activite", 100, 50),
-            fetchRec("v1", 90, 40),
-            section("v2", "membres", 300, 100),
-            section("v2", "kpi", 120, 30),
+        expect(domainChartRows(domains)).toEqual([{ label: "groupes", sql: 45, horsSql: 15, reseau: 150 }]);
+    });
+});
+
+describe("summarizePages", () => {
+    const timing = (sqlMs: number, hit: boolean) =>
+        `total;dur=1.0, db;dur=${sqlMs.toFixed(1)};desc="1 SQL", cache;desc="${hit ? "hit" : "miss"}", endpoint;desc="groupe-members"`;
+    const apiCall = (visitId: string, path: string, at: number, durationMs: number, sqlMs: number, hit: boolean): ClientPerfRecord =>
+        fetchOf("groupe-members", durationMs, { visitId, path, at, serverTiming: timing(sqlMs, hit) });
+
+    it("regroupe les visites d'une même page et compare la première à la dernière", () => {
+        const pages = summarizePages([
+            apiCall("v1", "/groupes/RN", 1000, 400, 300, false),
+            apiCall("v1", "/groupes/RN", 1010, 200, 150, false),
+            apiCall("v2", "/deputydex", 2000, 50, 20, false),
+            apiCall("v3", "/groupes/RN", 3000, 30, 0, true),
+            apiCall("v3", "/groupes/RN", 3005, 20, 0, true),
         ]);
 
-        expect(visits.map((v) => v.visitId)).toEqual(["v2", "v1"]);
-        expect(visits[0].sections.map((s) => s.sectionId)).toEqual(["kpi", "membres"]);
-        expect(visits[0].durationMs).toBe(400);
-        expect(visits[1]).toMatchObject({ path: "/p/v1", durationMs: 150 });
-        expect(visits[1].fetches).toHaveLength(1);
+        expect(pages.map((p) => p.path)).toEqual(["/groupes/RN", "/deputydex"]);
+        expect(pages[0]).toMatchObject({
+            visits: 2,
+            duration: { count: 2, avgMs: 215, maxMs: 400 },
+            first: { durationMs: 400, apiCalls: 2, cachedCalls: 0, sqlMs: 450 },
+            last: { durationMs: 30, apiCalls: 2, cachedCalls: 2, sqlMs: 0 },
+        });
+        expect(pages[0].lastVisit.visitId).toBe("v3");
+    });
+});
+
+describe("groupSqlQueries", () => {
+    it("regroupe les exécutions d'une même requête SQL et trie par temps cumulé", () => {
+        const queries = groupSqlQueries([
+            call("groupe-members", 0, { queries: [{ text: "SELECT a", durationMs: 10, offsetMs: 0 }, { text: "SELECT b", durationMs: 50, offsetMs: 0 }] }),
+            call("groupe-cohesion", 0, { queries: [{ text: "SELECT a", durationMs: 30, offsetMs: 0 }] }),
+            call("groupe-members", 0, { queries: [{ text: "SELECT a", durationMs: 20, offsetMs: 0 }] }),
+        ]);
+
+        expect(queries.map((q) => q.text)).toEqual(["SELECT a", "SELECT b"]);
+        expect(queries[0]).toMatchObject({
+            count: 3, totalMs: 60, avgMs: 20, maxMs: 30, families: ["groupe-members", "groupe-cohesion"],
+        });
+    });
+});
+
+describe("liveData", () => {
+    // Horodatages construits en heure locale : les libellés « hh:mm:ss » le sont aussi.
+    const at = (h: number, m: number, s: number) => new Date(2026, 10, 21, h, m, s).getTime();
+    const now = at(11, 40, 0);
+    const timing = (totalMs: number, sqlMs: number, hit: boolean, family: string) =>
+        `total;dur=${totalMs.toFixed(1)}, db;dur=${sqlMs.toFixed(1)};desc="1 SQL", cache;desc="${hit ? "hit" : "miss"}", endpoint;desc="${family}"`;
+    const apiFetch = (family: string, when: number, navMs: number, serverMs: number, sqlMs: number, hit = false) =>
+        fetchOf(family, navMs, { at: when, serverTiming: timing(serverMs, sqlMs, hit, family) });
+
+    const client: ClientPerfRecord[] = [
+        apiFetch("groupe-members", at(11, 30, 0), 999, 900, 800),            // hors fenêtre de 5 min
+        apiFetch("groupe-members", at(11, 39, 10), 80, 60, 50),
+        apiFetch("groupe-cohesion", at(11, 39, 20), 70, 40, 30),
+        apiFetch("groupe-members", at(11, 39, 30), 20, 0.5, 0, true),       // servi par le cache
+    ];
+
+    it("donne, pour chaque appel de la fenêtre, ses trois durées mesurées sur le même appel", () => {
+        const live = liveData(client, { now, windowMs: 300_000, family: null });
+
+        expect(live.rows).toEqual([
+            { label: "11:39:10 · members", navigateur: 80, serveur: 60, base: 50, tendance: 80 },
+            { label: "11:39:20 · cohesion", navigateur: 70, serveur: 40, base: 30, tendance: 75 },
+            { label: "11:39:30 · members", navigateur: 20, serveur: 0.5, base: null, tendance: 56.7 },
+        ]);
     });
 
-    it("limite le nombre de visites rendues", () => {
-        const records = ["a", "b", "c"].map((id) => section(id, "s", 0, 1));
+    it("résume la fenêtre : base de données sur les seuls appels exécutés, part du cache", () => {
+        const { stats } = liveData(client, { now, windowMs: 300_000, family: null });
 
-        expect(groupPageVisits(records, 2).map((v) => v.visitId)).toEqual(["c", "b"]);
+        expect(stats).toMatchObject({
+            calls: 3,
+            browser: { count: 3, maxMs: 80 },
+            database: { count: 2, avgMs: 40 },
+            cacheRate: 1 / 3,
+        });
+    });
+
+    it("donne la distribution des trois durées sur les mêmes appels (base hors cache)", () => {
+        const { distribution } = liveData(client, { now, windowMs: 300_000, family: null });
+
+        expect(distribution.browser).toEqual({ count: 3, values: { 25: 20, 50: 70, 75: 80, 90: 80, 95: 80 } });
+        expect(distribution.database.count).toBe(2);
+        expect(distribution.database.values[50]).toBe(30);
+    });
+
+    it("suit une seule requête quand on la choisit, sur toutes les mesures", () => {
+        const live = liveData(client, { now, windowMs: null, family: "groupe-members" });
+
+        expect(live.rows.map((r) => r.navigateur)).toEqual([999, 80, 20]);
+    });
+
+    it("ne garde que les derniers appels pour rester lisible", () => {
+        const live = liveData(client, { now, windowMs: null, family: null }, 2);
+
+        expect(live.rows.map((r) => r.label)).toEqual(["11:39:20 · cohesion", "11:39:30 · members"]);
+        expect(live.stats.calls).toBe(4);
     });
 });
