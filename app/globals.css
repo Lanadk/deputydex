@@ -2356,15 +2356,26 @@
             color-mix(in srgb, var(--accent) 22%, transparent), transparent 68%);
     }
 
+    /* --hemi-seat-scale : taille des sièges (1 = taille d'origine ; au-delà de ~1.4,
+       les sièges d'une même rangée se touchent). */
     .hemicycle-seat {
         position: absolute;
-        width: 1.25%;
-        height: 3.1%;
-        margin: -1.55% 0 0 -.62%;
+        width: calc(1.25% * var(--hemi-seat-scale, 1));
+        height: calc(3.1% * var(--hemi-seat-scale, 1));
+        margin: calc(-1.55% * var(--hemi-seat-scale, 1)) 0 0 calc(-.62% * var(--hemi-seat-scale, 1));
         border-radius: 2px;
         box-shadow: 0 2px 3px rgb(0 0 0 / .35);
         transition: opacity .4s, transform .4s cubic-bezier(.2, .7, .2, 1);
         animation: hemicycle-seat-in .55s cubic-bezier(.2, .7, .2, 1) backwards;
+    }
+
+    /* Siège survolable (fiche scrutin) : zone de survol invisible plus large que le
+       siège, qui comble les espaces entre voisins pour que la souris ne « tombe »
+       pas entre deux sièges. */
+    .hemicycle-seat--hoverable::before {
+        content: "";
+        position: absolute;
+        inset: -35% -40%;
     }
 
     @keyframes hemicycle-seat-in {

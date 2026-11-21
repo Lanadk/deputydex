@@ -27,6 +27,7 @@ export function BlockHemicycleRenderer({ config, data, loading }: BlockHemicycle
                         ariaLabel={data.ariaLabel}
                         title={config.title}
                         subtitle={config.subtitle}
+                        seatScale={config.seatScale}
                     />
                 </div>
             ) : (

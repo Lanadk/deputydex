@@ -19,7 +19,14 @@ type ScrutinHemicyclePlanProps = {
      * sur la fiche scrutin, l'info-bulle suffit et le soulèvement masque les voisins.
      */
     liftOnHover?: boolean;
+    /**
+     * Taille des sièges, en multiple de la taille d'origine du plan (1). Plus gros,
+     * ils sont plus faciles à survoler ; au-delà de ~1.4, ils se touchent.
+     */
+    seatScale?: number;
 };
+
+export const DEFAULT_SEAT_SCALE = 1.3;
 
 /**
  * Hémicycle d'un scrutin sur le plan 3D de #161 : réutilise le calcul des positions
@@ -38,7 +45,16 @@ const STAGE_VARS = {
 
 type Hover = { index: number; x: number; y: number };
 
-export function ScrutinHemicyclePlan({ seats, legend = [], ariaLabel, title, subtitle, liftOnHover = false }: ScrutinHemicyclePlanProps) {
+export function ScrutinHemicyclePlan({
+    seats,
+    legend = [],
+    ariaLabel,
+    title,
+    subtitle,
+    liftOnHover = false,
+    seatScale = DEFAULT_SEAT_SCALE,
+}: ScrutinHemicyclePlanProps) {
+    const stageVars = { ...STAGE_VARS, "--hemi-seat-scale": String(seatScale) } as React.CSSProperties;
     const containerRef = useRef<HTMLDivElement>(null);
     const [hover, setHover] = useState<Hover | null>(null);
     const [highlight, setHighlight] = useState<string | null>(null);
@@ -47,7 +63,10 @@ export function ScrutinHemicyclePlan({ seats, legend = [], ariaLabel, title, sub
     // dans l'ordre gauche → droite ; l'ordre des sièges reçus fait le reste.
     const positions = useMemo(() => computeHemicycleSeats([{ code: "salle", count: seats.length }]), [seats.length]);
     const total = positions.length;
-    const hoveredSeat = hover ? seats[hover.index] : null;
+    // Un siège grisé par la mise en avant d'une position n'a pas d'info-bulle
+    // (y compris s'il était survolé au moment du clic sur la légende).
+    const isOnSeat = (seat: HemicycleSeatData | undefined) => !!seat && (highlight === null || seat.key === highlight);
+    const hoveredSeat = hover && isOnSeat(seats[hover.index]) ? seats[hover.index] : null;
     const tooltipTheme = hoveredSeat?.tooltipTheme;
 
     // Le plan est incliné en 3D : l'info-bulle suit la souris plutôt que la position
@@ -68,14 +87,14 @@ export function ScrutinHemicyclePlan({ seats, legend = [], ariaLabel, title, sub
             )}
 
             <div ref={containerRef} className="relative">
-                <div className="hemicycle-stage" style={STAGE_VARS} role="img" aria-label={ariaLabel}>
+                <div className="hemicycle-stage" style={stageVars} role="img" aria-label={ariaLabel}>
                     <div className="hemicycle-plane">
                         <div className="hemicycle-glow" />
                         {positions.map((p, i) => {
                             const seat = seats[i];
                             if (!seat) return null;
-                            const isOn = highlight === null || seat.key === highlight;
-                            const isHovered = hover?.index === i;
+                            const isOn = isOnSeat(seat);
+                            const isHovered = isOn && hover?.index === i;
                             const lift = liftOnHover && isHovered ? "translateZ(30px) scale(1.6) " : highlight && isOn ? "translateZ(18px) " : "";
                             const style: React.CSSProperties = {
                                 left: `${p.left.toFixed(2)}%`,
@@ -86,6 +105,9 @@ export function ScrutinHemicyclePlan({ seats, legend = [], ariaLabel, title, sub
                                 opacity: isOn ? 1 : 0.16,
                                 outline: isHovered && !liftOnHover ? "2px solid var(--foreground)" : undefined,
                                 cursor: seat.href ? "pointer" : "default",
+                                // Siège grisé : ni survol ni clic, la souris passe au travers
+                                // (vers les sièges mis en avant, soulevés au-dessus).
+                                pointerEvents: isOn ? undefined : "none",
                             };
                             const handlers = {
                                 onMouseEnter: trackHover(i),
@@ -94,9 +116,9 @@ export function ScrutinHemicyclePlan({ seats, legend = [], ariaLabel, title, sub
                             };
                             // Lien natif hors tabulation : la liste nominative de la fiche sert d'accès clavier.
                             return seat.href ? (
-                                <a key={seat.id} href={seat.href} tabIndex={-1} className="hemicycle-seat" style={style} {...handlers} />
+                                <a key={seat.id} href={seat.href} tabIndex={-1} className="hemicycle-seat hemicycle-seat--hoverable" style={style} {...handlers} />
                             ) : (
-                                <div key={seat.id} className="hemicycle-seat" style={style} {...handlers} />
+                                <div key={seat.id} className="hemicycle-seat hemicycle-seat--hoverable" style={style} {...handlers} />
                             );
                         })}
                     </div>

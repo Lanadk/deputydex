@@ -72,6 +72,17 @@ describe("ScrutinHemicyclePlan", () => {
         expect(screen.getByRole("tooltip")).toHaveClass("bg-surface-1");
     });
 
+    it("règle la taille des sièges (1.3 par défaut, paramétrable)", () => {
+        const { container, rerender } = render(<ScrutinHemicyclePlan ariaLabel="hémicycle" seats={SEATS} />);
+        const stage = () => container.querySelector<HTMLElement>(".hemicycle-stage")!;
+
+        expect(stage().style.getPropertyValue("--hemi-seat-scale")).toBe("1.3");
+
+        rerender(<ScrutinHemicyclePlan ariaLabel="hémicycle" seats={SEATS} seatScale={1.1} />);
+        expect(stage().style.getPropertyValue("--hemi-seat-scale")).toBe("1.1");
+        expect(seatElements(container).every((s) => s.classList.contains("hemicycle-seat--hoverable"))).toBe(true);
+    });
+
     it("soulève le siège survolé quand liftOnHover est activé", () => {
         const { container } = render(<ScrutinHemicyclePlan ariaLabel="hémicycle" seats={SEATS} liftOnHover />);
         const [first] = seatElements(container);
@@ -102,6 +113,23 @@ describe("ScrutinHemicyclePlan", () => {
 
         fireEvent.click(contre);
         expect(seatElements(container).map((s) => s.style.opacity)).toEqual(["1", "1", "1"]);
+    });
+
+    it("ne réagit plus au survol des sièges grisés quand une position est mise en avant", () => {
+        const { container } = render(<ScrutinHemicyclePlan ariaLabel="hémicycle" seats={SEATS} legend={LEGEND} />);
+        const [first, second] = seatElements(container);
+
+        fireEvent.mouseEnter(first, { clientX: 10, clientY: 10 });
+        expect(screen.getByRole("tooltip")).toHaveTextContent("Alice Martin");
+
+        // Mise en avant de « Contre » : Alice (Pour) est grisée, son info-bulle disparaît.
+        fireEvent.click(screen.getByRole("button", { name: /Contre/ }));
+        expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+        expect(first.style.pointerEvents).toBe("none");
+
+        fireEvent.mouseEnter(second, { clientX: 10, clientY: 10 });
+        expect(screen.getByRole("tooltip")).toHaveTextContent("Bruno Petit");
+        expect(second.style.pointerEvents).toBe("");
     });
 
     it("affiche un titre et un sous-titre optionnels", () => {
