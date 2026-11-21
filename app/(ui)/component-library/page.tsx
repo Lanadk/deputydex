@@ -61,10 +61,25 @@ const components: Record<string, ComponentTheme[]> = {
             theme: 'États de page',
             items: [
                 { name: 'PageState', description: '404, erreur, aucun résultat', path: '/component-library/molecules/page-state' },
+                { name: 'Spinner', description: 'Indicateur de chargement', path: '/component-library/molecules/spinner' },
+            ],
+        },
+        {
+            theme: 'Outils',
+            items: [
+                { name: 'ThemeSwitcher', description: 'Choix du thème du site', path: '/component-library/molecules/theme-switcher' },
+                { name: 'CodeBlock', description: 'Aperçu + code des démos', path: '/component-library/molecules/code-block' },
             ],
         },
     ],
     Templates: [
+        {
+            theme: 'Mise en page',
+            items: [
+                { name: 'BaseLayout', description: 'Conteneur commun des pages', path: '/component-library/template/base-layout' },
+                { name: 'PageContent', description: 'Empilement des sections', path: '/component-library/template/page-content' },
+            ],
+        },
         {
             theme: 'En-têtes',
             items: [
@@ -75,7 +90,7 @@ const components: Record<string, ComponentTheme[]> = {
             theme: 'Sections',
             items: [
                 { name: 'BlockSection', description: 'Sections de page pilotées par config', path: '/component-library/template/sections/block-section' },
-                { name: 'AnchorSection', description: 'Mise en page avec navigation par ancres', path: '/component-library/template/sections/anchor-section' },
+                { name: 'AnchorSection', description: 'Navigation par ancres et ses layouts', path: '/component-library/template/sections/anchor-section' },
             ],
         },
     ],

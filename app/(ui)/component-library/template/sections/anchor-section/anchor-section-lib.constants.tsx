@@ -1,5 +1,41 @@
 import React from "react";
+import { BarChart3, Users, Vote } from "lucide-react";
 import {WireBox, WireLabel} from "@/app/(ui)/component-library/template/debug/wireframe/wire-frame.utils";
+import { AnchorNavLib } from "@/app/(ui)/component-library/template/sections/anchor-section/anchor-nav-lib";
+import { AnchorSectionProvider } from "@/app/(ui)/component-library/template/sections/anchor-section/anchor-section-provider";
+import { AnchorSection } from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
+
+const DEMO_NAV_SECTIONS: AnchorSection[] = [
+    { id: "demo-demographie", label: "Démographie", icon: Users },
+    { id: "demo-votes", label: "Votes", icon: Vote },
+    { id: "demo-activite", label: "Activité", icon: BarChart3 },
+];
+
+// Rendu réel de la nav : la première section est active (pas de cible à faire défiler ici).
+const AnchorNavDemo = () => (
+    <div className="w-52">
+        <AnchorSectionProvider initialId={DEMO_NAV_SECTIONS[0].id}>
+            <AnchorNavLib sections={DEMO_NAV_SECTIONS} label="Sections" />
+        </AnchorSectionProvider>
+    </div>
+);
+
+const WireframeAnchorLayoutFixHeader = () => (
+    <div className="w-full border border-main rounded-lg overflow-hidden" style={{ borderStyle: "dashed" }}>
+        <div className="px-4 py-3 border-b border-main" style={{ borderStyle: "dashed", backgroundColor: "var(--surface-2)" }}>
+            <WireLabel>header (custom) ou PageHeaderLib</WireLabel>
+        </div>
+        <div className="flex gap-0">
+            <div className="w-44 shrink-0 border-r border-main p-3" style={{ borderStyle: "dashed", backgroundColor: "var(--surface-2)" }}>
+                <WireLabel>AnchorNavLib</WireLabel>
+            </div>
+            <div className="flex-1 p-4 flex flex-col gap-3">
+                <WireBox label="fixedBar (ex. barre de recherche / filtres)" height="h-10" />
+                <WireBox label="children" height="h-20" />
+            </div>
+        </div>
+    </div>
+);
 
 
 //Wireframes
@@ -123,6 +159,20 @@ const CODE_ANCHOR_SECTION_BLOCK = `
     {/* blocks ici */}
 </AnchorSectionBlock>`;
 
+const CODE_ANCHOR_NAV = `
+<AnchorSectionProvider initialId={sections[0].id}>
+    <AnchorNavLib sections={sections} label="Sections" />
+</AnchorSectionProvider>`;
+
+const CODE_ANCHOR_LAYOUT_FIX_HEADER = `
+<AnchorLayoutFixHeader
+    header={<MonHeader />}
+    fixedBar={<FilterBarLib ... />}
+    sections={SECTIONS}
+>
+    {children}
+</AnchorLayoutFixHeader>`;
+
 //Section export
 export const getAnchorSectionLibSections = () => [
     {
@@ -136,5 +186,17 @@ export const getAnchorSectionLibSections = () => [
         description: "Wrapper de section avec ancre HTML, header icône + titre + description, et grille responsive à N colonnes.",
         code: CODE_ANCHOR_SECTION_BLOCK,
         component: <WireframeAnchorSectionBlock />,
+    },
+    {
+        title: "AnchorNavLib — Navigation par ancres",
+        description: "Rendu réel. Sur une page, la section visible devient active au défilement et un clic fait défiler jusqu'à la section. Doit être dans un AnchorSectionProvider (fourni par les layouts).",
+        code: CODE_ANCHOR_NAV,
+        component: <AnchorNavDemo />,
+    },
+    {
+        title: "AnchorLayoutFixHeader — Variante avec header custom et barre fixe",
+        description: "Comme AnchorLayout, avec un header personnalisable et une barre (fixedBar) au-dessus du contenu. Utilisé par la page Députédex.",
+        code: CODE_ANCHOR_LAYOUT_FIX_HEADER,
+        component: <WireframeAnchorLayoutFixHeader />,
     },
 ];
