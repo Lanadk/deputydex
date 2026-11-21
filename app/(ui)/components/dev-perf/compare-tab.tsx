@@ -41,12 +41,14 @@ function ComparisonTable({ title, keyLabel, rows }: { title: string; keyLabel: s
                                 <td className={tdNum}>
                                     {r.before ? <Ms ms={r.before.p50Ms} /> : "—"} → {r.after ? <Ms ms={r.after.p50Ms} /> : "—"}
                                 </td>
-                                <td className={tdNum}><Delta pct={r.p50DeltaPct} /></td>
+                                <td className={tdNum}><Delta delta={r.p50} /></td>
                                 <td className={tdNum}>
                                     {r.before ? <Ms ms={r.before.p95Ms} /> : "—"} → {r.after ? <Ms ms={r.after.p95Ms} /> : "—"}
                                 </td>
-                                <td className={tdNum}><Delta pct={r.p95DeltaPct} /></td>
-                                <td className={tdNum}>{r.before?.count ?? 0} / {r.after?.count ?? 0}</td>
+                                <td className={tdNum}><Delta delta={r.p95} /></td>
+                                <td className={`${tdNum} ${r.fewSamples ? "text-subtitle-accent" : ""}`}>
+                                    {r.before?.count ?? 0} / {r.after?.count ?? 0}{r.fewSamples && " (trop peu)"}
+                                </td>
                             </tr>
                         ))}
                     </tbody>
@@ -119,7 +121,7 @@ export function CompareTab({ snapshot }: { snapshot: DevPerfSnapshot }) {
         <section className="flex flex-col gap-4">
             <SectionTitle
                 title="Comparaison avec une référence"
-                hint="Mesure une première fois (« avant »), enregistre-la comme référence, applique ton optimisation, vide les mesures et mesure de nouveau : les écarts p50 / p95 apparaissent par requête et par page. Vert : plus rapide ; rouge : plus lent ; en deçà de ±10 %, l'écart est considéré comme du bruit."
+                hint="Mesure une première fois (« avant »), enregistre-la comme référence, applique ton optimisation, vide les mesures et mesure de nouveau : les écarts p50 / p95 apparaissent par requête et par page. Vert : plus rapide ; rouge : plus lent ; en deçà de ±10 %, l'écart est considéré comme du bruit. Sous 1 ms de référence (réponse du cache), l'écart est donné en ms (bruit : ±5 ms). Avec moins de 5 mesures d'un côté, l'écart est grisé (« ? ») et classé après les écarts fiables : sur si peu de mesures, le p95 n'est que la plus lente."
             />
 
             <div className={`${card} flex flex-col gap-3`}>

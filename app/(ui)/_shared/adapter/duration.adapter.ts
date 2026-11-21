@@ -1,3 +1,5 @@
+import { DeltaTrend } from "@/app/_shared/dev-perf/dev-perf.baseline";
+
 /**
  * Couleur d'une durée (ms) selon sa lenteur, pour la lire d'un coup d'œil
  * (outil de perf /dev/perf) :
@@ -29,13 +31,18 @@ export function renderDurationColor(ms: number): string | undefined {
 }
 
 /**
- * Écart à la référence (en %) en deçà duquel on considère que rien n'a bougé :
- * deux séries de mesures varient toujours un peu (cache disque, autres process).
+ * Couleur d'un écart à la référence (règle du bruit : `compareDurations`) :
+ * vert si plus rapide, rouge si plus lent ; rien dans le bruit ; grisé si trop peu de mesures.
  */
-export const DELTA_NOISE_PCT = 10;
-
-/** Couleur d'un écart de durée par rapport à la référence : vert si plus rapide, rouge si plus lent. */
-export function deltaColor(pct: number | null): string | undefined {
-    if (pct === null || Math.abs(pct) < DELTA_NOISE_PCT) return undefined;
-    return pct < 0 ? "var(--ui-success)" : "var(--ui-danger)";
+export function deltaColor(trend: DeltaTrend | undefined): string | undefined {
+    switch (trend) {
+        case "faster":
+            return "var(--ui-success)";
+        case "slower":
+            return "var(--ui-danger)";
+        case "uncertain":
+            return "var(--subtitle-accent)";
+        default:
+            return undefined;
+    }
 }

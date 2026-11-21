@@ -10,12 +10,12 @@ describe("renderDurationColor", () => {
 });
 
 describe("deltaColor", () => {
-    it("vert si plus rapide, rouge si plus lent, rien sous le bruit de ±10 %", () => {
-        expect(deltaColor(-35)).toBe("var(--ui-success)");
-        expect(deltaColor(42)).toBe("var(--ui-danger)");
-        expect(deltaColor(9.9)).toBeUndefined();
-        expect(deltaColor(-9.9)).toBeUndefined();
-        expect(deltaColor(null)).toBeUndefined();
+    it("vert si plus rapide, rouge si plus lent, rien dans le bruit, grisé si trop peu de mesures", () => {
+        expect(deltaColor("faster")).toBe("var(--ui-success)");
+        expect(deltaColor("slower")).toBe("var(--ui-danger)");
+        expect(deltaColor("same")).toBeUndefined();
+        expect(deltaColor("uncertain")).toBe("var(--subtitle-accent)");
+        expect(deltaColor(undefined)).toBeUndefined();
     });
 });
 

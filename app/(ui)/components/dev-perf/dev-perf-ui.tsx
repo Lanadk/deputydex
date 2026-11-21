@@ -1,5 +1,6 @@
 import React from "react";
 import { DurationStats, VisitStats } from "@/app/_shared/dev-perf/dev-perf.aggregate";
+import { Delta as DeltaValue, MIN_COMPARABLE_SAMPLES } from "@/app/_shared/dev-perf/dev-perf.baseline";
 import { deltaColor, durationColor } from "@/app/(ui)/_shared/adapter/duration.adapter";
 
 /*
@@ -61,9 +62,29 @@ export function Evolution({ first, last }: { first: VisitStats; last: VisitStats
     return <><Ms ms={first.durationMs} /> → <Ms ms={last.durationMs} /> ({formatPct(pct)})</>;
 }
 
-/** Écart à la référence : vert si plus rapide, rouge si plus lent (au-delà du bruit de mesure). */
-export function Delta({ pct }: { pct: number | null }) {
-    return <span style={{ color: deltaColor(pct) }}>{formatPct(pct)}</span>;
+/** « +41 ms », « −0,3 ms » : écart en ms (référence sous 1 ms, où un % n'a pas de sens). */
+export function formatDeltaMs(ms: number): string {
+    const sign = ms > 0 ? "+" : ms < 0 ? "−" : "";
+    return `${sign}${formatMs(Math.abs(ms))}`;
+}
+
+/**
+ * Écart à la référence : en % (en ms si la référence est sous 1 ms) ; vert si
+ * plus rapide, rouge si plus lent, au-delà du bruit ; grisé et marqué « ? »
+ * quand il repose sur trop peu de mesures.
+ */
+export function Delta({ delta }: { delta: DeltaValue | null }) {
+    if (!delta) return <>—</>;
+    const text = delta.pct === null ? formatDeltaMs(delta.ms) : formatPct(delta.pct);
+    const uncertain = delta.trend === "uncertain";
+    return (
+        <span
+            style={{ color: deltaColor(delta.trend) }}
+            title={uncertain ? `Trop peu de mesures (moins de ${MIN_COMPARABLE_SAMPLES} d'un côté) : écart indicatif.` : undefined}
+        >
+            {text}{uncertain && " ?"}
+        </span>
+    );
 }
 
 // ── Mise en page ──────────────────────────────────────────────────────────

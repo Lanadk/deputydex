@@ -63,30 +63,85 @@ export function deltaPct(before: number | undefined, after: number | undefined):
     return ((after - before) / before) * 100;
 }
 
+/*
+ * Un écart n'est significatif que s'il dépasse le bruit de mesure, et un %
+ * n'a de sens que sur une référence assez longue : de 0,2 ms (réponse du cache)
+ * à 41 ms (appel exécuté), « +25 000 % » ne dit rien d'utile. Sous 1 ms de
+ * référence, l'écart est donc donné en ms ; et avec trop peu de mesures (sur
+ * 3 mesures, le p95 n'est que la plus lente), il est signalé comme incertain.
+ */
+
+/** Écart en % sous lequel deux séries sont jugées identiques (bruit de mesure). */
+export const DELTA_NOISE_PCT = 10;
+/** Référence sous laquelle l'écart est donné en ms plutôt qu'en %. */
+export const SMALL_BASE_MS = 1;
+/** Écart en ms sous lequel une référence sous 1 ms est jugée inchangée. */
+export const DELTA_NOISE_MS = 5;
+/** Mesures nécessaires de chaque côté pour qu'un écart soit fiable. */
+export const MIN_COMPARABLE_SAMPLES = 5;
+
+/** slower / faster : écart significatif ; same : dans le bruit ; uncertain : trop peu de mesures. */
+export type DeltaTrend = "slower" | "faster" | "same" | "uncertain";
+
+export type Delta = {
+    /** Écart en ms (positif = plus lent) */
+    ms: number;
+    /** Écart en % ; null quand la référence est sous SMALL_BASE_MS (l'écart se lit en ms) */
+    pct: number | null;
+    trend: DeltaTrend;
+};
+
+/** Écart entre deux durées ; null s'il manque l'une des deux. */
+export function compareDurations(before: number | undefined, after: number | undefined, fewSamples: boolean): Delta | null {
+    if (before === undefined || after === undefined) return null;
+    const ms = after - before;
+    const pct = before >= SMALL_BASE_MS ? deltaPct(before, after) : null;
+    const significant = pct === null ? Math.abs(ms) >= DELTA_NOISE_MS : Math.abs(pct) >= DELTA_NOISE_PCT;
+    const trend: DeltaTrend = fewSamples ? "uncertain" : !significant ? "same" : ms > 0 ? "slower" : "faster";
+    return { ms, pct, trend };
+}
+
 export type ComparisonRow = {
     key: string;
     before: Quantiles | null;
     after: Quantiles | null;
-    p50DeltaPct: number | null;
-    p95DeltaPct: number | null;
+    p50: Delta | null;
+    p95: Delta | null;
+    /** Moins de MIN_COMPARABLE_SAMPLES mesures d'un côté : écarts indicatifs seulement */
+    fewSamples: boolean;
 };
 
+/**
+ * Gravité d'un écart pour le tri : % rapporté à une référence d'au moins 1 ms,
+ * pour qu'un 0,2 → 41 ms ne passe pas devant une vraie régression de 100 → 300 ms.
+ */
+function severity(d: Delta | null, before: number | undefined): number {
+    if (!d || before === undefined) return -Infinity;
+    return (d.ms / Math.max(before, SMALL_BASE_MS)) * 100;
+}
+
 function compareSeries(before: Record<string, Quantiles>, after: Record<string, Quantiles>): ComparisonRow[] {
+    const rank = (r: ComparisonRow) => (!r.before || !r.after ? 2 : r.fewSamples ? 1 : 0);
     return [...new Set([...Object.keys(before), ...Object.keys(after)])]
         .map((key) => {
             const b = before[key]?.count ? before[key] : null;
             const a = after[key]?.count ? after[key] : null;
+            const fewSamples = !!b && !!a && Math.min(b.count, a.count) < MIN_COMPARABLE_SAMPLES;
             return {
                 key,
                 before: b,
                 after: a,
-                p50DeltaPct: deltaPct(b?.p50Ms, a?.p50Ms),
-                p95DeltaPct: deltaPct(b?.p95Ms, a?.p95Ms),
+                p50: compareDurations(b?.p50Ms, a?.p50Ms, fewSamples),
+                p95: compareDurations(b?.p95Ms, a?.p95Ms, fewSamples),
+                fewSamples,
             };
         })
         .filter((row) => row.before || row.after)
-        // Régressions d'abord (p95 qui augmente le plus), puis le reste ; sans comparaison possible en dernier.
-        .sort((x, y) => (y.p95DeltaPct ?? -Infinity) - (x.p95DeltaPct ?? -Infinity) || x.key.localeCompare(y.key));
+        // Écarts fiables d'abord (régressions en tête, p95), puis ceux sur trop peu de mesures,
+        // puis les requêtes apparues ou disparues.
+        .sort((x, y) => rank(x) - rank(y)
+            || severity(y.p95, y.before?.p95Ms) - severity(x.p95, x.before?.p95Ms)
+            || x.key.localeCompare(y.key));
 }
 
 /**
