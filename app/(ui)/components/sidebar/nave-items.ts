@@ -1,4 +1,5 @@
-import {BarChart3, Component, Layers, Grid3x3, HandHelping, MessageCircleMore, Database, Scale, GitPullRequest, Vote} from "lucide-react";
+import {BarChart3, Component, Gauge, Layers, Grid3x3, HandHelping, MessageCircleMore, Database, Scale, GitPullRequest, Vote} from "lucide-react";
+import {DEV_PERF_ENABLED} from "@/app/_shared/dev-perf/dev-perf.config";
 
 export const NAVITEMS = [
     {label: "DeputeDex", href: "/deputydex", icon: Grid3x3, section: "deputydex"},
@@ -14,5 +15,10 @@ export const NAVITEMS = [
     // par un notFound() côté serveur dans component-library/layout.tsx.
     ...(process.env.NODE_ENV !== "production"
         ? [{label: "Lib component", href: "/component-library", icon: Component, section: "component-library"}]
+        : []),
+    // Outil de perf : visible seulement avec NEXT_PUBLIC_DEV_PERF=true (la page
+    // répond 404 sans), à côté de la component-library (même groupe d'outils de dev).
+    ...(DEV_PERF_ENABLED
+        ? [{label: "Performances", href: "/dev/perf", icon: Gauge, section: "component-library"}]
         : []),
 ];

@@ -1,3 +1,5 @@
+import { DEV_PERF_ENABLED } from "@/app/_shared/dev-perf/dev-perf.config";
+
 /**
  * Configuration du cache serveur pour les endpoints de lecture adossés à Postgres.
  *
@@ -24,8 +26,16 @@ export const CACHE_TTL_SECONDS = {
     WEEK: 60 * 60 * 24 * 7,
 } as const;
 
+/**
+ * Mesure locale avec cache (outil de perf, voir app/6.DEV-PERF.md) : avec
+ * NEXT_PUBLIC_DEV_PERF=true ET DEV_PERF_CACHE=true dans `.env.local`, le cache
+ * est actif (1 jour) sur ton poste, pour comparer « sans cache » et « avec
+ * cache » sur /dev/perf. Sans l'outil de perf (production), sans effet.
+ */
+const DEV_PERF_CACHE = DEV_PERF_ENABLED && process.env.DEV_PERF_CACHE === "true";
+
 /** TTL actuellement actif pour l'ensemble des endpoints de lecture cachés. */
-export const ACTIVE_CACHE_TTL_SECONDS: number = CACHE_TTL_SECONDS.NO_CACHE;
+export const ACTIVE_CACHE_TTL_SECONDS: number = DEV_PERF_CACHE ? CACHE_TTL_SECONDS.DAY : CACHE_TTL_SECONDS.NO_CACHE;
 
 /**
  * Tag partagé par toutes les entrées de cache "données parlementaires".
