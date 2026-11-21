@@ -16,10 +16,12 @@ import {BaseLayout} from "@/app/(ui)/component-library/template/base-layout/base
 
 export default function GroupesPageClient() {
     const {legislature} = useLegislature();
-    const legislatureNumber = legislature?.number ?? 0;
+    // null tant que la législature courante n'est pas chargée : aucune requête d'ici là.
+    const legislatureNumber = legislature?.number ?? null;
     const [groupes, setGroupes] = useState<GroupeCardDTO[]>([]);
 
     useEffect(() => {
+        if (legislatureNumber === null) return;
         groupesGateways.getGroupesCards(legislatureNumber)
             .then(setGroupes)
             .catch(console.error);

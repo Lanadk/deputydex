@@ -16,7 +16,9 @@ export default function DeputePageClient({ uid }: { uid: string }) {
     const [readyCount, setReadyCount] = useState(0);
     const [identity, setIdentity] = useState<DeputeIdentityDTO>();
     const { legislature, legislatures, setUnavailableLegislatureNumbers } = useLegislature();
-    const legislatureNum = legislature?.number ?? 17;
+    // null tant que la législature courante n'est pas chargée : ni en-tête ni
+    // sections ne sont demandés d'ici là (sinon une requête part pour rien).
+    const legislatureNum = legislature?.number ?? null;
 
     const params = useMemo(
         () => ({ uid, legislature: legislatureNum }),
@@ -24,6 +26,7 @@ export default function DeputePageClient({ uid }: { uid: string }) {
     );
 
     useEffect(() => {
+        if (legislatureNum === null) return;
         deputesGateway
             .getDeputeIdentity(uid, legislatureNum)
             .then(setIdentity)
@@ -36,6 +39,9 @@ export default function DeputePageClient({ uid }: { uid: string }) {
     // grise donc ces législatures dans le sélecteur global, comme pour les
     // groupes (cf. groupe-page-client.tsx).
     useEffect(() => {
+        // Liste des législatures pas encore chargée : rien à griser, et la
+        // requête serait refaite dès son arrivée.
+        if (legislatures.length === 0) return;
         let cancelled = false;
 
         deputesGateway.getDeputeLegislatures(uid)
@@ -76,7 +82,7 @@ export default function DeputePageClient({ uid }: { uid: string }) {
                 )}
                 <div className={allReady ? "" : "hidden"}>
                     <PageContentLib>
-                        {DEPUTE_SECTIONS.map((section) => (
+                        {legislatureNum !== null && DEPUTE_SECTIONS.map((section) => (
                             <SectionBlockLoader
                                 key={section.id}
                                 section={section}

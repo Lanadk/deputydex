@@ -16,12 +16,15 @@ export default function GroupePageClient({code}: { code: string }) {
     const [readyCount, setReadyCount] = useState(0);
     const [groupeInfos, setGroupeInfos] = useState<GroupeInfosDTO>();
     const {legislature, legislatures, setUnavailableLegislatureNumbers} = useLegislature();
-    const legislatureNum = legislature?.number ?? 17;
+    // null tant que la législature courante n'est pas chargée : ni en-tête ni
+    // sections ne sont demandés d'ici là (sinon une requête part pour rien).
+    const legislatureNum = legislature?.number ?? null;
 
     const params = useMemo(() => ({ code, legislature: legislatureNum }), [code, legislatureNum]);
 
 
     useEffect(() => {
+        if (legislatureNum === null) return;
         groupesGateways.getGroupeInfos(code, legislatureNum)
             .then(setGroupeInfos)
             .catch(console.error);
@@ -32,6 +35,9 @@ export default function GroupePageClient({code}: { code: string }) {
     // fiable entre les deux, donc on grise plutôt les législatures où ce
     // code n'a pas existé dans le sélecteur global.
     useEffect(() => {
+        // Liste des législatures pas encore chargée : rien à griser, et la
+        // requête serait refaite dès son arrivée.
+        if (legislatures.length === 0) return;
         let cancelled = false;
 
         groupesGateways.getGroupeLegislatures(code)
@@ -75,7 +81,7 @@ export default function GroupePageClient({code}: { code: string }) {
 
                 <div className={allReady ? "" : "hidden"}>
                     <PageContentLib>
-                        {GROUPES_SECTIONS.map((section) => (
+                        {legislatureNum !== null && GROUPES_SECTIONS.map((section) => (
                             <SectionBlockLoader
                                 key={section.id}
                                 section={section}

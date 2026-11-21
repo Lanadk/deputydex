@@ -39,7 +39,8 @@ function useColumnCount(): number {
 
 export default function DeputydexPageClient() {
     const { legislature } = useLegislature();
-    const legislatureNum = legislature?.number ?? 17;
+    // null tant que la législature courante n'est pas chargée : aucune requête d'ici là.
+    const legislatureNum = legislature?.number ?? null;
 
     const [deputies, setDeputies] = useState<DeputesCardDTO[]>([]);
     const [loading, setLoading] = useState(true);
@@ -48,6 +49,7 @@ export default function DeputydexPageClient() {
     const [searchQuery, setSearchQuery] = useState("");
 
     useEffect(() => {
+        if (legislatureNum === null) return;
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setLoading(true);
         deputesGateway
