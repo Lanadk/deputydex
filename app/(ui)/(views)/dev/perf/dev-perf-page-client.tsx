@@ -107,8 +107,9 @@ export default function DevPerfPageClient() {
                 <p className="mt-2 text-sm text-subtitle-accent">
                     En mode dev, les durées de rendu sont faussées (compilation à la première visite, double montage
                     du mode strict) ; les durées SQL sont fiables. Mesures sans biais :{" "}
-                    <code className="font-mono">npm run build && npm run start</code>. Cache local :{" "}
-                    <code className="font-mono">DEV_PERF_CACHE=true</code> dans <code className="font-mono">.env.local</code>.
+                    <code className="font-mono">npm run build && npm run start</code>. Cache serveur : actif sur un build de prod, inactif en dev ; pour forcer :{" "}
+                    <code className="font-mono">DEV_PERF_CACHE=true</code> ou <code className="font-mono">false</code> dans{" "}
+                    <code className="font-mono">.env.local</code>.
                 </p>
             </div>
 
