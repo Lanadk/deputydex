@@ -1,14 +1,20 @@
 name: CI + Trigger prod deploy
 
 # Pipeline complète sur push main :
-#   test -> build -> deploy Vercel (Preview, gate de validation) -> trigger deploy (prod)
+#   test -> build -> trigger deploy (prod)
 # Chaque job dépend du précédent via `needs:` : si un job échoue, tous les
 # suivants sont automatiquement skippés (donc jamais de dispatch vers
-# deputydex-cd si les tests/le build/le déploiement Vercel ne passent pas).
+# deputydex-cd si les tests ou le build ne passent pas).
+#
+# Vercel ne déploie que les PR (intégration GitHub de Vercel, check `Vercel`
+# exigé par le ruleset). Sur main, le job `vercel-preview` est désactivé
+# temporairement et vercel.json coupe le déploiement de la branche main : sinon
+# chaque merge créait deux déploiements Vercel en plus de la prod (VPS), pour
+# rien, sur un compte Vercel gratuit.
 #
 # Sur une pull request vers main, seuls `test` et `build` tournent (checks
-# exigés par le ruleset avant merge) ; preview Vercel et déploiement prod
-# restent réservés au push sur main.
+# exigés par le ruleset avant merge) ; le déploiement prod reste réservé au
+# push sur main.
 #
 # `edited` : une PR dont on change la base vers main (ex. PR empilée sur une
 # branche déjà mergée) doit être vérifiée, sinon les checks exigés ne viennent
@@ -95,11 +101,16 @@ jobs:
   #                        Team/Account Settings > General
   #   VERCEL_PROJECT_ID -> `vercel link` en local (.vercel/project.json) ou
   #                        Project Settings > General
+  #
+  # DÉSACTIVÉ TEMPORAIREMENT (`if: false`) : doublon avec l'intégration GitHub
+  # de Vercel, sur un compte gratuit. Pour le réactiver : remettre
+  # `if: github.event_name == 'push'` et `needs: vercel-preview` dans
+  # `trigger-vps-deploy`.
   vercel-preview:
     needs: build
     # Les PR ont déjà leur preview via l'intégration GitHub de Vercel ; et les
     # secrets ne sont pas exposés aux PR venant d'un fork.
-    if: github.event_name == 'push'
+    if: false
     runs-on: ubuntu-latest
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -132,7 +143,9 @@ jobs:
   # TRIGGER DEPLOY PROD
   # ---------------------------------------------------------------------
   trigger-vps-deploy:
-    needs: vercel-preview
+    # `build` et non plus `vercel-preview` (désactivé) : un job dont la
+    # dépendance est skippée est skippé lui aussi, la prod ne partirait plus.
+    needs: build
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
