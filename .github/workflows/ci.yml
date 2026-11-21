@@ -7,8 +7,15 @@ name: CI + Trigger prod deploy
 # deputydex-cd si les tests/le build/le déploiement Vercel ne passent pas).
 #
 # Sur une pull request vers main, seuls `test` et `build` tournent (checks
-# exigés par le ruleset avant merge) ; preview Vercel et déploiement prod
-# restent réservés au push sur main.
+# exigés par le ruleset avant merge) ; le déploiement prod reste réservé au
+# push sur main.
+#
+# Preview Vercel d'une branche (optionnelle) : lancement manuel, onglet
+# Actions > « CI + Trigger prod deploy » > Run workflow, en choisissant la
+# branche de la PR (`workflow_dispatch`) — test -> build -> deploy Vercel
+# (Preview), sans déploiement prod. Vercel ne déploie plus de lui-même à chaque
+# push (vercel.json : git.deploymentEnabled = false) : sur un compte gratuit,
+# chaque merge créait sinon un second déploiement Vercel en doublon de ce job.
 #
 # `edited` : une PR dont on change la base vers main (ex. PR empilée sur une
 # branche déjà mergée) doit être vérifiée, sinon les checks exigés ne viennent
@@ -22,12 +29,15 @@ on:
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened, edited]
+  # Preview Vercel à la demande, sur la branche choisie au lancement.
+  workflow_dispatch:
 
 # Push main : une seule pipeline à la fois, jamais annulée (déploiement prod).
 # PR : un groupe par PR, un nouveau push annule la vérification en cours.
+# Lancement manuel : un groupe par branche, à part de la prod (ne la bloque pas).
 concurrency:
-  group: ${{ github.event_name == 'pull_request' && format('front-ci-pr-{0}', github.event.pull_request.number) || 'front-ci-cd' }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: ${{ github.event_name == 'pull_request' && format('front-ci-pr-{0}', github.event.pull_request.number) || github.event_name == 'workflow_dispatch' && format('front-ci-manual-{0}', github.ref_name) || 'front-ci-cd' }}
+  cancel-in-progress: ${{ github.event_name != 'push' }}
 
 jobs:
   # ---------------------------------------------------------------------
@@ -95,11 +105,14 @@ jobs:
   #                        Team/Account Settings > General
   #   VERCEL_PROJECT_ID -> `vercel link` en local (.vercel/project.json) ou
   #                        Project Settings > General
+  #
+  # Push main : automatique et obligatoire (trigger-vps-deploy en dépend).
+  # Lancement manuel (workflow_dispatch) : preview optionnelle d'une branche.
+  # Jamais sur `pull_request` : les secrets ne sont pas exposés aux PR venant
+  # d'un fork.
   vercel-preview:
     needs: build
-    # Les PR ont déjà leur preview via l'intégration GitHub de Vercel ; et les
-    # secrets ne sont pas exposés aux PR venant d'un fork.
-    if: github.event_name == 'push'
+    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
