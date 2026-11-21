@@ -904,6 +904,99 @@
     }
 
     /* -------------------------------------------------------
+       Catalogue de la component-library : aperçu au survol
+       ------------------------------------------------------- */
+    .lib-catalog-card {
+        position: relative;
+        height: 100%;
+        transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+
+    .lib-catalog-card:hover,
+    .lib-catalog-card:focus-visible {
+        transform: translateY(-2px);
+        box-shadow: var(--card-shadow-hover);
+        border-color: var(--accent);
+    }
+
+    .lib-catalog-preview {
+        position: absolute;
+        left: 50%;
+        z-index: 50;
+        width: 440px;
+        max-width: calc(100vw - 32px);
+        border: 1px solid var(--border-main);
+        border-radius: var(--card-radius);
+        background-color: var(--bg-card);
+        box-shadow: var(--card-shadow-hover);
+        overflow: hidden;
+        pointer-events: none;
+        animation: lib-catalog-preview-in 180ms ease-out both;
+    }
+
+    .lib-catalog-preview--below { top: calc(100% + 10px); transform-origin: top center; }
+    .lib-catalog-preview--above { bottom: calc(100% + 10px); transform-origin: bottom center; }
+
+    .lib-catalog-preview__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 8px 14px;
+        border-bottom: 1px solid var(--border-main);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--subtitle-accent);
+    }
+
+    /* SpanLib impose sa taille et sa couleur : l'en-tête garde les siennes. */
+    .lib-catalog-preview__header .span-lib { font-size: inherit; color: inherit; }
+    .lib-catalog-preview__header .lib-catalog-preview__name { color: var(--accent); }
+
+    /* Largeur de rendu et réduction calculées par CatalogCard (PreviewStage). */
+    .lib-catalog-preview__viewport {
+        position: relative;
+        overflow: hidden;
+        transition: height 150ms ease-out;
+    }
+
+    .lib-catalog-preview__stage {
+        padding: 20px;
+        transform-origin: top left;
+    }
+
+    /* PageStateLib occupe 60vh sur une vraie page : inutile dans un aperçu. */
+    .lib-catalog-preview__stage .page-state-lib { min-height: 0; }
+
+    /* Fondu en bas quand le composant dépasse la fenêtre d'aperçu. */
+    .lib-catalog-preview__viewport--fade::after {
+        content: "";
+        position: absolute;
+        inset: auto 0 0 0;
+        height: 40px;
+        background: linear-gradient(to bottom, transparent, var(--bg-card));
+    }
+
+    @keyframes lib-catalog-preview-in {
+        from { opacity: 0; translate: -50% 6px; scale: 0.96; }
+        to   { opacity: 1; translate: -50% 0;   scale: 1; }
+    }
+
+    .lib-catalog-preview { translate: -50% 0; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .lib-catalog-card,
+        .lib-catalog-preview,
+        .lib-catalog-preview__viewport { transition: none; animation: none; }
+    }
+
+    /* Pas de survol sur écran tactile : pas d'aperçu. */
+    @media (hover: none) {
+        .lib-catalog-preview { display: none; }
+    }
+
+    /* -------------------------------------------------------
        BadgeLib
        ------------------------------------------------------- */
     .badge-lib {

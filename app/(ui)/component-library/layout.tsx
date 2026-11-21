@@ -12,7 +12,8 @@ export default function ComponentLibraryLayout({ children }: { children: React.R
 
     return (
         <div className="min-h-screen">
-            <header className="border-b border-main bg-main sticky top-0">
+            {/* z-60 : au-dessus des cartes du catalogue et de leur aperçu au survol (z-50). */}
+            <header className="border-b border-main bg-main sticky top-0 z-60">
                 <div className="max-w-7xl mx-auto px-8 py-4">
                     <div className="flex items-center justify-between">
                         <Link href="/component-library">

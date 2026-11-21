@@ -1,7 +1,8 @@
 "use client"
 
-import Link from 'next/link';
 import { useSearchParams } from 'next/navigation';
+import { CatalogCard } from "@/app/(ui)/component-library/_catalogue/catalog-card";
+import { COMPONENT_PREVIEWS } from "@/app/(ui)/component-library/_catalogue/component-previews";
 import { PageHeaderLib } from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
 import { Suspense } from 'react';
 
@@ -105,7 +106,7 @@ function ComponentGrid() {
         <>
             <PageHeaderLib
                 title={type}
-                subtitle="Sélectionnez un composant pour voir tous ses variants"
+                subtitle="Survolez un composant pour un aperçu, cliquez pour voir tous ses variants"
             />
 
             <div className="flex flex-col gap-10">
@@ -120,14 +121,13 @@ function ComponentGrid() {
                         </h2>
                         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                             {group.items.map((component) => (
-                                <Link href={component.path} key={component.name}>
-                                    <div className="h-full border border-main bg-card rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer">
-                                        <h3>{component.name}</h3>
-                                        <p className="mt-1 text-sm" style={{ color: 'var(--subtitle-accent)' }}>
-                                            {component.description}
-                                        </p>
-                                    </div>
-                                </Link>
+                                <CatalogCard
+                                    key={component.name}
+                                    name={component.name}
+                                    description={component.description}
+                                    path={component.path}
+                                    preview={COMPONENT_PREVIEWS[component.path]}
+                                />
                             ))}
                         </div>
                     </section>
