@@ -5,8 +5,8 @@ export default function KpiCardPage() {
     return (
         <div>
             <PageHeaderLib
-                title="Button"
-                subtitle="Composant bouton avec différentes variantes et options"
+                title="KPI Cards"
+                subtitle="Cartes KPI, KPI avec barre et liste résumée"
             />
 
             <PageContentLib>

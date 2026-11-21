@@ -5,41 +5,86 @@ import { useSearchParams } from 'next/navigation';
 import { PageHeaderLib } from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
 import { Suspense } from 'react';
 
-const components = {
+type ComponentEntry = { name: string; description: string; path: string };
+type ComponentTheme = { theme: string; items: ComponentEntry[] };
+
+// Rangé par niveau (atoms / molecules / templates), puis par thème. Les noms
+// sont ceux des composants, sans le suffixe `Lib`.
+const components: Record<string, ComponentTheme[]> = {
     Atoms: [
-        { name: 'Button', path: '/component-library/atoms/button' },
-        { name: 'Span', path: '/component-library/atoms/span' },
-        { name: 'Badge', path: '/component-library/atoms/badge' },
-        { name: 'Badge-avatar', path: '/component-library/atoms/badge-avatar' },
+        {
+            theme: 'Actions',
+            items: [
+                { name: 'Button', description: 'Bouton et ses variantes', path: '/component-library/atoms/button' },
+            ],
+        },
+        {
+            theme: 'Texte et étiquettes',
+            items: [
+                { name: 'Span', description: 'Texte inline avec icône', path: '/component-library/atoms/span' },
+                { name: 'Badge', description: 'Label, tag ou statut', path: '/component-library/atoms/badge' },
+                { name: 'Avatar', description: 'Photo ronde ou initiales', path: '/component-library/atoms/badge-avatar' },
+            ],
+        },
     ],
     Molecules: [
-        { name: 'ToggleSwitch', path: '/component-library/molecules/toggle-switch' },
-        { name: 'Checkbox', path: '/component-library/molecules/checkbox' },
-        { name: 'Input', path: '/component-library/molecules/input' },
-        { name: 'Select', path: '/component-library/molecules/select' },
-        { name: 'Activity-calendar', path: '/component-library/molecules/activity-calendar' },
-        { name: 'Filter-bar', path: '/component-library/molecules/filter-bar' },
-        { name: 'Filter-group', path: '/component-library/molecules/filter-group' },
-        { name: 'Table', path: '/component-library/molecules/table' },
-        { name: 'Charts', path: '/component-library/molecules/chart' },
-        { name: 'Cards', path: '/component-library/molecules/cards'},
-        { name: 'DeputyCards', path: '/component-library/molecules/deputy'},
-        { name: 'GroupMiniCard', path: '/component-library/molecules/group-mini-card'},
-        { name: 'DifficultyGauge', path: '/component-library/molecules/difficulty-gauge'},
-        { name: 'ExpandableCard', path: '/component-library/molecules/expandable-card'},
-        { name: 'PageState', path: '/component-library/molecules/page-state'},
+        {
+            theme: 'Formulaires et filtres',
+            items: [
+                { name: 'Input', description: 'Champ de saisie et de recherche', path: '/component-library/molecules/input' },
+                { name: 'Select', description: 'Liste déroulante', path: '/component-library/molecules/select' },
+                { name: 'Checkbox', description: 'Case à cocher', path: '/component-library/molecules/checkbox' },
+                { name: 'ToggleSwitch', description: 'Interrupteur on / off', path: '/component-library/molecules/toggle-switch' },
+                { name: 'FilterGroup', description: 'Groupe de contrôles de filtre', path: '/component-library/molecules/filter-group' },
+                { name: 'FilterBar', description: 'Barre de filtres complète', path: '/component-library/molecules/filter-bar' },
+            ],
+        },
+        {
+            theme: 'Données',
+            items: [
+                { name: 'Table', description: 'Tableau paginé ou non', path: '/component-library/molecules/table' },
+                { name: 'Charts', description: 'Barres, lignes, camemberts, nuages de points', path: '/component-library/molecules/chart' },
+                { name: 'ActivityCalendar', description: "Calendrier d'activité", path: '/component-library/molecules/activity-calendar' },
+                { name: 'DifficultyGauge', description: 'Jauge de 1 à 5', path: '/component-library/molecules/difficulty-gauge' },
+            ],
+        },
+        {
+            theme: 'Cartes',
+            items: [
+                { name: 'KpiCards', description: 'Cartes KPI, barre et liste résumée', path: '/component-library/molecules/cards' },
+                { name: 'DeputyCard', description: "Carte d'un député", path: '/component-library/molecules/deputy' },
+                { name: 'GroupMiniCard', description: "Carte aux couleurs d'un groupe", path: '/component-library/molecules/group-mini-card' },
+                { name: 'ExpandableCard', description: 'Carte dépliable', path: '/component-library/molecules/expandable-card' },
+            ],
+        },
+        {
+            theme: 'États de page',
+            items: [
+                { name: 'PageState', description: '404, erreur, aucun résultat', path: '/component-library/molecules/page-state' },
+            ],
+        },
     ],
     Templates: [
-        { name: 'Page-Header', path: '/component-library/template/headers/page-header' },
-        { name: 'BlockSection', path: '/component-library/template/sections/block-section' },
-        { name: 'AnchorSection', path: '/component-library/template/sections/anchor-section' },
+        {
+            theme: 'En-têtes',
+            items: [
+                { name: 'PageHeader', description: 'Titre et sous-titre de page', path: '/component-library/template/headers/page-header' },
+            ],
+        },
+        {
+            theme: 'Sections',
+            items: [
+                { name: 'BlockSection', description: 'Sections de page pilotées par config', path: '/component-library/template/sections/block-section' },
+                { name: 'AnchorSection', description: 'Mise en page avec navigation par ancres', path: '/component-library/template/sections/anchor-section' },
+            ],
+        },
     ],
 };
 
 function ComponentGrid() {
     const searchParams = useSearchParams();
     const type = searchParams.get('type') || 'Atoms';
-    const currentComponents = components[type as keyof typeof components] || components.Atoms;
+    const currentComponents = components[type] || components.Atoms;
 
     return (
         <>
@@ -48,13 +93,29 @@ function ComponentGrid() {
                 subtitle="Sélectionnez un composant pour voir tous ses variants"
             />
 
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-                {currentComponents.map((component) => (
-                    <Link href={component.path} key={component.name}>
-                        <div className="border border-main bg-card rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer">
-                            <h3>{component.name}</h3>
+            <div className="flex flex-col gap-10">
+                {currentComponents.map((group) => (
+                    <section key={group.theme} aria-labelledby={`theme-${group.theme}`}>
+                        <h2
+                            id={`theme-${group.theme}`}
+                            className="mb-4 text-sm font-semibold uppercase tracking-wide"
+                            style={{ color: 'var(--subtitle-accent)' }}
+                        >
+                            {group.theme}
+                        </h2>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                            {group.items.map((component) => (
+                                <Link href={component.path} key={component.name}>
+                                    <div className="h-full border border-main bg-card rounded-lg p-6 hover:shadow-lg transition-shadow cursor-pointer">
+                                        <h3>{component.name}</h3>
+                                        <p className="mt-1 text-sm" style={{ color: 'var(--subtitle-accent)' }}>
+                                            {component.description}
+                                        </p>
+                                    </div>
+                                </Link>
+                            ))}
                         </div>
-                    </Link>
+                    </section>
                 ))}
             </div>
         </>
