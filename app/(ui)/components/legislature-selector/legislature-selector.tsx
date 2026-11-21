@@ -50,8 +50,9 @@ export function LegislatureSelector() {
                         <button
                             onClick={() => setIsOpen(false)}
                             className="theme-close-btn"
+                            aria-label="Fermer"
                         >
-                            <X size={16} />
+                            <X size={16} aria-hidden="true" />
                         </button>
                     </div>
 

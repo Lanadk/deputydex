@@ -25,8 +25,9 @@ export function ThemeSwitcherLib() {
                         <button
                             onClick={() => setIsOpen(false)}
                             className="theme-close-btn"
+                            aria-label="Fermer le sélecteur de thème"
                         >
-                            <X size={16} />
+                            <X size={16} aria-hidden="true" />
                         </button>
                     </div>
                     <div className="flex flex-col gap-2">
@@ -54,8 +55,9 @@ export function ThemeSwitcherLib() {
                 <button
                     onClick={() => setIsOpen(true)}
                     className="bg-card p-3 rounded-full shadow-lg border border-main"
+                    aria-label="Ouvrir le sélecteur de thème"
                 >
-                    <Palette size={20} />
+                    <Palette size={20} aria-hidden="true" />
                 </button>
             )}
         </div>
