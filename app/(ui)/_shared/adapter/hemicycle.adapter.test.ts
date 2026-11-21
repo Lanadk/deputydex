@@ -1,4 +1,4 @@
-import { buildHemicycleGroupes } from "@/app/(ui)/_shared/adapter/hemicycle.adapter";
+import { buildHemicycleGroupes, groupeTooltipTheme } from "@/app/(ui)/_shared/adapter/hemicycle.adapter";
 import { DeputesCardDTO } from "@/app/domains/deputes/dto/deputes-card.dto";
 import { GroupeCardDTO } from "@/app/domains/groupes/dto/groupes-card.dto";
 
@@ -49,5 +49,25 @@ describe("buildHemicycleGroupes", () => {
         expect(lfi.presidence).toBe("Présidente du groupe : Mathilde Panot");
         expect(lfi.presidentRole).toBe("Présidente du groupe");
         expect(lfi.president).toMatchObject({ deputeUID: "PA1", deputeImage: "/img/PA1.png" });
+    });
+});
+
+describe("groupeTooltipTheme", () => {
+    it("donne le fond, le texte et la bordure du thème du groupe", () => {
+        expect(groupeTooltipTheme("RN")).toEqual({
+            background: "linear-gradient(135deg, #003189, #003189)",
+            text: "#ffffff",
+            border: "#003189",
+        });
+        // Fond clair : texte foncé pour rester lisible.
+        expect(groupeTooltipTheme("EPR").text).toBe("#1a1a1a");
+    });
+
+    it("ramène les variantes d'un groupe à son thème canonique", () => {
+        expect(groupeTooltipTheme("LFI-NFP")).toEqual(groupeTooltipTheme("LFI"));
+    });
+
+    it("prend le thème des non-inscrits sans groupe", () => {
+        expect(groupeTooltipTheme(null)).toEqual(groupeTooltipTheme("NI"));
     });
 });
