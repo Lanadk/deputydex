@@ -169,7 +169,8 @@ jobs:
 
       - name: Install Vercel CLI
         # Version figée : à monter volontairement (npm view vercel version).
-        run: npm install --global vercel@66.6.0
+        # La CLI n'a pas de script d'installation : --ignore-scripts ne change rien.
+        run: npm install --global --ignore-scripts vercel@66.6.0
 
       - name: Pull Vercel project settings
         run: vercel pull --yes --environment=preview --token=$VERCEL_TOKEN
