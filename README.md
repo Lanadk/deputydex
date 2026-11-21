@@ -8,6 +8,13 @@
 ![prisma](https://img.shields.io/badge/Prisma-Postgres-2D3748)
 ![license](https://img.shields.io/badge/license-AGPL--3.0-blue)
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Lanadk_deputydex&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Lanadk_deputydex)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Lanadk_deputydex&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Lanadk_deputydex)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Lanadk_deputydex&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=Lanadk_deputydex)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=Lanadk_deputydex&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=Lanadk_deputydex)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Lanadk_deputydex&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=Lanadk_deputydex)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=Lanadk_deputydex&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=Lanadk_deputydex)
+
 ## 📊 Données
 
 Sources :

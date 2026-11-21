@@ -7,8 +7,8 @@ name: CI + Trigger prod deploy
 # deputydex-cd si les tests/le build/le déploiement Vercel ne passent pas).
 #
 # Sur une pull request vers main, seuls `test` et `build` tournent (checks
-# exigés par le ruleset avant merge) ; le déploiement prod reste réservé au
-# push sur main.
+# exigés par le ruleset avant merge), plus `sonar` (informatif) ; le
+# déploiement prod reste réservé au push sur main.
 #
 # Preview Vercel d'une branche (optionnelle) : lancement manuel, onglet
 # Actions > « CI + Trigger prod deploy » > Run workflow, en choisissant la
@@ -68,7 +68,51 @@ jobs:
 
       - run: npm run lint
 
-      - run: npm test
+      # Avec couverture : le rapport lcov est repris par le job `sonar`.
+      - run: npm run test:coverage
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: coverage-lcov
+          path: coverage/lcov.info
+          retention-days: 1
+
+  # ---------------------------------------------------------------------
+  # SONAR — qualité du code (SonarQube Cloud, projet public)
+  # ---------------------------------------------------------------------
+  # Analyse + couverture de Jest. Informatif : ce job n'est pas un check exigé
+  # par le ruleset, son échec ne bloque pas un merge. Ignoré sans le secret
+  # SONAR_TOKEN (PR venant d'un fork) et sur un simple `edited` de PR.
+  # Mise en place : app/7.SONAR.md.
+  sonar:
+    needs: test
+    if: github.event.action != 'edited'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check SONAR_TOKEN
+        id: token
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: echo "present=$([ -n "$SONAR_TOKEN" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      # Historique complet : Sonar attribue chaque ligne (blame) et calcule le
+      # « nouveau code » d'une PR.
+      - uses: actions/checkout@v4
+        if: steps.token.outputs.present == 'true'
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v8
+        if: steps.token.outputs.present == 'true'
+        with:
+          name: coverage-lcov
+          path: coverage
+
+      # Épinglée sur le commit de la v8.5.0 (action tierce qui reçoit un secret).
+      - uses: SonarSource/sonarqube-scan-action@59202af334b4ba7b5db01b701b8e79f8b3bef0f4 # v8.5.0
+        if: steps.token.outputs.present == 'true'
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   # ---------------------------------------------------------------------
   # BUILD
