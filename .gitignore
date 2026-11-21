@@ -46,3 +46,6 @@ next-env.d.ts
 
 /app/generated/prisma
 /scripts/output
+
+# Résultats de npm run perf:bench (outil de perf local)
+perf-results/

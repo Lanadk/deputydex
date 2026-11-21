@@ -6,7 +6,10 @@ import {
     endpointDomain,
     endpointFamily,
     groupSqlQueries,
+    hasManySqlQueries,
+    HEAVY_RESPONSE_BYTES,
     liveData,
+    maxConcurrency,
     percentile,
     percentileProfile,
     summarizeByDomain,
@@ -18,7 +21,7 @@ let nextId = 1;
 function call(family: string, totalMs: number, overrides: Partial<ApiCallRecord> = {}): ApiCallRecord {
     return {
         id: nextId++, at: 0, endpoint: `${family}/RN/17`, family, status: 200,
-        totalMs, sqlMs: totalMs / 2, sqlCount: 2, cacheHit: false, queries: [],
+        totalMs, sqlMs: totalMs / 2, sqlCount: 2, cacheHit: false, queries: [], bytes: 0,
         ...overrides,
     };
 }
@@ -39,8 +42,8 @@ describe("percentile / durationStats", () => {
     });
 
     it("résume une série (0 partout si elle est vide)", () => {
-        expect(durationStats([10, 30, 20])).toEqual({ count: 3, avgMs: 20, p95Ms: 30, maxMs: 30 });
-        expect(durationStats([])).toEqual({ count: 0, avgMs: 0, p95Ms: 0, maxMs: 0 });
+        expect(durationStats([10, 30, 20])).toEqual({ count: 3, avgMs: 20, p50Ms: 20, p95Ms: 30, maxMs: 30 });
+        expect(durationStats([])).toEqual({ count: 0, avgMs: 0, p50Ms: 0, p95Ms: 0, maxMs: 0 });
     });
 });
 
@@ -176,6 +179,75 @@ describe("summarizePages", () => {
             last: { durationMs: 30, apiCalls: 2, cachedCalls: 2, sqlMs: 0 },
         });
         expect(pages[0].lastVisit.visitId).toBe("v3");
+    });
+});
+
+describe("maxConcurrency", () => {
+    it("donne le pic d'appels en cours en même temps", () => {
+        // 0–100, 10–60, 20–30 se chevauchent (3) ; 150–200 est seul.
+        expect(maxConcurrency([
+            { startMs: 0, durationMs: 100 },
+            { startMs: 10, durationMs: 50 },
+            { startMs: 20, durationMs: 10 },
+            { startMs: 150, durationMs: 50 },
+        ])).toBe(3);
+    });
+
+    it("ne compte pas comme simultanés un appel qui finit quand l'autre commence", () => {
+        expect(maxConcurrency([{ startMs: 0, durationMs: 10 }, { startMs: 10, durationMs: 10 }])).toBe(1);
+        expect(maxConcurrency([])).toBe(0);
+    });
+});
+
+describe("pages : attente réseau, appels simultanés, Web Vitals", () => {
+    const timing = (totalMs: number) => `total;dur=${totalMs.toFixed(1)}, db;dur=1.0;desc="1 SQL", cache;desc="miss", endpoint;desc="groupe-members"`;
+    const vital = (visitId: string, name: "LCP" | "CLS", value: number): ClientPerfRecord =>
+        ({ kind: "vital", at: 5, visitId, path: "/groupes/RN", name, value });
+    const records: ClientPerfRecord[] = [
+        fetchOf("groupe-members", 100, { visitId: "v1", path: "/groupes/RN", startMs: 0, serverTiming: timing(40), at: 1 }),
+        fetchOf("groupe-cohesion", 80, { visitId: "v1", path: "/groupes/RN", startMs: 10, serverTiming: timing(70), at: 2 }),
+        vital("v1", "LCP", 1200),
+        vital("v1", "CLS", 0.02),
+        fetchOf("groupe-members", 30, { visitId: "v2", path: "/groupes/RN", startMs: 0, serverTiming: timing(20), at: 3 }),
+        vital("v2", "LCP", 900),
+    ];
+
+    it("calcule le pic d'appels simultanés et l'attente hors serveur de la visite", () => {
+        const [page] = summarizePages(records);
+
+        // v1 : 0–100 et 10–90 se chevauchent ; attente (100 − 40) et (80 − 70) → 35 ms en moyenne.
+        expect(page.first).toMatchObject({ maxConcurrent: 2, avgWaitMs: 35 });
+        expect(page.last).toMatchObject({ maxConcurrent: 1, avgWaitMs: 10 });
+    });
+
+    it("donne le p75 de chaque Web Vital sur les visites de la page", () => {
+        const [page] = summarizePages(records);
+
+        expect(page.vitals).toEqual({ LCP: { count: 2, p75: 1200 }, CLS: { count: 1, p75: 0.02 } });
+        // Les Web Vitals n'allongent pas la « durée jusqu'à la dernière donnée ».
+        expect(page.first.durationMs).toBe(100);
+    });
+});
+
+describe("alertes : beaucoup de SQL, réponses lourdes", () => {
+    it("signale une requête qui lance au moins 5 requêtes SQL par appel (hors cache)", () => {
+        const [composition, members] = summarizeByDomain([
+            call("groupe-composition", 100, { sqlCount: 12 }),
+            call("groupe-members", 50, { sqlCount: 1 }),
+        ], [])[0].requests;
+
+        expect(hasManySqlQueries(composition)).toBe(true);
+        expect(hasManySqlQueries(members)).toBe(false);
+    });
+
+    it("donne le poids moyen et maximal des réponses", () => {
+        const [members] = summarizeByDomain([
+            call("groupe-members", 10, { bytes: 1000 }),
+            call("groupe-members", 10, { bytes: 3000 }),
+        ], [])[0].requests;
+
+        expect(members.bytes).toEqual({ avg: 2000, max: 3000 });
+        expect(HEAVY_RESPONSE_BYTES).toBe(102400);
     });
 });
 

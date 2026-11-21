@@ -22,13 +22,14 @@ describe("outil de perf désactivé (production)", () => {
         expect(getDevPerfSnapshot().apiCalls).toHaveLength(0);
     });
 
-    it("répond 404 sur toute l'API /api/dev/perf, et ne touche pas au cache", async () => {
-        const post = await POST(new Request("http://localhost/api/dev/perf", { method: "POST", body: "[]" }));
+    it("répond 404 sur toute l'API /api/dev/perf, même en local, et ne touche pas au cache", async () => {
+        const local = (method = "GET", body?: string) =>
+            new Request("http://localhost:3000/api/dev/perf", { method, body, headers: { host: "localhost:3000" } });
 
-        expect((await GET()).status).toBe(404);
-        expect(post.status).toBe(404);
-        expect((await DELETE()).status).toBe(404);
-        expect((await clearServerCache()).status).toBe(404);
+        expect((await GET(local())).status).toBe(404);
+        expect((await POST(local("POST", "[]"))).status).toBe(404);
+        expect((await DELETE(local("DELETE"))).status).toBe(404);
+        expect((await clearServerCache(local("DELETE"))).status).toBe(404);
         expect(revalidateTag).not.toHaveBeenCalled();
     });
 });

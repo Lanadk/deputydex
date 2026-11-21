@@ -55,7 +55,7 @@ export function attachRequestPerf(result: object, perf: RequestPerf) {
  * `Server-Timing` à la réponse et enregistre l'appel pour /dev/perf.
  * Sans mesure associée (paramètre invalide rejeté avant le use-case), ne fait rien.
  */
-export function finishRequestPerf(result: object, response: Response) {
+export function finishRequestPerf(result: object, response: Response, bytes = 0) {
     const perf = perfByResult.get(result);
     if (!perf) return;
     perfByResult.delete(result);
@@ -75,7 +75,13 @@ export function finishRequestPerf(result: object, response: Response) {
         sqlCount: perf.queries.length,
         cacheHit,
         queries: perf.queries,
+        bytes,
     });
+}
+
+/** Taille en octets (UTF-8) du JSON d'une valeur : le poids du corps de la réponse. */
+export function jsonBytes(value: unknown): number {
+    return Buffer.byteLength(JSON.stringify(value) ?? "", "utf8");
 }
 
 /**

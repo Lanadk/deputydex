@@ -72,6 +72,12 @@ const components: Record<string, ComponentTheme[]> = {
                 { name: 'CodeBlock', description: 'Aperçu + code des démos', path: '/component-library/molecules/code-block' },
             ],
         },
+        {
+            theme: 'Navigation',
+            items: [
+                { name: 'Tabs', description: 'Onglets accessibles', path: '/component-library/molecules/tabs' },
+            ],
+        },
     ],
     Templates: [
         {

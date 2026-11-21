@@ -3,7 +3,7 @@ import { Result } from "@/app/_shared/result-pattern/result";
 import { AppError } from "@/app/_shared/result-pattern/app-error";
 import { cachedJson } from "@/app/_shared/cache/cached-response";
 import { DEV_PERF_ENABLED } from "@/app/_shared/dev-perf/dev-perf.config";
-import { finishRequestPerf } from "@/app/_shared/dev-perf/dev-perf.server";
+import { finishRequestPerf, jsonBytes } from "@/app/_shared/dev-perf/dev-perf.server";
 
 /** Statut HTTP de chaque erreur applicative — seul endroit où cette correspondance existe. */
 export const APP_ERROR_STATUS: Record<AppError, number> = {
@@ -28,14 +28,14 @@ export function resultToResponse<T, E extends AppError>(
     result: Result<T, E>,
     messages: Partial<Record<E, string>> = {}
 ): NextResponse {
+    const body = result.success
+        ? result.data
+        : { error: result.error, message: messages[result.error] ?? DEFAULT_MESSAGES[result.error] };
     const response = result.success
-        ? cachedJson(result.data)
-        : NextResponse.json(
-            { error: result.error, message: messages[result.error] ?? DEFAULT_MESSAGES[result.error] },
-            { status: APP_ERROR_STATUS[result.error] }
-        );
+        ? cachedJson(body)
+        : NextResponse.json(body, { status: APP_ERROR_STATUS[result.error] });
 
-    // Outil de perf (dev seulement) : en-tête Server-Timing + enregistrement pour /dev/perf.
-    if (DEV_PERF_ENABLED) finishRequestPerf(result, response);
+    // Outil de perf (dev seulement) : en-tête Server-Timing + enregistrement pour /dev/perf (dont poids de la réponse).
+    if (DEV_PERF_ENABLED) finishRequestPerf(result, response, jsonBytes(body));
     return response;
 }

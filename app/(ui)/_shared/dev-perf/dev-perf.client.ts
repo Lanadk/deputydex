@@ -1,7 +1,7 @@
 "use client";
 
 import { DEV_PERF_ENABLED } from "@/app/_shared/dev-perf/dev-perf.config";
-import { ClientPerfRecord } from "@/app/_shared/dev-perf/dev-perf.types";
+import { ClientPerfRecord, WEB_VITAL_NAMES, WebVitalName } from "@/app/_shared/dev-perf/dev-perf.types";
 
 /*
  * Outil de perf, côté navigateur (dev seulement, voir app/6.DEV-PERF.md) :
@@ -39,20 +39,36 @@ function currentVisit() {
     return visit;
 }
 
+/** Envoie tout de suite les mesures en attente (`keepalive` : survit à la fermeture de la page). */
+function flush() {
+    if (flushTimer) clearTimeout(flushTimer);
+    flushTimer = null;
+    if (queue.length === 0) return;
+    const batch = queue;
+    queue = [];
+    (originalFetch ?? fetch)(ENDPOINT, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(batch),
+        keepalive: true,
+    }).catch(() => { /* outil de dev : une mesure perdue n'est pas grave */ });
+}
+
 function enqueue(record: ClientPerfRecord) {
     queue.push(record);
-    if (flushTimer) return;
-    flushTimer = setTimeout(() => {
-        flushTimer = null;
-        const batch = queue;
-        queue = [];
-        (originalFetch ?? fetch)(ENDPOINT, {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify(batch),
-            keepalive: true,
-        }).catch(() => { /* outil de dev : une mesure perdue n'est pas grave */ });
-    }, FLUSH_DELAY_MS);
+    if (!flushTimer) flushTimer = setTimeout(flush, FLUSH_DELAY_MS);
+}
+
+/**
+ * Web Vital de la page en cours (`useReportWebVitals`, voir DevPerfRecorder).
+ * CLS et INP ne sont souvent connus qu'au moment où l'on quitte la page : les
+ * mesures en attente partent aussi quand la page est masquée.
+ */
+export function recordWebVital(metric: { name: string; value: number }) {
+    if (!DEV_PERF_ENABLED || isIgnoredPath(window.location.pathname)) return;
+    if (!(WEB_VITAL_NAMES as readonly string[]).includes(metric.name)) return;
+    const v = currentVisit();
+    enqueue({ kind: "vital", at: Date.now(), visitId: v.id, path: v.path, name: metric.name as WebVitalName, value: metric.value });
 }
 
 function installFetchMeasure() {
@@ -86,7 +102,13 @@ function installFetchMeasure() {
     };
 }
 
-if (DEV_PERF_ENABLED && typeof window !== "undefined") installFetchMeasure();
+if (DEV_PERF_ENABLED && typeof window !== "undefined") {
+    installFetchMeasure();
+    window.addEventListener("pagehide", flush);
+    document.addEventListener("visibilitychange", () => {
+        if (document.visibilityState === "hidden") flush();
+    });
+}
 
 /**
  * Chronomètre le chargement des données d'une section (son `gatewayFn`).

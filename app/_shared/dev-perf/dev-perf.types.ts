@@ -27,6 +27,8 @@ export type ApiCallRecord = {
     /** true : réponse servie par le cache serveur, sans requête SQL */
     cacheHit: boolean;
     queries: SqlQueryRecord[];
+    /** Taille du corps JSON de la réponse (octets, UTF-8) */
+    bytes: number;
 };
 
 /** Une section du moteur de sections, mesurée dans le navigateur. */
@@ -59,7 +61,22 @@ export type ClientFetchRecord = {
     serverTiming: string | null;
 };
 
-export type ClientPerfRecord = SectionTimingRecord | ClientFetchRecord;
+/** Web Vitals mesurés (https://web.dev/vitals) : rendu de la page vu par l'utilisateur. */
+export const WEB_VITAL_NAMES = ["LCP", "FCP", "CLS", "INP", "TTFB"] as const;
+export type WebVitalName = (typeof WEB_VITAL_NAMES)[number];
+
+/** Un Web Vital d'une visite, mesuré dans le navigateur (`useReportWebVitals`). */
+export type WebVitalRecord = {
+    kind: "vital";
+    at: number;
+    visitId: string;
+    path: string;
+    name: WebVitalName;
+    /** ms, sauf CLS (score sans unité) */
+    value: number;
+};
+
+export type ClientPerfRecord = SectionTimingRecord | ClientFetchRecord | WebVitalRecord;
 
 /** Contenu renvoyé par GET /api/dev/perf. */
 export type DevPerfSnapshot = {

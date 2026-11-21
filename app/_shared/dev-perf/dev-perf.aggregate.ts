@@ -3,6 +3,8 @@ import {
     ClientFetchRecord,
     ClientPerfRecord,
     SectionTimingRecord,
+    WebVitalName,
+    WebVitalRecord,
 } from "@/app/_shared/dev-perf/dev-perf.types";
 import { parseServerTiming } from "@/app/_shared/dev-perf/dev-perf.timing";
 
@@ -72,10 +74,16 @@ export function percentileProfile(values: number[]): PercentileProfile {
 }
 
 /** Durées d'une série de mesures (0 partout si la série est vide). */
-export type DurationStats = { count: number; avgMs: number; p95Ms: number; maxMs: number };
+export type DurationStats = { count: number; avgMs: number; p50Ms: number; p95Ms: number; maxMs: number };
 
 export function durationStats(values: number[]): DurationStats {
-    return { count: values.length, avgMs: average(values), p95Ms: percentile(values, 95), maxMs: values.length ? Math.max(...values) : 0 };
+    return {
+        count: values.length,
+        avgMs: average(values),
+        p50Ms: percentile(values, 50),
+        p95Ms: percentile(values, 95),
+        maxMs: values.length ? Math.max(...values) : 0,
+    };
 }
 
 function groupBy<T>(list: T[], key: (item: T) => string): Map<string, T[]> {
@@ -96,9 +104,25 @@ export type RequestSummary = {
     withCache: DurationStats;
     /** Côté navigateur : durée du fetch (réseau + serveur) */
     network: DurationStats;
+    /** Poids du corps JSON de la réponse (octets) */
+    bytes: { avg: number; max: number };
 };
 
 export type DomainSummary = { domain: string; requests: RequestSummary[] };
+
+/**
+ * Au-delà de ce nombre de requêtes SQL par appel (en moyenne), la requête est
+ * signalée : un appel qui lance beaucoup de petites requêtes gagnerait souvent
+ * à les regrouper (requête unique, vue d'agrégation).
+ */
+export const MANY_SQL_THRESHOLD = 5;
+
+export function hasManySqlQueries(request: RequestSummary): boolean {
+    return request.withoutCache.count > 0 && request.withoutCache.avgSqlCount >= MANY_SQL_THRESHOLD;
+}
+
+/** Au-delà, la réponse est signalée comme lourde (≈ 100 Ko de JSON). */
+export const HEAVY_RESPONSE_BYTES = 100 * 1024;
 
 /**
  * Perf par domaine puis par requête. Les fetch du navigateur sont rattachés à
@@ -110,7 +134,8 @@ export function summarizeByDomain(calls: ApiCallRecord[], client: ClientPerfReco
     const callsByFamily = groupBy(calls, (c) => c.family);
     const networkByFamily = new Map<string, number[]>();
     for (const r of client) {
-        const family = r.kind === "fetch" ? fetchFamily(r) : null;
+        if (r.kind !== "fetch") continue;
+        const family = fetchFamily(r);
         if (family) networkByFamily.set(family, [...(networkByFamily.get(family) ?? []), r.durationMs]);
     }
 
@@ -127,6 +152,10 @@ export function summarizeByDomain(calls: ApiCallRecord[], client: ClientPerfReco
             },
             withCache: durationStats(list.filter((c) => c.cacheHit).map((c) => c.totalMs)),
             network: durationStats(networkByFamily.get(family) ?? []),
+            bytes: {
+                avg: average(list.map((c) => c.bytes ?? 0)),
+                max: list.length ? Math.max(...list.map((c) => c.bytes ?? 0)) : 0,
+            },
         };
     });
 
@@ -181,6 +210,7 @@ export type PageVisit = {
     path: string;
     sections: SectionTimingRecord[];
     fetches: ClientFetchRecord[];
+    vitals: WebVitalRecord[];
     /** Fin de la dernière mesure (ms depuis le début de la visite) */
     durationMs: number;
     /** Horodatage de la dernière mesure (ms depuis epoch) */
@@ -191,10 +221,15 @@ export type PageVisit = {
 function buildVisits(records: ClientPerfRecord[]): PageVisit[] {
     const visits = new Map<string, PageVisit>();
     for (const r of records) {
-        const visit = visits.get(r.visitId) ?? { visitId: r.visitId, path: r.path, sections: [], fetches: [], durationMs: 0, at: 0 };
-        if (r.kind === "section") visit.sections.push(r);
-        else visit.fetches.push(r);
-        visit.durationMs = Math.max(visit.durationMs, r.startMs + r.durationMs);
+        const visit = visits.get(r.visitId)
+            ?? { visitId: r.visitId, path: r.path, sections: [], fetches: [], vitals: [], durationMs: 0, at: 0 };
+        if (r.kind === "vital") {
+            visit.vitals.push(r);
+        } else {
+            if (r.kind === "section") visit.sections.push(r);
+            else visit.fetches.push(r);
+            visit.durationMs = Math.max(visit.durationMs, r.startMs + r.durationMs);
+        }
         visit.at = Math.max(visit.at, r.at ?? 0);
         visits.set(r.visitId, visit);
     }
@@ -214,16 +249,59 @@ export type VisitStats = {
     cachedCalls: number;
     /** Somme du temps SQL des appels (chacun mesuré côté serveur) */
     sqlMs: number;
+    /** Nombre maximal d'appels API en cours en même temps pendant la visite */
+    maxConcurrent: number;
+    /**
+     * Attente moyenne hors serveur d'un appel : durée vue du navigateur moins
+     * durée serveur (réseau + file d'attente du navigateur quand trop d'appels
+     * partent ensemble).
+     */
+    avgWaitMs: number;
 };
+
+/**
+ * Nombre maximal d'intervalles [début, fin[ qui se chevauchent : le pic
+ * d'appels simultanés. Un appel qui se termine au moment exact où un autre
+ * commence ne compte pas comme simultané.
+ */
+export function maxConcurrency(intervals: { startMs: number; durationMs: number }[]): number {
+    const events = intervals.flatMap((i) => [[i.startMs, 1], [i.startMs + i.durationMs, -1]] as const);
+    // À instant égal, les fins avant les débuts.
+    events.sort((a, b) => a[0] - b[0] || a[1] - b[1]);
+    let current = 0;
+    let max = 0;
+    for (const [, delta] of events) {
+        current += delta;
+        max = Math.max(max, current);
+    }
+    return max;
+}
 
 export function visitStats(visit: PageVisit): VisitStats {
     const timings = visit.fetches.map((f) => parseServerTiming(f.serverTiming));
+    const waits = visit.fetches.flatMap((f, i) => (timings[i] ? [Math.max(0, f.durationMs - timings[i]!.totalMs)] : []));
     return {
         durationMs: visit.durationMs,
         apiCalls: visit.fetches.length,
         cachedCalls: timings.filter((t) => t?.cacheHit).length,
         sqlMs: timings.reduce((sum, t) => sum + (t?.sqlMs ?? 0), 0),
+        maxConcurrent: maxConcurrency(visit.fetches),
+        avgWaitMs: average(waits),
     };
+}
+
+/**
+ * Web Vitals d'une page : p75 de chaque métrique sur ses visites (le
+ * percentile retenu par Google pour juger une page). Métrique absente :
+ * pas encore mesurée (INP et CLS ne sont souvent connus qu'en quittant la page).
+ */
+export type PageVitals = Partial<Record<WebVitalName, { count: number; p75: number }>>;
+
+export function pageVitals(visits: PageVisit[]): PageVitals {
+    const byName = groupBy(visits.flatMap((v) => v.vitals), (r) => r.name);
+    return Object.fromEntries(
+        [...byName.entries()].map(([name, list]) => [name, { count: list.length, p75: percentile(list.map((r) => r.value), 75) }])
+    ) as PageVitals;
 }
 
 export type PageSummary = {
@@ -233,6 +311,7 @@ export type PageSummary = {
     duration: DurationStats;
     first: VisitStats;
     last: VisitStats;
+    vitals: PageVitals;
     /** Dernière visite, pour afficher sa cascade */
     lastVisit: PageVisit;
 };
@@ -252,6 +331,7 @@ export function summarizePages(records: ClientPerfRecord[]): PageSummary[] {
                 duration: durationStats(visits.map((v) => v.durationMs)),
                 first: visitStats(visits[0]),
                 last: visitStats(lastVisit),
+                vitals: pageVitals(visits),
                 lastVisit,
             };
         })
