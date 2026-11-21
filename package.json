@@ -7,13 +7,15 @@
   "scripts": {
     "dev": "next dev --hostname 127.0.0.1",
     "build": "prisma generate && next build",
+    "build:profile": "prisma generate && next build --profile",
     "start": "next start",
     "lint": "eslint",
     "prisma:generate": "prisma generate",
     "test": "jest",
     "test:watch": "jest --watch",
     "test:coverage": "jest --coverage",
-    "coverage:by-layer": "jest --coverage --silent && tsx scripts/coverage-by-layer.ts"
+    "coverage:by-layer": "jest --coverage --silent && tsx scripts/coverage-by-layer.ts",
+    "perf:bench": "node scripts/perf-bench.mjs"
   },
   "dependencies": {
     "@emotion/react": "^11.14.0",

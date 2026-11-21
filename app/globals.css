@@ -20,6 +20,10 @@
     --p1-red-3: #c85048; /* base     */
     --p1-red-4: #a82028; /* deep     */
 
+    /* Orange — avertissement (ex. durée lente sur /dev/perf) */
+    --p1-orange-3: #e8912d; /* base : sur fond sombre */
+    --p1-orange-4: #b45309; /* deep : texte sur fond clair (contraste ≈ 5:1 sur blanc) */
+
     /* Blues — info / primary scale */
     --p1-blue-1: #e8f4ff; /* lightest */
     --p1-blue-2: #bfe3ff; /* light    */
@@ -90,6 +94,7 @@
 
     --ui-danger: var(--p1-red-4);
     --ui-success: var(--p1-green-4);
+    --ui-warning: var(--p1-orange-4);
     --ui-warm: var(--p1-red-3);
     --ui-red-light: var(--p1-red-2);
 
@@ -262,6 +267,9 @@
     --p1-red-3: #c85048;
     --p1-red-4: #a82028;
 
+    --p1-orange-3: #e8912d;
+    --p1-orange-4: #b45309;
+
     --p1-blue-1: #e8f4ff;
     --p1-blue-2: #bfe3ff;
     --p1-blue-3: #70b8f0;
@@ -319,6 +327,7 @@
     /* UI aliases */
     --ui-danger: var(--p1-red-4);
     --ui-success: var(--p1-green-4);
+    --ui-warning: var(--p1-orange-3); /* plus clair : lisible sur les fonds sombres */
     --ui-warm: var(--p1-red-3);
     --ui-red-light: var(--p1-red-2);
 
@@ -453,6 +462,9 @@
        quasi identique pour un deutéranope. */
     --p1-red-4: #800002;
 
+    --p1-orange-3: #e8912d;
+    --p1-orange-4: #b45309;
+
     --p1-blue-1: #e8f4ff;
     --p1-blue-2: #bfe3ff;
     --p1-blue-3: #70b8f0;
@@ -510,6 +522,7 @@
     /* UI aliases — contrast-first remapping */
     --ui-danger: var(--p1-red-4);
     --ui-success: var(--p1-green-4);
+    --ui-warning: var(--p1-orange-4);
     --ui-warm: var(--p1-red-3);
     --ui-red-light: var(--p1-red-2);
 
@@ -901,6 +914,56 @@
         justify-content: center;
         gap: 12px;
         margin-top: 12px;
+    }
+
+    /* -------------------------------------------------------
+       TabsLib — onglets
+       ------------------------------------------------------- */
+    .tabs-lib {
+        display: flex;
+        gap: 4px;
+        overflow-x: auto;
+        border-bottom: 1px solid var(--border-main);
+    }
+
+    .tabs-lib__tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        margin-bottom: -1px;
+        border-bottom: 2px solid transparent;
+        font-size: 14px;
+        white-space: nowrap;
+        color: var(--subtitle-accent);
+        transition: color 150ms ease, border-color 150ms ease;
+    }
+
+    .tabs-lib__tab:hover { color: var(--foreground); }
+
+    .tabs-lib__tab:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: -2px;
+        border-radius: 4px;
+    }
+
+    .tabs-lib__tab--active {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+        font-weight: 600;
+    }
+
+    .tabs-lib__badge {
+        padding: 1px 7px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 500;
+        background-color: var(--surface-3);
+        color: var(--subtitle-accent);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .tabs-lib__tab { transition: none; }
     }
 
     /* -------------------------------------------------------

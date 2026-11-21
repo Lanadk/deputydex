@@ -1,6 +1,7 @@
 "use client";
 
-import React, {useEffect, useRef} from "react";
+import React, {useEffect, useMemo, useRef} from "react";
+import {measureSection} from "@/app/(ui)/_shared/dev-perf/dev-perf.client";
 import {AnchorSectionBlockLib, GRID_COLS_CLASS} from "@/app/(ui)/component-library/template/sections/anchor-section/anchor-section-block-lib";
 import {BlockSectionRenderer} from "@/app/(ui)/component-library/template/sections/block-section/block-section-renderer";
 import {useFetchSectionData} from "@/app/(ui)/_shared/hook/useSectionData";
@@ -21,7 +22,12 @@ interface SectionBlockLoaderProps {
 }
 
 export function SectionBlockLoader({ section, params, onReady, hideHeader = false }: SectionBlockLoaderProps) {
-    const { dataMap, loading } = useFetchSectionData(section.gatewayFn, params);
+    // Outil de perf (dev seulement) : chronomètre le chargement de la section ; sinon gatewayFn inchangé.
+    const gatewayFn = useMemo(
+        () => section.gatewayFn && measureSection(section.id, section.gatewayFn),
+        [section]
+    );
+    const { dataMap, loading } = useFetchSectionData(gatewayFn, params);
 
     const hasCalledReady = useRef(false);
 
