@@ -145,7 +145,9 @@ async function main() {
     mkdirSync(dirname(out), { recursive: true });
     writeFileSync(out, JSON.stringify({ kind: "deputydex-perf-bench", label, createdAt, base: args.base, runs: args.runs, pages: args.pages, snapshot }, null, 2));
 
-    console.log(`\n${snapshot.apiCalls.length} appels API et ${snapshot.client.length} mesures navigateur enregistrés.`);
+    // Compteurs tirés de la réponse de l'API : uniquement des nombres dans le log.
+    const count = (list) => (Array.isArray(list) ? list.length : 0);
+    console.log(`\n${count(snapshot.apiCalls)} appels API et ${count(snapshot.client)} mesures navigateur enregistrés.`);
     console.log(`Résultat : ${out} — à importer dans /dev/perf, onglet « Comparaison ».`);
 }
 
