@@ -7,10 +7,17 @@ import { ScrutinGroupeVoteDTO } from "@/app/domains/scrutins/dto/scrutin-groupe-
 import { ScrutinDeputeVoteDTO } from "@/app/domains/scrutins/dto/scrutin-depute-vote.dto";
 import { ScrutinSiegePosition } from "@/app/domains/scrutins/dto/scrutin-hemicycle.dto";
 import { ScrutinDetailDTO } from "@/app/domains/scrutins/dto/scrutin-detail.dto";
-import { HemicycleDataWrapper } from "@/app/(ui)/component-library/template/sections/block-section/hemicycle-config.types";
+import { HemicycleDataWrapper, HemicycleTooltipTheme } from "@/app/(ui)/component-library/template/sections/block-section/hemicycle-config.types";
+import { getCanonicalGroupTheme } from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
 import { hemicycleSeatColor, votePositionColor } from "@/app/(ui)/_shared/adapter/vote-position.adapter";
 
 const kpi = (label: string, value: number | null) => ({ data: { label, value: value ?? "—" } });
+
+/** Info-bulle d'un siège aux couleurs du groupe du député (thème « non-inscrits » à défaut). */
+function groupeTooltipTheme(groupeCode: string | null): HemicycleTooltipTheme {
+    const theme = getCanonicalGroupTheme(groupeCode);
+    return { background: `linear-gradient(135deg, ${theme.bg[0]}, ${theme.bg[1]})`, text: theme.text, border: theme.border };
+}
 
 /** Ordre de la légende de l'hémicycle (non-votant affiché seulement s'il y en a). */
 const HEMICYCLE_LEGENDE: { key: ScrutinSiegePosition; label: string }[] = [
@@ -40,6 +47,8 @@ export const SCRUTIN_SECTIONS: PageSection[] = [
                     label: s.nomComplet,
                     sublabel: [s.groupeCode ? groupes[s.groupeCode] ?? s.groupeCode : null, s.positionLabel].filter(Boolean).join(" · "),
                     href: `/deputes/${s.deputeUid}`,
+                    image: s.photoUrl ?? undefined,
+                    tooltipTheme: groupeTooltipTheme(s.groupeCode),
                 })),
                 legend: HEMICYCLE_LEGENDE
                     .filter(({ key }) => key !== "non_votant" || totaux.non_votant > 0)

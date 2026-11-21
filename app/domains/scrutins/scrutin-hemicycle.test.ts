@@ -2,7 +2,7 @@ import { buildScrutinHemicycle } from "@/app/domains/scrutins/scrutin-hemicycle"
 import { ScrutinSiegeEntity } from "@/app/domains/scrutins/entities/scrutin-siege.entity";
 
 function siege(place: number, uid: string, position: string | null, groupe: string | null = "SOC"): ScrutinSiegeEntity {
-    return { place, depute_uid: uid, prenom: "Prénom", nom: uid, groupe_code: groupe, groupe_label: groupe ? `Groupe ${groupe}` : null, position };
+    return { place, depute_uid: uid, prenom: "Prénom", nom: uid, groupe_code: groupe, groupe_label: groupe ? `Groupe ${groupe}` : null, position, photo_path: null };
 }
 
 describe("buildScrutinHemicycle", () => {
@@ -47,11 +47,23 @@ describe("buildScrutinHemicycle", () => {
 
     it("compose le nom complet, et retombe sur l'uid et le code du groupe quand ils manquent", () => {
         const { sieges, groupes } = buildScrutinHemicycle([
-            { place: 1, depute_uid: "PA9", prenom: null, nom: null, groupe_code: "RN", groupe_label: null, position: "pour" },
+            { place: 1, depute_uid: "PA9", prenom: null, nom: null, groupe_code: "RN", groupe_label: null, position: "pour", photo_path: null },
         ]);
 
         expect(sieges[0]).toMatchObject({ nomComplet: "PA9", groupeCode: "RN" });
         expect(groupes).toEqual({ RN: "RN" });
+    });
+
+    it("transmet la photo du député, ou null s'il n'en a pas", () => {
+        const { sieges } = buildScrutinHemicycle([
+            { ...siege(2, "PA1", "pour"), photo_path: "/tribun/17/photos/PA1.jpg" },
+            siege(1, "PA2", "contre"),
+        ]);
+
+        expect(sieges.map((s) => [s.deputeUid, s.photoUrl])).toEqual([
+            ["PA1", "/tribun/17/photos/PA1.jpg"],
+            ["PA2", null],
+        ]);
     });
 
     it("donne le libellé de chaque groupe une seule fois, pas sur chaque siège", () => {

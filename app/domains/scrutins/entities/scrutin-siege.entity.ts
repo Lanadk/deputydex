@@ -12,4 +12,6 @@ export type ScrutinSiegeEntity = {
     groupe_label: string | null;
     /** null : le député n'a pas pris part au vote (absent) */
     position: string | null;
+    /** Photo du député (chemin public), celle de la législature du scrutin de préférence */
+    photo_path: string | null;
 };

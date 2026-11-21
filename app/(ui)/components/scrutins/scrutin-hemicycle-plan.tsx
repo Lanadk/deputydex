@@ -3,6 +3,7 @@
 import React, { useMemo, useRef, useState } from "react";
 import { computeHemicycleSeats } from "@/app/(ui)/components/hemicycle/hemicycle-seats";
 import { HemicycleLegendItem, HemicycleSeatData } from "@/app/(ui)/component-library/template/sections/block-section/hemicycle-config.types";
+import { AvatarLib } from "@/app/(ui)/component-library/atoms/badge-avatar/avatar-picture-lib";
 
 type ScrutinHemicyclePlanProps = {
     /** Sièges dans l'ordre de la salle, de la gauche vers la droite */
@@ -23,7 +24,7 @@ type ScrutinHemicyclePlanProps = {
 /**
  * Hémicycle d'un scrutin sur le plan 3D de #161 : réutilise le calcul des positions
  * (`computeHemicycleSeats`) et les styles `hemicycle-*`, sans modifier ces composants.
- * Ajoute la couleur par vote, une info-bulle au survol (député, groupe, vote) et la
+ * Ajoute la couleur par vote, une info-bulle au survol (photo, député, groupe, vote) et la
  * mise en avant d'une position depuis la légende.
  *
  * Les variables --hemi-* sont posées ici : sa page les pose sur `.hemicycle-page`,
@@ -47,6 +48,7 @@ export function ScrutinHemicyclePlan({ seats, legend = [], ariaLabel, title, sub
     const positions = useMemo(() => computeHemicycleSeats([{ code: "salle", count: seats.length }]), [seats.length]);
     const total = positions.length;
     const hoveredSeat = hover ? seats[hover.index] : null;
+    const tooltipTheme = hoveredSeat?.tooltipTheme;
 
     // Le plan est incliné en 3D : l'info-bulle suit la souris plutôt que la position
     // (déformée par la perspective) du siège.
@@ -103,11 +105,24 @@ export function ScrutinHemicyclePlan({ seats, legend = [], ariaLabel, title, sub
                 {hover && hoveredSeat && (
                     <div
                         role="tooltip"
-                        className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full rounded-md border border-main bg-surface-1 px-3 py-2 text-sm shadow-lg whitespace-nowrap"
-                        style={{ left: hover.x, top: hover.y - 12 }}
+                        className={`pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full flex items-center gap-3 rounded-md border py-2 pl-2 pr-3 text-sm shadow-lg whitespace-nowrap ${tooltipTheme ? "" : "border-main bg-surface-1"}`}
+                        style={{
+                            left: hover.x,
+                            top: hover.y - 12,
+                            ...(tooltipTheme && { background: tooltipTheme.background, color: tooltipTheme.text, borderColor: tooltipTheme.border }),
+                        }}
                     >
-                        <div className="font-semibold">{hoveredSeat.label}</div>
-                        {hoveredSeat.sublabel && <div className="text-xs text-subtitle-accent">{hoveredSeat.sublabel}</div>}
+                        {/* key : un avatar neuf par député, sinon une photo en erreur
+                            garderait les initiales pour les sièges survolés ensuite. */}
+                        <AvatarLib key={hoveredSeat.id} src={hoveredSeat.image} name={hoveredSeat.label} size="medium" />
+                        <div>
+                            <div className="font-semibold">{hoveredSeat.label}</div>
+                            {hoveredSeat.sublabel && (
+                                // Sur fond de groupe, la couleur secondaire du site ne serait pas
+                                // lisible : on garde la couleur du texte, atténuée.
+                                <div className={`text-xs ${tooltipTheme ? "opacity-85" : "text-subtitle-accent"}`}>{hoveredSeat.sublabel}</div>
+                            )}
+                        </div>
                     </div>
                 )}
             </div>
