@@ -136,7 +136,7 @@ export function CompareTab({ snapshot }: { snapshot: DevPerfSnapshot }) {
                             type="file"
                             accept="application/json,.json"
                             className="sr-only"
-                            onChange={(e) => { const f = e.target.files?.[0]; if (f) importFile(f); e.target.value = ""; }}
+                            onChange={(e) => { const f = e.target.files?.[0]; if (f) void importFile(f); e.target.value = ""; }}
                         />
                     </label>
                     {baseline && <ButtonLib text="Exporter la référence" variant="tertiary" size="small" onClick={() => download(baseline)} />}
