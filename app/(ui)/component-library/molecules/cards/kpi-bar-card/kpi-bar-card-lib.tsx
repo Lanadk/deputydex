@@ -32,7 +32,7 @@ export const KpiBarCardLib: React.FC<KpiBarCardLibProps> = ({
     return (
         <div className={`border border-main rounded-lg bg-surface-2 p-5 ${className}`}>
             {title && (
-                <h3 className="text-sm font-bold uppercase tracking-wide text-gray-800 mb-5">
+                <h3 className="text-sm font-bold uppercase tracking-wide mb-5">
                     {title}
                 </h3>
             )}
@@ -42,8 +42,10 @@ export const KpiBarCardLib: React.FC<KpiBarCardLibProps> = ({
                     const percentage = Math.max(0, Math.min((item.value / safeMax) * 100, 100));
 
                     return (
-                        <div key={`${item.label}-${index}`} className="grid grid-cols-[1fr_140px_48px] items-center gap-4">
-                            <span className="text-sm font-medium text-gray-900">
+                        // Libellé prioritaire, barre limitée à 35 % de la ligne (≈ 140 px sur une carte large),
+                        // valeur à sa largeur : la ligne tient dans la carte même sur un petit écran (320 px).
+                        <div key={`${item.label}-${index}`} className="grid grid-cols-[minmax(0,1fr)_minmax(2.5rem,35%)_auto] items-center gap-3 sm:gap-4">
+                            <span className="text-sm font-medium break-words">
                                 {item.label}
                             </span>
 
@@ -57,7 +59,7 @@ export const KpiBarCardLib: React.FC<KpiBarCardLibProps> = ({
                                 />
                             </div>
 
-                            <span className="text-sm font-semibold text-right text-gray-900">
+                            <span className="min-w-8 text-sm font-semibold text-right tabular-nums">
                                 {item.displayValue ?? item.value}
                             </span>
                         </div>
@@ -68,9 +70,9 @@ export const KpiBarCardLib: React.FC<KpiBarCardLibProps> = ({
             {footer && (
                 <>
                     {showFooterDivider && (
-                        <div className="my-5 border-t border-gray-300" />
+                        <div className="my-5 border-t border-main" />
                     )}
-                    <p className="text-sm text-gray-700">{footer}</p>
+                    <p className="text-sm text-subtitle-accent">{footer}</p>
                 </>
             )}
         </div>
