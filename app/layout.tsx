@@ -103,7 +103,9 @@ export default function RootLayout({
                         <a href="#contenu" className="skip-link">Aller au contenu</a>
                         <div className="flex min-h-screen">
                             <AppSidebar />
-                            <main id="contenu" tabIndex={-1} className="flex-1 pt-14 lg:pt-0">
+                            {/* min-w-0 : sans lui, un élément flexible ne rétrécit pas sous la largeur de son
+                                contenu le plus large (tableau, bloc de code…) et toute la page déborde de l'écran sur mobile. */}
+                            <main id="contenu" tabIndex={-1} className="flex-1 min-w-0 pt-14 lg:pt-0">
                                 {children}
                             </main>
                         </div>
