@@ -70,3 +70,24 @@ describe("legislaturesGateway.getAll", () => {
         await expect(legislaturesGateway.getAll()).rejects.toThrow("Failed to get legislatures");
     });
 });
+
+describe.each([
+    ["getFrise", () => legislaturesGateway.getFrise(), "/api/legislatures/frise"],
+    ["getOrganisation", () => legislaturesGateway.getOrganisation(16), "/api/legislatures/16/organisation"],
+    ["getChiffres", () => legislaturesGateway.getChiffres(16), "/api/legislatures/16/chiffres"],
+])("legislaturesGateway.%s", (_name, call, url) => {
+    afterEach(() => jest.resetAllMocks());
+
+    it(`GETs ${url} and resolves with the parsed JSON`, async () => {
+        mockFetchOnce({ ok: true, json: async () => ({ legislature: 16 }) });
+
+        await expect(call()).resolves.toEqual({ legislature: 16 });
+        expect(fetch).toHaveBeenCalledWith(url);
+    });
+
+    it("throws when the response is not ok", async () => {
+        mockFetchOnce({ ok: false });
+
+        await expect(call()).rejects.toThrow("Failed to get");
+    });
+});
