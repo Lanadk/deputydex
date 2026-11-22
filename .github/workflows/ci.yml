@@ -1,19 +1,21 @@
 name: CI + Trigger prod deploy
 
-# Pipeline complète sur push main :
-#   test -> build -> deploy Vercel (Preview, gate de validation) -> trigger deploy (prod)
+# Pipeline sur push main :
+#   test -> build -> trigger deploy (prod)
 # Chaque job dépend du précédent via `needs:` : si un job échoue, tous les
 # suivants sont automatiquement skippés (donc jamais de dispatch vers
-# deputydex-cd si les tests/le build/le déploiement Vercel ne passent pas).
+# deputydex-cd si les tests/le build ne passent pas). Le déploiement Vercel
+# (Preview) ne fait plus partie de cette chaîne : il est uniquement manuel et
+# ne bloque jamais la prod (voir plus bas).
 #
 # Sur une pull request vers main, seuls `test` et `build` tournent (checks
 # exigés par le ruleset avant merge), plus `sonar` (informatif) ; le
 # déploiement prod reste réservé au push sur main.
 #
-# Preview Vercel d'une branche (optionnelle) : lancement manuel, onglet
+# Preview Vercel (optionnelle, y compris pour main) : lancement manuel, onglet
 # Actions > « CI + Trigger prod deploy » > Run workflow, en choisissant la
-# branche de la PR (`workflow_dispatch`) — test -> build -> deploy Vercel
-# (Preview), sans déploiement prod. Vercel ne déploie plus de lui-même à chaque
+# branche (`workflow_dispatch`) — test -> build -> deploy Vercel (Preview),
+# sans déploiement prod. Vercel ne déploie plus de lui-même à chaque
 # push (vercel.json : git.deploymentEnabled = false) : sur un compte gratuit,
 # chaque merge créait sinon un second déploiement Vercel en doublon de ce job.
 #
@@ -143,25 +145,24 @@ jobs:
       - run: npm run build
 
   # ---------------------------------------------------------------------
-  # DEPLOY VERCEL (Preview) — gate de validation, pas la prod
+  # DEPLOY VERCEL (Preview) — manuel, non bloquant, pas la prod
   # ---------------------------------------------------------------------
   # Déploie un vrai build serverless sur une URL Preview unique (pas d'alias
-  # sur le domaine de prod). Sert de dernier filet avant de toucher à la prod :
-  # si Vercel refuse de builder/déployer, le déploiement n'est pas
-  # déclenché. Nécessite 3 secrets sur ce repo (Settings > Secrets > Actions) :
+  # sur le domaine de prod). Nécessite 3 secrets sur ce repo (Settings > Secrets > Actions) :
   #   VERCEL_TOKEN     -> vercel.com/account/tokens
   #   VERCEL_ORG_ID    -> `vercel link` en local (.vercel/project.json) ou
   #                        Team/Account Settings > General
   #   VERCEL_PROJECT_ID -> `vercel link` en local (.vercel/project.json) ou
   #                        Project Settings > General
   #
-  # Push main : automatique et obligatoire (trigger-vps-deploy en dépend).
-  # Lancement manuel (workflow_dispatch) : preview optionnelle d'une branche.
+  # Uniquement en lancement manuel (workflow_dispatch), sur n'importe quelle
+  # branche, main comprise. Plus jamais sur push main : aucun job n'en dépend,
+  # son échec ne bloque donc pas le déploiement prod.
   # Jamais sur `pull_request` : les secrets ne sont pas exposés aux PR venant
   # d'un fork.
   vercel-preview:
     needs: build
-    if: github.event_name == 'push' || github.event_name == 'workflow_dispatch'
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -196,7 +197,7 @@ jobs:
   # TRIGGER DEPLOY PROD
   # ---------------------------------------------------------------------
   trigger-vps-deploy:
-    needs: vercel-preview
+    needs: build
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:

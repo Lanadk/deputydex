@@ -62,10 +62,10 @@ npm run test:coverage       # jest --coverage
 `.github/workflows/ci.yml` tourne sur chaque push vers `main` :
 
 ```
-lint + test → build → déploiement Vercel (preview, gate de validation) → trigger deploy prod (deputydex-cd)
+lint + test → build → trigger deploy prod (deputydex-cd)
 ```
 
-Chaque étape dépend de la précédente : si les tests, le build ou le déploiement preview échouent, le déploiement prod n'est jamais déclenché. Ce pipeline ne gère que le déploiement de l'app — pas le rafraîchissement des données (voir ci-dessus).
+Chaque étape dépend de la précédente : si les tests ou le build échouent, le déploiement prod n'est jamais déclenché. Le déploiement Vercel (preview) n'est plus lancé automatiquement : il se déclenche à la main (Actions > « CI + Trigger prod deploy » > Run workflow, sur n'importe quelle branche) et ne bloque jamais la prod. Ce pipeline ne gère que le déploiement de l'app — pas le rafraîchissement des données (voir ci-dessus).
 
 ## 📚 Documentation d'architecture
 
