@@ -9,6 +9,7 @@ import {ButtonLib} from "@/app/(ui)/component-library/atoms/button/button-lib";
 import {SpanLib} from "@/app/(ui)/component-library/atoms/span/span-lib";
 import Tooltip from "@mui/material/Tooltip";
 import {NAVITEMS} from "@/app/(ui)/components/sidebar/nave-items";
+import {ThemeSwitcherLib} from "@/app/(ui)/component-library/molecules/theme-switcher/theme-switcher-lib";
 
 
 export default function AppSidebar() {
@@ -123,6 +124,24 @@ export default function AppSidebar() {
                         );
                     })}
                 </nav>
+
+                {/* Thème (Light / Dark / Accessible) : ici plutôt qu'en bouton flottant, qui recouvrait les notifications. */}
+                <div className="p-2 border-t border-main shrink-0">
+                    <Tooltip
+                        title={!isOpen ? "Thème" : ''}
+                        disableFocusListener
+                        disableTouchListener
+                        classes={{ tooltip: `tooltip-lib` }}
+                        placement="right"
+                    >
+                        <div>
+                            <ThemeSwitcherLib
+                                label={isOpen ? "Thème" : undefined}
+                                triggerClassName="flex w-full items-center gap-3 px-2.5 py-2.5 rounded-lg sidebar-link"
+                            />
+                        </div>
+                    </Tooltip>
+                </div>
 
                 {/* Copyright / mentions légales */}
                 <Tooltip

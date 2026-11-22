@@ -5,7 +5,6 @@ import {ThemeProvider} from "next-themes";
 import {MuiProvider} from "@/app/(ui)/providers/mui-provider";
 import AppSidebar from "@/app/(ui)/components/sidebar/app-sidebar";
 import {SidebarProvider} from "@/app/(ui)/providers/sidebar-provider";
-import {ThemeSwitcherLib} from "@/app/(ui)/component-library/molecules/theme-switcher/theme-switcher-lib";
 import {LegislatureProvider} from "@/app/(ui)/providers/legislature-provider";
 import {DEV_PERF_ENABLED} from "@/app/_shared/dev-perf/dev-perf.config";
 import {DevPerfRecorder} from "@/app/(ui)/_shared/dev-perf/dev-perf-recorder";
@@ -105,7 +104,6 @@ export default function RootLayout({
                             <main id="contenu" tabIndex={-1} className="flex-1 pt-14 lg:pt-0">
                                 {children}
                             </main>
-                            <ThemeSwitcherLib/>
                         </div>
                         </LegislatureProvider>
                     </SidebarProvider>
