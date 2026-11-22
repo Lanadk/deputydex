@@ -1,7 +1,6 @@
 import Link from 'next/link'
 import { notFound } from 'next/navigation'
 import { NavLinks } from './nav-links'
-import { ThemeSwitcherLib } from "@/app/(ui)/component-library/molecules/theme-switcher/theme-switcher-lib"
 
 export default function ComponentLibraryLayout({ children }: { children: React.ReactNode }) {
     // Route réservée au dev : bloquée côté serveur
@@ -29,7 +28,6 @@ export default function ComponentLibraryLayout({ children }: { children: React.R
             <div className="max-w-7xl mx-auto px-8 py-8">
                 {children}
             </div>
-            <ThemeSwitcherLib/>
         </div>
     )
 }
