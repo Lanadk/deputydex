@@ -2,6 +2,7 @@
 
 import React, { useEffect, useMemo, useRef, useState } from "react";
 import { useWindowVirtualizer } from "@tanstack/react-virtual";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import { useLegislature } from "@/app/(ui)/providers/legislature-provider";
 import { deputesGateway } from "@/app/(ui)/gateways/deputes/deputes.gateway";
 import { DeputesCardDTO } from "@/app/domains/deputes/dto/deputes-card.dto";
@@ -49,7 +50,19 @@ export default function DeputydexPageClient() {
         String(legislatureNum)
     );
     const deputies = useMemo(() => deputiesData.data ?? [], [deputiesData.data]);
-    const [selectedGroupe, setSelectedGroupe] = useState<string | null>(null);
+    // Le groupe filtré vit dans l'URL (`?groupe=LFI-NFP`) : lien direct depuis
+    // l'hémicycle ("Voir les députés"), partageable, conservé au rechargement.
+    const searchParams = useSearchParams();
+    const router = useRouter();
+    const pathname = usePathname();
+    const selectedGroupe = searchParams.get("groupe") || null;
+    const setSelectedGroupe = (code: string | null) => {
+        const params = new URLSearchParams(searchParams.toString());
+        if (code) params.set("groupe", code);
+        else params.delete("groupe");
+        const query = params.toString();
+        router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+    };
     const [sortDir, setSortDir] = useState<SortDir>("asc");
     const [searchQuery, setSearchQuery] = useState("");
 

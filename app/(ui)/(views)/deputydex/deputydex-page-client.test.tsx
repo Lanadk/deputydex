@@ -7,6 +7,12 @@ jest.mock("@/app/(ui)/gateways/legislatures/legislatures.gateway", () => ({
 jest.mock("@/app/(ui)/gateways/deputes/deputes.gateway", () => ({
     deputesGateway: { getDeputesCards: jest.fn() },
 }));
+// Le filtre de groupe vit dans l'URL (`?groupe=`) : pas de routeur Next monté sous jsdom.
+jest.mock("next/navigation", () => ({
+    useSearchParams: () => new URLSearchParams(),
+    useRouter: () => ({ replace: jest.fn() }),
+    usePathname: () => "/deputydex",
+}));
 
 import DeputydexPageClient from "@/app/(ui)/(views)/deputydex/deputydex-page-client";
 import { LegislatureProvider } from "@/app/(ui)/providers/legislature-provider";

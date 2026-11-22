@@ -1,9 +1,11 @@
-import {BarChart3, Component, Gauge, Layers, Grid3x3, HandHelping, MessageCircleMore, Database, Scale, GitPullRequest, Vote} from "lucide-react";
+import {Armchair, BarChart3, Component, Gauge, House, Layers, Grid3x3, HandHelping, MessageCircleMore, Database, Scale, GitPullRequest, Vote} from "lucide-react";
 import {DEV_PERF_ENABLED} from "@/app/_shared/dev-perf/dev-perf.config";
 
 export const NAVITEMS = [
+    {label: "Accueil", href: "/", icon: House, section: "deputydex"},
     {label: "DeputeDex", href: "/deputydex", icon: Grid3x3, section: "deputydex"},
     {label: "Groupes", href: "/groupes", icon: Layers, section: "deputydex"},
+    {label: "Hémicycle", href: "/hemicycle", icon: Armchair, section: "deputydex"},
     {label: "Scrutins", href: "/scrutins", icon: Vote, section: "deputydex"},
     {label: "Statistiques", href: "/statistics", icon: BarChart3, section: "deputydex"}, //TODO V2
     {label: "Data Sources", href: "/data-sources", icon: Database, section: "info"},
@@ -22,3 +24,8 @@ export const NAVITEMS = [
         ? [{label: "Performances", href: "/dev/perf", icon: Gauge, section: "component-library"}]
         : []),
 ];
+
+/** L'accueil ("/") n'est actif que sur "/" : avec `startsWith`, il serait actif sur toutes les pages. */
+export function isNavItemActive(href: string, pathname: string): boolean {
+    return href === "/" ? pathname === "/" : pathname.startsWith(href);
+}

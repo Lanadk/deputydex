@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { Suspense } from "react";
 import DeputydexPageClient from "@/app/(ui)/(views)/deputydex/deputydex-page-client";
 
 export const metadata: Metadata = {
@@ -15,5 +16,10 @@ export const metadata: Metadata = {
 };
 
 export default function DeputydexPage() {
-    return <DeputydexPageClient />;
+    // Suspense requis par `useSearchParams` (filtre `?groupe=`) pour le rendu statique.
+    return (
+        <Suspense>
+            <DeputydexPageClient />
+        </Suspense>
+    );
 }
