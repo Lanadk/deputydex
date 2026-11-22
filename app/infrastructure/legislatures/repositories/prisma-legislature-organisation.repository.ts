@@ -1,0 +1,105 @@
+import "server-only";
+
+import { prisma } from "@/app/infrastructure/db/prisma/prisma";
+import { ILegislatureOrganisationRepository } from "@/app/domains/legislatures/repositories/ILegislatureOrganisationRepository";
+import {
+    EntreeEnCoursRow,
+    FonctionAssembleeRow,
+    LegislatureChiffresRow,
+    LegislaturePeriodeRow,
+    MembreGouvernementRow,
+    PremierMinistreRow,
+    PresidentAssembleeRow,
+} from "@/app/domains/legislatures/entities/legislature-organisation.entity";
+
+/*
+ * Organisation institutionnelle lue dans `mandats` (types d'organe MINISTERE,
+ * BUREAU, GP, COMPER, ASSEMBLEE). Dates formatées en SQL (AAAA-MM-JJ) : aucune
+ * conversion de fuseau horaire entre Postgres et le navigateur.
+ * L'ordre des lignes n'a pas d'importance : les use-cases trient.
+ */
+export const prismaLegislatureOrganisationRepository: ILegislatureOrganisationRepository = {
+    async getLegislatures(): Promise<LegislaturePeriodeRow[]> {
+        return prisma.$queryRaw<LegislaturePeriodeRow[]>`
+            SELECT number,
+                   to_char(start_date, 'YYYY-MM-DD') AS debut,
+                   to_char(end_date, 'YYYY-MM-DD')   AS fin
+            FROM param_legislatures
+            WHERE start_date IS NOT NULL
+        `;
+    },
+
+    async getPremiersMinistres(): Promise<PremierMinistreRow[]> {
+        // Un mandat de Premier ministre par gouvernement, chronologique (nécessaire pour numéroter « Lecornu I / II »).
+        return prisma.$queryRaw<PremierMinistreRow[]>`
+            SELECT m.acteur_uid, a.prenom, a.nom,
+                   to_char(m.date_debut, 'YYYY-MM-DD') AS debut,
+                   to_char(m.date_fin, 'YYYY-MM-DD')   AS fin
+            FROM mandats m
+            JOIN acteurs a ON a.uid = m.acteur_uid
+            WHERE m.type_organe = 'MINISTERE' AND m.code_qualite = 'Premier ministre'
+            ORDER BY m.date_debut
+        `;
+    },
+
+    async getPresidentsAssemblee(): Promise<PresidentAssembleeRow[]> {
+        return prisma.$queryRaw<PresidentAssembleeRow[]>`
+            SELECT m.legislature, m.acteur_uid, a.prenom, a.nom,
+                   to_char(m.date_debut, 'YYYY-MM-DD') AS debut,
+                   to_char(m.date_fin, 'YYYY-MM-DD')   AS fin
+            FROM mandats m
+            JOIN acteurs a ON a.uid = m.acteur_uid
+            WHERE m.type_organe = 'BUREAU' AND m.code_qualite = 'Président'
+        `;
+    },
+
+    async getMembresGouvernement(debut: string, fin: string): Promise<MembreGouvernementRow[]> {
+        return prisma.$queryRaw<MembreGouvernementRow[]>`
+            SELECT m.acteur_uid, a.prenom, a.nom, m.code_qualite, m.lib_qualite,
+                   to_char(m.date_debut, 'YYYY-MM-DD') AS debut,
+                   to_char(m.date_fin, 'YYYY-MM-DD')   AS fin,
+                   EXISTS (
+                       SELECT 1 FROM mandats d
+                       WHERE d.acteur_uid = m.acteur_uid AND d.type_organe = 'ASSEMBLEE'
+                   ) AS est_depute
+            FROM mandats m
+            JOIN acteurs a ON a.uid = m.acteur_uid
+            WHERE m.type_organe = 'MINISTERE'
+              AND m.date_debut BETWEEN ${debut}::date AND ${fin}::date
+        `;
+    },
+
+    async getFonctionsAssemblee(legislature: number, dateReference: string): Promise<FonctionAssembleeRow[]> {
+        return prisma.$queryRaw<FonctionAssembleeRow[]>`
+            SELECT m.acteur_uid, a.prenom, a.nom, m.type_organe, m.code_qualite, m.organe_uid,
+                   rg.code AS groupe_code, rg.libelle AS groupe_libelle
+            FROM mandats m
+            JOIN acteurs a ON a.uid = m.acteur_uid
+            LEFT JOIN ref_groupes rg ON rg.groupe_id = m.organe_uid AND rg.groupe_legislature = m.legislature
+            WHERE m.legislature = ${legislature}
+              AND (m.type_organe = 'BUREAU' OR (m.type_organe IN ('GP', 'COMPER') AND m.code_qualite = 'Président'))
+              AND m.date_debut <= ${dateReference}::date
+              AND (m.date_fin IS NULL OR m.date_fin >= ${dateReference}::date)
+        `;
+    },
+
+    async getChiffres(legislature: number): Promise<LegislatureChiffresRow | null> {
+        const rows = await prisma.$queryRaw<LegislatureChiffresRow[]>`
+            SELECT (SELECT count(*) FROM scrutins WHERE legislature = ${String(legislature)})::int AS scrutins,
+                   (SELECT count(DISTINCT acteur_uid) FROM mandats
+                    WHERE type_organe = 'ASSEMBLEE' AND legislature = ${legislature})::int AS deputes_ayant_siege
+        `;
+        return rows[0] ?? null;
+    },
+
+    async getEntreesEnCours(legislature: number): Promise<EntreeEnCoursRow[]> {
+        return prisma.$queryRaw<EntreeEnCoursRow[]>`
+            SELECT election_cause_mandat AS cause, count(*)::int AS nombre
+            FROM mandats
+            WHERE type_organe = 'ASSEMBLEE' AND legislature = ${legislature}
+              AND election_cause_mandat IS NOT NULL
+              AND election_cause_mandat <> 'élections générales'
+            GROUP BY election_cause_mandat
+        `;
+    },
+};

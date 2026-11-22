@@ -2,6 +2,24 @@
 
 Exploration publique de l'activité de l'Assemblée nationale (députés, groupes, scrutins, travail législatif) à partir de l'open data de l'AN.
 
+## Institutions
+
+**Législature**:
+La période pendant laquelle siège une même Assemblée nationale élue, cinq ans au plus ; elle s'achève plus tôt en cas de dissolution. Numérotée depuis 1958 (« 17ᵉ législature »).
+_Avoid_: Mandature, session
+
+**Gouvernement**:
+L'équipe dirigée par un Premier ministre, du début à la fin de son mandat ; nommé d'après lui (« Gouvernement Borne »), numéroté quand un même Premier ministre en forme plusieurs d'affilée (« Lecornu I », « Lecornu II »). Plusieurs gouvernements peuvent se succéder pendant une législature.
+_Avoid_: Cabinet, exécutif (pour un gouvernement précis)
+
+**Rang gouvernemental**:
+Le niveau d'un membre du Gouvernement : ministre d'État, ministre (dont le garde des Sceaux), ministre délégué, secrétaire d'État. Les parlementaires « en mission » auprès du Gouvernement n'en sont pas membres.
+_Avoid_: Portefeuille (le ministère, absent des données)
+
+**Bureau**:
+L'organe qui dirige l'Assemblée : sa présidence, six vice-présidents, trois questeurs et douze secrétaires. Le président et les secrétaires « d'âge » n'en font partie que le temps de la séance d'installation.
+_Avoid_: Conférence des présidents
+
 ## Travail législatif
 
 **Dossier législatif**:

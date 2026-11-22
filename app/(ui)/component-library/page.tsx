@@ -47,6 +47,8 @@ const components: Record<string, ComponentTheme[]> = {
                 { name: 'Charts', description: 'Barres, lignes, camemberts, nuages de points', path: '/component-library/molecules/chart' },
                 { name: 'ActivityCalendar', description: "Calendrier d'activité", path: '/component-library/molecules/activity-calendar' },
                 { name: 'DifficultyGauge', description: 'Jauge de 1 à 5', path: '/component-library/molecules/difficulty-gauge' },
+                { name: 'Timeline', description: 'Frise chronologique en couloirs', path: '/component-library/molecules/timeline' },
+                { name: 'OrgChart', description: 'Organigramme (arbre hiérarchique)', path: '/component-library/molecules/org-chart' },
             ],
         },
         {

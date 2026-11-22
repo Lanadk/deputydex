@@ -974,6 +974,211 @@
     }
 
     /* -------------------------------------------------------
+       TimelineLib — frise chronologique en couloirs
+       ------------------------------------------------------- */
+    .timeline-lib {
+        --timeline-label-width: 11rem;
+        margin: 0;
+    }
+
+    .timeline-lib__scroll { overflow-x: auto; }
+
+    /* Largeur minimale : sur petit écran, la frise défile dans son cadre au lieu de s'écraser. */
+    .timeline-lib__canvas { min-width: 720px; }
+
+    .timeline-lib__axis {
+        position: relative;
+        height: 1.5rem;
+        margin-left: var(--timeline-label-width);
+        border-bottom: 1px solid var(--border-main);
+    }
+
+    .timeline-lib__tick {
+        position: absolute;
+        bottom: 4px;
+        transform: translateX(-50%);
+        font-size: 12px;
+        color: var(--subtitle-accent);
+    }
+
+    .timeline-lib__body { position: relative; }
+
+    .timeline-lib__lane {
+        display: grid;
+        grid-template-columns: var(--timeline-label-width) minmax(0, 1fr);
+        align-items: center;
+        border-bottom: 1px solid var(--border-main);
+    }
+
+    /* Reste visible quand la frise défile horizontalement (petit écran). */
+    .timeline-lib__lane-label {
+        position: sticky;
+        left: 0;
+        z-index: 1;
+        align-self: stretch;
+        display: flex;
+        align-items: center;
+        padding: 8px 12px 8px 0;
+        font-size: 13px;
+        font-weight: 600;
+        background-color: var(--background);
+    }
+
+    @media (max-width: 639px) {
+        .timeline-lib { --timeline-label-width: 7rem; }
+        .timeline-lib__lane-label { font-size: 12px; }
+    }
+
+    .timeline-lib__track {
+        position: relative;
+        height: 2.75rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .timeline-lib__period {
+        position: absolute;
+        top: 6px;
+        bottom: 6px;
+        min-width: 3px;
+        overflow: hidden;
+        border-left: 3px solid var(--timeline-color);
+        border-radius: 4px;
+        background-color: color-mix(in srgb, var(--timeline-color) 22%, var(--surface-2));
+    }
+
+    .timeline-lib__period > a,
+    .timeline-lib__period > span {
+        display: flex;
+        align-items: center;
+        height: 100%;
+        padding: 0 6px;
+        color: var(--foreground);
+        text-decoration: none;
+    }
+
+    .timeline-lib__period > a:hover { text-decoration: underline; }
+
+    .timeline-lib__period > a:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: -2px;
+    }
+
+    .timeline-lib__period-label {
+        overflow: hidden;
+        font-size: 12px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    .timeline-lib__events {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        left: var(--timeline-label-width);
+        right: 0;
+        pointer-events: none;
+    }
+
+    .timeline-lib__event-line {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        border-left: 2px dashed var(--ui-warning);
+        pointer-events: auto;
+    }
+
+    .timeline-lib__legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 6px 20px;
+        margin: 12px 0 0;
+        padding: 0;
+        list-style: none;
+        font-size: 13px;
+        color: var(--subtitle-accent);
+    }
+
+    .timeline-lib__legend-mark {
+        display: inline-block;
+        width: 0;
+        height: 0.9em;
+        margin-right: 6px;
+        vertical-align: middle;
+        border-left: 2px dashed var(--ui-warning);
+    }
+
+    /* -------------------------------------------------------
+       OrgChartLib — organigramme
+       ------------------------------------------------------- */
+    .org-chart-lib__card {
+        display: inline-flex;
+        flex-direction: column;
+        gap: 2px;
+        padding: 8px 12px;
+        border: 1px solid var(--border-main);
+        border-radius: 8px;
+        background-color: var(--surface-2);
+    }
+
+    .org-chart-lib__card--root { border-left: 4px solid var(--accent); }
+
+    .org-chart-lib__title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--foreground);
+    }
+
+    a.org-chart-lib__title:hover { text-decoration: underline; }
+
+    a.org-chart-lib__title:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+        border-radius: 4px;
+    }
+
+    .org-chart-lib__subtitle,
+    .org-chart-lib__note {
+        font-size: 12px;
+        color: var(--subtitle-accent);
+    }
+
+    .org-chart-lib__note { font-style: italic; }
+
+    /* Arbre : chaque niveau est indenté et relié à son parent (ligne verticale + branche). */
+    .org-chart-lib__children {
+        margin: 0 0 0 14px;
+        padding: 10px 0 0 18px;
+        list-style: none;
+        border-left: 1px solid var(--border-main);
+    }
+
+    .org-chart-lib__item {
+        position: relative;
+        padding: 0 0 10px;
+    }
+
+    .org-chart-lib__item::before {
+        content: "";
+        position: absolute;
+        top: 18px;
+        left: -18px;
+        width: 14px;
+        border-top: 1px solid var(--border-main);
+    }
+
+    .org-chart-lib__children--grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+        gap: 8px;
+    }
+
+    .org-chart-lib__children--grid > .org-chart-lib__item { padding: 0; }
+    .org-chart-lib__children--grid > .org-chart-lib__item::before { display: none; }
+    .org-chart-lib__children--grid .org-chart-lib__card { display: flex; height: 100%; }
+
+    /* -------------------------------------------------------
        NotificationLib — notifications temporaires
        ------------------------------------------------------- */
     .notification-lib {
