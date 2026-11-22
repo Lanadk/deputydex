@@ -6,6 +6,7 @@ import {AnchorSectionBlockLib, GRID_COLS_CLASS} from "@/app/(ui)/component-libra
 import {BlockSectionRenderer} from "@/app/(ui)/component-library/template/sections/block-section/block-section-renderer";
 import {useFetchSectionData} from "@/app/(ui)/_shared/hook/useSectionData";
 import {PageSection} from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
+import {ErrorStateLib} from "@/app/(ui)/component-library/molecules/error-state/error-state-lib";
 
 interface SectionBlockLoaderProps {
     section: PageSection;
@@ -27,10 +28,12 @@ export function SectionBlockLoader({ section, params, onReady, hideHeader = fals
         () => section.gatewayFn && measureSection(section.id, section.gatewayFn),
         [section]
     );
-    const { dataMap, loading } = useFetchSectionData(gatewayFn, params);
+    const { dataMap, loading, error, retry } = useFetchSectionData(gatewayFn, params);
 
     const hasCalledReady = useRef(false);
 
+    // Prête dès la fin du chargement, en erreur comprise : la page n'attend pas
+    // indéfiniment une section en échec, qui affiche son erreur à sa place.
     useEffect(() => {
         if (!loading && !hasCalledReady.current) {
             hasCalledReady.current = true;
@@ -38,7 +41,13 @@ export function SectionBlockLoader({ section, params, onReady, hideHeader = fals
         }
     }, [loading]);
 
-    const blocks = section.blocks.map((block, i) => (
+    const blocks = error ? (
+        <ErrorStateLib
+            className="col-span-full"
+            message={`Impossible de charger « ${section.label} » pour le moment.`}
+            onRetry={retry}
+        />
+    ) : section.blocks.map((block, i) => (
         <BlockSectionRenderer
             key={i}
             block={block}

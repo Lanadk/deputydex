@@ -11,24 +11,24 @@ import {GroupeHeaderSkeleton} from "@/app/(ui)/components/groups/fiche/groupe-he
 import {GROUPES_SECTIONS} from "@/app/(ui)/(views)/(db)/groupes/[code]/config";
 import {SpinnerLib} from "@/app/(ui)/component-library/molecules/spinner/spinner-lib";
 import {SectionBlockLoader} from "@/app/(ui)/component-library/template/sections/block-section/_loader/section-block-loader";
+import {useAsyncData} from "@/app/(ui)/_shared/hook/use-async-data";
+import {ErrorStateLib} from "@/app/(ui)/component-library/molecules/error-state/error-state-lib";
+import {useNotifications} from "@/app/(ui)/component-library/molecules/notification/notification-lib";
 
 export default function GroupePageClient({code}: { code: string }) {
     const [readyCount, setReadyCount] = useState(0);
-    const [groupeInfos, setGroupeInfos] = useState<GroupeInfosDTO>();
     const {legislature, legislatures, setUnavailableLegislatureNumbers} = useLegislature();
+    const {notify} = useNotifications();
     // null tant que la législature courante n'est pas chargée : ni en-tête ni
     // sections ne sont demandés d'ici là (sinon une requête part pour rien).
     const legislatureNum = legislature?.number ?? null;
 
     const params = useMemo(() => ({ code, legislature: legislatureNum }), [code, legislatureNum]);
 
-
-    useEffect(() => {
-        if (legislatureNum === null) return;
-        groupesGateways.getGroupeInfos(code, legislatureNum)
-            .then(setGroupeInfos)
-            .catch(console.error);
-    }, [code, legislatureNum]);
+    const infos = useAsyncData<GroupeInfosDTO>(
+        legislatureNum === null ? null : () => groupesGateways.getGroupeInfos(code, legislatureNum),
+        `${code}|${legislatureNum}`
+    );
 
     // Un code de groupe (ex: "RE") n'existe pas forcément sous ce nom dans
     // toutes les législatures (ex: devenu "EPR" en 17e) — pas de mapping
@@ -49,13 +49,16 @@ export default function GroupePageClient({code}: { code: string }) {
                 );
                 setUnavailableLegislatureNumbers(unavailable);
             })
-            .catch(console.error);
+            .catch(() => {
+                // Non bloquant : la page s'affiche, seul le grisage du sélecteur manque.
+                if (!cancelled) notify({ message: "Les législatures où ce groupe a existé n'ont pas pu être vérifiées.", variant: "warning" });
+            });
 
         return () => {
             cancelled = true;
             setUnavailableLegislatureNumbers(new Set());
         };
-    }, [code, legislatures, setUnavailableLegislatureNumbers]);
+    }, [code, legislatures, setUnavailableLegislatureNumbers, notify]);
 
     const sectionsToAwait = useMemo(
         () => GROUPES_SECTIONS.filter(s => s.gatewayFn && !s.lazy),
@@ -69,7 +72,11 @@ export default function GroupePageClient({code}: { code: string }) {
 
     return (
         <AnchorLayout
-            header={groupeInfos ? <GroupeHeader groupeInfos={groupeInfos}/> : <GroupeHeaderSkeleton/>}
+            header={
+                infos.error
+                    ? <ErrorStateLib message="Impossible de charger les informations du groupe pour le moment." onRetry={infos.retry}/>
+                    : infos.data ? <GroupeHeader groupeInfos={infos.data}/> : <GroupeHeaderSkeleton/>
+            }
             sections={GROUPES_SECTIONS}
         >
             <div className="mt-4">

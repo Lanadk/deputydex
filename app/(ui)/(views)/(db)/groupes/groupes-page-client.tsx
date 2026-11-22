@@ -1,6 +1,8 @@
 "use client";
 
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useMemo, useState} from "react";
+import {useAsyncData} from "@/app/(ui)/_shared/hook/use-async-data";
+import {ErrorStateLib} from "@/app/(ui)/component-library/molecules/error-state/error-state-lib";
 import {useLegislature} from "@/app/(ui)/providers/legislature-provider";
 import {GroupCard} from "@/app/(ui)/components/groups/group-card";
 import {PageHeaderLib} from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
@@ -18,14 +20,11 @@ export default function GroupesPageClient() {
     const {legislature} = useLegislature();
     // null tant que la législature courante n'est pas chargée : aucune requête d'ici là.
     const legislatureNumber = legislature?.number ?? null;
-    const [groupes, setGroupes] = useState<GroupeCardDTO[]>([]);
-
-    useEffect(() => {
-        if (legislatureNumber === null) return;
-        groupesGateways.getGroupesCards(legislatureNumber)
-            .then(setGroupes)
-            .catch(console.error);
-    }, [legislatureNumber])
+    const groupesData = useAsyncData<GroupeCardDTO[]>(
+        legislatureNumber === null ? null : () => groupesGateways.getGroupesCards(legislatureNumber),
+        String(legislatureNumber)
+    );
+    const groupes = useMemo(() => groupesData.data ?? [], [groupesData.data]);
 
     const [query, setQuery] = useState<FilterBarQuery>({
         orderBy: [],
@@ -67,6 +66,14 @@ export default function GroupesPageClient() {
                             />
                         </div>
                     </div>
+
+                    {groupesData.error && (
+                        <ErrorStateLib
+                            className="mt-5"
+                            message="Impossible de charger les groupes parlementaires pour le moment."
+                            onRetry={groupesData.retry}
+                        />
+                    )}
 
                     <div className="relative z-0 grid grid-cols-1 gap-6 sm:grid-cols-3 lg:grid-cols-4 mt-5">
                         {filteredGroupes.map((groupe) => {

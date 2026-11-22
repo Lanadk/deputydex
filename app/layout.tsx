@@ -6,6 +6,7 @@ import {MuiProvider} from "@/app/(ui)/providers/mui-provider";
 import AppSidebar from "@/app/(ui)/components/sidebar/app-sidebar";
 import {SidebarProvider} from "@/app/(ui)/providers/sidebar-provider";
 import {LegislatureProvider} from "@/app/(ui)/providers/legislature-provider";
+import {NotificationProvider} from "@/app/(ui)/component-library/molecules/notification/notification-lib";
 import {DEV_PERF_ENABLED} from "@/app/_shared/dev-perf/dev-perf.config";
 import {DevPerfRecorder} from "@/app/(ui)/_shared/dev-perf/dev-perf-recorder";
 import {DEFAULT_DESCRIPTION, DEFAULT_KEYWORDS, DEFAULT_TITLE, SITE_NAME, SITE_URL} from "@/app/_shared/seo/seo.config";
@@ -94,6 +95,7 @@ export default function RootLayout({
             >
                 <MuiProvider>
                     <SidebarProvider>
+                        <NotificationProvider>
                         <LegislatureProvider>
                         {/* Outil de perf, dev seulement (NEXT_PUBLIC_DEV_PERF=true) : voir app/6.DEV-PERF.md */}
                         {DEV_PERF_ENABLED && <DevPerfRecorder />}
@@ -106,6 +108,7 @@ export default function RootLayout({
                             </main>
                         </div>
                         </LegislatureProvider>
+                        </NotificationProvider>
                     </SidebarProvider>
                 </MuiProvider>
             </ThemeProvider>

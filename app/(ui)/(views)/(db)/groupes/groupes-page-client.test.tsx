@@ -1,4 +1,4 @@
-import { render, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 jest.mock("@/app/(ui)/gateways/legislatures/legislatures.gateway", () => ({
@@ -34,6 +34,19 @@ describe("GroupesPageClient — requêtes au chargement (#135)", () => {
         await waitFor(() => expect(getGroupesCards).toHaveBeenCalled());
         expect(getGroupesCards).toHaveBeenCalledTimes(1);
         expect(getGroupesCards).toHaveBeenCalledWith(16);
+    });
+
+    it("affiche une erreur avec « Réessayer » si la liste des groupes ne se charge pas (#122)", async () => {
+        getCurrent.mockResolvedValue(L16);
+        getGroupesCards.mockRejectedValueOnce(new Error("500")).mockResolvedValueOnce([]);
+
+        render(<LegislatureProvider><GroupesPageClient /></LegislatureProvider>);
+
+        expect(await screen.findByRole("alert")).toHaveTextContent("Impossible de charger les groupes parlementaires");
+        fireEvent.click(screen.getByRole("button", { name: "Réessayer" }));
+
+        await waitFor(() => expect(screen.queryByRole("alert")).not.toBeInTheDocument());
+        expect(getGroupesCards).toHaveBeenCalledTimes(2);
     });
 
     it("n'envoie aucune requête tant que la législature courante n'est pas connue", async () => {

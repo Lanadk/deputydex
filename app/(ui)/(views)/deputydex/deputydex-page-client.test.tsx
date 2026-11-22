@@ -1,4 +1,4 @@
-import { render, waitFor } from "@testing-library/react";
+import { fireEvent, render, screen, waitFor } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 jest.mock("@/app/(ui)/gateways/legislatures/legislatures.gateway", () => ({
@@ -38,6 +38,22 @@ describe("DeputydexPageClient — requêtes au chargement (#135)", () => {
         await waitFor(() => expect(getDeputesCards).toHaveBeenCalled());
         expect(getDeputesCards).toHaveBeenCalledTimes(1);
         expect(getDeputesCards).toHaveBeenCalledWith(18);
+    });
+
+    it("distingue erreur, vide et données (#122)", async () => {
+        getCurrent.mockResolvedValue(L18);
+        getDeputesCards.mockRejectedValueOnce(new Error("500")).mockResolvedValueOnce([]);
+
+        render(<LegislatureProvider><DeputydexPageClient /></LegislatureProvider>);
+
+        // Erreur : message et nouvel essai, pas « Aucun résultat ».
+        expect(await screen.findByRole("alert")).toHaveTextContent("Impossible de charger les députés");
+        expect(screen.queryByText("Aucun résultat")).not.toBeInTheDocument();
+
+        // Nouvel essai réussi mais vide : « Aucun résultat ».
+        fireEvent.click(screen.getByRole("button", { name: "Réessayer" }));
+        expect(await screen.findByText("Aucun résultat")).toBeInTheDocument();
+        expect(screen.queryByRole("alert")).not.toBeInTheDocument();
     });
 
     it("n'envoie aucune requête tant que la législature courante n'est pas connue", async () => {
