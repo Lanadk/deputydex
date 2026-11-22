@@ -56,7 +56,11 @@ jobs:
 
       # npm ci installe exactement les versions de package-lock.json (comme le
       # Dockerfile) et échoue s'il n'est plus synchronisé avec package.json.
-      - run: npm ci
+      # --ignore-scripts : aucun script d'installation des dépendances n'est
+      # exécuté ; aucun n'est nécessaire (prisma generate est lancé à part,
+      # binaires natifs fournis par les optionalDependencies). Une nouvelle
+      # dépendance qui en aurait besoin ferait échouer lint / test / build.
+      - run: npm ci --ignore-scripts
 
       # Le client Prisma généré (app/infrastructure/db/generated/prisma) est
       # gitignored — absent sur un checkout propre. Ne nécessite pas
@@ -133,7 +137,8 @@ jobs:
           node-version: 22
           cache: npm
 
-      - run: npm ci
+      # Sans scripts d'installation : voir le job `test`.
+      - run: npm ci --ignore-scripts
 
       - run: npm run build
 
