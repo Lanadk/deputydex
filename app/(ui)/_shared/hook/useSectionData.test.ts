@@ -54,6 +54,48 @@ describe("useFetchSectionData", () => {
         expect(gatewayFn).toHaveBeenCalledTimes(2);
     });
 
+    it("passe en erreur quand le gatewayFn échoue (plus de section bloquée en chargement)", async () => {
+        const gatewayFn = jest.fn().mockRejectedValue(new Error("500"));
+
+        const { result } = renderHook(() => useFetchSectionData(gatewayFn as any, { legislature: 17 }));
+
+        await waitFor(() => expect(result.current.error).toBe(true));
+        expect(result.current.loading).toBe(false);
+        expect(result.current.dataMap).toEqual({});
+    });
+
+    it("retry relance le chargement après une erreur", async () => {
+        const gatewayFn = jest.fn().mockRejectedValueOnce(new Error("500")).mockResolvedValueOnce({ a: [1] });
+
+        const { result } = renderHook(() => useFetchSectionData(gatewayFn as any, { legislature: 17 }));
+
+        await waitFor(() => expect(result.current.error).toBe(true));
+        act(() => result.current.retry());
+
+        await waitFor(() => expect(result.current.dataMap).toEqual({ a: [1] }));
+        expect(result.current.error).toBe(false);
+        expect(gatewayFn).toHaveBeenCalledTimes(2);
+    });
+
+    it("ignore la réponse d'anciens paramètres arrivée après les nouveaux", async () => {
+        const old = deferred<Record<string, unknown>>();
+        const gatewayFn = jest.fn().mockReturnValueOnce(old.promise).mockResolvedValueOnce({ b: [2] });
+
+        const { result, rerender } = renderHook(
+            ({ params }) => useFetchSectionData(gatewayFn as any, params),
+            { initialProps: { params: { legislature: 17 } as Record<string, unknown> } }
+        );
+
+        rerender({ params: { legislature: 18 } });
+        await waitFor(() => expect(result.current.dataMap).toEqual({ b: [2] }));
+
+        await act(async () => {
+            old.resolve({ a: [1] });
+            await old.promise;
+        });
+        expect(result.current.dataMap).toEqual({ b: [2] });
+    });
+
     it("does not refetch when a new params object is deeply equal to the previous one", async () => {
         const gatewayFn = jest.fn().mockResolvedValue({ a: [1] });
 

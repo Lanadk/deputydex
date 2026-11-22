@@ -11,6 +11,8 @@ export type ScrutinSiegeDTO = {
     groupeCode: string | null;
     position: ScrutinSiegePosition;
     positionLabel: string;
+    /** Photo du député (chemin public), null si aucune */
+    photoUrl: string | null;
 };
 
 /** Hémicycle d'un scrutin : un siège par député en mandat ce jour-là. */

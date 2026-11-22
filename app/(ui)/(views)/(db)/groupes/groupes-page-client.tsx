@@ -1,6 +1,8 @@
 "use client";
 
-import React, {useEffect, useMemo, useState} from "react";
+import React, {useMemo, useState} from "react";
+import {useAsyncData} from "@/app/(ui)/_shared/hook/use-async-data";
+import {ErrorStateLib} from "@/app/(ui)/component-library/molecules/error-state/error-state-lib";
 import {useLegislature} from "@/app/(ui)/providers/legislature-provider";
 import {GroupCard} from "@/app/(ui)/components/groups/group-card";
 import {PageHeaderLib} from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
@@ -16,14 +18,13 @@ import {BaseLayout} from "@/app/(ui)/component-library/template/base-layout/base
 
 export default function GroupesPageClient() {
     const {legislature} = useLegislature();
-    const legislatureNumber = legislature?.number ?? 0;
-    const [groupes, setGroupes] = useState<GroupeCardDTO[]>([]);
-
-    useEffect(() => {
-        groupesGateways.getGroupesCards(legislatureNumber)
-            .then(setGroupes)
-            .catch(console.error);
-    }, [legislatureNumber])
+    // null tant que la législature courante n'est pas chargée : aucune requête d'ici là.
+    const legislatureNumber = legislature?.number ?? null;
+    const groupesData = useAsyncData<GroupeCardDTO[]>(
+        legislatureNumber === null ? null : () => groupesGateways.getGroupesCards(legislatureNumber),
+        String(legislatureNumber)
+    );
+    const groupes = useMemo(() => groupesData.data ?? [], [groupesData.data]);
 
     const [query, setQuery] = useState<FilterBarQuery>({
         orderBy: [],
@@ -51,7 +52,7 @@ export default function GroupesPageClient() {
                     />
                 </div>
 
-                <main className="flex flex-col gap-6 w-full mx-auto">
+                <div className="flex flex-col gap-6 w-full mx-auto">
                     <div className="relative z-30 grid w-full grid-cols-1 gap-2 lg:grid-cols-2 items-start">
                         <GroupIntro/>
                         <GroupResume
@@ -65,6 +66,14 @@ export default function GroupesPageClient() {
                             />
                         </div>
                     </div>
+
+                    {groupesData.error && (
+                        <ErrorStateLib
+                            className="mt-5"
+                            message="Impossible de charger les groupes parlementaires pour le moment."
+                            onRetry={groupesData.retry}
+                        />
+                    )}
 
                     <div className="relative z-0 grid grid-cols-1 gap-6 sm:grid-cols-3 lg:grid-cols-4 mt-5">
                         {filteredGroupes.map((groupe) => {
@@ -87,7 +96,7 @@ export default function GroupesPageClient() {
                             );
                         })}
                     </div>
-                </main>
+                </div>
             </BaseLayout>
         </>
     );

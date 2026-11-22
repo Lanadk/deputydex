@@ -58,9 +58,9 @@ export const AnchorLayout: React.FC<AnchorLayoutProps> = ({
                         <AnchorNavLib sections={sections} label={navLabel} />
                     </aside>
 
-                    <main className="flex-1 min-w-0">
+                    <div className="flex-1 min-w-0">
                         {children}
-                    </main>
+                    </div>
                 </div>
             </BaseLayout>
         </AnchorSectionProvider>

@@ -42,15 +42,26 @@ describe("GET /api/groupes/composition/[code]/[legislature]", () => {
         expect(await res.json()).toEqual(expect.objectContaining({ groupeCountActifMembers: 88 }));
     });
 
-    it("returns 500 (not 404) when the group is not found", async () => {
+    // Critères d'acceptation de #143.
+    it("returns 404 for an unknown group (/api/groupes/composition/INEXISTANT/17)", async () => {
         getGroupeComposition.mockResolvedValue(null);
 
-        const res = await call("UNKNOWN", "17");
+        const res = await call("INEXISTANT", "17");
 
-        expect(res.status).toBe(500);
+        expect(res.status).toBe(404);
+        expect(await res.json()).toEqual({ error: "NOT_FOUND", message: "Groupe introuvable" });
+    });
+
+    it("returns 400 for a non-numeric legislature (/api/groupes/composition/RN/abc)", async () => {
+        const res = await call("RN", "abc");
+
+        expect(res.status).toBe(400);
+        expect(await res.json()).toEqual({ error: "INVALID_INPUT", message: "Paramètre invalide" });
+        expect(getGroupeComposition).not.toHaveBeenCalled();
     });
 
     it("returns 500 when the repository throws", async () => {
+        jest.spyOn(console, "error").mockImplementation(() => {});
         getGroupeComposition.mockRejectedValue(new Error("DB down"));
 
         const res = await call("REN", "17");

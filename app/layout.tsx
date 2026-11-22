@@ -5,8 +5,10 @@ import {ThemeProvider} from "next-themes";
 import {MuiProvider} from "@/app/(ui)/providers/mui-provider";
 import AppSidebar from "@/app/(ui)/components/sidebar/app-sidebar";
 import {SidebarProvider} from "@/app/(ui)/providers/sidebar-provider";
-import {ThemeSwitcherLib} from "@/app/(ui)/component-library/molecules/theme-switcher/theme-switcher-lib";
 import {LegislatureProvider} from "@/app/(ui)/providers/legislature-provider";
+import {NotificationProvider} from "@/app/(ui)/component-library/molecules/notification/notification-lib";
+import {DEV_PERF_ENABLED} from "@/app/_shared/dev-perf/dev-perf.config";
+import {DevPerfRecorder} from "@/app/(ui)/_shared/dev-perf/dev-perf-recorder";
 import {DEFAULT_DESCRIPTION, DEFAULT_KEYWORDS, DEFAULT_TITLE, SITE_NAME, SITE_URL} from "@/app/_shared/seo/seo.config";
 
 const geistSans = Geist({
@@ -93,15 +95,22 @@ export default function RootLayout({
             >
                 <MuiProvider>
                     <SidebarProvider>
+                        <NotificationProvider>
                         <LegislatureProvider>
+                        {/* Outil de perf, dev seulement (NEXT_PUBLIC_DEV_PERF=true) : voir app/6.DEV-PERF.md */}
+                        {DEV_PERF_ENABLED && <DevPerfRecorder />}
+                        {/* Premier élément focusable : saute la sidebar (seul landmark main = celui-ci) */}
+                        <a href="#contenu" className="skip-link">Aller au contenu</a>
                         <div className="flex min-h-screen">
                             <AppSidebar />
-                            <main className="flex-1 pt-14 lg:pt-0">
+                            {/* min-w-0 : sans lui, un élément flexible ne rétrécit pas sous la largeur de son
+                                contenu le plus large (tableau, bloc de code…) et toute la page déborde de l'écran sur mobile. */}
+                            <main id="contenu" tabIndex={-1} className="flex-1 min-w-0 pt-14 lg:pt-0">
                                 {children}
                             </main>
-                            <ThemeSwitcherLib/>
                         </div>
                         </LegislatureProvider>
+                        </NotificationProvider>
                     </SidebarProvider>
                 </MuiProvider>
             </ThemeProvider>

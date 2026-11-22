@@ -37,15 +37,15 @@ describe("GET /api/groupes/cards/[legislature]", () => {
         expect(await res.json()).toEqual([expect.objectContaining({ groupeCode: "REN" })]);
     });
 
-    it("returns 500 when the repository resolves null", async () => {
-        getGroupesCards.mockResolvedValue(null);
+    it("returns 400 when the legislature is not a number", async () => {
+        const res = await call("abc");
 
-        const res = await call("17");
-
-        expect(res.status).toBe(500);
+        expect(res.status).toBe(400);
+        expect(getGroupesCards).not.toHaveBeenCalled();
     });
 
     it("returns 500 when the repository throws", async () => {
+        jest.spyOn(console, "error").mockImplementation(() => {});
         getGroupesCards.mockRejectedValue(new Error("DB down"));
 
         const res = await call("17");

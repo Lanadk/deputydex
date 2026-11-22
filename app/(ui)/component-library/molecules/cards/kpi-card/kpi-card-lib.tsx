@@ -14,8 +14,8 @@ const VALUE_SIZE_CLASS: Record<KpiCardSize, string> = {
 };
 
 const LABEL_SIZE_CLASS: Record<KpiCardSize, string> = {
-    md: "text-sm text-gray-600",
-    sm: "text-xs text-gray-600",
+    md: "text-sm text-card-muted",
+    sm: "text-xs text-card-muted",
 };
 
 export const KpiCardLib: React.FC<KpiCardLibProps> = ({

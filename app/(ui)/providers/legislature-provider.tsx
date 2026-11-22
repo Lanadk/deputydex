@@ -1,6 +1,7 @@
 "use client";
 
-import { createContext, useContext, useState, useEffect } from "react";
+import { createContext, useCallback, useContext, useState, useEffect } from "react";
+import { useNotifications } from "@/app/(ui)/component-library/molecules/notification/notification-lib";
 import { LegislatureDTO } from "@/app/domains/legislatures/dto/legislature.dto";
 import { legislaturesGateway } from "@/app/(ui)/gateways/legislatures/legislatures.gateway";
 
@@ -9,6 +10,9 @@ type LegislatureContextType = {
     legislatures: LegislatureDTO[];
     setLegislature: (l: LegislatureDTO) => void;
     loading: boolean;
+    /** Le chargement des législatures a échoué (une notification le signale, avec « Réessayer »). */
+    error: boolean;
+    retry: () => void;
     /**
      * Numéros de législature à griser dans le sélecteur. Deux cas d'usage :
      * - un code de groupe n'existe que sous une autre appellation dans ces
@@ -29,6 +33,8 @@ const LegislatureContext = createContext<LegislatureContextType>({
     legislatures: [],
     setLegislature: () => {},
     loading: true,
+    error: false,
+    retry: () => {},
     unavailableLegislatureNumbers: new Set(),
     setUnavailableLegislatureNumbers: () => {},
 });
@@ -38,16 +44,37 @@ export function LegislatureProvider({ children }: { children: React.ReactNode })
     const [legislatures, setLegislatures] = useState<LegislatureDTO[]>([]);
     const [loading, setLoading] = useState(true);
     const [unavailableLegislatureNumbers, setUnavailableLegislatureNumbers] = useState<Set<number>>(new Set());
+    const [error, setError] = useState(false);
+    const [retryToken, setRetryToken] = useState(0);
+    const retry = useCallback(() => setRetryToken((n) => n + 1), []);
+    const { notify } = useNotifications();
 
     useEffect(() => {
+        let cancelled = false;
         Promise.all([
             legislaturesGateway.getCurrent(),
             legislaturesGateway.getAll(),
         ]).then(([current, all]) => {
+            if (cancelled) return;
             setLegislature(current);
             setLegislatures(all);
-        }).finally(() => setLoading(false));
-    }, []);
+            setError(false);
+        }).catch(() => {
+            if (cancelled) return;
+            // Sans législature, les pages de données ne peuvent rien charger : on le dit, avec un nouvel essai.
+            setError(true);
+            notify({
+                message: "Impossible de charger les législatures pour le moment.",
+                variant: "error",
+                action: { label: "Réessayer", onClick: retry },
+            });
+        }).finally(() => {
+            if (!cancelled) setLoading(false);
+        });
+        return () => {
+            cancelled = true;
+        };
+    }, [retryToken, notify, retry]);
 
     return (
         <LegislatureContext.Provider value={{
@@ -55,6 +82,8 @@ export function LegislatureProvider({ children }: { children: React.ReactNode })
             legislatures,
             setLegislature,
             loading,
+            error,
+            retry,
             unavailableLegislatureNumbers,
             setUnavailableLegislatureNumbers,
         }}>

@@ -8,6 +8,13 @@
 ![prisma](https://img.shields.io/badge/Prisma-Postgres-2D3748)
 ![license](https://img.shields.io/badge/license-AGPL--3.0-blue)
 
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=Lanadk_deputydex&metric=alert_status)](https://sonarcloud.io/summary/new_code?id=Lanadk_deputydex)
+[![Coverage](https://sonarcloud.io/api/project_badges/measure?project=Lanadk_deputydex&metric=coverage)](https://sonarcloud.io/summary/new_code?id=Lanadk_deputydex)
+[![Reliability Rating](https://sonarcloud.io/api/project_badges/measure?project=Lanadk_deputydex&metric=reliability_rating)](https://sonarcloud.io/summary/new_code?id=Lanadk_deputydex)
+[![Security Rating](https://sonarcloud.io/api/project_badges/measure?project=Lanadk_deputydex&metric=security_rating)](https://sonarcloud.io/summary/new_code?id=Lanadk_deputydex)
+[![Maintainability Rating](https://sonarcloud.io/api/project_badges/measure?project=Lanadk_deputydex&metric=sqale_rating)](https://sonarcloud.io/summary/new_code?id=Lanadk_deputydex)
+[![Duplicated Lines (%)](https://sonarcloud.io/api/project_badges/measure?project=Lanadk_deputydex&metric=duplicated_lines_density)](https://sonarcloud.io/summary/new_code?id=Lanadk_deputydex)
+
 ## 📊 Données
 
 Sources :
@@ -55,10 +62,10 @@ npm run test:coverage       # jest --coverage
 `.github/workflows/ci.yml` tourne sur chaque push vers `main` :
 
 ```
-lint + test → build → déploiement Vercel (preview, gate de validation) → trigger deploy prod (deputydex-cd)
+lint + test → build → trigger deploy prod (deputydex-cd)
 ```
 
-Chaque étape dépend de la précédente : si les tests, le build ou le déploiement preview échouent, le déploiement prod n'est jamais déclenché. Ce pipeline ne gère que le déploiement de l'app — pas le rafraîchissement des données (voir ci-dessus).
+Chaque étape dépend de la précédente : si les tests ou le build échouent, le déploiement prod n'est jamais déclenché. Le déploiement Vercel (preview) n'est plus lancé automatiquement : il se déclenche à la main (Actions > « CI + Trigger prod deploy » > Run workflow, sur n'importe quelle branche) et ne bloque jamais la prod. Ce pipeline ne gère que le déploiement de l'app — pas le rafraîchissement des données (voir ci-dessus).
 
 ## 📚 Documentation d'architecture
 

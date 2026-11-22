@@ -8,6 +8,7 @@ import { AnchorLayout } from "@/app/(ui)/component-library/template/sections/anc
 import { PageHeaderLib } from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
 import { PageContentLib } from "@/app/(ui)/component-library/template/page-content/page-content-lib";
 import { SpanLib } from "@/app/(ui)/component-library/atoms/span/span-lib";
+import { SpinnerLib } from "@/app/(ui)/component-library/molecules/spinner/spinner-lib";
 import { SectionBlockLoader } from "@/app/(ui)/component-library/template/sections/block-section/_loader/section-block-loader";
 import { useLegislature } from "@/app/(ui)/providers/legislature-provider";
 import { findKeyFigureTheme } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes.registry";
@@ -28,7 +29,16 @@ export default function ThemePageClient({ slug }: { slug: string }) {
     // rendu serveur et l'hydratation.
     if (!theme) notFound();
 
-    const params = { legislature: legislature?.number ?? 17 };
+    // null tant que la législature courante n'est pas chargée : les sections ne
+    // sont montées (donc ne lancent leurs requêtes) qu'une fois elle connue.
+    const legislatureNumber = legislature?.number ?? null;
+    const params = { legislature: legislatureNumber };
+    const sectionsReady = legislatureNumber !== null;
+    const sectionsSpinner = (
+        <div className="flex items-center justify-center h-64">
+            <SpinnerLib />
+        </div>
+    );
 
     const backLink = (
         <Link href="/statistics/chiffres-cles" className="text-sm text-subtitle-accent hover:text-accent">
@@ -68,9 +78,9 @@ export default function ThemePageClient({ slug }: { slug: string }) {
                 sections={theme.sections}
             >
                 <PageContentLib>
-                    {theme.sections.map((section) => (
+                    {sectionsReady ? theme.sections.map((section) => (
                         <SectionBlockLoader key={section.id} section={section} params={params} onReady={() => {}} />
-                    ))}
+                    )) : sectionsSpinner}
                 </PageContentLib>
             </AnchorLayout>
         );
@@ -84,7 +94,7 @@ export default function ThemePageClient({ slug }: { slug: string }) {
             </div>
 
             <PageContentLib>
-                {theme.sections.map((section) => (
+                {sectionsReady ? theme.sections.map((section) => (
                     <SectionBlockLoader
                         key={section.id}
                         section={section}
@@ -94,7 +104,7 @@ export default function ThemePageClient({ slug }: { slug: string }) {
                         // ferait que répéter le PageHeaderLib juste au-dessus.
                         hideHeader
                     />
-                ))}
+                )) : sectionsSpinner}
             </PageContentLib>
         </BaseLayout>
     );

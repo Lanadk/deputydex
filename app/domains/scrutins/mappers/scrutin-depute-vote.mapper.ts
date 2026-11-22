@@ -1,6 +1,6 @@
 import { ScrutinDeputeVoteEntity } from "@/app/domains/scrutins/entities/scrutin-depute-vote.entity";
 import { ScrutinDeputeVoteDTO } from "@/app/domains/scrutins/dto/scrutin-depute-vote.dto";
-import { isVoteRebelle, votePositionLabel } from "@/app/domains/scrutins/vote-position";
+import { isVoteRebelle, votePositionLabel } from "@/app/domains/votes/vote-position";
 
 export function mapScrutinDeputeVoteEntityToDTO(entity: ScrutinDeputeVoteEntity): ScrutinDeputeVoteDTO {
     const nomComplet = [entity.prenom, entity.nom].filter(Boolean).join(" ") || entity.depute_uid;

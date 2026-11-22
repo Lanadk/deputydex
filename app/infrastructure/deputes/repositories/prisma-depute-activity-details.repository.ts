@@ -51,8 +51,7 @@ export const prismaDeputeActivityDetailsRepository: IDeputeActivityDetailsReposi
                 ORDER BY acd.domain ASC
             `;
         } catch (error) {
-            console.error("Error fetching depute activity details:", error);
-            throw new Error("Failed to fetch depute activity details");
+            throw new Error("Failed to fetch depute activity details", { cause: error });
         }
     },
 };

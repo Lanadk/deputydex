@@ -31,8 +31,7 @@ export const prismaGroupeInfosRepository: IGroupeInfosRepository = {
             `;
 
         } catch (error) {
-            console.error("Error fetching group infos:", error);
-            throw new Error("Failed to fetch group infos");
+            throw new Error("Failed to fetch group infos", { cause: error });
         }
     }
 }

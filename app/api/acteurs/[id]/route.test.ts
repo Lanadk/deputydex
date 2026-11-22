@@ -50,7 +50,7 @@ describe("GET /api/acteurs/[id]", () => {
         });
 
         expect(res.status).toBe(404);
-        expect(await res.json()).toEqual({ error: "NOT_FOUND" });
+        expect(await res.json()).toEqual({ error: "NOT_FOUND", message: "Acteur introuvable" });
     });
 
     it("returns 500 when the repository throws", async () => {

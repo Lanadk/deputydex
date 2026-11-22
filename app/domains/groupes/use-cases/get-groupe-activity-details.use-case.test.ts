@@ -27,15 +27,14 @@ describe("getGroupeActivityDetailsUseCase", () => {
         ]);
     });
 
-    it("returns err('ERROR') when the repository resolves null", async () => {
+    it("returns err('DB_ERROR') when the repository throws", async () => {
+        jest.spyOn(console, "error").mockImplementation(() => {});
         const repository: IGroupeActivityDetailsRepository = {
-            getGroupeActivityDetails: jest
-                .fn()
-                .mockResolvedValue(null as unknown as GroupeActivityDetailsEntity[]),
+            getGroupeActivityDetails: jest.fn().mockRejectedValue(new Error("DB down")),
         };
 
-        const result = await getGroupeActivityDetailsUseCase(repository, "UNKNOWN", 17, new Date());
+        const result = await getGroupeActivityDetailsUseCase(repository, "REN", 17, new Date());
 
-        expect(result).toEqual({ success: false, error: "ERROR" });
+        expect(result).toEqual({ success: false, error: "DB_ERROR" });
     });
 });

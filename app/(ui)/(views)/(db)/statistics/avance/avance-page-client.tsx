@@ -41,7 +41,7 @@ function StatisticsAdvancedHub() {
     const canCompare = selectedDefinitions.length > 0 && !!ENTITY_RESOLVERS[selectedDefinitions[0].domain];
 
     return (
-        <main className="flex w-full flex-col gap-6">
+        <div className="flex w-full flex-col gap-6">
             <div className={`grid gap-4 ${mode === "split" ? "lg:grid-cols-2" : "grid-cols-1"}`}>
                 {contexts.map((context, contextIndex) => (
                     <StatPicker
@@ -147,7 +147,7 @@ function StatisticsAdvancedHub() {
                     ))}
                 </div>
             )}
-        </main>
+        </div>
     );
 }
 

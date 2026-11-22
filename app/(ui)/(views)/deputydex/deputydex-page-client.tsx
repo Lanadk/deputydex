@@ -12,6 +12,8 @@ import { SpinnerLib } from "@/app/(ui)/component-library/molecules/spinner/spinn
 import { SpanLib } from "@/app/(ui)/component-library/atoms/span/span-lib";
 import { AnchorLayoutFixHeader } from "@/app/(ui)/component-library/template/sections/anchor-section-header-fix/anchor-layout-fix-header";
 import { normalizeForSearch } from "@/app/_shared/utils/string";
+import { useAsyncData } from "@/app/(ui)/_shared/hook/use-async-data";
+import { ErrorStateLib } from "@/app/(ui)/component-library/molecules/error-state/error-state-lib";
 
 const ROW_ESTIMATE_SIZE = 320;
 
@@ -40,10 +42,14 @@ function useColumnCount(): number {
 
 export default function DeputydexPageClient() {
     const { legislature } = useLegislature();
-    const legislatureNum = legislature?.number ?? 17;
+    // null tant que la législature courante n'est pas chargée : aucune requête d'ici là.
+    const legislatureNum = legislature?.number ?? null;
 
-    const [deputies, setDeputies] = useState<DeputesCardDTO[]>([]);
-    const [loading, setLoading] = useState(true);
+    const deputiesData = useAsyncData<DeputesCardDTO[]>(
+        legislatureNum === null ? null : () => deputesGateway.getDeputesCards(legislatureNum),
+        String(legislatureNum)
+    );
+    const deputies = useMemo(() => deputiesData.data ?? [], [deputiesData.data]);
     // Le groupe filtré vit dans l'URL (`?groupe=LFI-NFP`) : lien direct depuis
     // l'hémicycle ("Voir les députés"), partageable, conservé au rechargement.
     const searchParams = useSearchParams();
@@ -59,16 +65,6 @@ export default function DeputydexPageClient() {
     };
     const [sortDir, setSortDir] = useState<SortDir>("asc");
     const [searchQuery, setSearchQuery] = useState("");
-
-    useEffect(() => {
-        // eslint-disable-next-line react-hooks/set-state-in-effect
-        setLoading(true);
-        deputesGateway
-            .getDeputesCards(legislatureNum)
-            .then(setDeputies)
-            .catch(console.error)
-            .finally(() => setLoading(false));
-    }, [legislatureNum]);
 
     const filteredDeputies = useMemo(() => {
         let list = selectedGroupe
@@ -116,7 +112,12 @@ export default function DeputydexPageClient() {
                 />
             }
         >
-            {loading ? (
+            {deputiesData.error ? (
+                <ErrorStateLib
+                    message="Impossible de charger les députés pour le moment."
+                    onRetry={deputiesData.retry}
+                />
+            ) : deputiesData.loading ? (
                 <div className="flex items-center justify-center h-64">
                     <SpinnerLib />
                 </div>
@@ -125,7 +126,7 @@ export default function DeputydexPageClient() {
                     <SpanLib className="text-subtitle-accent">Aucun résultat</SpanLib>
                 </div>
             ) : (
-                <main ref={parentRef} className="w-full">
+                <div ref={parentRef} className="w-full">
                     <div
                         style={{
                             height: rowVirtualizer.getTotalSize(),
@@ -167,7 +168,7 @@ export default function DeputydexPageClient() {
                             );
                         })}
                     </div>
-                </main>
+                </div>
             )}
         </AnchorLayoutFixHeader>
     );

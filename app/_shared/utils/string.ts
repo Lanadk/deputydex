@@ -32,9 +32,10 @@ export function htmlToPlainText(html: string): string {
     return html
         .replace(/<br\s*\/?>/gi, " ")
         .replace(/<\/(p|div|li)>/gi, " ")
-        .replace(/<[^>]*>/g, "")
-        .replace(/&#x([0-9a-f]+);/gi, (_, hex: string) => String.fromCodePoint(parseInt(hex, 16)))
-        .replace(/&#(\d+);/g, (_, dec: string) => String.fromCodePoint(parseInt(dec, 10)))
+        // [^<>] et non [^>] : un « < » non fermé ne fait plus parcourir tout le reste du texte.
+        .replace(/<[^<>]*>/g, "")
+        .replace(/&#x([0-9a-f]+);/gi, (_, hex: string) => String.fromCodePoint(Number.parseInt(hex, 16)))
+        .replace(/&#(\d+);/g, (_, dec: string) => String.fromCodePoint(Number.parseInt(dec, 10)))
         .replace(/&([a-z]+);/gi, (match, name: string) => NAMED_HTML_ENTITIES[name.toLowerCase()] ?? match)
         .replace(/\s+/g, " ")
         .trim();

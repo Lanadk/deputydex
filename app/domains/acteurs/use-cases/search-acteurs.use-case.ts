@@ -6,7 +6,8 @@ import { ACTEURS_FILTER_FIELDS, ACTEURS_SORT_OPTIONS } from "@/app/domains/acteu
 import { mapActeursToDTO } from "@/app/domains/acteurs/mappers/acteur.mapper";
 import {IActeursRepository} from "@/app/domains/acteurs/repositories/IActeursRepository";
 import {ActeurDTO} from "@/app/domains/acteurs/dto/acteur.dto";
-import {Result, ok} from "@/app/_shared/result-pattern/result"
+import {Result, ok, isErr} from "@/app/_shared/result-pattern/result"
+import {fromRepository} from "@/app/_shared/result-pattern/app-error";
 import {PaginatedResult} from "@/app/_shared/pagination/paginated-result";
 
 const SANITIZE_OPTIONS = {
@@ -19,10 +20,12 @@ export async function searchActeursUseCase(
     rawQuery: FilterBarQuery,
     page = 1,
     pageSize = 20
-): Promise<Result<PaginatedResult<ActeurDTO>, never>> {
+): Promise<Result<PaginatedResult<ActeurDTO>, "DB_ERROR">> {
     const query = sanitizeFilterBarQuery(rawQuery, SANITIZE_OPTIONS);
 
-    const { items, total } = await repository.search(query, page, pageSize);
+    const result = await fromRepository(() => repository.search(query, page, pageSize));
+    if (isErr(result)) return result;
+    const { items, total } = result.data;
     const dtoItems = mapActeursToDTO(items as any[]);
 
     return ok({

@@ -36,6 +36,8 @@ export type TableConfig<TRow = unknown> = {
     subtitle?: string;
     columns: ColumnDef<TRow>[];
     getRowKey: (row: TRow) => string;
+    /** Lignes alternées en fond contrasté (zébrage) */
+    striped?: boolean;
     /** Activer la pagination locale */
     pagination?: TablePaginationConfig;
     /** Activer le filtre */

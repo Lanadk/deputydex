@@ -28,7 +28,7 @@ const IMAGE_SIZE = { sm: 104, md: 120 } as const;
 function isLightText(color: string): boolean {
     const hex = color.replace("#", "");
     if (hex.length !== 6) return true;
-    const [r, g, b] = [0, 2, 4].map((i) => parseInt(hex.slice(i, i + 2), 16));
+    const [r, g, b] = [0, 2, 4].map((i) => Number.parseInt(hex.slice(i, i + 2), 16));
     return (0.299 * r + 0.587 * g + 0.114 * b) / 255 > 0.5;
 }
 

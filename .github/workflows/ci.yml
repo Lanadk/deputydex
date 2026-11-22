@@ -1,14 +1,23 @@
 name: CI + Trigger prod deploy
 
-# Pipeline complète sur push main :
-#   test -> build -> deploy Vercel (Preview, gate de validation) -> trigger deploy (prod)
+# Pipeline sur push main :
+#   test -> build -> trigger deploy (prod)
 # Chaque job dépend du précédent via `needs:` : si un job échoue, tous les
 # suivants sont automatiquement skippés (donc jamais de dispatch vers
-# deputydex-cd si les tests/le build/le déploiement Vercel ne passent pas).
+# deputydex-cd si les tests/le build ne passent pas). Le déploiement Vercel
+# (Preview) ne fait plus partie de cette chaîne : il est uniquement manuel et
+# ne bloque jamais la prod (voir plus bas).
 #
 # Sur une pull request vers main, seuls `test` et `build` tournent (checks
-# exigés par le ruleset avant merge) ; preview Vercel et déploiement prod
-# restent réservés au push sur main.
+# exigés par le ruleset avant merge), plus `sonar` (informatif) ; le
+# déploiement prod reste réservé au push sur main.
+#
+# Preview Vercel (optionnelle, y compris pour main) : lancement manuel, onglet
+# Actions > « CI + Trigger prod deploy » > Run workflow, en choisissant la
+# branche (`workflow_dispatch`) — test -> build -> deploy Vercel (Preview),
+# sans déploiement prod. Vercel ne déploie plus de lui-même à chaque
+# push (vercel.json : git.deploymentEnabled = false) : sur un compte gratuit,
+# chaque merge créait sinon un second déploiement Vercel en doublon de ce job.
 #
 # `edited` : une PR dont on change la base vers main (ex. PR empilée sur une
 # branche déjà mergée) doit être vérifiée, sinon les checks exigés ne viennent
@@ -22,12 +31,15 @@ on:
   pull_request:
     branches: [main]
     types: [opened, synchronize, reopened, edited]
+  # Preview Vercel à la demande, sur la branche choisie au lancement.
+  workflow_dispatch:
 
 # Push main : une seule pipeline à la fois, jamais annulée (déploiement prod).
 # PR : un groupe par PR, un nouveau push annule la vérification en cours.
+# Lancement manuel : un groupe par branche, à part de la prod (ne la bloque pas).
 concurrency:
-  group: ${{ github.event_name == 'pull_request' && format('front-ci-pr-{0}', github.event.pull_request.number) || 'front-ci-cd' }}
-  cancel-in-progress: ${{ github.event_name == 'pull_request' }}
+  group: ${{ github.event_name == 'pull_request' && format('front-ci-pr-{0}', github.event.pull_request.number) || github.event_name == 'workflow_dispatch' && format('front-ci-manual-{0}', github.ref_name) || 'front-ci-cd' }}
+  cancel-in-progress: ${{ github.event_name != 'push' }}
 
 jobs:
   # ---------------------------------------------------------------------
@@ -46,7 +58,11 @@ jobs:
 
       # npm ci installe exactement les versions de package-lock.json (comme le
       # Dockerfile) et échoue s'il n'est plus synchronisé avec package.json.
-      - run: npm ci
+      # --ignore-scripts : aucun script d'installation des dépendances n'est
+      # exécuté ; aucun n'est nécessaire (prisma generate est lancé à part,
+      # binaires natifs fournis par les optionalDependencies). Une nouvelle
+      # dépendance qui en aurait besoin ferait échouer lint / test / build.
+      - run: npm ci --ignore-scripts
 
       # Le client Prisma généré (app/infrastructure/db/generated/prisma) est
       # gitignored — absent sur un checkout propre. Ne nécessite pas
@@ -58,7 +74,51 @@ jobs:
 
       - run: npm run lint
 
-      - run: npm test
+      # Avec couverture : le rapport lcov est repris par le job `sonar`.
+      - run: npm run test:coverage
+
+      - uses: actions/upload-artifact@v7
+        with:
+          name: coverage-lcov
+          path: coverage/lcov.info
+          retention-days: 1
+
+  # ---------------------------------------------------------------------
+  # SONAR — qualité du code (SonarQube Cloud, projet public)
+  # ---------------------------------------------------------------------
+  # Analyse + couverture de Jest. Informatif : ce job n'est pas un check exigé
+  # par le ruleset, son échec ne bloque pas un merge. Ignoré sans le secret
+  # SONAR_TOKEN (PR venant d'un fork) et sur un simple `edited` de PR.
+  # Mise en place : app/7.SONAR.md.
+  sonar:
+    needs: test
+    if: github.event.action != 'edited'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check SONAR_TOKEN
+        id: token
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        run: echo "present=$([ -n "$SONAR_TOKEN" ] && echo true || echo false)" >> "$GITHUB_OUTPUT"
+
+      # Historique complet : Sonar attribue chaque ligne (blame) et calcule le
+      # « nouveau code » d'une PR.
+      - uses: actions/checkout@v4
+        if: steps.token.outputs.present == 'true'
+        with:
+          fetch-depth: 0
+
+      - uses: actions/download-artifact@v8
+        if: steps.token.outputs.present == 'true'
+        with:
+          name: coverage-lcov
+          path: coverage
+
+      # Épinglée sur le commit de la v8.5.0 (action tierce qui reçoit un secret).
+      - uses: SonarSource/sonarqube-scan-action@59202af334b4ba7b5db01b701b8e79f8b3bef0f4 # v8.5.0
+        if: steps.token.outputs.present == 'true'
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   # ---------------------------------------------------------------------
   # BUILD
@@ -79,27 +139,30 @@ jobs:
           node-version: 22
           cache: npm
 
-      - run: npm ci
+      # Sans scripts d'installation : voir le job `test`.
+      - run: npm ci --ignore-scripts
 
       - run: npm run build
 
   # ---------------------------------------------------------------------
-  # DEPLOY VERCEL (Preview) — gate de validation, pas la prod
+  # DEPLOY VERCEL (Preview) — manuel, non bloquant, pas la prod
   # ---------------------------------------------------------------------
   # Déploie un vrai build serverless sur une URL Preview unique (pas d'alias
-  # sur le domaine de prod). Sert de dernier filet avant de toucher à la prod :
-  # si Vercel refuse de builder/déployer, le déploiement n'est pas
-  # déclenché. Nécessite 3 secrets sur ce repo (Settings > Secrets > Actions) :
+  # sur le domaine de prod). Nécessite 3 secrets sur ce repo (Settings > Secrets > Actions) :
   #   VERCEL_TOKEN     -> vercel.com/account/tokens
   #   VERCEL_ORG_ID    -> `vercel link` en local (.vercel/project.json) ou
   #                        Team/Account Settings > General
   #   VERCEL_PROJECT_ID -> `vercel link` en local (.vercel/project.json) ou
   #                        Project Settings > General
+  #
+  # Uniquement en lancement manuel (workflow_dispatch), sur n'importe quelle
+  # branche, main comprise. Plus jamais sur push main : aucun job n'en dépend,
+  # son échec ne bloque donc pas le déploiement prod.
+  # Jamais sur `pull_request` : les secrets ne sont pas exposés aux PR venant
+  # d'un fork.
   vercel-preview:
     needs: build
-    # Les PR ont déjà leur preview via l'intégration GitHub de Vercel ; et les
-    # secrets ne sont pas exposés aux PR venant d'un fork.
-    if: github.event_name == 'push'
+    if: github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
     env:
       VERCEL_TOKEN: ${{ secrets.VERCEL_TOKEN }}
@@ -111,7 +174,9 @@ jobs:
       - uses: actions/checkout@v4
 
       - name: Install Vercel CLI
-        run: npm install --global vercel@latest
+        # Version figée : à monter volontairement (npm view vercel version).
+        # La CLI n'a pas de script d'installation : --ignore-scripts ne change rien.
+        run: npm install --global --ignore-scripts vercel@66.6.0
 
       - name: Pull Vercel project settings
         run: vercel pull --yes --environment=preview --token=$VERCEL_TOKEN
@@ -132,11 +197,12 @@ jobs:
   # TRIGGER DEPLOY PROD
   # ---------------------------------------------------------------------
   trigger-vps-deploy:
-    needs: vercel-preview
+    needs: build
     if: github.event_name == 'push'
     runs-on: ubuntu-latest
     steps:
-      - uses: peter-evans/repository-dispatch@v3
+      # Épinglée sur le commit de la v3.0.0 (action tierce qui reçoit un jeton).
+      - uses: peter-evans/repository-dispatch@ff45666b9427631e3450c54a1bcbee4d9ff4d7c0 # v3.0.0
         with:
           token: ${{ secrets.CD_DISPATCH_TOKEN }}
           repository: lanadk/deputydex-cd

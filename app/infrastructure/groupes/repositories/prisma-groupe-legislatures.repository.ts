@@ -13,8 +13,7 @@ export const prismaGroupeLegislaturesRepository: IGroupeLegislaturesRepository =
                 ORDER BY legislature
             `;
         } catch (error) {
-            console.error("Error fetching group legislatures:", error);
-            throw new Error("Failed to fetch group legislatures");
+            throw new Error("Failed to fetch group legislatures", { cause: error });
         }
     }
 }

@@ -1,6 +1,6 @@
 import { ScrutinGroupeVoteEntity } from "@/app/domains/scrutins/entities/scrutin-groupe-vote.entity";
 import { ScrutinGroupeVoteDTO } from "@/app/domains/scrutins/dto/scrutin-groupe-vote.dto";
-import { votePositionLabel } from "@/app/domains/scrutins/vote-position";
+import { votePositionLabel } from "@/app/domains/votes/vote-position";
 
 export function mapScrutinGroupeVoteEntityToDTO(entity: ScrutinGroupeVoteEntity): ScrutinGroupeVoteDTO {
     return {

@@ -34,26 +34,27 @@ describe("getGroupeInfosUseCase", () => {
         expect(result.data.groupeCode).toBe("REN");
     });
 
-    it("returns err('ERROR') when the repository resolves null/undefined (group not found)", async () => {
-        const repository: IGroupeInfosRepository = {
-            getGroupeInfos: jest.fn().mockResolvedValue(null as unknown as GroupeInfosEntity[]),
-        };
-
-        const result = await getGroupeInfosUseCase(repository, "UNKNOWN", 17);
-
-        expect(result).toEqual({ success: false, error: "ERROR" });
-    });
-
     // Cas réel : un code de groupe existant dans une autre législature (ex:
     // "NI-16", "RE") mais absent de celle demandée. Le repository renvoie un
-    // tableau vide (pas null/undefined) — doit être traité comme "not found".
-    it("returns err('ERROR') when the repository resolves an empty array (code not found for this legislature)", async () => {
+    // tableau vide — traité comme "not found".
+    it("returns err('NOT_FOUND') when the repository resolves an empty array (code not found for this legislature)", async () => {
         const repository: IGroupeInfosRepository = {
             getGroupeInfos: jest.fn().mockResolvedValue([]),
         };
 
         const result = await getGroupeInfosUseCase(repository, "NI-16", 17);
 
-        expect(result).toEqual({ success: false, error: "ERROR" });
+        expect(result).toEqual({ success: false, error: "NOT_FOUND" });
+    });
+
+    it("returns err('DB_ERROR') when the repository throws", async () => {
+        jest.spyOn(console, "error").mockImplementation(() => {});
+        const repository: IGroupeInfosRepository = {
+            getGroupeInfos: jest.fn().mockRejectedValue(new Error("DB down")),
+        };
+
+        const result = await getGroupeInfosUseCase(repository, "REN", 17);
+
+        expect(result).toEqual({ success: false, error: "DB_ERROR" });
     });
 });

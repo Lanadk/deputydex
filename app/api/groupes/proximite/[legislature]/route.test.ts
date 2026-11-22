@@ -33,7 +33,15 @@ describe("GET /api/groupes/proximite/[legislature]", () => {
         expect(body.plusEloignes).toEqual(expect.objectContaining({ groupeACode: "LFI", groupeBCode: "RN", tauxProximite: 20 }));
     });
 
+    it("returns 400 when the legislature is not a number", async () => {
+        const res = await call("abc");
+
+        expect(res.status).toBe(400);
+        expect(getProximiteParPaire).not.toHaveBeenCalled();
+    });
+
     it("returns 500 when the repository throws", async () => {
+        jest.spyOn(console, "error").mockImplementation(() => {});
         getProximiteParPaire.mockRejectedValue(new Error("DB down"));
 
         const res = await call("17");

@@ -6,7 +6,9 @@ WORKDIR /app
 COPY package*.json ./
 COPY app/infrastructure/db/prisma ./app/infrastructure/db/prisma/
 
-RUN npm ci
+# --ignore-scripts : aucun script d'installation des dépendances n'est exécuté ;
+# aucun n'est nécessaire (prisma generate est lancé par `npm run build`).
+RUN npm ci --ignore-scripts
 
 # Copie le reste du code
 COPY . .

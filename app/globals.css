@@ -20,6 +20,10 @@
     --p1-red-3: #c85048; /* base     */
     --p1-red-4: #a82028; /* deep     */
 
+    /* Orange — avertissement (ex. durée lente sur /dev/perf) */
+    --p1-orange-3: #e8912d; /* base : sur fond sombre */
+    --p1-orange-4: #b45309; /* deep : texte sur fond clair (contraste ≈ 5:1 sur blanc) */
+
     /* Blues — info / primary scale */
     --p1-blue-1: #e8f4ff; /* lightest */
     --p1-blue-2: #bfe3ff; /* light    */
@@ -90,6 +94,7 @@
 
     --ui-danger: var(--p1-red-4);
     --ui-success: var(--p1-green-4);
+    --ui-warning: var(--p1-orange-4);
     --ui-warm: var(--p1-red-3);
     --ui-red-light: var(--p1-red-2);
 
@@ -131,6 +136,8 @@
     --surface-2: var(--ui-white);
     --surface-3: var(--ui-surface);
     --field-surface: var(--surface-1);
+    /* Ligne alternée des tableaux zébrés (TableLib `striped`) */
+    --table-row-alt: color-mix(in srgb, var(--foreground) 12%, var(--surface-2));
 
     /* Accents */
     --accent: var(--ui-info);
@@ -181,6 +188,7 @@
     --card-surface-1: var(--ui-ink);
     --card-surface-2: var(--ui-info-strong);
     --text-muted: var(--ui-steel-muted);
+    --card-text-muted: var(--ui-steel-muted); /* secondary text on --surface-2 cards */
 
     /* Nameplate */
     --plate-1: var(--type-yellow);
@@ -260,6 +268,9 @@
     --p1-red-3: #c85048;
     --p1-red-4: #a82028;
 
+    --p1-orange-3: #e8912d;
+    --p1-orange-4: #b45309;
+
     --p1-blue-1: #e8f4ff;
     --p1-blue-2: #bfe3ff;
     --p1-blue-3: #70b8f0;
@@ -317,6 +328,7 @@
     /* UI aliases */
     --ui-danger: var(--p1-red-4);
     --ui-success: var(--p1-green-4);
+    --ui-warning: var(--p1-orange-3); /* plus clair : lisible sur les fonds sombres */
     --ui-warm: var(--p1-red-3);
     --ui-red-light: var(--p1-red-2);
 
@@ -349,6 +361,7 @@
     --surface-2: var(--ui-info-strong); /* card bg is blue-deep in dark */
     --surface-3: var(--p1-steel-3);
     --field-surface: var(--surface-1);
+    --table-row-alt: color-mix(in srgb, var(--foreground) 12%, var(--surface-2));
 
     --accent: var(--ui-info);
     --accent-warm: var(--type-yellow); /* yellow replaces red-warm in dark */
@@ -390,6 +403,7 @@
     --card-surface-1: var(--ui-ink);
     --card-surface-2: var(--ui-info-strong);
     --text-muted: var(--ui-steel);
+    --card-text-muted: var(--ui-info-soft); /* light blue: readable on the blue-deep card bg */
 
     --plate-1: var(--type-yellow);
     --plate-2: var(--ui-info);
@@ -443,7 +457,15 @@
     --p1-red-1: #fde8e7;
     --p1-red-2: #f6b7b3;
     --p1-red-3: #c85048;
-    --p1-red-4: #a82028;
+    /* red-4 / green-4 : paire distinguable par les daltoniens (protanopie,
+       deutéranopie, tritanopie) — l'écart passe par la luminosité (bordeaux
+       très foncé vs vert-bleu), pas seulement par la teinte. Contraste texte
+       >= 4.5 sur blanc et sur ligne zébrée. Ancienne paire #a82028 / #1f7a45 :
+       quasi identique pour un deutéranope. */
+    --p1-red-4: #800002;
+
+    --p1-orange-3: #e8912d;
+    --p1-orange-4: #b45309;
 
     --p1-blue-1: #e8f4ff;
     --p1-blue-2: #bfe3ff;
@@ -453,7 +475,7 @@
     --p1-green-1: #e6f6ec;
     --p1-green-2: #a7dfb9;
     --p1-green-3: #3fa865;
-    --p1-green-4: #1f7a45;
+    --p1-green-4: #157568;
 
     --p1-white-1: #ffffff;
     --p1-white-2: #f7f9fc;
@@ -502,6 +524,7 @@
     /* UI aliases — contrast-first remapping */
     --ui-danger: var(--p1-red-4);
     --ui-success: var(--p1-green-4);
+    --ui-warning: var(--p1-orange-4);
     --ui-warm: var(--p1-red-3);
     --ui-red-light: var(--p1-red-2);
 
@@ -534,6 +557,7 @@
     --surface-2: var(--ui-paper-soft);
     --surface-3: var(--ui-surface);
     --field-surface: var(--surface-1);
+    --table-row-alt: color-mix(in srgb, var(--foreground) 16%, var(--surface-2));
 
     --accent: var(--ui-info);
     --accent-warm: var(--type-yellow);
@@ -575,6 +599,7 @@
     --card-surface-1: var(--ui-ink);
     --card-surface-2: var(--ui-info);
     --text-muted: var(--ui-steel-muted);
+    --card-text-muted: var(--ui-steel-muted);
 
     --plate-1: var(--type-yellow);
     --plate-2: var(--ui-paper);
@@ -695,6 +720,10 @@
         color: var(--subtitle-accent);
     }
 
+    .text-card-muted {
+        color: var(--card-text-muted);
+    }
+
     .text-highlight {
         color: var(--highlight);
     }
@@ -749,6 +778,35 @@
 }
 
 @layer components {
+
+    /* -------------------------------------------------------
+       Lien d'évitement « Aller au contenu » (layout racine)
+       Premier élément focusable de la page, visible au focus seulement.
+       ------------------------------------------------------- */
+    .skip-link {
+        position: fixed;
+        top: 8px;
+        left: 8px;
+        z-index: 1000;
+        padding: 8px 16px;
+        border-radius: 8px;
+        font-size: 14px;
+        font-weight: 600;
+        background-color: var(--btn-primary-bg);
+        color: var(--btn-primary-text);
+        transform: translateY(-200%);
+    }
+
+    .skip-link:focus-visible {
+        transform: none;
+        outline: 2px solid var(--toggle-focus);
+        outline-offset: 2px;
+    }
+
+    /* Cible du lien d'évitement : focusable par script (tabIndex -1), sans contour */
+    #contenu:focus {
+        outline: none;
+    }
 
     /* -------------------------------------------------------
        SideBar component
@@ -823,6 +881,272 @@
 
     .btn-lib--tertiary:not(:disabled):hover {
         background-color: var(--btn-tertiary-hover);
+    }
+
+    /* -------------------------------------------------------
+       PageStateLib (404, erreur… : état de page centré)
+       ------------------------------------------------------- */
+    .page-state-lib {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 12px;
+        min-height: 60vh;
+        padding: 48px 24px;
+        text-align: center;
+    }
+
+    .page-state-lib__code {
+        font-size: 72px;
+        font-weight: 800;
+        line-height: 1;
+        color: var(--accent);
+    }
+
+    .page-state-lib__title {
+        font-size: 24px;
+        font-weight: 700;
+        color: var(--title-accent);
+    }
+
+    .page-state-lib__description {
+        max-width: 520px;
+        color: var(--subtitle-accent);
+    }
+
+    .page-state-lib__actions {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+        gap: 12px;
+        margin-top: 12px;
+    }
+
+    /* -------------------------------------------------------
+       TabsLib — onglets
+       ------------------------------------------------------- */
+    .tabs-lib {
+        display: flex;
+        gap: 4px;
+        overflow-x: auto;
+        border-bottom: 1px solid var(--border-main);
+    }
+
+    .tabs-lib__tab {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 10px 14px;
+        margin-bottom: -1px;
+        border-bottom: 2px solid transparent;
+        font-size: 14px;
+        white-space: nowrap;
+        color: var(--subtitle-accent);
+        transition: color 150ms ease, border-color 150ms ease;
+    }
+
+    .tabs-lib__tab:hover { color: var(--foreground); }
+
+    .tabs-lib__tab:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: -2px;
+        border-radius: 4px;
+    }
+
+    .tabs-lib__tab--active {
+        color: var(--accent);
+        border-bottom-color: var(--accent);
+        font-weight: 600;
+    }
+
+    .tabs-lib__badge {
+        padding: 1px 7px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 500;
+        background-color: var(--surface-3);
+        color: var(--subtitle-accent);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .tabs-lib__tab { transition: none; }
+    }
+
+    /* -------------------------------------------------------
+       NotificationLib — notifications temporaires
+       ------------------------------------------------------- */
+    .notification-lib {
+        position: fixed;
+        right: 16px;
+        bottom: 16px;
+        z-index: 60;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        width: min(380px, calc(100vw - 32px));
+        pointer-events: none;
+    }
+
+    .notification-lib__toast {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 12px 12px 12px 14px;
+        border: 1px solid var(--border-main);
+        border-left-width: 4px;
+        border-radius: 8px;
+        background-color: var(--surface-2);
+        color: var(--foreground);
+        box-shadow: 0 8px 24px color-mix(in srgb, var(--foreground) 18%, transparent);
+        font-size: 14px;
+        pointer-events: auto;
+        animation: notification-lib-in 200ms ease-out;
+    }
+
+    .notification-lib__toast--error { border-left-color: var(--ui-danger); }
+    .notification-lib__toast--warning { border-left-color: var(--ui-warning); }
+    .notification-lib__toast--success { border-left-color: var(--ui-success); }
+    .notification-lib__toast--info { border-left-color: var(--ui-info); }
+
+    .notification-lib__message { flex: 1; line-height: 1.4; }
+
+    .notification-lib__action {
+        font-weight: 600;
+        color: var(--accent);
+        white-space: nowrap;
+    }
+
+    .notification-lib__close {
+        color: var(--subtitle-accent);
+        line-height: 1;
+    }
+
+    .notification-lib__action:hover,
+    .notification-lib__close:hover { text-decoration: underline; }
+
+    .notification-lib__action:focus-visible,
+    .notification-lib__close:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+        border-radius: 4px;
+    }
+
+    @keyframes notification-lib-in {
+        from { opacity: 0; transform: translateY(8px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .notification-lib__toast { animation: none; }
+    }
+
+    /* -------------------------------------------------------
+       Catalogue de la component-library : aperçu au survol
+       ------------------------------------------------------- */
+    .lib-catalog-card {
+        position: relative;
+        height: 100%;
+        transition: transform 180ms ease, box-shadow 180ms ease, border-color 180ms ease;
+    }
+
+    .lib-catalog-card:hover,
+    .lib-catalog-card:focus-visible {
+        transform: translateY(-2px);
+        box-shadow: var(--card-shadow-hover);
+        border-color: var(--accent);
+    }
+
+    /* Voile derrière l'aperçu. Comme l'aperçu, il laisse passer la souris :
+       la carte survolée reste « survolée » et l'aperçu ouvert. */
+    .lib-catalog-backdrop {
+        position: fixed;
+        inset: 0;
+        z-index: 70;
+        background-color: color-mix(in srgb, var(--background) 45%, transparent);
+        backdrop-filter: blur(3px);
+        pointer-events: none;
+        animation: lib-catalog-backdrop-in 200ms ease-out both;
+    }
+
+    /* Aperçu centré dans l'écran ; largeur calculée par CatalogCard. */
+    .lib-catalog-preview {
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        z-index: 71;
+        translate: -50% -50%;
+        border: 1px solid var(--border-main);
+        border-radius: var(--card-radius-lg);
+        background-color: var(--bg-card);
+        box-shadow: 0 24px 64px rgba(0, 0, 0, 0.25);
+        overflow: hidden;
+        pointer-events: none;
+        animation: lib-catalog-preview-in 200ms ease-out both;
+    }
+
+    .lib-catalog-preview__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        padding: 12px 20px;
+        border-bottom: 1px solid var(--border-main);
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+        color: var(--subtitle-accent);
+    }
+
+    /* SpanLib impose sa taille et sa couleur : l'en-tête garde les siennes. */
+    .lib-catalog-preview__header .span-lib { font-size: inherit; color: inherit; }
+    .lib-catalog-preview__header .lib-catalog-preview__name { color: var(--accent); }
+
+    /* Largeur de rendu et réduction calculées par CatalogCard (PreviewStage). */
+    .lib-catalog-preview__viewport {
+        position: relative;
+        overflow: hidden;
+        transition: height 150ms ease-out;
+    }
+
+    .lib-catalog-preview__stage {
+        padding: 28px;
+        transform-origin: top left;
+    }
+
+    /* PageStateLib occupe 60vh sur une vraie page : inutile dans un aperçu. */
+    .lib-catalog-preview__stage .page-state-lib { min-height: 0; }
+
+    /* Fondu en bas quand le composant dépasse la fenêtre d'aperçu. */
+    .lib-catalog-preview__viewport--fade::after {
+        content: "";
+        position: absolute;
+        inset: auto 0 0 0;
+        height: 40px;
+        background: linear-gradient(to bottom, transparent, var(--bg-card));
+    }
+
+    @keyframes lib-catalog-preview-in {
+        from { opacity: 0; scale: 0.94; }
+        to   { opacity: 1; scale: 1; }
+    }
+
+    @keyframes lib-catalog-backdrop-in {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .lib-catalog-card,
+        .lib-catalog-backdrop,
+        .lib-catalog-preview,
+        .lib-catalog-preview__viewport { transition: none; animation: none; }
+    }
+
+    /* Pas de survol sur écran tactile : pas d'aperçu. */
+    @media (hover: none) {
+        .lib-catalog-backdrop,
+        .lib-catalog-preview { display: none; }
     }
 
     /* -------------------------------------------------------
@@ -1614,6 +1938,11 @@
         border-bottom: none;
     }
 
+    /* Zébrage : une ligne sur deux en fond contrasté, pour suivre une ligne à l'œil */
+    .table-lib--striped .table-lib__tbody .table-lib__tr:nth-child(even) {
+        background: var(--table-row-alt);
+    }
+
     /* -------------------------------------------------------
        Table pagination lib
        ------------------------------------------------------- */
@@ -2273,15 +2602,26 @@
             color-mix(in srgb, var(--accent) 22%, transparent), transparent 68%);
     }
 
+    /* --hemi-seat-scale : taille des sièges (1 = taille d'origine ; au-delà de ~1.4,
+       les sièges d'une même rangée se touchent). */
     .hemicycle-seat {
         position: absolute;
-        width: 1.25%;
-        height: 3.1%;
-        margin: -1.55% 0 0 -.62%;
+        width: calc(1.25% * var(--hemi-seat-scale, 1));
+        height: calc(3.1% * var(--hemi-seat-scale, 1));
+        margin: calc(-1.55% * var(--hemi-seat-scale, 1)) 0 0 calc(-.62% * var(--hemi-seat-scale, 1));
         border-radius: 2px;
         box-shadow: 0 2px 3px rgb(0 0 0 / .35);
         transition: opacity .4s, transform .4s cubic-bezier(.2, .7, .2, 1);
         animation: hemicycle-seat-in .55s cubic-bezier(.2, .7, .2, 1) backwards;
+    }
+
+    /* Siège survolable (fiche scrutin) : zone de survol invisible plus large que le
+       siège, qui comble les espaces entre voisins pour que la souris ne « tombe »
+       pas entre deux sièges. */
+    .hemicycle-seat--hoverable::before {
+        content: "";
+        position: absolute;
+        inset: -35% -40%;
     }
 
     @keyframes hemicycle-seat-in {

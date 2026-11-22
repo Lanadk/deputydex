@@ -1,36 +1,28 @@
-import { NextResponse } from "next/server";
-import { isOk } from "@/app/_shared/result-pattern/result";
+import { err, isErr } from "@/app/_shared/result-pattern/result";
+import { resultToResponse } from "@/app/_shared/result-pattern/result-to-response";
+import { cachedResult } from "@/app/_shared/cache/cached-response";
+import { parseLegislature } from "@/app/domains/legislatures/parse-legislature";
 import { getDeputeActivityDetailsUseCase } from "@/app/domains/deputes/use-cases/get-depute-activity-details.use-case";
 import { prismaDeputeActivityDetailsRepository } from "@/app/infrastructure/deputes/repositories/prisma-depute-activity-details.repository";
-import { cachedJson, cachedRead } from "@/app/_shared/cache/cached-response";
 
 export async function GET(
     req: Request,
     { params }: { params: Promise<{ uid: string; legislature: string }> }
 ): Promise<Response> {
     const { uid, legislature } = await params;
-    const { searchParams } = new URL(req.url);
-    const dateParam = searchParams.get("date");
+    const parsed = parseLegislature(legislature);
+    if (isErr(parsed)) return resultToResponse(parsed);
 
-    if (!dateParam) {
-        return NextResponse.json({ error: "Missing date" }, { status: 400 });
+    const dateParam = new URL(req.url).searchParams.get("date");
+    const date = dateParam ? new Date(dateParam) : null;
+    if (!dateParam || !date || Number.isNaN(date.getTime())) {
+        return resultToResponse(err("INVALID_INPUT"), { INVALID_INPUT: "Paramètre date absent ou invalide" });
     }
 
-    try {
-        const result = await cachedRead(
-            () => getDeputeActivityDetailsUseCase(
-                prismaDeputeActivityDetailsRepository,
-                uid,
-                Number(legislature),
-                new Date(dateParam)
-            ),
-            ["depute-activity-details", uid, legislature, dateParam]
-        );
+    const result = await cachedResult(
+        () => getDeputeActivityDetailsUseCase(prismaDeputeActivityDetailsRepository, uid, parsed.data, date),
+        ["depute-activity-details", uid, legislature, dateParam]
+    );
 
-        if (isOk(result)) return cachedJson(result.data);
-        return NextResponse.json({ error: result.error }, { status: 500 });
-    } catch (e) {
-        console.error(e);
-        return NextResponse.json({ error: "Failed to get depute activity details" }, { status: 500 });
-    }
+    return resultToResponse(result);
 }

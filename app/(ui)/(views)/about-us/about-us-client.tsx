@@ -63,7 +63,7 @@ export default function AboutUsClient() {
             </div>
 
             <PageContentLib>
-                <main className="flex flex-col gap-8">
+                <div className="flex flex-col gap-8">
 
                     {/* PROJET */}
                     <section className="chart-lib">
@@ -180,7 +180,7 @@ export default function AboutUsClient() {
                         </div>
                     </section>
 
-                </main>
+                </div>
             </PageContentLib>
         </BaseLayout>
     );

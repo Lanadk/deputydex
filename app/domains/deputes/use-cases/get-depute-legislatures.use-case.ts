@@ -1,4 +1,5 @@
-import { Result, ok, err } from "@/app/_shared/result-pattern/result";
+import { Result, ok, isErr } from "@/app/_shared/result-pattern/result";
+import { fromRepository } from "@/app/_shared/result-pattern/app-error";
 import { IDeputeLegislaturesRepository } from "@/app/domains/deputes/repositories/IDeputeLegislaturesRepository";
 import { DeputeLegislaturesDTO } from "@/app/domains/deputes/dto/depute-legislatures.dto";
 import { mapEntitiesToDeputeLegislaturesDTO } from "@/app/domains/deputes/mappers/depute-legislatures.mapper";
@@ -13,11 +14,10 @@ import { mapEntitiesToDeputeLegislaturesDTO } from "@/app/domains/deputes/mapper
 export async function getDeputeLegislaturesUseCase(
     repository: IDeputeLegislaturesRepository,
     uid: string
-): Promise<Result<DeputeLegislaturesDTO, "ERROR">> {
-    try {
-        const entities = await repository.getDeputeLegislatures(uid);
-        return ok(mapEntitiesToDeputeLegislaturesDTO(entities));
-    } catch {
-        return err("ERROR");
-    }
+): Promise<Result<DeputeLegislaturesDTO, "DB_ERROR">> {
+    const result = await fromRepository(() => repository.getDeputeLegislatures(uid));
+    if (isErr(result)) return result;
+    const entities = result.data;
+
+    return ok(mapEntitiesToDeputeLegislaturesDTO(entities));
 }
