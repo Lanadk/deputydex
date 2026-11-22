@@ -8,7 +8,7 @@ import {useSidebar} from "@/app/(ui)/providers/sidebar-provider";
 import {ButtonLib} from "@/app/(ui)/component-library/atoms/button/button-lib";
 import {SpanLib} from "@/app/(ui)/component-library/atoms/span/span-lib";
 import Tooltip from "@mui/material/Tooltip";
-import {isNavItemActive, NAVITEMS} from "@/app/(ui)/components/sidebar/nave-items";
+import {isNavItemActive, NAVITEMS, SITE_LABEL} from "@/app/(ui)/components/sidebar/nave-items";
 import {ThemeSwitcherLib} from "@/app/(ui)/component-library/molecules/theme-switcher/theme-switcher-lib";
 
 
@@ -18,7 +18,7 @@ export default function AppSidebar() {
     const {isOpen, toggle, setOpen} = useSidebar();
     const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
     const activeItem = NAVITEMS.find(item => isNavItemActive(item.href, pathname));
-    const sectionLabel = activeItem?.label ?? "DeputeDex";
+    const sectionLabel = activeItem?.label ?? SITE_LABEL;
 
     //TODO garder le state de la side bar dans les cookies ou jsp , comme ca lors d'un refresh ou d'une navigation entre les pages on garde le même comportement (open ou close)
 

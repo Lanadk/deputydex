@@ -1,11 +1,16 @@
 import {Armchair, BarChart3, Component, Gauge, House, Layers, Grid3x3, HandHelping, MessageCircleMore, Database, Scale, GitPullRequest, Vote, Landmark} from "lucide-react";
 import {DEV_PERF_ENABLED} from "@/app/_shared/dev-perf/dev-perf.config";
 
+/** Libellé du site, aussi celui du menu par défaut (aucune page active). */
+export const SITE_LABEL = "DéputéDex";
+
+// Ordre du menu : des personnes vers l'Assemblée (députés, salle, groupes, leurs votes),
+// puis le contexte institutionnel (législatures) et les analyses transversales.
 export const NAVITEMS = [
     {label: "Accueil", href: "/", icon: House, section: "deputydex"},
-    {label: "DeputeDex", href: "/deputydex", icon: Grid3x3, section: "deputydex"},
-    {label: "Groupes", href: "/groupes", icon: Layers, section: "deputydex"},
+    {label: SITE_LABEL, href: "/deputydex", icon: Grid3x3, section: "deputydex"},
     {label: "Hémicycle", href: "/hemicycle", icon: Armchair, section: "deputydex"},
+    {label: "Groupes", href: "/groupes", icon: Layers, section: "deputydex"},
     {label: "Scrutins", href: "/scrutins", icon: Vote, section: "deputydex"},
     {label: "Législatures", href: "/legislatures", icon: Landmark, section: "deputydex"},
     {label: "Statistiques", href: "/statistics", icon: BarChart3, section: "deputydex"}, //TODO V2
