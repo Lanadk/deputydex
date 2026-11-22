@@ -1,4 +1,4 @@
-import { chevauche, contient, joursEntre, libelleLegislature, nommerGouvernements } from "@/app/domains/legislatures/institutions";
+import { chevauche, contient, finParDissolution, joursEntre, libelleLegislature, libelleMandat, nommerGouvernements } from "@/app/domains/legislatures/institutions";
 
 describe("institutions — règles de dates", () => {
     it("chevauche : une période en cours (fin null) chevauche tout ce qui suit son début", () => {
@@ -21,6 +21,31 @@ describe("institutions — règles de dates", () => {
     it("libelleLegislature : ordinal", () => {
         expect(libelleLegislature(17)).toBe("17ᵉ législature");
         expect(libelleLegislature(1)).toBe("1ʳᵉ législature");
+    });
+
+    it("libelleMandat : 1er, 2e", () => {
+        expect(libelleMandat(1)).toBe("1er mandat");
+        expect(libelleMandat(2)).toBe("2e mandat");
+    });
+});
+
+describe("finParDissolution", () => {
+    const EVENEMENTS = [
+        { date: "2022-06-19", type: "elections_legislatives" },
+        { date: "2024-06-09", type: "dissolution" },
+    ];
+
+    it("vraie si une dissolution tombe dans la période (le dernier jour compris)", () => {
+        expect(finParDissolution({ debut: "2022-06-28", fin: "2024-06-09" }, EVENEMENTS)).toBe(true);
+    });
+
+    it("fausse pour une législature en cours, ou close sans dissolution", () => {
+        expect(finParDissolution({ debut: "2024-07-18", fin: null }, EVENEMENTS)).toBe(false);
+        expect(finParDissolution({ debut: "2017-06-21", fin: "2022-06-21" }, EVENEMENTS)).toBe(false);
+    });
+
+    it("ignore les autres types d'événements", () => {
+        expect(finParDissolution({ debut: "2022-06-01", fin: "2022-06-30" }, EVENEMENTS)).toBe(false);
     });
 });
 

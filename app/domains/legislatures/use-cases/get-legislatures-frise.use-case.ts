@@ -2,7 +2,7 @@ import { ok, Result, isErr } from "@/app/_shared/result-pattern/result";
 import { fromRepository } from "@/app/_shared/result-pattern/app-error";
 import { ILegislatureOrganisationRepository } from "@/app/domains/legislatures/repositories/ILegislatureOrganisationRepository";
 import { FrisePeriodeDTO, LegislaturesFriseDTO } from "@/app/domains/legislatures/dto/legislatures-frise.dto";
-import { chevauche, libelleLegislature, libelleMandat, nommerGouvernements } from "@/app/domains/legislatures/institutions";
+import { chevauche, finParDissolution, libelleLegislature, libelleMandat, nommerGouvernements } from "@/app/domains/legislatures/institutions";
 import { mapGouvernementToPeriode, mapPresidentAssembleeToPeriode } from "@/app/domains/legislatures/mappers/legislature-organisation.mapper";
 
 /** Périodes de la frise, dans l'ordre chronologique. */
@@ -39,6 +39,9 @@ export async function getLegislaturesFriseUseCase(
     return ok({
         debut,
         fin,
+        legislatures: [...legislatures]
+            .sort((a, b) => b.number - a.number)
+            .map((l) => ({ numero: l.number, debut: l.debut, fin: l.fin, finParDissolution: finParDissolution(l, evenements) })),
         couloirs: [
             {
                 id: "presidence",

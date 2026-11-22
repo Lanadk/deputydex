@@ -60,6 +60,22 @@ export const FONCTIONS_BUREAU = {
     secretaire: "Secrétaire",
 } as const;
 
+/** Type d'événement institutionnel (référentiel `ref_evenements_institutionnels`) d'une dissolution. */
+export const EVENEMENT_DISSOLUTION = "dissolution";
+
+/**
+ * Une législature close l'a-t-elle été par une dissolution ? Oui si une
+ * dissolution du référentiel tombe dans sa période (le décret de dissolution
+ * est daté du dernier jour de la législature).
+ */
+export function finParDissolution(
+    periode: { debut: string; fin: string | null },
+    evenements: { date: string; type: string }[]
+): boolean {
+    const fin = periode.fin;
+    return fin !== null && evenements.some((e) => e.type === EVENEMENT_DISSOLUTION && contient(periode.debut, fin, e.date));
+}
+
 /** « 1er mandat », « 2e mandat » (mandats présidentiels). */
 export function libelleMandat(numero: number): string {
     return `${numero}${numero === 1 ? "er" : "e"} mandat`;

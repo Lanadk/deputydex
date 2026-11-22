@@ -5,7 +5,7 @@ import { BaseLayout } from "@/app/(ui)/component-library/template/base-layout/ba
 import { PageHeaderLib } from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
 import { SpinnerLib } from "@/app/(ui)/component-library/molecules/spinner/spinner-lib";
 import { ErrorStateLib } from "@/app/(ui)/component-library/molecules/error-state/error-state-lib";
-import { formatTimelineDate } from "@/app/(ui)/component-library/molecules/timeline/timeline-lib";
+import { formatJourFr } from "@/app/_shared/utils/date";
 import { TabsLib, tabPanelProps } from "@/app/(ui)/component-library/molecules/tabs/tabs-lib";
 import { useLegislature } from "@/app/(ui)/providers/legislature-provider";
 import { useAsyncData } from "@/app/(ui)/_shared/hook/use-async-data";
@@ -69,7 +69,8 @@ export default function LegislaturesPageClient() {
                             (six vice-présidents, trois questeurs, douze secrétaires).
                         </p>
                     </div>
-                    <LegislaturesCouvertes legislatures={legislatures} aujourdhui={new Date().toISOString().slice(0, 10)} />
+                    {/* Mêmes données que la frise (dates, fin par dissolution) : affiché une fois la frise chargée. */}
+                    {frise.data && <LegislaturesCouvertes legislatures={frise.data.legislatures} aujourdhui={frise.data.fin} />}
                 </Section>
 
                 <Section id="chronologie" title="Chronologie">
@@ -99,8 +100,8 @@ export default function LegislaturesPageClient() {
                                 <p className="text-sm text-subtitle-accent">
                                     {organisation.data.dateReference === new Date().toISOString().slice(0, 10)
                                         ? "Fonctions en place aujourd'hui."
-                                        : `Fonctions en place à la fin de la législature (${formatTimelineDate(organisation.data.dateReference)}).`}
-                                    {" "}Les portefeuilles ministériels ne figurent pas dans les données de l&apos;Assemblée : les membres du
+                                        : `Fonctions en place à la fin de la législature (${formatJourFr(organisation.data.dateReference)}).`}
+                                    {" "}Les portefeuilles ministériels ne sont pas encore importés dans Députédex : les membres du
                                     gouvernement sont présentés par rang.
                                 </p>
                             )}

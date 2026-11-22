@@ -23,6 +23,10 @@ const gateway = legislaturesGateway as jest.Mocked<typeof legislaturesGateway>;
 
 const FRISE = {
     debut: "2022-05-17", fin: "2026-11-22", evenements: [{ date: "2024-06-09", libelle: "Dissolution de l'Assemblée" }],
+    legislatures: [
+        { numero: 17, debut: "2024-07-18", fin: null, finParDissolution: false },
+        { numero: 16, debut: "2022-06-28", fin: "2024-06-09", finParDissolution: true },
+    ],
     couloirs: [{ id: "gouvernements" as const, libelle: "Gouvernements", periodes: [{ id: "g", libelle: "Gouvernement Borne", detail: null, debut: "2022-05-17", fin: "2024-01-08", href: null }] }],
 };
 const CHIFFRES = { legislature: 17, debut: "2024-07-18", fin: null, dureeJours: 857, scrutins: 10040, deputesAyantSiege: 655, gouvernements: 4, entreesEnCours: 107, entreesParMotif: [] };
@@ -42,7 +46,8 @@ describe("LegislaturesPageClient", () => {
         render(<LegislaturesPageClient />);
 
         expect(screen.getByRole("heading", { name: "Qu'est-ce qu'une législature ?" })).toBeInTheDocument();
-        expect(screen.getByRole("heading", { name: "Les législatures présentes dans Députédex" })).toBeInTheDocument();
+        // Bloc alimenté par la frise : affiché une fois celle-ci chargée.
+        expect(await screen.findByRole("heading", { name: "Les législatures présentes dans Députédex" })).toBeInTheDocument();
         expect(screen.getByText("28 juin 2022")).toBeInTheDocument();
         expect(screen.getByText("9 juin 2024")).toBeInTheDocument();
         expect(screen.getByText("18 juillet 2024")).toBeInTheDocument();

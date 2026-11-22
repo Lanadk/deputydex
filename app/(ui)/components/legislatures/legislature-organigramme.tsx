@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { OrgChartBadge, OrgChartLib, OrgChartNode } from "@/app/(ui)/component-library/molecules/org-chart/org-chart-lib";
 import { getGroupCardTheme } from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
 import { TabsLib, tabPanelProps } from "@/app/(ui)/component-library/molecules/tabs/tabs-lib";
-import { formatTimelineDate } from "@/app/(ui)/component-library/molecules/timeline/timeline-lib";
+import { formatJourFr } from "@/app/_shared/utils/date";
 import {
     GouvernementDTO,
     LegislatureOrganisationDTO,
@@ -29,7 +29,7 @@ const personne = (p: PersonneFonctionDTO, subtitle: string = p.fonction): OrgCha
 });
 
 const periode = (g: GouvernementDTO) =>
-    g.fin ? `du ${formatTimelineDate(g.debut)} au ${formatTimelineDate(g.fin)}` : `depuis le ${formatTimelineDate(g.debut)}`;
+    g.fin ? `du ${formatJourFr(g.debut)} au ${formatJourFr(g.fin)}` : `depuis le ${formatJourFr(g.debut)}`;
 
 /** Exécutif : Président de la République → Premier ministre → membres du gouvernement, par rang. */
 export function arbreExecutif(organisation: LegislatureOrganisationDTO, gouvernement: GouvernementDTO | undefined): OrgChartNode {
@@ -45,7 +45,7 @@ export function arbreExecutif(organisation: LegislatureOrganisationDTO, gouverne
                 children: r.membres.map((m) => ({
                     ...personne(m),
                     id: `${gouvernement.id}-${r.rang}-${m.uid}`,
-                    note: m.jusqua ? `jusqu'au ${formatTimelineDate(m.jusqua)}` : null,
+                    note: m.jusqua ? `jusqu'au ${formatJourFr(m.jusqua)}` : null,
                 })),
             })),
         }
@@ -54,7 +54,7 @@ export function arbreExecutif(organisation: LegislatureOrganisationDTO, gouverne
     return {
         id: "presidence",
         title: pr ? pr.president : "Présidence de la République",
-        subtitle: pr ? `Président de la République · ${pr.mandat} depuis le ${formatTimelineDate(pr.depuis)}` : null,
+        subtitle: pr ? `Président de la République · ${pr.mandat} depuis le ${formatJourFr(pr.depuis)}` : null,
         avatar: pr ? { src: pr.photoUrl } : null,
         children: pm ? [pm] : [],
     };

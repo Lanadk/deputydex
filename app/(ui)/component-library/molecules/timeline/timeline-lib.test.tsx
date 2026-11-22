@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, within } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { eventMarkerRows, formatTimelineDate, TimelineLib, timelinePosition, yearTicks } from "@/app/(ui)/component-library/molecules/timeline/timeline-lib";
+import { eventMarkerRows, TimelineLib, timelinePosition, yearTicks } from "@/app/(ui)/component-library/molecules/timeline/timeline-lib";
 
 describe("TimelineLib — calculs", () => {
     it("position d'une date sur l'axe, bornée", () => {
@@ -13,10 +13,6 @@ describe("TimelineLib — calculs", () => {
 
     it("repères d'années à l'intérieur de l'axe", () => {
         expect(yearTicks("2022-05-17", "2025-03-01")).toEqual(["2023-01-01", "2024-01-01", "2025-01-01"]);
-    });
-
-    it("format des dates sans décalage de fuseau", () => {
-        expect(formatTimelineDate("2024-07-18")).toBe("18/07/2024");
     });
 });
 

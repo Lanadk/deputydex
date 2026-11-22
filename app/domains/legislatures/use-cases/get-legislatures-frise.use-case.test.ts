@@ -36,6 +36,11 @@ describe("getLegislaturesFriseUseCase", () => {
             ["2024-07-18", "/deputes/PA_YBP"],
         ]);
         expect(frise.evenements.map((e) => e.libelle)).toContain("Dissolution de l'Assemblée");
+        // Législatures couvertes, la plus récente d'abord ; la 16ᵉ close par la dissolution du référentiel.
+        expect(frise.legislatures).toEqual([
+            { numero: 17, debut: "2024-07-18", fin: null, finParDissolution: false },
+            { numero: 16, debut: "2022-06-28", fin: "2024-06-09", finParDissolution: true },
+        ]);
     });
 
     it("DB_ERROR si le repository échoue", async () => {

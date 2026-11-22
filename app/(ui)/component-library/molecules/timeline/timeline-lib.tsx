@@ -1,4 +1,5 @@
 import React from "react";
+import { formatJourFr } from "@/app/_shared/utils/date";
 
 /** Une période sur un couloir (dates AAAA-MM-JJ ; `end` null = en cours, jusqu'à la fin de la frise). */
 export type TimelinePeriod = {
@@ -37,11 +38,6 @@ const DAY_MS = 86_400_000;
 const NARROW_PERIOD_PCT = 4;
 const toTime = (date: string) => Date.parse(`${date}T00:00:00Z`);
 
-/** « 18/07/2024 » (date AAAA-MM-JJ, sans décalage de fuseau). */
-export function formatTimelineDate(date: string): string {
-    return new Date(toTime(date)).toLocaleDateString("fr-FR", { timeZone: "UTC" });
-}
-
 /** Position d'une date sur l'axe, en % (bornée à [0, 100]). */
 export function timelinePosition(date: string, start: string, end: string): number {
     const span = Math.max(toTime(end) - toTime(start), DAY_MS);
@@ -73,7 +69,7 @@ export function eventMarkerRows(positions: number[], gap: number = MARKER_GAP_PC
 }
 
 const describe = (p: TimelinePeriod) =>
-    `${p.label}${p.detail ? ` (${p.detail})` : ""}, ${p.end ? `du ${formatTimelineDate(p.start)} au ${formatTimelineDate(p.end)}` : `depuis le ${formatTimelineDate(p.start)}`}`;
+    `${p.label}${p.detail ? ` (${p.detail})` : ""}, ${p.end ? `du ${formatJourFr(p.start)} au ${formatJourFr(p.end)}` : `depuis le ${formatJourFr(p.start)}`}`;
 
 /**
  * Frise chronologique en couloirs parallèles, à l'échelle du temps : chaque
@@ -101,7 +97,7 @@ export function TimelineLib({ start, end, lanes, events = [], ariaLabel = "Frise
                                     key={e.date}
                                     className="timeline-lib__marker"
                                     style={{ left: `${pos(e.date)}%`, "--timeline-marker-row": markerRows[i] } as React.CSSProperties}
-                                    title={`${formatTimelineDate(e.date)} : ${e.label}`}
+                                    title={`${formatJourFr(e.date)} : ${e.label}`}
                                 >
                                     {i + 1}
                                 </span>
@@ -140,7 +136,7 @@ export function TimelineLib({ start, end, lanes, events = [], ariaLabel = "Frise
 
                         <div className="timeline-lib__events" aria-hidden="true">
                             {sortedEvents.map((e) => (
-                                <span key={e.date} className="timeline-lib__event-line" style={{ left: `${pos(e.date)}%` }} title={`${formatTimelineDate(e.date)} : ${e.label}`} />
+                                <span key={e.date} className="timeline-lib__event-line" style={{ left: `${pos(e.date)}%` }} title={`${formatJourFr(e.date)} : ${e.label}`} />
                             ))}
                         </div>
                     </div>
@@ -153,7 +149,7 @@ export function TimelineLib({ start, end, lanes, events = [], ariaLabel = "Frise
                         {sortedEvents.map((e, i) => (
                             <li key={e.date}>
                                 <span className="timeline-lib__marker timeline-lib__marker--legend" aria-hidden="true">{i + 1}</span>
-                                <span><time dateTime={e.date} className="timeline-lib__legend-date">{formatTimelineDate(e.date)}</time> {e.label}</span>
+                                <span><time dateTime={e.date} className="timeline-lib__legend-date">{formatJourFr(e.date)}</time> {e.label}</span>
                             </li>
                         ))}
                     </ol>
