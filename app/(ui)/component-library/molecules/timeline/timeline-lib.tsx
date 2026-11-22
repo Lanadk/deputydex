@@ -55,22 +55,60 @@ export function yearTicks(start: string, end: string): string[] {
     return ticks;
 }
 
+/** Écart minimal (% de l'axe) entre deux repères d'événement sur une même rangée. */
+const MARKER_GAP_PCT = 3;
+
+/**
+ * Rangée de chaque repère d'événement (positions triées) : un repère trop proche
+ * du précédent passe à la rangée suivante au lieu de le chevaucher.
+ */
+export function eventMarkerRows(positions: number[], gap: number = MARKER_GAP_PCT): number[] {
+    const lastByRow: number[] = [];
+    return positions.map((p) => {
+        let row = lastByRow.findIndex((last) => p - last >= gap);
+        if (row === -1) row = lastByRow.length;
+        lastByRow[row] = p;
+        return row;
+    });
+}
+
 const describe = (p: TimelinePeriod) =>
     `${p.label}${p.detail ? ` (${p.detail})` : ""}, ${p.end ? `du ${formatTimelineDate(p.start)} au ${formatTimelineDate(p.end)}` : `depuis le ${formatTimelineDate(p.start)}`}`;
 
 /**
  * Frise chronologique en couloirs parallèles, à l'échelle du temps : chaque
  * couloir aligne ses périodes sur le même axe, ce qui montre d'un coup d'œil
- * ce qui était en place à une date donnée. Les événements sont des lignes
- * verticales, reprises dans la légende. Défile horizontalement sur petit écran.
+ * ce qui était en place à une date donnée. Chaque événement est un repère
+ * numéroté au-dessus de l'axe, prolongé d'une ligne verticale à travers les
+ * couloirs, et repris (même numéro) dans la légende. Défile horizontalement
+ * sur petit écran.
  */
 export function TimelineLib({ start, end, lanes, events = [], ariaLabel = "Frise chronologique" }: TimelineLibProps) {
     const pos = (date: string) => timelinePosition(date, start, end);
+    // Événements numérotés dans l'ordre chronologique : le même numéro sur la frise et dans la légende.
+    const sortedEvents = [...events].sort((a, b) => a.date.localeCompare(b.date));
+    const markerRows = eventMarkerRows(sortedEvents.map((e) => pos(e.date)));
+    const rowCount = markerRows.length ? Math.max(...markerRows) + 1 : 0;
 
     return (
         <figure className="timeline-lib" aria-label={ariaLabel}>
             <div className="timeline-lib__scroll">
                 <div className="timeline-lib__canvas">
+                    {sortedEvents.length > 0 && (
+                        <div className="timeline-lib__markers" aria-hidden="true" style={{ "--timeline-marker-rows": rowCount } as React.CSSProperties}>
+                            {sortedEvents.map((e, i) => (
+                                <span
+                                    key={e.date}
+                                    className="timeline-lib__marker"
+                                    style={{ left: `${pos(e.date)}%`, "--timeline-marker-row": markerRows[i] } as React.CSSProperties}
+                                    title={`${formatTimelineDate(e.date)} : ${e.label}`}
+                                >
+                                    {i + 1}
+                                </span>
+                            ))}
+                        </div>
+                    )}
+
                     <div className="timeline-lib__axis" aria-hidden="true">
                         {yearTicks(start, end).map((tick) => (
                             <span key={tick} className="timeline-lib__tick" style={{ left: `${pos(tick)}%` }}>{tick.slice(0, 4)}</span>
@@ -101,7 +139,7 @@ export function TimelineLib({ start, end, lanes, events = [], ariaLabel = "Frise
                         ))}
 
                         <div className="timeline-lib__events" aria-hidden="true">
-                            {events.map((e) => (
+                            {sortedEvents.map((e) => (
                                 <span key={e.date} className="timeline-lib__event-line" style={{ left: `${pos(e.date)}%` }} title={`${formatTimelineDate(e.date)} : ${e.label}`} />
                             ))}
                         </div>
@@ -109,13 +147,16 @@ export function TimelineLib({ start, end, lanes, events = [], ariaLabel = "Frise
                 </div>
             </div>
 
-            {events.length > 0 && (
+            {sortedEvents.length > 0 && (
                 <figcaption>
-                    <ul className="timeline-lib__legend">
-                        {events.map((e) => (
-                            <li key={e.date}><span className="timeline-lib__legend-mark" aria-hidden="true" /><time dateTime={e.date}>{formatTimelineDate(e.date)}</time> : {e.label}</li>
+                    <ol className="timeline-lib__legend">
+                        {sortedEvents.map((e, i) => (
+                            <li key={e.date}>
+                                <span className="timeline-lib__marker timeline-lib__marker--legend" aria-hidden="true">{i + 1}</span>
+                                <span><time dateTime={e.date} className="timeline-lib__legend-date">{formatTimelineDate(e.date)}</time> {e.label}</span>
+                            </li>
                         ))}
-                    </ul>
+                    </ol>
                 </figcaption>
             )}
         </figure>

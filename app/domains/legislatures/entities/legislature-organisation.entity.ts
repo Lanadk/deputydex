@@ -3,6 +3,33 @@
  * format AAAA-MM-JJ (formatées en SQL) : pas de conversion de fuseau horaire.
  */
 
+/**
+ * Photo d'une personne : celle de député si elle existe, sinon un portrait du
+ * référentiel `ref_portraits`, dont auteur et licence sont à créditer.
+ */
+export type PhotoRow = {
+    photo_path: string | null;
+    /** Renseignés seulement pour un portrait du référentiel (pas pour une photo de député). */
+    photo_auteur: string | null;
+    photo_licence: string | null;
+    photo_licence_url: string | null;
+};
+
+/** Un mandat présidentiel (référentiel `ref_mandats_presidentiels`), avec son portrait. */
+export type MandatPresidentielRow = PhotoRow & {
+    president: string;
+    mandat_numero: number;
+    debut: string;
+    fin: string | null;
+};
+
+/** Un événement institutionnel (référentiel `ref_evenements_institutionnels`). */
+export type EvenementInstitutionnelRow = {
+    date: string;
+    type: string;
+    libelle: string;
+};
+
 export type LegislaturePeriodeRow = {
     number: number;
     debut: string;
@@ -10,14 +37,13 @@ export type LegislaturePeriodeRow = {
 };
 
 /** Un mandat de Premier ministre (= un gouvernement). */
-export type PremierMinistreRow = {
+export type PremierMinistreRow = PhotoRow & {
     acteur_uid: string;
     prenom: string;
     nom: string;
     debut: string;
     fin: string | null;
-    /** Photo (URL) et groupe politique de la personne à la date utile, s'il s'agit d'un député. */
-    photo_path: string | null;
+    /** Groupe politique de la personne à la date utile, s'il s'agit d'un député. */
     appartenance_code: string | null;
     appartenance_libelle: string | null;
 };
@@ -33,7 +59,7 @@ export type PresidentAssembleeRow = {
 };
 
 /** Une nomination au gouvernement (hors parlementaires « en mission »). */
-export type MembreGouvernementRow = {
+export type MembreGouvernementRow = PhotoRow & {
     acteur_uid: string;
     prenom: string;
     nom: string;
@@ -43,14 +69,13 @@ export type MembreGouvernementRow = {
     fin: string | null;
     /** A été député : sa fiche existe sur le site. */
     est_depute: boolean;
-    /** Photo (URL) et groupe politique de la personne à la date utile, s'il s'agit d'un député. */
-    photo_path: string | null;
+    /** Groupe politique de la personne à la date utile, s'il s'agit d'un député. */
     appartenance_code: string | null;
     appartenance_libelle: string | null;
 };
 
 /** Une fonction à l'Assemblée en place à la date de référence (Bureau, présidences de groupe et de commission). */
-export type FonctionAssembleeRow = {
+export type FonctionAssembleeRow = PhotoRow & {
     acteur_uid: string;
     prenom: string;
     nom: string;
@@ -59,8 +84,7 @@ export type FonctionAssembleeRow = {
     organe_uid: string;
     groupe_code: string | null;
     groupe_libelle: string | null;
-    /** Photo (URL) et groupe politique de la personne à la date utile, s'il s'agit d'un député. */
-    photo_path: string | null;
+    /** Groupe politique de la personne à la date utile, s'il s'agit d'un député. */
     appartenance_code: string | null;
     appartenance_libelle: string | null;
 };

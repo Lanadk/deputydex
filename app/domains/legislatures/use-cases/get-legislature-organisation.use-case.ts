@@ -12,12 +12,12 @@ import {
     LegislatureOrganisationDTO,
     RangGouvernementDTO,
 } from "@/app/domains/legislatures/dto/legislature-organisation.dto";
-import { MANDATS_PRESIDENTIELS } from "@/app/domains/legislatures/references/presidence-republique";
 import {
     chevauche,
     contient,
     EN_MISSION,
     FONCTIONS_BUREAU,
+    libelleMandat,
     nommerGouvernements,
     PREMIER_MINISTRE,
     RANGS_GOUVERNEMENT,
@@ -28,6 +28,7 @@ import {
     mapPremierMinistreToDTO,
     mapPresidentCommissionToDTO,
     mapPresidentGroupeToDTO,
+    photoCredit,
 } from "@/app/domains/legislatures/mappers/legislature-organisation.mapper";
 
 const parNom = <T extends { nom: string }>(a: T, b: T) => a.nom.localeCompare(b.nom, "fr");
@@ -128,9 +129,13 @@ export async function getLegislatureOrganisationUseCase(
     legislature: number,
     aujourdhui: string
 ): Promise<Result<LegislatureOrganisationDTO, "DB_ERROR" | "NOT_FOUND">> {
-    const read = await fromRepository(() => Promise.all([repository.getLegislatures(), repository.getPremiersMinistres()]));
+    const read = await fromRepository(() => Promise.all([
+        repository.getLegislatures(),
+        repository.getPremiersMinistres(),
+        repository.getMandatsPresidentiels(),
+    ]));
     if (isErr(read)) return read;
-    const [legislatures, premiersMinistres] = read.data;
+    const [legislatures, premiersMinistres, mandatsPresidentiels] = read.data;
 
     const periode = legislatures.find((l) => l.number === legislature);
     if (!periode) return err("NOT_FOUND");
@@ -145,12 +150,20 @@ export async function getLegislatureOrganisationUseCase(
     if (isErr(details)) return details;
     const [membres, fonctions] = details.data;
 
-    const presidence = MANDATS_PRESIDENTIELS.find((m) => m.debut <= dateReference && (m.fin === null || m.fin >= dateReference));
+    const presidence = mandatsPresidentiels.find((m) => contient(m.debut, m.fin, dateReference));
 
     return ok({
         legislature,
         dateReference,
-        presidence: presidence ? { president: presidence.president, mandat: presidence.mandat, depuis: presidence.debut } : null,
+        presidence: presidence
+            ? {
+                president: presidence.president,
+                mandat: libelleMandat(presidence.mandat_numero),
+                depuis: presidence.debut,
+                photoUrl: presidence.photo_path,
+                photoCredit: photoCredit(presidence),
+            }
+            : null,
         gouvernements: gouvernementsDeLaLegislature(premiersMinistres, membres, periode.debut, dateReference, aujourdhui),
         assemblee: organisationAssemblee(fonctions),
     });

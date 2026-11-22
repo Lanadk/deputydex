@@ -60,6 +60,11 @@ export const FONCTIONS_BUREAU = {
     secretaire: "Secrétaire",
 } as const;
 
+/** « 1er mandat », « 2e mandat » (mandats présidentiels). */
+export function libelleMandat(numero: number): string {
+    return `${numero}${numero === 1 ? "er" : "e"} mandat`;
+}
+
 /** Ordinal d'une législature : « 17ᵉ législature ». */
 export function libelleLegislature(numero: number): string {
     return `${numero}${numero === 1 ? "ʳᵉ" : "ᵉ"} législature`;

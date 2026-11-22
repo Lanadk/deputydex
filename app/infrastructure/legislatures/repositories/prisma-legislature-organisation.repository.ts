@@ -5,9 +5,11 @@ import { Prisma } from "@/app/infrastructure/db/generated/prisma";
 import { ILegislatureOrganisationRepository } from "@/app/domains/legislatures/repositories/ILegislatureOrganisationRepository";
 import {
     EntreeEnCoursRow,
+    EvenementInstitutionnelRow,
     FonctionAssembleeRow,
     LegislatureChiffresRow,
     LegislaturePeriodeRow,
+    MandatPresidentielRow,
     MembreGouvernementRow,
     PremierMinistreRow,
     PresidentAssembleeRow,
@@ -20,7 +22,10 @@ import {
  * L'ordre des lignes n'a pas d'importance : les use-cases trient.
  */
 
-/** Photo la plus récente de la personne du mandat `m`. */
+/**
+ * Photo de la personne du mandat `m` : sa photo de député la plus récente, sinon
+ * son portrait du référentiel `ref_portraits` (personnalités non députées).
+ */
 const PHOTO = Prisma.sql`
     LEFT JOIN LATERAL (
         SELECT NULLIF(photo_path, 'null') AS photo_path
@@ -28,7 +33,13 @@ const PHOTO = Prisma.sql`
         WHERE acteur_uid = m.acteur_uid
         ORDER BY legislature DESC
         LIMIT 1
-    ) rap ON true`;
+    ) rap ON true
+    LEFT JOIN ref_portraits rp ON rp.acteur_uid = m.acteur_uid AND rap.photo_path IS NULL`;
+
+/** Colonnes de photo (cf. PhotoRow) : le crédit n'est renseigné que pour un portrait du référentiel. */
+const PHOTO_COLONNES = Prisma.sql`
+    COALESCE(rap.photo_path, rp.photo_path) AS photo_path,
+    rp.auteur AS photo_auteur, rp.licence AS photo_licence, rp.licence_url AS photo_licence_url`;
 
 /**
  * Groupe politique de la personne du mandat `m` à la date `date` : son groupe
@@ -45,7 +56,7 @@ const appartenance = (date: Prisma.Sql) => Prisma.sql`
         LIMIT 1
     ) grp ON true`;
 
-const IDENTITE = Prisma.sql`rap.photo_path, grp.code AS appartenance_code, grp.libelle AS appartenance_libelle`;
+const IDENTITE = Prisma.sql`${PHOTO_COLONNES}, grp.code AS appartenance_code, grp.libelle AS appartenance_libelle`;
 export const prismaLegislatureOrganisationRepository: ILegislatureOrganisationRepository = {
     async getLegislatures(): Promise<LegislaturePeriodeRow[]> {
         return prisma.$queryRaw<LegislaturePeriodeRow[]>`
@@ -137,6 +148,26 @@ export const prismaLegislatureOrganisationRepository: ILegislatureOrganisationRe
               AND election_cause_mandat IS NOT NULL
               AND election_cause_mandat <> 'élections générales'
             GROUP BY election_cause_mandat
+        `;
+    },
+
+    async getMandatsPresidentiels(): Promise<MandatPresidentielRow[]> {
+        return prisma.$queryRaw<MandatPresidentielRow[]>`
+            SELECT mp.president, mp.mandat_numero,
+                   to_char(mp.debut, 'YYYY-MM-DD') AS debut,
+                   to_char(mp.fin, 'YYYY-MM-DD')   AS fin,
+                   rp.photo_path, rp.auteur AS photo_auteur, rp.licence AS photo_licence, rp.licence_url AS photo_licence_url
+            FROM ref_mandats_presidentiels mp
+            LEFT JOIN ref_portraits rp ON rp.slug = mp.portrait_slug
+            ORDER BY mp.debut
+        `;
+    },
+
+    async getEvenementsInstitutionnels(): Promise<EvenementInstitutionnelRow[]> {
+        return prisma.$queryRaw<EvenementInstitutionnelRow[]>`
+            SELECT to_char(date, 'YYYY-MM-DD') AS date, type, libelle
+            FROM ref_evenements_institutionnels
+            ORDER BY date
         `;
     },
 };

@@ -11,6 +11,8 @@ jest.mock("@/app/infrastructure/legislatures/repositories/prisma-legislature-org
         getFonctionsAssemblee: jest.fn(),
         getChiffres: jest.fn(),
         getEntreesEnCours: jest.fn(),
+        getMandatsPresidentiels: jest.fn(),
+        getEvenementsInstitutionnels: jest.fn(),
     },
 }));
 
@@ -26,6 +28,7 @@ describe("GET /api/legislatures/[legislature]/organisation", () => {
         (repo.getPremiersMinistres as jest.Mock).mockResolvedValue([]);
         (repo.getMembresGouvernement as jest.Mock).mockResolvedValue([]);
         (repo.getFonctionsAssemblee as jest.Mock).mockResolvedValue([]);
+        (repo.getMandatsPresidentiels as jest.Mock).mockResolvedValue([]);
     });
     afterEach(() => jest.resetAllMocks());
 

@@ -41,10 +41,12 @@ export function ProportionBarLib({ segments, ariaLabel }: ProportionBarLibProps)
             <ul className="proportion-bar-lib__legend">
                 {visible.map((s) => (
                     <li key={s.id} className="proportion-bar-lib__item">
-                        <span className="proportion-bar-lib__dot" style={{ backgroundColor: s.color }} aria-hidden="true" />
+                        <span className="proportion-bar-lib__figures">
+                            <span className="proportion-bar-lib__dot" style={{ backgroundColor: s.color }} aria-hidden="true" />
+                            <span className="proportion-bar-lib__value">{s.value.toLocaleString("fr-FR")}</span>
+                            <span className="proportion-bar-lib__percent">{PERCENT.format(s.value / total)}</span>
+                        </span>
                         <span className="proportion-bar-lib__label">{s.label}</span>
-                        <span className="proportion-bar-lib__value">{s.value.toLocaleString("fr-FR")}</span>
-                        <span className="proportion-bar-lib__percent">{PERCENT.format(s.value / total)}</span>
                     </li>
                 ))}
             </ul>

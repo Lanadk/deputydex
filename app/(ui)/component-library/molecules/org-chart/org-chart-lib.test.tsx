@@ -47,6 +47,17 @@ describe("OrgChartLib", () => {
         expect(document.querySelector("img")).toHaveAttribute("src", expect.stringContaining("photo.jpg"));
     });
 
+    it("variant « group » : intitulé de regroupement et compteur, sans carte", () => {
+        const { container } = render(
+            <OrgChartLib root={{ id: "r", title: "Direction", children: [{ id: "g", variant: "group", title: "Adjoints", subtitle: "1", children: [{ id: "b", title: "Bruno" }] }] }} />
+        );
+
+        expect(container.querySelector(".org-chart-lib__group")).toHaveTextContent("Adjoints1");
+        // Seuls la racine et Bruno sont des cartes.
+        expect(container.querySelectorAll(".org-chart-lib__card")).toHaveLength(2);
+        expect(screen.getByRole("button", { name: "Replier « Adjoints »" })).toBeInTheDocument();
+    });
+
     const ARBRE = {
         id: "r", title: "Direction",
         children: [{ id: "a", title: "Pôle A", children: [{ id: "a1", title: "Bruno" }] }],

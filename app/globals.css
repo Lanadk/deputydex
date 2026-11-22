@@ -1019,7 +1019,7 @@
     .timeline-lib__lane-label {
         position: sticky;
         left: 0;
-        z-index: 1;
+        z-index: 3;
         align-self: stretch;
         display: flex;
         align-items: center;
@@ -1084,12 +1084,45 @@
         text-overflow: ellipsis;
     }
 
+    /* Repères d'événements numérotés, au-dessus de l'axe ; deux repères trop proches
+       s'empilent sur deux rangées (--timeline-marker-row). */
+    .timeline-lib__markers {
+        position: relative;
+        height: calc(var(--timeline-marker-rows, 1) * 24px);
+        margin-left: var(--timeline-label-width);
+    }
+
+    .timeline-lib__marker {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 20px;
+        height: 20px;
+        border-radius: 999px;
+        background-color: var(--ui-warning);
+        color: var(--background);
+        font-size: 11px;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+    }
+
+    .timeline-lib__markers > .timeline-lib__marker {
+        position: absolute;
+        bottom: calc(var(--timeline-marker-row, 0) * 24px + 2px);
+        transform: translateX(-50%);
+        cursor: default;
+    }
+
+    /* Au-dessus des périodes (z-index 2) mais sous l'intitulé collant des couloirs (z-index 3). */
     .timeline-lib__events {
         position: absolute;
-        top: 0;
+        top: -1.5rem; /* traverse aussi l'axe, jusqu'au repère */
         bottom: 0;
         left: var(--timeline-label-width);
         right: 0;
+        z-index: 2;
         pointer-events: none;
     }
 
@@ -1097,28 +1130,31 @@
         position: absolute;
         top: 0;
         bottom: 0;
+        width: 0;
         border-left: 2px dashed var(--ui-warning);
+        transform: translateX(-1px);
         pointer-events: auto;
     }
 
     .timeline-lib__legend {
         display: flex;
         flex-wrap: wrap;
-        gap: 6px 20px;
-        margin: 12px 0 0;
+        gap: 8px 24px;
+        margin: 14px 0 0;
         padding: 0;
         list-style: none;
         font-size: 13px;
-        color: var(--subtitle-accent);
     }
 
-    .timeline-lib__legend-mark {
-        display: inline-block;
-        width: 0;
-        height: 0.9em;
-        margin-right: 6px;
-        vertical-align: middle;
-        border-left: 2px dashed var(--ui-warning);
+    .timeline-lib__legend > li {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .timeline-lib__legend-date {
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
     }
 
     /* -------------------------------------------------------
@@ -1142,40 +1178,52 @@
 
     .proportion-bar-lib__legend {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
-        gap: 8px 24px;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 10rem), 1fr));
+        gap: 14px 24px;
         margin: 14px 0 0;
         padding: 0;
         list-style: none;
     }
 
+    /* Chiffres en tête, libellé dessous : toutes les entrées ont la même structure,
+       qu'un libellé tienne sur une ligne ou deux. */
     .proportion-bar-lib__item {
         display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    .proportion-bar-lib__figures {
+        display: flex;
         align-items: baseline;
-        gap: 8px;
-        font-size: 14px;
+        gap: 6px;
     }
 
     .proportion-bar-lib__dot {
         flex-shrink: 0;
+        align-self: center;
         width: 10px;
         height: 10px;
         border-radius: 999px;
-        transform: translateY(1px);
     }
 
-    .proportion-bar-lib__label { flex: 1; min-width: 0; }
-
     .proportion-bar-lib__value {
+        font-size: 18px;
         font-weight: 700;
         font-variant-numeric: tabular-nums;
     }
 
     .proportion-bar-lib__percent {
-        width: 3.2em;
-        text-align: right;
         font-size: 12px;
         font-variant-numeric: tabular-nums;
+        color: var(--subtitle-accent);
+    }
+
+    .proportion-bar-lib__label {
+        padding-left: 16px;
+        font-size: 13px;
+        line-height: 1.35;
         color: var(--subtitle-accent);
     }
 
@@ -1213,10 +1261,12 @@
         outline-offset: 2px;
     }
 
+    /* Largeur fixe : les cartes d'une même colonne s'alignent, pastilles comprises. */
     .org-chart-lib__card {
-        display: inline-flex;
+        display: flex;
         align-items: center;
         gap: 10px;
+        width: min(100%, 24rem);
         min-width: 0;
         padding: 8px 12px;
         border: 1px solid var(--border-main);
@@ -1226,25 +1276,54 @@
 
     .org-chart-lib__text {
         display: flex;
+        flex: 1;
         flex-direction: column;
         gap: 2px;
         min-width: 0;
     }
 
-    .org-chart-lib__heading {
-        display: flex;
-        flex-wrap: wrap;
-        align-items: center;
-        gap: 6px;
-    }
-
+    /* Pastille ancrée en haut à droite : même place sur toutes les cartes. */
     .org-chart-lib__badge {
+        align-self: flex-start;
+        flex-shrink: 0;
+        margin-left: auto;
         padding: 1px 6px;
         border-radius: 999px;
         font-size: 11px;
         font-weight: 700;
         letter-spacing: 0.02em;
         white-space: nowrap;
+    }
+
+    /* Intitulé de regroupement (« Ministres délégués ») : un titre de section, pas une carte. */
+    .org-chart-lib__row--group { align-items: center; }
+    .org-chart-lib__row--group .org-chart-lib__toggle { margin-top: 0; }
+
+    .org-chart-lib__group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 24px;
+    }
+
+    .org-chart-lib__group-title {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--subtitle-accent);
+    }
+
+    .org-chart-lib__group-count {
+        min-width: 20px;
+        padding: 0 6px;
+        border-radius: 999px;
+        background-color: var(--surface-3);
+        font-size: 11px;
+        font-weight: 700;
+        text-align: center;
+        font-variant-numeric: tabular-nums;
+        color: var(--subtitle-accent);
     }
 
     .org-chart-lib__card--root { border-left: 4px solid var(--accent); }
@@ -1277,6 +1356,14 @@
         color: var(--subtitle-accent);
     }
 
+    /* Intitulés de fonction très longs : deux lignes au plus (texte complet en info-bulle). */
+    .org-chart-lib__subtitle {
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
     .org-chart-lib__note { font-style: italic; }
 
     /* Arbre : chaque niveau est indenté et relié à son parent (ligne verticale + branche). */
@@ -1303,16 +1390,19 @@
 
     .org-chart-lib__children--grid {
         display: grid;
-        grid-template-columns: repeat(auto-fill, minmax(min(100%, 14rem), 1fr));
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+        /* Toutes les lignes de la grille ont la hauteur de la plus haute carte. */
+        grid-auto-rows: 1fr;
         gap: 8px;
     }
 
     .org-chart-lib__children--grid > .org-chart-lib__item { padding: 0; }
     .org-chart-lib__children--grid > .org-chart-lib__item::before { display: none; }
-    .org-chart-lib__children--grid .org-chart-lib__card { display: flex; height: 100%; }
+    .org-chart-lib__children--grid .org-chart-lib__card { width: 100%; height: 100%; }
 
     /* Le bouton de repli décale la carte : la branche part du milieu du bouton. */
     .org-chart-lib__item:has(> .org-chart-lib__row > .org-chart-lib__toggle)::before { top: 22px; }
+    .org-chart-lib__item:has(> .org-chart-lib__row--group)::before { top: 12px; }
 
     /* -------------------------------------------------------
        NotificationLib — notifications temporaires

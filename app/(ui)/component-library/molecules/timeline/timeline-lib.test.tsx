@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, within } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import { formatTimelineDate, TimelineLib, timelinePosition, yearTicks } from "@/app/(ui)/component-library/molecules/timeline/timeline-lib";
+import { eventMarkerRows, formatTimelineDate, TimelineLib, timelinePosition, yearTicks } from "@/app/(ui)/component-library/molecules/timeline/timeline-lib";
 
 describe("TimelineLib — calculs", () => {
     it("position d'une date sur l'axe, bornée", () => {
@@ -53,10 +53,27 @@ describe("TimelineLib — rendu", () => {
         expect(screen.getByLabelText("Équipe courte, du 09/09/2025 au 09/10/2025")).toBeInTheDocument();
     });
 
-    it("légende des événements", () => {
-        render(<TimelineLib start="2022-05-01" end="2026-11-22" lanes={lanes} events={[{ date: "2024-06-09", label: "Dissolution" }]} />);
+    it("événements : repères numérotés sur la frise, mêmes numéros dans la légende (ordre chronologique)", () => {
+        const { container } = render(
+            <TimelineLib
+                start="2022-05-01"
+                end="2026-11-22"
+                lanes={lanes}
+                events={[{ date: "2024-07-07", label: "Élections" }, { date: "2024-06-09", label: "Dissolution" }]}
+            />
+        );
 
-        expect(screen.getByText(/Dissolution/)).toBeInTheDocument();
-        expect(screen.getByText("09/06/2024")).toBeInTheDocument();
+        const reperes = [...container.querySelectorAll(".timeline-lib__markers > .timeline-lib__marker")];
+        expect(reperes.map((r) => [r.textContent, r.getAttribute("title")])).toEqual([
+            ["1", "09/06/2024 : Dissolution"],
+            ["2", "07/07/2024 : Élections"],
+        ]);
+        const legende = screen.getAllByRole("listitem").filter((li) => li.closest(".timeline-lib__legend"));
+        expect(legende.map((li) => li.textContent)).toEqual(["109/06/2024 Dissolution", "207/07/2024 Élections"]);
+    });
+
+    it("repères trop proches : empilés sur une autre rangée", () => {
+        expect(eventMarkerRows([10, 11, 12, 20, 21])).toEqual([0, 1, 2, 0, 1]);
+        expect(eventMarkerRows([10, 50])).toEqual([0, 0]);
     });
 });

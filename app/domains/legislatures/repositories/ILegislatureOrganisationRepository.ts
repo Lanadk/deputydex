@@ -1,6 +1,8 @@
 import {
     EntreeEnCoursRow,
+    EvenementInstitutionnelRow,
     FonctionAssembleeRow,
+    MandatPresidentielRow,
     LegislatureChiffresRow,
     LegislaturePeriodeRow,
     MembreGouvernementRow,
@@ -19,4 +21,8 @@ export interface ILegislatureOrganisationRepository {
     getFonctionsAssemblee(legislature: number, dateReference: string): Promise<FonctionAssembleeRow[]>;
     getChiffres(legislature: number): Promise<LegislatureChiffresRow | null>;
     getEntreesEnCours(legislature: number): Promise<EntreeEnCoursRow[]>;
+    /** Référentiel des mandats présidentiels (données hors open data de l'AN). */
+    getMandatsPresidentiels(): Promise<MandatPresidentielRow[]>;
+    /** Référentiel des événements institutionnels (dissolution, élections…). */
+    getEvenementsInstitutionnels(): Promise<EvenementInstitutionnelRow[]>;
 }

@@ -9,6 +9,7 @@ import {
     GouvernementDTO,
     LegislatureOrganisationDTO,
     PersonneFonctionDTO,
+    PhotoCreditDTO,
 } from "@/app/domains/legislatures/dto/legislature-organisation.dto";
 
 /** Pastille du groupe politique, aux couleurs du groupe. */
@@ -38,8 +39,9 @@ export function arbreExecutif(organisation: LegislatureOrganisationDTO, gouverne
             ...personne(gouvernement.premierMinistre, `Premier ministre · ${gouvernement.libelle}, ${periode(gouvernement)}`),
             children: gouvernement.rangs.map((r) => ({
                 id: `${gouvernement.id}-${r.rang}`,
+                variant: "group" as const,
                 title: r.libelle,
-                subtitle: `${r.membres.length} membre${r.membres.length > 1 ? "s" : ""}`,
+                subtitle: `${r.membres.length}`,
                 children: r.membres.map((m) => ({
                     ...personne(m),
                     id: `${gouvernement.id}-${r.rang}-${m.uid}`,
@@ -53,6 +55,7 @@ export function arbreExecutif(organisation: LegislatureOrganisationDTO, gouverne
         id: "presidence",
         title: pr ? pr.president : "Présidence de la République",
         subtitle: pr ? `Président de la République · ${pr.mandat} depuis le ${formatTimelineDate(pr.depuis)}` : null,
+        avatar: pr ? { src: pr.photoUrl } : null,
         children: pm ? [pm] : [],
     };
 }
@@ -61,7 +64,7 @@ export function arbreExecutif(organisation: LegislatureOrganisationDTO, gouverne
 export function arbreAssemblee(organisation: LegislatureOrganisationDTO): OrgChartNode {
     const a = organisation.assemblee;
     const branche = (id: string, title: string, nodes: OrgChartNode[]): OrgChartNode[] =>
-        nodes.length ? [{ id, title, subtitle: `${nodes.length}`, children: nodes }] : [];
+        nodes.length ? [{ id, variant: "group", title, subtitle: `${nodes.length}`, children: nodes }] : [];
 
     const racine: OrgChartNode = a.president
         ? { ...personne(a.president, "Présidence de l'Assemblée nationale"), id: "assemblee" }
@@ -77,6 +80,38 @@ export function arbreAssemblee(organisation: LegislatureOrganisationDTO): OrgCha
             ...branche("commissions", "Présidences de commission permanente", a.presidentsCommission.map((p) => personne(p, p.commission))),
         ],
     };
+}
+
+type CreditPhoto = { nom: string; credit: PhotoCreditDTO };
+
+/** Crédits des portraits tiers affichés dans l'organigramme de l'exécutif (une fois par personne). */
+export function creditsExecutif(organisation: LegislatureOrganisationDTO, gouvernement: GouvernementDTO | undefined): CreditPhoto[] {
+    const credits = new Map<string, CreditPhoto>();
+    const pr = organisation.presidence;
+    if (pr?.photoCredit) credits.set(pr.president, { nom: pr.president, credit: pr.photoCredit });
+    const personnes = gouvernement ? [gouvernement.premierMinistre, ...gouvernement.rangs.flatMap((r) => r.membres)] : [];
+    for (const p of personnes) if (p.photoCredit) credits.set(p.nom, { nom: p.nom, credit: p.photoCredit });
+    return [...credits.values()];
+}
+
+function CreditsPhotos({ credits }: { credits: CreditPhoto[] }) {
+    if (!credits.length) return null;
+    return (
+        <p className="text-xs text-subtitle-accent">
+            Crédits photo :{" "}
+            {credits.map(({ nom, credit }, i) => (
+                <React.Fragment key={nom}>
+                    {i > 0 && " · "}
+                    {nom} : {credit.auteur} (
+                    {credit.licenceUrl
+                        ? <a href={credit.licenceUrl} className="underline underline-offset-2" target="_blank" rel="noopener noreferrer">{credit.licence}</a>
+                        : credit.licence}
+                    )
+                </React.Fragment>
+            ))}
+            .
+        </p>
+    );
 }
 
 /** Organigrammes de la législature : exécutif (un onglet par gouvernement) et Assemblée. */
@@ -109,6 +144,7 @@ export function LegislatureOrganigramme({ organisation }: { organisation: Legisl
                 <div {...(gouvernement && gouvernements.length > 1 ? tabPanelProps(prefix, gouvernement.id) : {})}>
                     <OrgChartLib root={arbreExecutif(organisation, gouvernement)} ariaLabel="Organigramme de l'exécutif" showExpandControls />
                 </div>
+                <CreditsPhotos credits={creditsExecutif(organisation, gouvernement)} />
             </section>
 
             <section className="flex flex-col gap-3" aria-labelledby="organigramme-assemblee">

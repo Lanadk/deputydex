@@ -25,6 +25,12 @@ export type OrgChartNode = {
     /** Avatar : photo si `src`, sinon initiales de `title`. Absent : pas d'avatar. */
     avatar?: { src: string | null } | null;
     badge?: OrgChartBadge | null;
+    /**
+     * `group` : simple intitulé de regroupement (ex. « Ministres délégués »),
+     * affiché comme un titre de section et non comme une carte. `subtitle` y
+     * devient un compteur discret.
+     */
+    variant?: "card" | "group";
     children?: OrgChartNode[];
 };
 
@@ -46,22 +52,31 @@ function NodeCard({ node, isRoot }: { node: OrgChartNode; isRoot?: boolean }) {
         <div className={`org-chart-lib__card${isRoot ? " org-chart-lib__card--root" : ""}`}>
             {node.avatar && <AvatarLib src={node.avatar.src ?? undefined} name={node.title} size="small" alt="" />}
             <div className="org-chart-lib__text">
-                <div className="org-chart-lib__heading">
-                    {title}
-                    {node.badge && (
-                        <span
-                            className="org-chart-lib__badge"
-                            style={{ backgroundColor: node.badge.background, color: node.badge.color }}
-                            title={node.badge.title}
-                            aria-label={node.badge.title}
-                        >
-                            {node.badge.label}
-                        </span>
-                    )}
-                </div>
-                {node.subtitle && <span className="org-chart-lib__subtitle">{node.subtitle}</span>}
+                {title}
+                {node.subtitle && <span className="org-chart-lib__subtitle" title={node.subtitle}>{node.subtitle}</span>}
                 {node.note && <span className="org-chart-lib__note">{node.note}</span>}
             </div>
+            {/* Toujours dans le coin haut-droit de la carte, quelle que soit la longueur du nom. */}
+            {node.badge && (
+                <span
+                    className="org-chart-lib__badge"
+                    style={{ backgroundColor: node.badge.background, color: node.badge.color }}
+                    title={node.badge.title}
+                    aria-label={node.badge.title}
+                >
+                    {node.badge.label}
+                </span>
+            )}
+        </div>
+    );
+}
+
+/** Intitulé de regroupement : un titre de section, pas une carte. */
+function GroupLabel({ node }: { node: OrgChartNode }) {
+    return (
+        <div className="org-chart-lib__group">
+            <span className="org-chart-lib__group-title">{node.title}</span>
+            {node.subtitle && <span className="org-chart-lib__group-count">{node.subtitle}</span>}
         </div>
     );
 }
@@ -74,7 +89,7 @@ function Branch({ node, isRoot, defaultOpen }: { node: OrgChartNode; isRoot?: bo
 
     return (
         <>
-            <div className="org-chart-lib__row">
+            <div className={`org-chart-lib__row${node.variant === "group" ? " org-chart-lib__row--group" : ""}`}>
                 {children.length > 0 && (
                     <button
                         type="button"
@@ -87,7 +102,7 @@ function Branch({ node, isRoot, defaultOpen }: { node: OrgChartNode; isRoot?: bo
                         {open ? <ChevronDown size={16} aria-hidden="true" /> : <ChevronRight size={16} aria-hidden="true" />}
                     </button>
                 )}
-                <NodeCard node={node} isRoot={isRoot} />
+                {node.variant === "group" ? <GroupLabel node={node} /> : <NodeCard node={node} isRoot={isRoot} />}
             </div>
             {children.length > 0 && open && <Children id={childrenId} nodes={children} defaultOpen={defaultOpen} />}
         </>

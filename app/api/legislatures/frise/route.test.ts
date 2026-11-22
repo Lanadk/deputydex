@@ -11,6 +11,8 @@ jest.mock("@/app/infrastructure/legislatures/repositories/prisma-legislature-org
         getFonctionsAssemblee: jest.fn(),
         getChiffres: jest.fn(),
         getEntreesEnCours: jest.fn(),
+        getMandatsPresidentiels: jest.fn(),
+        getEvenementsInstitutionnels: jest.fn(),
     },
 }));
 
@@ -23,6 +25,8 @@ describe("GET /api/legislatures/frise", () => {
         (repo.getLegislatures as jest.Mock).mockResolvedValue([{ number: 17, debut: "2024-07-18", fin: null }]);
         (repo.getPremiersMinistres as jest.Mock).mockResolvedValue([]);
         (repo.getPresidentsAssemblee as jest.Mock).mockResolvedValue([]);
+        (repo.getMandatsPresidentiels as jest.Mock).mockResolvedValue([]);
+        (repo.getEvenementsInstitutionnels as jest.Mock).mockResolvedValue([]);
     });
     afterEach(() => jest.resetAllMocks());
 

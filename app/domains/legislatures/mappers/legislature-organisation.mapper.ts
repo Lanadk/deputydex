@@ -1,12 +1,14 @@
 import {
     FonctionAssembleeRow,
     MembreGouvernementRow,
+    PhotoRow,
     PremierMinistreRow,
     PresidentAssembleeRow,
 } from "@/app/domains/legislatures/entities/legislature-organisation.entity";
 import {
     MembreGouvernementDTO,
     PersonneFonctionDTO,
+    PhotoCreditDTO,
     PresidentCommissionDTO,
     PresidentGroupeDTO,
 } from "@/app/domains/legislatures/dto/legislature-organisation.dto";
@@ -17,12 +19,19 @@ import { libelleLegislature } from "@/app/domains/legislatures/institutions";
 const nomComplet = (row: { prenom: string; nom: string }) => `${row.prenom} ${row.nom}`;
 const ficheDepute = (uid: string) => `/deputes/${uid}`;
 
-type IdentiteRow = { photo_path: string | null; appartenance_code: string | null; appartenance_libelle: string | null };
+type IdentiteRow = PhotoRow & { appartenance_code: string | null; appartenance_libelle: string | null };
 
-/** Photo et groupe politique d'une personne. */
-function identite(row: IdentiteRow): Pick<PersonneFonctionDTO, "photoUrl" | "groupe"> {
+/** Crédit d'un portrait du référentiel ; null pour une photo de député ou une absence de photo. */
+export function photoCredit(row: PhotoRow): PhotoCreditDTO | null {
+    if (!row.photo_path || !row.photo_auteur || !row.photo_licence) return null;
+    return { auteur: row.photo_auteur, licence: row.photo_licence, licenceUrl: row.photo_licence_url };
+}
+
+/** Photo (de député, ou portrait du référentiel et son crédit) et groupe politique d'une personne. */
+function identite(row: IdentiteRow): Pick<PersonneFonctionDTO, "photoUrl" | "photoCredit" | "groupe"> {
     return {
         photoUrl: row.photo_path,
+        photoCredit: photoCredit(row),
         groupe: row.appartenance_code ? { code: row.appartenance_code, libelle: row.appartenance_libelle ?? row.appartenance_code } : null,
     };
 }

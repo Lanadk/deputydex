@@ -18,9 +18,16 @@ const ROOT: OrgChartNode = {
         },
         {
             id: "pole-b",
-            title: "Pôle B",
-            subtitle: "Six membres : affichés en grille",
-            children: ["David", "Emma", "Farid", "Gaëlle", "Hugo", "Inès"].map((p, i) => ({ id: `b${i}`, title: p, subtitle: "Membre" })),
+            variant: "group",
+            title: "Pôle B (intitulé de regroupement)",
+            subtitle: "6",
+            children: ["David", "Emma Lefebvre-Desmarais", "Farid", "Gaëlle", "Hugo", "Inès"].map((p, i) => ({
+                id: `b${i}`,
+                title: p,
+                subtitle: i === 1 ? "Membre chargée d'une fonction à l'intitulé particulièrement long" : "Membre",
+                avatar: { src: null },
+                badge: { label: i % 2 ? "ABC" : "DE", background: "var(--surface-3)", color: "var(--foreground)", title: "Équipe" },
+            })),
         },
     ],
 };
@@ -36,7 +43,7 @@ const CODE = `<OrgChartLib root={{
 
 export const getOrgChartSections = () => [
     {
-        title: "Arbre hiérarchique (au-delà de 3 feuilles : grille compacte)",
+        title: "Arbre hiérarchique (au-delà de 3 feuilles : grille compacte ; variant « group » : intitulé sans carte)",
         code: CODE,
         component: <OrgChartLib root={ROOT} />,
     },

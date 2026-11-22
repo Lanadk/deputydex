@@ -1,5 +1,5 @@
 import { getLegislatureOrganisationUseCase } from "@/app/domains/legislatures/use-cases/get-legislature-organisation.use-case";
-import { fonction, makeRepository, membre } from "@/app/domains/legislatures/use-cases/legislature-organisation.test-helpers";
+import { fonction, makeRepository, membre, PREMIERS_MINISTRES } from "@/app/domains/legislatures/use-cases/legislature-organisation.test-helpers";
 
 const AUJOURDHUI = "2026-11-22";
 
@@ -26,13 +26,51 @@ describe("getLegislatureOrganisationUseCase", () => {
 
         if (!result.success) throw new Error("succès attendu");
         expect(result.data.dateReference).toBe(AUJOURDHUI);
-        expect(result.data.presidence).toEqual({ president: "Emmanuel Macron", mandat: "2e mandat", depuis: "2022-05-14" });
+        expect(result.data.presidence).toEqual({
+            president: "Emmanuel Macron",
+            mandat: "2e mandat",
+            depuis: "2022-05-14",
+            photoUrl: "/assets/imgs/personnalites/emmanuel-macron.jpg",
+            photoCredit: { auteur: "The White House", licence: "Domaine public", licenceUrl: null },
+        });
         expect(result.data.gouvernements.map((g) => g.libelle)).toEqual([
             "Gouvernement Lecornu II", "Gouvernement Lecornu I", "Gouvernement Barnier", "Gouvernement Attal",
         ]);
         // Nominations lues depuis le début du premier gouvernement de la législature (Attal).
         expect(repository.getMembresGouvernement).toHaveBeenCalledWith("2024-01-09", AUJOURDHUI);
         expect(repository.getFonctionsAssemblee).toHaveBeenCalledWith(17, AUJOURDHUI);
+    });
+
+    it("photo : celle de député sans crédit ; un portrait du référentiel avec son crédit", async () => {
+        const repository = makeRepository({
+            getPremiersMinistres: jest.fn().mockResolvedValue([
+                { ...PREMIERS_MINISTRES[1], photo_path: "/tribun/16/attal.png" },
+                {
+                    ...PREMIERS_MINISTRES[2],
+                    photo_path: "/assets/imgs/personnalites/michel-barnier.jpg",
+                    photo_auteur: "Florian David", photo_licence: "CC BY-SA 4.0", photo_licence_url: "https://creativecommons.org/licenses/by-sa/4.0/",
+                },
+            ]),
+        });
+
+        const result = await getLegislatureOrganisationUseCase(repository, 17, AUJOURDHUI);
+
+        if (!result.success) throw new Error("succès attendu");
+        const [barnier, attal] = result.data.gouvernements.map((g) => g.premierMinistre);
+        expect(attal).toMatchObject({ photoUrl: "/tribun/16/attal.png", photoCredit: null });
+        expect(barnier).toMatchObject({
+            photoUrl: "/assets/imgs/personnalites/michel-barnier.jpg",
+            photoCredit: { auteur: "Florian David", licence: "CC BY-SA 4.0", licenceUrl: "https://creativecommons.org/licenses/by-sa/4.0/" },
+        });
+    });
+
+    it("pas de mandat présidentiel en cours dans le référentiel : pas de présidence", async () => {
+        const repository = makeRepository({ getMandatsPresidentiels: jest.fn().mockResolvedValue([]) });
+
+        const result = await getLegislatureOrganisationUseCase(repository, 17, AUJOURDHUI);
+
+        if (!result.success) throw new Error("succès attendu");
+        expect(result.data.presidence).toBeNull();
     });
 
     it("16ᵉ (close) : référence à sa date de fin, gouvernements qui l'ont chevauchée", async () => {

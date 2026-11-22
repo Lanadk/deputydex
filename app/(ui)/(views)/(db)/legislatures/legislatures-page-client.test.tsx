@@ -42,8 +42,12 @@ describe("LegislaturesPageClient", () => {
         render(<LegislaturesPageClient />);
 
         expect(screen.getByRole("heading", { name: "Qu'est-ce qu'une législature ?" })).toBeInTheDocument();
-        expect(screen.getByText("16ᵉ législature : du 28/06/2022 au 09/06/2024")).toBeInTheDocument();
-        expect(screen.getByText("17ᵉ législature : depuis le 18/07/2024")).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "Les législatures présentes dans Députédex" })).toBeInTheDocument();
+        expect(screen.getByText("28 juin 2022")).toBeInTheDocument();
+        expect(screen.getByText("9 juin 2024")).toBeInTheDocument();
+        expect(screen.getByText("18 juillet 2024")).toBeInTheDocument();
+        expect(screen.getByText("En cours")).toBeInTheDocument();
+        expect(screen.getByText(/1 an et 11 mois · interrompue par une dissolution/)).toBeInTheDocument();
 
         expect(await screen.findByRole("list", { name: "Gouvernements" })).toBeInTheDocument();
         expect(await screen.findByText("10 040")).toBeInTheDocument();

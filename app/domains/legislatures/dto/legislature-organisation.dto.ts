@@ -1,3 +1,10 @@
+/** Crédit d'un portrait tiers (référentiel), à afficher avec la photo. */
+export type PhotoCreditDTO = {
+    auteur: string;
+    licence: string;
+    licenceUrl: string | null;
+};
+
 /** Une personne et sa fonction ; `href` : sa fiche député, quand elle existe. */
 export type PersonneFonctionDTO = {
     uid: string;
@@ -5,6 +12,8 @@ export type PersonneFonctionDTO = {
     fonction: string;
     href: string | null;
     photoUrl: string | null;
+    /** Null pour une photo de député (pas de crédit à afficher). */
+    photoCredit: PhotoCreditDTO | null;
     /** Groupe politique de la personne (députés et anciens députés), à la date utile. */
     groupe: { code: string; libelle: string } | null;
 };
@@ -55,7 +64,13 @@ export type AssembleeOrganisationDTO = {
 export type LegislatureOrganisationDTO = {
     legislature: number;
     dateReference: string;
-    presidence: { president: string; mandat: string; depuis: string } | null;
+    presidence: {
+        president: string;
+        mandat: string;
+        depuis: string;
+        photoUrl: string | null;
+        photoCredit: PhotoCreditDTO | null;
+    } | null;
     gouvernements: GouvernementDTO[];
     assemblee: AssembleeOrganisationDTO;
 };

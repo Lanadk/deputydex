@@ -2,9 +2,7 @@ import { ok, Result, isErr } from "@/app/_shared/result-pattern/result";
 import { fromRepository } from "@/app/_shared/result-pattern/app-error";
 import { ILegislatureOrganisationRepository } from "@/app/domains/legislatures/repositories/ILegislatureOrganisationRepository";
 import { FrisePeriodeDTO, LegislaturesFriseDTO } from "@/app/domains/legislatures/dto/legislatures-frise.dto";
-import { MANDATS_PRESIDENTIELS } from "@/app/domains/legislatures/references/presidence-republique";
-import { EVENEMENTS_INSTITUTIONNELS } from "@/app/domains/legislatures/references/evenements-institutionnels";
-import { chevauche, libelleLegislature, nommerGouvernements } from "@/app/domains/legislatures/institutions";
+import { chevauche, libelleLegislature, libelleMandat, nommerGouvernements } from "@/app/domains/legislatures/institutions";
 import { mapGouvernementToPeriode, mapPresidentAssembleeToPeriode } from "@/app/domains/legislatures/mappers/legislature-organisation.mapper";
 
 /** Périodes de la frise, dans l'ordre chronologique. */
@@ -25,9 +23,11 @@ export async function getLegislaturesFriseUseCase(
         repository.getLegislatures(),
         repository.getPremiersMinistres(),
         repository.getPresidentsAssemblee(),
+        repository.getMandatsPresidentiels(),
+        repository.getEvenementsInstitutionnels(),
     ]));
     if (isErr(read)) return read;
-    const [legislatures, premiersMinistres, presidentsAssemblee] = read.data;
+    const [legislatures, premiersMinistres, presidentsAssemblee, mandatsPresidentiels, evenements] = read.data;
 
     const plusAncienne = (dates: string[]) => [...dates].sort((a, b) => a.localeCompare(b))[0];
     const debutLegislatures = plusAncienne(legislatures.map((l) => l.debut)) ?? aujourdhui;
@@ -43,9 +43,16 @@ export async function getLegislaturesFriseUseCase(
             {
                 id: "presidence",
                 libelle: "Présidence de la République",
-                periodes: sortPeriodes(MANDATS_PRESIDENTIELS
+                periodes: sortPeriodes(mandatsPresidentiels
                     .filter((m) => chevauche(m.debut, m.fin, debut, fin))
-                    .map((m) => ({ id: `presidence-${m.debut}`, libelle: m.president, detail: m.mandat, debut: m.debut, fin: m.fin, href: null }))),
+                    .map((m) => ({
+                        id: `presidence-${m.debut}`,
+                        libelle: m.president,
+                        detail: libelleMandat(m.mandat_numero),
+                        debut: m.debut,
+                        fin: m.fin,
+                        href: null,
+                    }))),
             },
             {
                 id: "legislatures",
@@ -70,6 +77,8 @@ export async function getLegislaturesFriseUseCase(
                 periodes: sortPeriodes(presidentsAssemblee.map(mapPresidentAssembleeToPeriode)),
             },
         ],
-        evenements: EVENEMENTS_INSTITUTIONNELS.filter((e) => e.date >= debut && e.date <= fin),
+        evenements: evenements
+            .filter((e) => e.date >= debut && e.date <= fin)
+            .map((e) => ({ date: e.date, libelle: e.libelle })),
     });
 }
