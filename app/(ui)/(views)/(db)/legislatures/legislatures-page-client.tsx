@@ -65,8 +65,7 @@ export default function LegislaturesPageClient() {
                             Le Gouvernement, dirigé par le Premier ministre que nomme le Président de la République,
                             est responsable devant l&apos;Assemblée : s&apos;il est renversé par une motion de censure, un nouveau
                             gouvernement est formé. Plusieurs gouvernements peuvent donc se succéder pendant une même législature.
-                            L&apos;Assemblée, elle, est dirigée par son président et son Bureau
-                            (six vice-présidents, trois questeurs, douze secrétaires).
+                            L&apos;Assemblée, elle, est dirigée par son président et son Bureau.
                         </p>
                     </div>
                     {/* Mêmes données que la frise (dates, fin par dissolution) : affiché une fois la frise chargée. */}
@@ -98,9 +97,11 @@ export default function LegislaturesPageClient() {
                         <Section id="organigramme" title={`Organigramme de la ${libelleLegislature(numero)}`}>
                             {organisation.data && (
                                 <p className="text-sm text-subtitle-accent">
+                                    Un onglet par session de l&apos;Assemblée (octobre à septembre) et par gouvernement : chaque
+                                    fonction y figure avec tous ceux qui l&apos;ont exercée, « jusqu&apos;au … » pour un départ en cours de route.
                                     {organisation.data.dateReference === new Date().toISOString().slice(0, 10)
-                                        ? "Fonctions en place aujourd'hui."
-                                        : `Fonctions en place à la fin de la législature (${formatJourFr(organisation.data.dateReference)}).`}
+                                        ? " Législature en cours : données à jour à aujourd'hui."
+                                        : ` Législature close le ${formatJourFr(organisation.data.dateReference)}.`}
                                     {" "}Les portefeuilles ministériels ne sont pas encore importés dans Députédex : les membres du
                                     gouvernement sont présentés par rang.
                                 </p>

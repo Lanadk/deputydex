@@ -8,19 +8,25 @@ import {
 } from "@/app/domains/legislatures/entities/legislature-organisation.entity";
 import {
     AssembleeOrganisationDTO,
+    FonctionDefinitionDTO,
     GouvernementDTO,
     LegislatureOrganisationDTO,
     RangGouvernementDTO,
+    SessionAssembleeDTO,
 } from "@/app/domains/legislatures/dto/legislature-organisation.dto";
 import {
     chevauche,
     contient,
     EN_MISSION,
+    exerceePendantLaSession,
     FONCTIONS_BUREAU,
     libelleMandat,
+    libelleSession,
     nommerGouvernements,
     PREMIER_MINISTRE,
     RANGS_GOUVERNEMENT,
+    SessionPeriode,
+    sessionsDeLaLegislature,
 } from "@/app/domains/legislatures/institutions";
 import {
     mapFonctionAssembleeToDTO,
@@ -65,28 +71,70 @@ export function rangsDuGouvernement(membres: MembreGouvernementRow[], finGouvern
         .filter((r) => r.membres.length > 0);
 }
 
-/** Bureau et présidences de l'Assemblée, chaque liste par ordre alphabétique (commissions : par intitulé). */
-export function organisationAssemblee(fonctions: FonctionAssembleeRow[]): AssembleeOrganisationDTO {
-    const bureau = (qualite: string, fonction: string) => fonctions
-        .filter((f) => f.type_organe === "BUREAU" && f.code_qualite === qualite)
-        .map((f) => mapFonctionAssembleeToDTO(f, fonction))
+/**
+ * Un seul mandat par personne et par fonction (même organe) : le plus récent,
+ * qui dit si elle l'exerce encore (ex. vice-président réélu sans interruption).
+ */
+export function dernierMandatParFonction(fonctions: FonctionAssembleeRow[]): FonctionAssembleeRow[] {
+    const derniers = new Map<string, FonctionAssembleeRow>();
+    for (const f of fonctions) {
+        const cle = `${f.acteur_uid}|${f.type_organe}|${f.code_qualite}|${f.organe_uid}`;
+        const connu = derniers.get(cle);
+        if (!connu || f.debut.localeCompare(connu.debut) > 0) derniers.set(cle, f);
+    }
+    return [...derniers.values()];
+}
+
+/**
+ * Bureau et présidences de l'Assemblée pendant une session : tous ceux qui y ont
+ * exercé une fonction (avec leur date de départ s'ils l'ont quittée en cours de
+ * session), chaque liste par ordre alphabétique (groupes, commissions : par
+ * intitulé). Président : le plus récent de la session.
+ */
+export function organisationAssemblee(fonctions: FonctionAssembleeRow[], session: SessionPeriode, aujourdhui: string): AssembleeOrganisationDTO {
+    const finSession = session.fin ?? aujourdhui;
+    const exercees = dernierMandatParFonction(fonctions.filter((f) => exerceePendantLaSession(f, session, aujourdhui)));
+    const bureau = (qualite: string) => exercees.filter((f) => f.type_organe === "BUREAU" && f.code_qualite === qualite);
+    const membresBureau = (qualite: string, fonction: string) => bureau(qualite)
+        .map((f) => mapFonctionAssembleeToDTO(f, fonction, finSession))
         .sort(parNom);
-    const presidents = bureau(FONCTIONS_BUREAU.president, "Présidence de l'Assemblée");
+    const president = [...bureau(FONCTIONS_BUREAU.president)].sort((a, b) => b.debut.localeCompare(a.debut))[0];
 
     return {
-        president: presidents[0] ?? null,
-        vicePresidents: bureau(FONCTIONS_BUREAU.vicePresident, "Vice-présidence"),
-        questeurs: bureau(FONCTIONS_BUREAU.questeur, "Questure"),
-        secretaires: bureau(FONCTIONS_BUREAU.secretaire, "Secrétariat"),
-        presidentsGroupe: fonctions
+        president: president ? mapFonctionAssembleeToDTO(president, "Présidence de l'Assemblée", finSession) : null,
+        vicePresidents: membresBureau(FONCTIONS_BUREAU.vicePresident, "Vice-présidence"),
+        questeurs: membresBureau(FONCTIONS_BUREAU.questeur, "Questure"),
+        secretaires: membresBureau(FONCTIONS_BUREAU.secretaire, "Secrétariat"),
+        presidentsGroupe: exercees
             .filter((f) => f.type_organe === "GP")
-            .map(mapPresidentGroupeToDTO)
-            .sort((a, b) => (a.groupeLibelle ?? "").localeCompare(b.groupeLibelle ?? "", "fr")),
-        presidentsCommission: fonctions
+            .map((f) => mapPresidentGroupeToDTO(f, finSession))
+            .sort((a, b) => (a.groupeLibelle ?? "").localeCompare(b.groupeLibelle ?? "", "fr") || parNom(a, b)),
+        presidentsCommission: exercees
             .filter((f) => f.type_organe === "COMPER")
-            .map(mapPresidentCommissionToDTO)
-            .sort((a, b) => a.commission.localeCompare(b.commission, "fr")),
+            .map((f) => mapPresidentCommissionToDTO(f, finSession))
+            .sort((a, b) => a.commission.localeCompare(b.commission, "fr") || parNom(a, b)),
     };
+}
+
+/** Sessions de l'Assemblée, de la plus récente à la plus ancienne. */
+export function sortSessions(sessions: SessionAssembleeDTO[]): SessionAssembleeDTO[] {
+    return [...sessions].sort((a, b) => b.debut.localeCompare(a.debut));
+}
+
+/** Organisation de l'Assemblée, session par session, pendant la législature [debut, fin]. */
+export function sessionsAssemblee(
+    fonctions: FonctionAssembleeRow[],
+    debut: string,
+    fin: string | null,
+    aujourdhui: string
+): SessionAssembleeDTO[] {
+    return sortSessions(sessionsDeLaLegislature(debut, fin, aujourdhui).map((s) => ({
+        id: `session-${s.annee}`,
+        libelle: libelleSession(s.annee),
+        debut: s.debut,
+        fin: s.fin,
+        ...organisationAssemblee(fonctions, s, aujourdhui),
+    })));
 }
 
 /**
@@ -151,6 +199,7 @@ export async function getLegislatureOrganisationUseCase(
     const [membres, fonctions] = details.data;
 
     const presidence = mandatsPresidentiels.find((m) => contient(m.debut, m.fin, dateReference));
+    const definitions = await lireDefinitions(repository);
 
     return ok({
         legislature,
@@ -165,6 +214,17 @@ export async function getLegislatureOrganisationUseCase(
             }
             : null,
         gouvernements: gouvernementsDeLaLegislature(premiersMinistres, membres, periode.debut, dateReference, aujourdhui),
-        assemblee: organisationAssemblee(fonctions),
+        sessions: sessionsAssemblee(fonctions, periode.debut, periode.fin, aujourdhui),
+        definitions,
     });
+}
+
+/**
+ * Définitions des fonctions, par clé. Complément facultatif : si le référentiel
+ * ne peut pas être lu, l'organigramme s'affiche sans bulles plutôt qu'en erreur.
+ */
+async function lireDefinitions(repository: ILegislatureOrganisationRepository): Promise<Record<string, FonctionDefinitionDTO>> {
+    const read = await fromRepository(() => repository.getFonctionsDefinitions());
+    if (isErr(read)) return {};
+    return Object.fromEntries(read.data.map((d) => [d.slug, { libelle: d.libelle, definition: d.definition, source: d.source }]));
 }

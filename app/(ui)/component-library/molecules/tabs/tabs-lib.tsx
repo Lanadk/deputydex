@@ -9,6 +9,13 @@ export type TabLibItem = {
     badge?: string | number;
 };
 
+/**
+ * `underline` : onglets soulignés (par défaut).
+ * `segmented` : sélecteur en pastilles, onglet actif rempli ; à utiliser pour
+ * distinguer un niveau d'onglets d'un autre niveau souligné sur la même page.
+ */
+export type TabsLibVariant = "underline" | "segmented";
+
 interface TabsLibProps {
     tabs: TabLibItem[];
     activeId: string;
@@ -17,6 +24,9 @@ interface TabsLibProps {
     ariaLabel: string;
     /** Préfixe des id (onglet ↔ panneau), unique dans la page */
     idPrefix: string;
+    variant?: TabsLibVariant;
+    /** Occupe toute la largeur, chaque onglet en part égale (ex. deux moitiés). */
+    fullWidth?: boolean;
 }
 
 /** Attributs du panneau associé à un onglet (à poser sur le conteneur du contenu). */
@@ -34,7 +44,7 @@ export function tabPanelProps(idPrefix: string, id: string) {
  * l'ordre de tabulation, flèches gauche/droite, Début/Fin pour changer
  * d'onglet. Le contenu est rendu par l'appelant, avec `tabPanelProps`.
  */
-export function TabsLib({ tabs, activeId, onChange, ariaLabel, idPrefix }: TabsLibProps) {
+export function TabsLib({ tabs, activeId, onChange, ariaLabel, idPrefix, variant = "underline", fullWidth = false }: TabsLibProps) {
     const refs = useRef<(HTMLButtonElement | null)[]>([]);
 
     const select = (index: number) => {
@@ -53,7 +63,7 @@ export function TabsLib({ tabs, activeId, onChange, ariaLabel, idPrefix }: TabsL
     };
 
     return (
-        <div className="tabs-lib" role="tablist" aria-label={ariaLabel}>
+        <div className={`tabs-lib tabs-lib--${variant}${fullWidth ? " tabs-lib--full" : ""}`} role="tablist" aria-label={ariaLabel}>
             {tabs.map((tab, i) => {
                 const active = tab.id === activeId;
                 return (
@@ -70,7 +80,12 @@ export function TabsLib({ tabs, activeId, onChange, ariaLabel, idPrefix }: TabsL
                         onClick={() => onChange(tab.id)}
                         onKeyDown={(e) => onKeyDown(e, i)}
                     >
-                        {tab.label}
+                        {/* Copie invisible du libellé en gras superposée : l'onglet a la largeur de son état actif,
+                            les onglets voisins ne bougent pas d'un pixel quand il devient actif. */}
+                        <span className="tabs-lib__label">
+                            <span>{tab.label}</span>
+                            <span className="tabs-lib__label-gras" aria-hidden="true">{tab.label}</span>
+                        </span>
                         {tab.badge !== undefined && <span className="tabs-lib__badge">{tab.badge}</span>}
                     </button>
                 );

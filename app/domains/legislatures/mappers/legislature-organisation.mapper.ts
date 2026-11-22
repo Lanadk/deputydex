@@ -6,6 +6,7 @@ import {
     PresidentAssembleeRow,
 } from "@/app/domains/legislatures/entities/legislature-organisation.entity";
 import {
+    FonctionAssembleeDTO,
     MembreGouvernementDTO,
     PersonneFonctionDTO,
     PhotoCreditDTO,
@@ -36,22 +37,33 @@ function identite(row: IdentiteRow): Pick<PersonneFonctionDTO, "photoUrl" | "pho
     };
 }
 
-/** Une fonction à l'Assemblée (Bureau) : toujours un député, donc une fiche. */
-export function mapFonctionAssembleeToDTO(row: FonctionAssembleeRow, fonction: string): PersonneFonctionDTO {
-    return { uid: row.acteur_uid, nom: nomComplet(row), fonction, href: ficheDepute(row.acteur_uid), ...identite(row) };
+/**
+ * Une fonction à l'Assemblée : toujours un député, donc une fiche. `jusqua` est
+ * renseigné si la personne a quitté la fonction avant `finSession` (date de fin
+ * de la session, ou aujourd'hui si elle est en cours).
+ */
+export function mapFonctionAssembleeToDTO(row: FonctionAssembleeRow, fonction: string, finSession: string): FonctionAssembleeDTO {
+    return {
+        uid: row.acteur_uid,
+        nom: nomComplet(row),
+        fonction,
+        href: ficheDepute(row.acteur_uid),
+        ...identite(row),
+        jusqua: row.fin !== null && row.fin < finSession ? row.fin : null,
+    };
 }
 
-export function mapPresidentGroupeToDTO(row: FonctionAssembleeRow): PresidentGroupeDTO {
+export function mapPresidentGroupeToDTO(row: FonctionAssembleeRow, finSession: string): PresidentGroupeDTO {
     return {
-        ...mapFonctionAssembleeToDTO(row, "Présidence de groupe"),
+        ...mapFonctionAssembleeToDTO(row, "Présidence de groupe", finSession),
         groupeCode: row.groupe_code,
         groupeLibelle: row.groupe_libelle,
     };
 }
 
-export function mapPresidentCommissionToDTO(row: FonctionAssembleeRow): PresidentCommissionDTO {
+export function mapPresidentCommissionToDTO(row: FonctionAssembleeRow, finSession: string): PresidentCommissionDTO {
     return {
-        ...mapFonctionAssembleeToDTO(row, "Présidence de commission"),
+        ...mapFonctionAssembleeToDTO(row, "Présidence de commission", finSession),
         commission: commissionPermanenteLabel(row.organe_uid),
     };
 }

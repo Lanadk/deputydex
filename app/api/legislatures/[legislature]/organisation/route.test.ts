@@ -13,6 +13,7 @@ jest.mock("@/app/infrastructure/legislatures/repositories/prisma-legislature-org
         getEntreesEnCours: jest.fn(),
         getMandatsPresidentiels: jest.fn(),
         getEvenementsInstitutionnels: jest.fn(),
+        getFonctionsDefinitions: jest.fn(),
     },
 }));
 
@@ -29,6 +30,7 @@ describe("GET /api/legislatures/[legislature]/organisation", () => {
         (repo.getMembresGouvernement as jest.Mock).mockResolvedValue([]);
         (repo.getFonctionsAssemblee as jest.Mock).mockResolvedValue([]);
         (repo.getMandatsPresidentiels as jest.Mock).mockResolvedValue([]);
+        (repo.getFonctionsDefinitions as jest.Mock).mockResolvedValue([]);
     });
     afterEach(() => jest.resetAllMocks());
 
@@ -36,7 +38,9 @@ describe("GET /api/legislatures/[legislature]/organisation", () => {
         const res = await call("17");
 
         expect(res.status).toBe(200);
-        expect(await res.json()).toMatchObject({ legislature: 17, gouvernements: [], assemblee: { president: null } });
+        const body = await res.json();
+        expect(body).toMatchObject({ legislature: 17, gouvernements: [], definitions: {} });
+        expect(body.sessions[body.sessions.length - 1]).toMatchObject({ libelle: "Session 2024-2025", president: null });
     });
 
     it("400 pour un numéro de législature invalide", async () => {

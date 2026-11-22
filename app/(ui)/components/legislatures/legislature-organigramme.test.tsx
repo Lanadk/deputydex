@@ -1,11 +1,12 @@
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { arbreAssemblee, arbreExecutif, creditsExecutif, LegislatureOrganigramme } from "@/app/(ui)/components/legislatures/legislature-organigramme";
-import { LegislatureOrganisationDTO, PersonneFonctionDTO } from "@/app/domains/legislatures/dto/legislature-organisation.dto";
+import { FonctionAssembleeDTO, LegislatureOrganisationDTO, PersonneFonctionDTO } from "@/app/domains/legislatures/dto/legislature-organisation.dto";
 
 const p = (uid: string, nom: string, fonction = ""): PersonneFonctionDTO =>
     ({ uid, nom, fonction, href: `/deputes/${uid}`, photoUrl: null, photoCredit: null, groupe: null });
+const f = (uid: string, nom: string, fonction = ""): FonctionAssembleeDTO => ({ ...p(uid, nom, fonction), jusqua: null });
 
 const CREDIT_BARNIER = { auteur: "Florian David", licence: "CC BY-SA 4.0", licenceUrl: "https://creativecommons.org/licenses/by-sa/4.0/" };
 
@@ -27,13 +28,29 @@ const ORGANISATION: LegislatureOrganisationDTO = {
             debut: "2024-09-05", fin: "2024-12-12", rangs: [],
         },
     ],
-    assemblee: {
-        president: p("PA_YBP", "Yaël Braun-Pivet", "Présidence de l'Assemblée"),
-        vicePresidents: [p("PA_VP", "Sébastien Chenu")],
-        questeurs: [],
-        secretaires: [],
-        presidentsGroupe: [{ ...p("PA_GA", "Gabriel Attal"), groupeCode: "EPR", groupeLibelle: "Ensemble pour la République" }],
-        presidentsCommission: [{ ...p("PA_C", "Éric Coquerel"), commission: "Finances, économie générale et contrôle budgétaire" }],
+    sessions: [
+        {
+            id: "session-2025", libelle: "Session 2025-2026", debut: "2025-10-01", fin: null,
+            president: f("PA_YBP", "Yaël Braun-Pivet", "Présidence de l'Assemblée"),
+            vicePresidents: [f("PA_VP", "Sébastien Chenu")],
+            questeurs: [],
+            secretaires: [],
+            presidentsGroupe: [{ ...f("PA_GA", "Gabriel Attal"), groupeCode: "EPR", groupeLibelle: "Ensemble pour la République" }],
+            presidentsCommission: [{ ...f("PA_C", "Éric Coquerel"), commission: "Finances, économie générale et contrôle budgétaire" }],
+        },
+        {
+            id: "session-2024", libelle: "Session 2024-2025", debut: "2024-07-18", fin: "2025-09-30",
+            president: f("PA_YBP", "Yaël Braun-Pivet", "Présidence de l'Assemblée"),
+            vicePresidents: [{ ...f("PA_VP0", "Clémence Guetté"), jusqua: "2024-10-21" }],
+            questeurs: [],
+            secretaires: [],
+            presidentsGroupe: [],
+            presidentsCommission: [],
+        },
+    ],
+    definitions: {
+        "assemblee-vice-president": { libelle: "Vice-présidence", definition: "Les vice-présidents président les séances.", source: "Règlement, art. 10" },
+        ministre: { libelle: "Ministre", definition: "Membre du Gouvernement à la tête d'un ministère.", source: null },
     },
 };
 
@@ -51,7 +68,7 @@ describe("organigrammes de la législature", () => {
     });
 
     it("Assemblée : présidence puis branches non vides seulement", () => {
-        const arbre = arbreAssemblee(ORGANISATION);
+        const arbre = arbreAssemblee(ORGANISATION.sessions[0]);
 
         expect(arbre).toMatchObject({ title: "Yaël Braun-Pivet", href: "/deputes/PA_YBP" });
         expect(arbre.children!.map((c) => c.title)).toEqual([
@@ -60,13 +77,37 @@ describe("organigrammes de la législature", () => {
         expect(arbre.children![1].children![0]).toMatchObject({ title: "Gabriel Attal", subtitle: "Ensemble pour la République" });
     });
 
+    it("définitions du référentiel en bulle, sur les fonctions connues seulement", () => {
+        const assemblee = arbreAssemblee(ORGANISATION.sessions[0], ORGANISATION.definitions);
+        expect(assemblee.children![0].info?.subject).toBe("Vice-présidence");
+        expect(assemblee.children![1].info).toBeNull();
+        expect(assemblee.info).toBeNull();
+
+        const executif = arbreExecutif(ORGANISATION, ORGANISATION.gouvernements[0]);
+        expect(executif.children![0].children![0].info?.subject).toBe("Ministre");
+    });
+
+    it("la bulle de définition s'ouvre au clic, avec sa source", () => {
+        render(<LegislatureOrganigramme organisation={ORGANISATION} />);
+
+        fireEvent.click(screen.getByRole("button", { name: "Définition : Vice-présidence" }));
+
+        const bulle = screen.getByRole("note");
+        expect(bulle).toHaveTextContent("Les vice-présidents président les séances.");
+        expect(bulle).toHaveTextContent("Source : Règlement, art. 10");
+    });
+
+    it("Assemblée : départ en cours de session signalé", () => {
+        const arbre = arbreAssemblee(ORGANISATION.sessions[1]);
+
+        expect(arbre.children![0].children![0]).toMatchObject({ title: "Clémence Guetté", note: "jusqu'au 21/10/2024" });
+    });
+
     it("photo et pastille du groupe politique, aux couleurs du groupe", () => {
+        const session = ORGANISATION.sessions[0];
         const arbre = arbreAssemblee({
-            ...ORGANISATION,
-            assemblee: {
-                ...ORGANISATION.assemblee,
-                president: { ...ORGANISATION.assemblee.president!, photoUrl: "/photo.jpg", groupe: { code: "EPR", libelle: "Ensemble pour la République" } },
-            },
+            ...session,
+            president: { ...session.president!, photoUrl: "/photo.jpg", groupe: { code: "EPR", libelle: "Ensemble pour la République" } },
         });
 
         expect(arbre.avatar).toEqual({ src: "/photo.jpg" });
@@ -76,8 +117,53 @@ describe("organigrammes de la législature", () => {
         expect(arbre.children![0].children![0]).toMatchObject({ badge: null, avatar: { src: null } });
     });
 
+    it("un onglet par institution : l'Assemblée nationale d'abord, puis l'exécutif", () => {
+        render(<LegislatureOrganigramme organisation={ORGANISATION} />);
+
+        const onglets = within(screen.getByRole("tablist", { name: "Institution présentée" })).getAllByRole("tab");
+        expect(onglets).toHaveLength(2);
+        expect(onglets[0]).toHaveAccessibleName("Assemblée nationale");
+        expect(onglets[1]).toHaveAccessibleName("Exécutif");
+        expect(screen.getByRole("tab", { name: "Assemblée nationale" })).toHaveAttribute("aria-selected", "true");
+        expect(screen.getByRole("link", { name: "Yaël Braun-Pivet" })).toBeInTheDocument();
+        // Les onglets des gouvernements et les crédits photo n'appartiennent qu'à l'exécutif.
+        expect(screen.queryByRole("tab", { name: "Gouvernement Lecornu II" })).not.toBeInTheDocument();
+        expect(screen.queryByText(/Crédits photo/)).not.toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole("tab", { name: "Exécutif" }));
+
+        expect(screen.getByRole("tab", { name: "Exécutif" })).toHaveAttribute("aria-selected", "true");
+        expect(screen.getByRole("link", { name: "Sébastien Lecornu" })).toBeInTheDocument();
+        expect(screen.queryByRole("link", { name: "Yaël Braun-Pivet" })).not.toBeInTheDocument();
+    });
+
+    it("affichage pyramidal conservé d'un onglet à l'autre", () => {
+        const { container } = render(<LegislatureOrganigramme organisation={ORGANISATION} />);
+
+        fireEvent.click(screen.getByRole("button", { name: "Pyramide" }));
+        expect(container.querySelector(".org-chart-lib--pyramide")).toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole("tab", { name: "Exécutif" }));
+        expect(container.querySelector(".org-chart-lib--pyramide")).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "Pyramide" })).toHaveAttribute("aria-pressed", "true");
+    });
+
+    it("un onglet par session de l'Assemblée ; la plus récente d'abord, puis bascule", () => {
+        render(<LegislatureOrganigramme organisation={ORGANISATION} />);
+
+        expect(screen.getByRole("tab", { name: "Session 2025-2026" })).toHaveAttribute("aria-selected", "true");
+        expect(screen.getByRole("link", { name: "Sébastien Chenu" })).toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole("tab", { name: "Session 2024-2025" }));
+
+        expect(screen.getByRole("link", { name: "Clémence Guetté" })).toBeInTheDocument();
+        expect(screen.getByText("jusqu'au 21/10/2024")).toBeInTheDocument();
+        expect(screen.queryByRole("link", { name: "Sébastien Chenu" })).not.toBeInTheDocument();
+    });
+
     it("un onglet par gouvernement ; le plus récent d'abord, puis bascule", () => {
         render(<LegislatureOrganigramme organisation={ORGANISATION} />);
+        fireEvent.click(screen.getByRole("tab", { name: "Exécutif" }));
 
         expect(screen.getByRole("tab", { name: "Gouvernement Lecornu II" })).toHaveAttribute("aria-selected", "true");
         expect(screen.getByRole("link", { name: "Sébastien Lecornu" })).toBeInTheDocument();
@@ -93,6 +179,7 @@ describe("organigrammes de la législature", () => {
         expect(creditsExecutif(ORGANISATION, ORGANISATION.gouvernements[1]).map((c) => c.nom)).toEqual(["Emmanuel Macron", "Michel Barnier"]);
 
         render(<LegislatureOrganigramme organisation={ORGANISATION} />);
+        fireEvent.click(screen.getByRole("tab", { name: "Exécutif" }));
         fireEvent.click(screen.getByRole("tab", { name: "Gouvernement Barnier" }));
 
         expect(screen.getByText(/Crédits photo/)).toHaveTextContent("Emmanuel Macron : The White House (Domaine public) · Michel Barnier : Florian David (CC BY-SA 4.0).");

@@ -38,28 +38,43 @@ export type GouvernementDTO = {
     rangs: RangGouvernementDTO[];
 };
 
-export type PresidentGroupeDTO = PersonneFonctionDTO & {
+export type FonctionAssembleeDTO = PersonneFonctionDTO & {
+    /** Date de départ, si la personne a quitté la fonction avant la fin de la session. */
+    jusqua: string | null;
+};
+
+export type PresidentGroupeDTO = FonctionAssembleeDTO & {
     groupeCode: string | null;
     groupeLibelle: string | null;
 };
 
-export type PresidentCommissionDTO = PersonneFonctionDTO & {
+export type PresidentCommissionDTO = FonctionAssembleeDTO & {
     commission: string;
 };
 
 export type AssembleeOrganisationDTO = {
-    president: PersonneFonctionDTO | null;
-    vicePresidents: PersonneFonctionDTO[];
-    questeurs: PersonneFonctionDTO[];
-    secretaires: PersonneFonctionDTO[];
+    /** Le plus récent de la session, s'il y en a eu plusieurs. */
+    president: FonctionAssembleeDTO | null;
+    vicePresidents: FonctionAssembleeDTO[];
+    questeurs: FonctionAssembleeDTO[];
+    secretaires: FonctionAssembleeDTO[];
     presidentsGroupe: PresidentGroupeDTO[];
     presidentsCommission: PresidentCommissionDTO[];
+};
+
+/** Une session de l'Assemblée (octobre → septembre) et ceux qui y ont exercé une fonction. */
+export type SessionAssembleeDTO = AssembleeOrganisationDTO & {
+    id: string;
+    libelle: string;
+    debut: string;
+    fin: string | null;
 };
 
 /**
  * Organisation institutionnelle d'une législature : exécutif (Présidence,
  * gouvernements successifs) et Assemblée (Bureau, présidences de groupe et de
- * commission), en place à la date de référence (fin de la législature, ou aujourd'hui).
+ * commission, par session). Présidence de la République : celle en place à la
+ * date de référence (fin de la législature, ou aujourd'hui).
  */
 export type LegislatureOrganisationDTO = {
     legislature: number;
@@ -72,5 +87,18 @@ export type LegislatureOrganisationDTO = {
         photoCredit: PhotoCreditDTO | null;
     } | null;
     gouvernements: GouvernementDTO[];
-    assemblee: AssembleeOrganisationDTO;
+    /** Sessions de l'Assemblée, de la plus récente à la plus ancienne. */
+    sessions: SessionAssembleeDTO[];
+    /**
+     * Définitions des fonctions, par clé (`assemblee-questeur`, `ministre-delegue`…).
+     * Vide si le référentiel n'a pas pu être lu : la page s'affiche sans elles.
+     */
+    definitions: Record<string, FonctionDefinitionDTO>;
+};
+
+/** Définition courte d'une fonction institutionnelle, et son texte de référence. */
+export type FonctionDefinitionDTO = {
+    libelle: string;
+    definition: string;
+    source: string | null;
 };

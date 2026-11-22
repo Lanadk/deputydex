@@ -1,5 +1,5 @@
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { fireEvent, render, screen, within } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 jest.mock("@/app/(ui)/providers/legislature-provider", () => ({
@@ -31,8 +31,11 @@ const FRISE = {
 };
 const CHIFFRES = { legislature: 17, debut: "2024-07-18", fin: null, dureeJours: 857, scrutins: 10040, deputesAyantSiege: 655, gouvernements: 4, entreesEnCours: 107, entreesParMotif: [] };
 const ORGANISATION = {
-    legislature: 17, dateReference: "2026-11-22", presidence: null, gouvernements: [],
-    assemblee: { president: null, vicePresidents: [], questeurs: [], secretaires: [], presidentsGroupe: [], presidentsCommission: [] },
+    legislature: 17, dateReference: "2026-11-22", presidence: null, gouvernements: [], definitions: {},
+    sessions: [{
+        id: "session-2026", libelle: "Session 2026-2027", debut: "2026-10-01", fin: null,
+        president: null, vicePresidents: [], questeurs: [], secretaires: [], presidentsGroupe: [], presidentsCommission: [],
+    }],
 };
 
 describe("LegislaturesPageClient", () => {
@@ -56,7 +59,7 @@ describe("LegislaturesPageClient", () => {
 
         expect(await screen.findByRole("list", { name: "Gouvernements" })).toBeInTheDocument();
         expect(await screen.findByText("10 040")).toBeInTheDocument();
-        expect(await screen.findByRole("heading", { name: "Exécutif" })).toBeInTheDocument();
+        expect(await screen.findByRole("tab", { name: "Assemblée nationale" })).toHaveAttribute("aria-selected", "true");
         expect(gateway.getChiffres).toHaveBeenCalledWith(17);
         expect(gateway.getOrganisation).toHaveBeenCalledWith(17);
     });
@@ -68,8 +71,10 @@ describe("LegislaturesPageClient", () => {
 
         render(<LegislaturesPageClient />);
 
-        const onglets = screen.getAllByRole("tab");
-        expect(onglets.map((o) => o.textContent)).toEqual(["17ᵉ législature", "16ᵉ législature"]);
+        const onglets = within(screen.getByRole("tablist", { name: "Législature présentée" })).getAllByRole("tab");
+        expect(onglets).toHaveLength(2);
+        expect(onglets[0]).toHaveAccessibleName("17ᵉ législature");
+        expect(onglets[1]).toHaveAccessibleName("16ᵉ législature");
         expect(onglets[0]).toHaveAttribute("aria-selected", "true");
 
         fireEvent.click(onglets[1]);

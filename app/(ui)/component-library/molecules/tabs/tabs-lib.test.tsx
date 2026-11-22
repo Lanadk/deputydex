@@ -39,6 +39,26 @@ describe("TabsLib", () => {
         expect(screen.getByRole("tabpanel")).toHaveTextContent("Contenu b");
     });
 
+    it("copie du libellé en gras réservant la largeur : invisible pour les lecteurs d'écran", () => {
+        render(<Harness />);
+
+        const alpha = screen.getByRole("tab", { name: "Alpha" });
+        expect(alpha).toHaveAccessibleName("Alpha");
+        expect(alpha.querySelector(".tabs-lib__label-gras")).toHaveAttribute("aria-hidden", "true");
+    });
+
+    it("variante : soulignée par défaut, « segmented » sur demande", () => {
+        const { rerender } = render(<TabsLib tabs={TABS} activeId="a" onChange={() => {}} ariaLabel="Vues" idPrefix="v" />);
+        expect(screen.getByRole("tablist")).toHaveClass("tabs-lib--underline");
+
+        rerender(<TabsLib tabs={TABS} activeId="a" onChange={() => {}} ariaLabel="Vues" idPrefix="v" variant="segmented" />);
+        expect(screen.getByRole("tablist")).toHaveClass("tabs-lib--segmented");
+        expect(screen.getByRole("tablist")).not.toHaveClass("tabs-lib--full");
+
+        rerender(<TabsLib tabs={TABS} activeId="a" onChange={() => {}} ariaLabel="Vues" idPrefix="v" variant="segmented" fullWidth />);
+        expect(screen.getByRole("tablist")).toHaveClass("tabs-lib--full");
+    });
+
     it("se pilote au clavier : flèches (en boucle), Début et Fin", () => {
         render(<Harness />);
         const alpha = screen.getByRole("tab", { name: "Alpha" });

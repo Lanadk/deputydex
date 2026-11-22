@@ -13,6 +13,7 @@ jest.mock("@/app/infrastructure/legislatures/repositories/prisma-legislature-org
         getEntreesEnCours: jest.fn(),
         getMandatsPresidentiels: jest.fn(),
         getEvenementsInstitutionnels: jest.fn(),
+        getFonctionsDefinitions: jest.fn(),
     },
 }));
 

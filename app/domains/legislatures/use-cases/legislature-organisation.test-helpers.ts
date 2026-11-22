@@ -2,6 +2,7 @@ import { ILegislatureOrganisationRepository } from "@/app/domains/legislatures/r
 import {
     EvenementInstitutionnelRow,
     FonctionAssembleeRow,
+    FonctionDefinitionRow,
     MandatPresidentielRow,
     MembreGouvernementRow,
     PremierMinistreRow,
@@ -25,6 +26,11 @@ export const MANDATS_PRESIDENTIELS: MandatPresidentielRow[] = [
 export const EVENEMENTS: EvenementInstitutionnelRow[] = [
     { date: "2022-06-19", type: "elections_legislatives", libelle: "Élections législatives (2d tour)" },
     { date: "2024-06-09", type: "dissolution", libelle: "Dissolution de l'Assemblée" },
+];
+
+export const DEFINITIONS: FonctionDefinitionRow[] = [
+    { slug: "assemblee-questeur", libelle: "Questure", definition: "Les questeurs gèrent le budget de l'Assemblée.", source: "Règlement, art. 15" },
+    { slug: "ministre-delegue", libelle: "Ministre délégué", definition: "Chargé d'une partie des attributions d'un ministre.", source: null },
 ];
 
 /** Données de test proches de la réalité (16ᵉ et 17ᵉ législatures). */
@@ -57,8 +63,10 @@ export const fonction = (
     code_qualite: string,
     organe_uid = "PO1",
     groupe: { code: string; libelle: string } | null = null,
+    debut = "2024-07-19",
+    fin: string | null = null,
 ): FonctionAssembleeRow => ({
-    acteur_uid, prenom: "P.", nom, type_organe, code_qualite, organe_uid,
+    acteur_uid, prenom: "P.", nom, type_organe, code_qualite, organe_uid, debut, fin,
     groupe_code: groupe?.code ?? null, groupe_libelle: groupe?.libelle ?? null,
     ...SANS_PHOTO, appartenance_code: groupe?.code ?? null, appartenance_libelle: groupe?.libelle ?? null,
 });
@@ -74,6 +82,7 @@ export function makeRepository(overrides: Partial<ILegislatureOrganisationReposi
         getEntreesEnCours: jest.fn().mockResolvedValue([]),
         getMandatsPresidentiels: jest.fn().mockResolvedValue(MANDATS_PRESIDENTIELS),
         getEvenementsInstitutionnels: jest.fn().mockResolvedValue(EVENEMENTS),
+        getFonctionsDefinitions: jest.fn().mockResolvedValue(DEFINITIONS),
         ...overrides,
     };
 }

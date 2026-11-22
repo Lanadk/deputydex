@@ -4,6 +4,75 @@ import "@testing-library/jest-dom";
 import { OrgChartLib } from "@/app/(ui)/component-library/molecules/org-chart/org-chart-lib";
 
 describe("OrgChartLib", () => {
+    it("toolbar sur la ligne des contrôles, attributs posés sur le conteneur de l'arbre", () => {
+        const { container } = render(
+            <OrgChartLib
+                root={{ id: "r", title: "Direction", children: [{ id: "a", title: "Pôle A" }] }}
+                showExpandControls
+                toolbar={<span>Onglets</span>}
+                treeProps={{ id: "arbre", role: "tabpanel" }}
+            />
+        );
+
+        const controls = container.querySelector(".org-chart-lib__controls")!;
+        expect(controls).toHaveTextContent("Onglets");
+        expect(controls).toContainElement(screen.getByRole("button", { name: "Tout déplier" }));
+        expect(screen.getByRole("tabpanel")).toHaveAttribute("id", "arbre");
+        expect(screen.getByRole("tabpanel")).toHaveTextContent("Pôle A");
+        expect(screen.getByRole("tabpanel")).not.toHaveTextContent("Onglets");
+    });
+
+    it("pyramide : feuilles d'un même parent en rangée, sous-arbres empilés ; mêmes listes et replis", () => {
+        const { container } = render(
+            <OrgChartLib
+                layout="pyramide"
+                root={{
+                    id: "r", title: "Direction",
+                    children: [
+                        { id: "a", title: "Pôle A", href: "/a", children: [{ id: "a1", title: "Bruno" }, { id: "a2", title: "Chloé", note: "jusqu'au 01/03/2026" }] },
+                        { id: "b", variant: "group", title: "Pôle B", children: [{ id: "b1", title: "David" }] },
+                    ],
+                }}
+            />
+        );
+
+        expect(container.querySelector(".org-chart-lib--pyramide")).toBeInTheDocument();
+        expect(container.querySelectorAll(".org-chart-lib__pyr-children--stack")).toHaveLength(1);
+        expect(container.querySelectorAll(".org-chart-lib__pyr-children--row")).toHaveLength(2);
+        expect(screen.getByRole("link", { name: "Pôle A" })).toHaveAttribute("href", "/a");
+        expect(screen.getByText("jusqu'au 01/03/2026")).toBeInTheDocument();
+
+        fireEvent.click(screen.getByRole("button", { name: "Replier « Pôle A »" }));
+        expect(screen.queryByText("Bruno")).not.toBeInTheDocument();
+        expect(screen.getByText("David")).toBeInTheDocument();
+    });
+
+    it("sélecteur Arbre / Pyramide : état interne, ou contrôlé par la page", () => {
+        const root = { id: "r", title: "Direction", children: [{ id: "a", title: "Pôle A" }] };
+        const { container, rerender } = render(<OrgChartLib root={root} showLayoutToggle />);
+
+        expect(screen.getByRole("button", { name: "Arbre" })).toHaveAttribute("aria-pressed", "true");
+        fireEvent.click(screen.getByRole("button", { name: "Pyramide" }));
+        expect(screen.getByRole("button", { name: "Pyramide" })).toHaveAttribute("aria-pressed", "true");
+        expect(container.querySelector(".org-chart-lib--pyramide")).toBeInTheDocument();
+
+        const onLayoutChange = jest.fn();
+        rerender(<OrgChartLib root={root} showLayoutToggle layout="arbre" onLayoutChange={onLayoutChange} />);
+        fireEvent.click(screen.getByRole("button", { name: "Pyramide" }));
+        expect(onLayoutChange).toHaveBeenCalledWith("pyramide");
+        // Contrôlé : l'affichage ne change que si la page le décide.
+        expect(container.querySelector(".org-chart-lib--arbre")).toBeInTheDocument();
+    });
+
+    it("toolbar={null} réserve la ligne (vide) ; sans toolbar, pas de ligne", () => {
+        const root = { id: "r", title: "Direction" };
+        const { container, rerender } = render(<OrgChartLib root={root} showExpandControls toolbar={null} />);
+        expect(container.querySelector(".org-chart-lib__toolbar")).toBeEmptyDOMElement();
+
+        rerender(<OrgChartLib root={root} showExpandControls />);
+        expect(container.querySelector(".org-chart-lib__toolbar")).toBeNull();
+    });
+
     it("rend l'arbre en listes imbriquées, avec liens et mentions", () => {
         render(
             <OrgChartLib

@@ -166,6 +166,10 @@
     --btn-primary-hover: var(--ui-info-strong);
     --btn-primary-text: var(--ui-white);
 
+    /* Active tab of TabsLib "segmented" (white on blue-3 would be too faint) */
+    --tab-segmented-active-bg: var(--ui-info-strong);
+    --tab-segmented-active-text: var(--ui-white);
+
     --btn-secondary-bg: var(--ui-ink);
     --btn-secondary-hover: var(--ui-info-strong);
     --btn-secondary-text: var(--ui-white);
@@ -384,6 +388,9 @@
     --btn-primary-hover: var(--ui-info-soft);
     --btn-primary-text: var(--ui-ink); /* dark text on light blue */
 
+    --tab-segmented-active-bg: var(--ui-info);
+    --tab-segmented-active-text: var(--ui-ink);
+
     --btn-secondary-bg: var(--p1-steel-3);
     --btn-secondary-hover: var(--ui-info);
     --btn-secondary-text: var(--ui-paper);
@@ -579,6 +586,9 @@
     --btn-primary-bg: var(--ui-info);
     --btn-primary-hover: var(--p1-blue-3);
     --btn-primary-text: var(--ui-white);
+
+    --tab-segmented-active-bg: var(--ui-info); /* blue-4 in accessible */
+    --tab-segmented-active-text: var(--ui-white);
 
     --btn-secondary-bg: var(--ui-ink);
     --btn-secondary-hover: var(--ui-info);
@@ -946,12 +956,20 @@
         padding: 10px 14px;
         border-bottom: 2px solid transparent;
         font-size: 14px;
+        /* Interligne explicite : une rangée d'onglets mesure exactement 42 px
+           (10 + 20 + 10 + 2), hauteur réservée par .org-chart-lib__toolbar. */
+        line-height: 20px;
         white-space: nowrap;
         color: var(--subtitle-accent);
         transition: color 150ms ease, border-color 150ms ease;
     }
 
     .tabs-lib__tab:hover { color: var(--foreground); }
+
+    /* Libellé et sa copie en gras dans la même cellule : largeur = celle du gras. */
+    .tabs-lib__label { display: inline-grid; }
+    .tabs-lib__label > * { grid-area: 1 / 1; }
+    .tabs-lib__label-gras { font-weight: 600; visibility: hidden; }
 
     .tabs-lib__tab:focus-visible {
         outline: 2px solid var(--accent);
@@ -969,9 +987,55 @@
         padding: 1px 7px;
         border-radius: 999px;
         font-size: 12px;
+        line-height: 18px; /* 18 + 2 = l'interligne de l'onglet : la pastille ne l'agrandit pas */
         font-weight: 500;
         background-color: var(--surface-3);
         color: var(--subtitle-accent);
+    }
+
+    /* Variante « segmented » : sélecteur en pastilles, onglet actif rempli. */
+    .tabs-lib--segmented {
+        display: inline-flex;
+        align-self: flex-start;
+        max-width: 100%;
+        padding: 4px;
+        border: 1px solid var(--border-main);
+        border-radius: 10px;
+        background-color: var(--surface-3);
+        box-shadow: none;
+    }
+
+    .tabs-lib--segmented .tabs-lib__tab {
+        padding: 8px 16px;
+        border-bottom: none;
+        border-radius: 7px;
+        font-weight: 500;
+        color: var(--foreground);
+        transition: color 150ms ease, background-color 150ms ease;
+    }
+
+    .tabs-lib--segmented .tabs-lib__tab:hover {
+        background-color: color-mix(in srgb, var(--foreground) 8%, transparent);
+    }
+
+    .tabs-lib--segmented .tabs-lib__tab--active,
+    .tabs-lib--segmented .tabs-lib__tab--active:hover {
+        background-color: var(--tab-segmented-active-bg);
+        color: var(--tab-segmented-active-text);
+        font-weight: 600;
+    }
+
+    /* Pleine largeur : chaque onglet en part égale, libellé centré. */
+    .tabs-lib--full {
+        display: flex;
+        align-self: stretch;
+        width: 100%;
+    }
+
+    .tabs-lib--full .tabs-lib__tab {
+        flex: 1 1 0;
+        justify-content: center;
+        min-width: 0;
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -1228,12 +1292,86 @@
     }
 
     /* -------------------------------------------------------
+       InfoTipLib — icône « i » et bulle d'information
+       ------------------------------------------------------- */
+    .info-tip-lib {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        vertical-align: middle;
+    }
+
+    .info-tip-lib__button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        border-radius: 999px;
+        color: var(--subtitle-accent);
+        cursor: pointer;
+    }
+
+    .info-tip-lib__button:hover,
+    .info-tip-lib__button[aria-expanded="true"] {
+        background-color: var(--surface-3);
+        color: var(--foreground);
+    }
+
+    .info-tip-lib__button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+    }
+
+    .info-tip-lib__bubble {
+        position: absolute;
+        top: calc(100% + 6px);
+        z-index: 30;
+        display: block;
+        width: max-content;
+        max-width: min(20rem, 80vw);
+        padding: 8px 10px;
+        border: 1px solid var(--border-main);
+        border-radius: 8px;
+        background-color: var(--surface-2);
+        box-shadow: 0 6px 20px rgb(0 0 0 / 0.15);
+        font-size: 13px;
+        font-weight: 400;
+        line-height: 1.45;
+        letter-spacing: normal;
+        text-align: left;
+        text-transform: none;
+        white-space: normal;
+        color: var(--foreground);
+    }
+
+    .info-tip-lib__bubble--start { left: 0; }
+    .info-tip-lib__bubble--end { right: 0; }
+
+    /* -------------------------------------------------------
        OrgChartLib — organigramme
        ------------------------------------------------------- */
     .org-chart-lib__controls {
         display: flex;
+        flex-direction: column;
+        align-items: flex-start;
         gap: 8px;
         margin-bottom: 12px;
+    }
+
+    /* Ligne au-dessus des boutons (ex. onglets) : hauteur d'une rangée d'onglets
+       soulignés (42 px, cf. .tabs-lib__tab) même vide, pour que les boutons en
+       dessous ne bougent pas d'un pixel. Défile si trop longue. */
+    .org-chart-lib__toolbar {
+        width: 100%;
+        min-width: 0;
+        min-height: 42px;
+    }
+
+    .org-chart-lib__buttons {
+        display: flex;
+        gap: 8px;
     }
 
     .org-chart-lib__row {
@@ -1366,6 +1504,16 @@
 
     .org-chart-lib__note { font-style: italic; }
 
+    /* Sous-titre suivi de l'icône « i » de la définition. */
+    .org-chart-lib__subtitle-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    .org-chart-lib__subtitle-row .info-tip-lib { margin-top: -2px; }
+
     /* Arbre : chaque niveau est indenté et relié à son parent (ligne verticale + branche). */
     .org-chart-lib__children {
         margin: 0 0 0 14px;
@@ -1403,6 +1551,120 @@
     /* Le bouton de repli décale la carte : la branche part du milieu du bouton. */
     .org-chart-lib__item:has(> .org-chart-lib__row > .org-chart-lib__toggle)::before { top: 22px; }
     .org-chart-lib__item:has(> .org-chart-lib__row--group)::before { top: 12px; }
+
+    /* Sélecteur d'affichage « Arbre / Pyramide », sur la ligne des boutons. */
+    .org-chart-lib__buttons { flex-wrap: wrap; align-items: center; }
+
+    .org-chart-lib__layout {
+        display: inline-flex;
+        padding: 2px;
+        border: 1px solid var(--border-main);
+        border-radius: 8px;
+        background-color: var(--surface-3);
+    }
+
+    .org-chart-lib__layout-btn {
+        padding: 4px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        line-height: 20px;
+        color: var(--foreground);
+    }
+
+    .org-chart-lib__layout-btn:hover { background-color: color-mix(in srgb, var(--foreground) 8%, transparent); }
+
+    .org-chart-lib__layout-btn:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+    }
+
+    .org-chart-lib__layout-btn--active,
+    .org-chart-lib__layout-btn--active:hover {
+        background-color: var(--tab-segmented-active-bg);
+        color: var(--tab-segmented-active-text);
+        font-weight: 600;
+    }
+
+    /* Pyramide : chaque niveau centré sous le précédent, reliés par l'axe central. */
+    .org-chart-lib__pyr-node {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    .org-chart-lib__pyr-head {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        max-width: 100%;
+    }
+
+    .org-chart-lib--pyramide .org-chart-lib__toggle { margin-top: 0; }
+
+    /* Format unique en pyramide : même largeur et même hauteur minimale pour toutes
+       les cartes, quelle que soit la longueur du nom ou de la fonction. */
+    .org-chart-lib--pyramide .org-chart-lib__card {
+        width: 16rem;
+        max-width: 100%;
+        min-height: 4.5rem;
+    }
+
+    /* Noms très longs : deux lignes au plus, pour ne pas étirer la carte. */
+    .org-chart-lib--pyramide .org-chart-lib__title {
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    .org-chart-lib__pyr-stem {
+        display: block;
+        width: 1px;
+        height: 16px;
+        background-color: var(--border-main);
+    }
+
+    .org-chart-lib__pyr-children {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    /* Feuilles d'un même parent : une rangée centrée, sous un trait horizontal. */
+    /* Grille à colonnes fixes : chaque carte d'une rangée a la même taille (la plus haute donne la hauteur). */
+    .org-chart-lib__pyr-children--row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, min(100%, 16rem));
+        grid-auto-rows: 1fr;
+        justify-content: center;
+        gap: 8px;
+        padding-top: 12px;
+        border-top: 1px solid var(--border-main);
+    }
+
+    .org-chart-lib__pyr-children--row > .org-chart-lib__pyr-item { display: flex; justify-content: center; }
+    .org-chart-lib__pyr-children--row .org-chart-lib__card { height: 100%; }
+
+    /* Sous-arbres empilés : l'axe central continue de l'un à l'autre. */
+    .org-chart-lib__pyr-children--stack {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .org-chart-lib__pyr-children--stack > .org-chart-lib__pyr-item { width: 100%; }
+
+    .org-chart-lib__pyr-children--stack > .org-chart-lib__pyr-item + .org-chart-lib__pyr-item::before {
+        content: "";
+        display: block;
+        width: 1px;
+        height: 24px;
+        margin: 0 auto;
+        background-color: var(--border-main);
+    }
 
     /* -------------------------------------------------------
        NotificationLib — notifications temporaires

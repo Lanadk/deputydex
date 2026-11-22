@@ -30,6 +30,14 @@ export type EvenementInstitutionnelRow = {
     libelle: string;
 };
 
+/** Définition d'une fonction institutionnelle (référentiel `ref_fonctions_definitions`). */
+export type FonctionDefinitionRow = {
+    slug: string;
+    libelle: string;
+    definition: string;
+    source: string | null;
+};
+
 export type LegislaturePeriodeRow = {
     number: number;
     debut: string;
@@ -74,7 +82,7 @@ export type MembreGouvernementRow = PhotoRow & {
     appartenance_libelle: string | null;
 };
 
-/** Une fonction à l'Assemblée en place à la date de référence (Bureau, présidences de groupe et de commission). */
+/** Un mandat de fonction à l'Assemblée pendant la législature (Bureau, présidences de groupe et de commission). */
 export type FonctionAssembleeRow = PhotoRow & {
     acteur_uid: string;
     prenom: string;
@@ -82,6 +90,8 @@ export type FonctionAssembleeRow = PhotoRow & {
     type_organe: "BUREAU" | "GP" | "COMPER";
     code_qualite: string;
     organe_uid: string;
+    debut: string;
+    fin: string | null;
     groupe_code: string | null;
     groupe_libelle: string | null;
     /** Groupe politique de la personne à la date utile, s'il s'agit d'un député. */

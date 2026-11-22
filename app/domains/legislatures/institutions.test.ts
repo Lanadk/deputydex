@@ -1,4 +1,65 @@
-import { chevauche, contient, finParDissolution, joursEntre, libelleLegislature, libelleMandat, nommerGouvernements } from "@/app/domains/legislatures/institutions";
+import {
+    chevauche,
+    contient,
+    exerceePendantLaSession,
+    finParDissolution,
+    joursEntre,
+    libelleLegislature,
+    libelleMandat,
+    libelleSession,
+    nommerGouvernements,
+    sessionsDeLaLegislature,
+} from "@/app/domains/legislatures/institutions";
+
+describe("sessionsDeLaLegislature", () => {
+    it("installation de juillet rattachée à la session d'octobre qui suit ; dernière session en cours", () => {
+        expect(sessionsDeLaLegislature("2024-07-18", null, "2026-11-22")).toEqual([
+            { annee: 2024, debut: "2024-07-18", fin: "2025-09-30", renouvellement: false },
+            { annee: 2025, debut: "2025-10-01", fin: "2026-09-30", renouvellement: true },
+            { annee: 2026, debut: "2026-10-01", fin: null, renouvellement: true },
+        ]);
+    });
+
+    it("législature close : la dernière session finit avec elle", () => {
+        expect(sessionsDeLaLegislature("2022-06-28", "2024-06-09", "2026-11-22").map((s) => [s.annee, s.debut, s.fin])).toEqual([
+            [2022, "2022-06-28", "2023-09-30"],
+            [2023, "2023-10-01", "2024-06-09"],
+        ]);
+    });
+
+    it("installation loin d'octobre (après une dissolution en hiver) : une session à part", () => {
+        expect(sessionsDeLaLegislature("2028-01-15", null, "2028-11-01").map((s) => [s.annee, s.debut, s.fin])).toEqual([
+            [2027, "2028-01-15", "2028-09-30"],
+            [2028, "2028-10-01", null],
+        ]);
+    });
+
+    it("libelleSession", () => {
+        expect(libelleSession(2025)).toBe("Session 2025-2026");
+    });
+});
+
+describe("exerceePendantLaSession", () => {
+    const [installation, renouvelee] = sessionsDeLaLegislature("2024-07-18", null, "2026-11-22");
+
+    it("un mandat clos par le renouvellement d'ouverture n'appartient qu'à la session précédente", () => {
+        const sortant = { debut: "2024-07-20", fin: "2025-10-01" };
+        expect(exerceePendantLaSession(sortant, installation, "2026-11-22")).toBe(true);
+        expect(exerceePendantLaSession(sortant, renouvelee, "2026-11-22")).toBe(false);
+    });
+
+    it("un départ en cours de session (au-delà du délai de renouvellement) y figure", () => {
+        expect(exerceePendantLaSession({ debut: "2025-10-02", fin: "2025-11-04" }, renouvelee, "2026-11-22")).toBe(true);
+    });
+
+    it("pas de délai à l'installation : un mandat bref en début de législature compte", () => {
+        expect(exerceePendantLaSession({ debut: "2024-07-20", fin: "2024-07-24" }, installation, "2026-11-22")).toBe(true);
+    });
+
+    it("un mandat commencé après la session n'y figure pas", () => {
+        expect(exerceePendantLaSession({ debut: "2025-10-02", fin: null }, installation, "2026-11-22")).toBe(false);
+    });
+});
 
 describe("institutions — règles de dates", () => {
     it("chevauche : une période en cours (fin null) chevauche tout ce qui suit son début", () => {

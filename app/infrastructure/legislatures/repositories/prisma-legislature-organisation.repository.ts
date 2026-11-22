@@ -7,6 +7,7 @@ import {
     EntreeEnCoursRow,
     EvenementInstitutionnelRow,
     FonctionAssembleeRow,
+    FonctionDefinitionRow,
     LegislatureChiffresRow,
     LegislaturePeriodeRow,
     MandatPresidentielRow,
@@ -115,19 +116,22 @@ export const prismaLegislatureOrganisationRepository: ILegislatureOrganisationRe
     },
 
     async getFonctionsAssemblee(legislature: number, dateReference: string): Promise<FonctionAssembleeRow[]> {
+        // Tous les mandats de la législature commencés à la date de référence, en cours ou non :
+        // le use-case les répartit par session. Groupe politique : celui de la fin du mandat.
         return prisma.$queryRaw<FonctionAssembleeRow[]>`
             SELECT m.acteur_uid, a.prenom, a.nom, m.type_organe, m.code_qualite, m.organe_uid,
+                   to_char(m.date_debut, 'YYYY-MM-DD') AS debut,
+                   to_char(m.date_fin, 'YYYY-MM-DD')   AS fin,
                    rg.code AS groupe_code, rg.libelle AS groupe_libelle,
                    ${IDENTITE}
             FROM mandats m
             JOIN acteurs a ON a.uid = m.acteur_uid
             LEFT JOIN ref_groupes rg ON rg.groupe_id = m.organe_uid AND rg.groupe_legislature = m.legislature
             ${PHOTO}
-            ${appartenance(Prisma.sql`${dateReference}::date`)}
+            ${appartenance(Prisma.sql`LEAST(COALESCE(m.date_fin, ${dateReference}::date), ${dateReference}::date)`)}
             WHERE m.legislature = ${legislature}
               AND (m.type_organe = 'BUREAU' OR (m.type_organe IN ('GP', 'COMPER') AND m.code_qualite = 'Président'))
               AND m.date_debut <= ${dateReference}::date
-              AND (m.date_fin IS NULL OR m.date_fin >= ${dateReference}::date)
         `;
     },
 
@@ -168,6 +172,13 @@ export const prismaLegislatureOrganisationRepository: ILegislatureOrganisationRe
             SELECT to_char(date, 'YYYY-MM-DD') AS date, type, libelle
             FROM ref_evenements_institutionnels
             ORDER BY date
+        `;
+    },
+
+    async getFonctionsDefinitions(): Promise<FonctionDefinitionRow[]> {
+        return prisma.$queryRaw<FonctionDefinitionRow[]>`
+            SELECT slug, libelle, definition, source
+            FROM ref_fonctions_definitions
         `;
     },
 };

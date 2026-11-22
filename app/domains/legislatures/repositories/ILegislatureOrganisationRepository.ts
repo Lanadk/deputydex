@@ -2,6 +2,7 @@ import {
     EntreeEnCoursRow,
     EvenementInstitutionnelRow,
     FonctionAssembleeRow,
+    FonctionDefinitionRow,
     MandatPresidentielRow,
     LegislatureChiffresRow,
     LegislaturePeriodeRow,
@@ -17,7 +18,7 @@ export interface ILegislatureOrganisationRepository {
     getPresidentsAssemblee(): Promise<PresidentAssembleeRow[]>;
     /** Nominations au gouvernement dont le début tombe entre `debut` et `fin` (incluses). */
     getMembresGouvernement(debut: string, fin: string): Promise<MembreGouvernementRow[]>;
-    /** Bureau, présidents de groupe et de commission permanente en place à `dateReference`. */
+    /** Mandats de la législature (Bureau, présidents de groupe et de commission permanente) commencés au plus tard à `dateReference`, en cours ou non. */
     getFonctionsAssemblee(legislature: number, dateReference: string): Promise<FonctionAssembleeRow[]>;
     getChiffres(legislature: number): Promise<LegislatureChiffresRow | null>;
     getEntreesEnCours(legislature: number): Promise<EntreeEnCoursRow[]>;
@@ -25,4 +26,6 @@ export interface ILegislatureOrganisationRepository {
     getMandatsPresidentiels(): Promise<MandatPresidentielRow[]>;
     /** Référentiel des événements institutionnels (dissolution, élections…). */
     getEvenementsInstitutionnels(): Promise<EvenementInstitutionnelRow[]>;
+    /** Référentiel des définitions de fonctions (questure, secrétariat du Bureau, rangs du gouvernement…). */
+    getFonctionsDefinitions(): Promise<FonctionDefinitionRow[]>;
 }

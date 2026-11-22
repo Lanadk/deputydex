@@ -19,6 +19,26 @@ describe("getLegislatureOrganisationUseCase", () => {
         expect(await getLegislatureOrganisationUseCase(repository, 17, AUJOURDHUI)).toEqual({ success: false, error: "DB_ERROR" });
     });
 
+    it("définitions des fonctions, par clé du référentiel", async () => {
+        const result = await getLegislatureOrganisationUseCase(makeRepository(), 17, AUJOURDHUI);
+
+        if (!result.success) throw new Error("attendu : succès");
+        expect(result.data.definitions).toEqual({
+            "assemblee-questeur": { libelle: "Questure", definition: "Les questeurs gèrent le budget de l'Assemblée.", source: "Règlement, art. 15" },
+            "ministre-delegue": { libelle: "Ministre délégué", definition: "Chargé d'une partie des attributions d'un ministre.", source: null },
+        });
+    });
+
+    it("référentiel des définitions illisible : la page reste disponible, sans définitions", async () => {
+        const repository = makeRepository({ getFonctionsDefinitions: jest.fn().mockRejectedValue(new Error("relation does not exist")) });
+
+        const result = await getLegislatureOrganisationUseCase(repository, 17, AUJOURDHUI);
+
+        if (!result.success) throw new Error("attendu : succès");
+        expect(result.data.definitions).toEqual({});
+        expect(result.data.gouvernements.length).toBeGreaterThan(0);
+    });
+
     it("17ᵉ (en cours) : référence aujourd'hui, gouvernements du plus récent au plus ancien, Présidence en cours", async () => {
         const repository = makeRepository();
 
@@ -148,7 +168,7 @@ describe("getLegislatureOrganisationUseCase", () => {
         const result = await getLegislatureOrganisationUseCase(repository, 17, AUJOURDHUI);
 
         if (!result.success) throw new Error("succès attendu");
-        const a = result.data.assemblee;
+        const a = result.data.sessions[0];
         expect(a.president).toMatchObject({ nom: "P. Braun-Pivet", href: "/deputes/PA_YBP" });
         expect(a.vicePresidents.map((p) => p.nom)).toEqual(["P. Chenu", "P. Guetté"]);
         expect(a.questeurs.map((p) => p.nom)).toEqual(["P. Klinkert"]);
@@ -157,6 +177,52 @@ describe("getLegislatureOrganisationUseCase", () => {
         expect(a.presidentsCommission.map((p) => p.commission)).toEqual([
             "Affaires étrangères",
             "Finances, économie générale et contrôle budgétaire",
+        ]);
+    });
+
+    it("Assemblée par session, de la plus récente à la plus ancienne : sortants du renouvellement, départs en cours de session", async () => {
+        const repository = makeRepository({
+            getFonctionsAssemblee: jest.fn().mockResolvedValue([
+                fonction("PA_YBP", "Braun-Pivet", "BUREAU", "Président", "PO1", null, "2024-07-18"),
+                // Secrétaire sortante au renouvellement (fin le lendemain de l'ouverture) : session 2024-2025 seulement.
+                fonction("PA_S1", "Sortante", "BUREAU", "Secrétaire", "PO1", null, "2024-07-20", "2025-10-01"),
+                fonction("PA_S2", "Entrante", "BUREAU", "Secrétaire", "PO1", null, "2025-10-02"),
+                // Vice-président parti en cours de session, puis son remplaçant.
+                fonction("PA_VP1", "Parti", "BUREAU", "Vice-Président", "PO1", null, "2024-07-19", "2024-10-21"),
+                fonction("PA_VP2", "Remplacant", "BUREAU", "Vice-Président", "PO1", null, "2024-10-22", "2025-09-30"),
+                // Réélue sans interruption : une seule fois par session.
+                fonction("PA_Q", "Reelue", "BUREAU", "Questeur", "PO1", null, "2024-07-19", "2025-09-30"),
+                fonction("PA_Q", "Reelue", "BUREAU", "Questeur", "PO1", null, "2025-10-01"),
+            ]),
+        });
+
+        const result = await getLegislatureOrganisationUseCase(repository, 17, AUJOURDHUI);
+
+        if (!result.success) throw new Error("succès attendu");
+        const sessions = result.data.sessions;
+        expect(sessions.map((s) => [s.libelle, s.debut, s.fin])).toEqual([
+            ["Session 2026-2027", "2026-10-01", null],
+            ["Session 2025-2026", "2025-10-01", "2026-09-30"],
+            // Installation de juillet rattachée à la session d'octobre qui suit.
+            ["Session 2024-2025", "2024-07-18", "2025-09-30"],
+        ]);
+        const [, s2025, s2024] = sessions;
+        expect(s2024.president).toMatchObject({ nom: "P. Braun-Pivet", jusqua: null });
+        expect(s2024.secretaires.map((p) => [p.nom, p.jusqua])).toEqual([["P. Sortante", null]]);
+        expect(s2025.secretaires.map((p) => p.nom)).toEqual(["P. Entrante"]);
+        expect(s2024.vicePresidents.map((p) => [p.nom, p.jusqua])).toEqual([["P. Parti", "2024-10-21"], ["P. Remplacant", null]]);
+        expect(s2025.vicePresidents).toEqual([]);
+        expect(s2024.questeurs.map((p) => p.nom)).toEqual(["P. Reelue"]);
+        expect(s2025.questeurs.map((p) => p.nom)).toEqual(["P. Reelue"]);
+    });
+
+    it("16ᵉ (close) : la dernière session finit avec la législature", async () => {
+        const result = await getLegislatureOrganisationUseCase(makeRepository(), 16, AUJOURDHUI);
+
+        if (!result.success) throw new Error("succès attendu");
+        expect(result.data.sessions.map((s) => [s.libelle, s.debut, s.fin])).toEqual([
+            ["Session 2023-2024", "2023-10-01", "2024-06-09"],
+            ["Session 2022-2023", "2022-06-28", "2023-09-30"],
         ]);
     });
 });

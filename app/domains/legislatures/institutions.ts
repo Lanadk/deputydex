@@ -60,6 +60,81 @@ export const FONCTIONS_BUREAU = {
     secretaire: "Secrétaire",
 } as const;
 
+/** Ouverture de la session ordinaire : le premier jour ouvrable d'octobre (art. 28 de la Constitution), ramené au 1er. */
+const OUVERTURE_SESSION = "-10-01";
+
+/**
+ * Une Assemblée installée peu avant octobre (élections générales de juin-juillet)
+ * ne siège que quelques semaines en session extraordinaire : cette période est
+ * rattachée à la session ordinaire qui suit plutôt que de former un onglet à part.
+ */
+const RATTACHEMENT_INSTALLATION_JOURS = 120;
+
+/**
+ * Le Bureau (hors président) et les présidences de commission sont renouvelés
+ * dans les premiers jours de la session : un mandat terminé dans ce délai après
+ * l'ouverture appartient à la session précédente, pas à celle qui commence.
+ */
+export const DELAI_RENOUVELLEMENT_JOURS = 7;
+
+/** Une session de l'Assemblée au sein d'une législature (`fin` null : en cours). */
+export type SessionPeriode = {
+    /** Année d'ouverture : 2025 pour la session 2025-2026. */
+    annee: number;
+    debut: string;
+    fin: string | null;
+    /** Commence par un renouvellement (ouverture d'octobre), pas par l'installation de l'Assemblée. */
+    renouvellement: boolean;
+};
+
+const veille = (date: string) => new Date(Date.parse(`${date}T00:00:00Z`) - 86_400_000).toISOString().slice(0, 10);
+
+/**
+ * Sessions d'une législature, dans l'ordre chronologique : la première commence
+ * à l'installation de l'Assemblée, les suivantes à chaque ouverture d'octobre ;
+ * la dernière finit avec la législature (null si elle est en cours).
+ */
+export function sessionsDeLaLegislature(debut: string, fin: string | null, aujourdhui: string): SessionPeriode[] {
+    const borne = fin ?? aujourdhui;
+    const anneeDebut = Number(debut.slice(0, 4));
+    // Année de la session dans laquelle tombe l'installation.
+    let annee = debut >= `${anneeDebut}${OUVERTURE_SESSION}` ? anneeDebut : anneeDebut - 1;
+    const ouvertures: string[] = [];
+    for (let y = annee + 1; `${y}${OUVERTURE_SESSION}` <= borne; y++) ouvertures.push(`${y}${OUVERTURE_SESSION}`);
+    if (ouvertures.length > 0 && joursEntre(debut, ouvertures[0]) <= RATTACHEMENT_INSTALLATION_JOURS) {
+        ouvertures.shift();
+        annee += 1;
+    }
+    const debuts = [debut, ...ouvertures];
+    return debuts.map((d, i) => ({
+        annee: annee + i,
+        debut: d,
+        fin: i < debuts.length - 1 ? veille(debuts[i + 1]) : fin,
+        renouvellement: i > 0,
+    }));
+}
+
+/** « Session 2025-2026 ». */
+export function libelleSession(annee: number): string {
+    return `Session ${annee}-${annee + 1}`;
+}
+
+/**
+ * Un mandat (fonction à l'Assemblée) a-t-il été exercé pendant la session ?
+ * Un mandat clos par le renouvellement d'ouverture (cf. DELAI_RENOUVELLEMENT_JOURS)
+ * n'appartient qu'à la session précédente.
+ */
+export function exerceePendantLaSession(
+    mandat: { debut: string; fin: string | null },
+    session: SessionPeriode,
+    aujourdhui: string
+): boolean {
+    if (mandat.debut > (session.fin ?? aujourdhui)) return false;
+    if (mandat.fin === null) return true;
+    if (mandat.fin < session.debut) return false;
+    return !session.renouvellement || joursEntre(session.debut, mandat.fin) >= DELAI_RENOUVELLEMENT_JOURS;
+}
+
 /** Type d'événement institutionnel (référentiel `ref_evenements_institutionnels`) d'une dissolution. */
 export const EVENEMENT_DISSOLUTION = "dissolution";
 
