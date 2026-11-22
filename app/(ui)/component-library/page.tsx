@@ -49,6 +49,7 @@ const components: Record<string, ComponentTheme[]> = {
                 { name: 'DifficultyGauge', description: 'Jauge de 1 à 5', path: '/component-library/molecules/difficulty-gauge' },
                 { name: 'Timeline', description: 'Frise chronologique en couloirs', path: '/component-library/molecules/timeline' },
                 { name: 'OrgChart', description: 'Organigramme (arbre hiérarchique)', path: '/component-library/molecules/org-chart' },
+                { name: 'ProportionBar', description: "Répartition d'un total en une barre", path: '/component-library/molecules/proportion-bar' },
             ],
         },
         {

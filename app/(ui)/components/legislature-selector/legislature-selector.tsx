@@ -36,6 +36,9 @@ export function LegislatureSelector() {
     // /scrutins, où il choisit la législature explorée.
     if (pathname.startsWith("/scrutins/")) return null;
 
+    // La page des législatures présente toutes les législatures, avec ses propres onglets.
+    if (pathname === "/legislatures") return null;
+
     if (loading) return null;
 
     return (

@@ -29,10 +29,11 @@ export async function getLegislaturesFriseUseCase(
     if (isErr(read)) return read;
     const [legislatures, premiersMinistres, presidentsAssemblee] = read.data;
 
-    const debutLegislatures = legislatures.map((l) => l.debut).sort()[0] ?? aujourdhui;
+    const plusAncienne = (dates: string[]) => [...dates].sort((a, b) => a.localeCompare(b))[0];
+    const debutLegislatures = plusAncienne(legislatures.map((l) => l.debut)) ?? aujourdhui;
     const gouvernements = nommerGouvernements(premiersMinistres)
         .filter((g) => chevauche(g.debut, g.fin, debutLegislatures, aujourdhui));
-    const debut = [debutLegislatures, ...gouvernements.map((g) => g.debut)].sort()[0];
+    const debut = plusAncienne([debutLegislatures, ...gouvernements.map((g) => g.debut)]);
     const fin = aujourdhui;
 
     return ok({

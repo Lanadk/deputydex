@@ -68,6 +68,28 @@ describe("getLegislatureOrganisationUseCase", () => {
         expect(lecornuII.rangs[0].membres.find((m) => m.nom === "P. Nunez")?.href).toBeNull();
     });
 
+    it("une personne une seule fois par rang (son dernier mandat), mais dans chaque rang qu'elle a occupé", async () => {
+        const repository = makeRepository({
+            getMembresGouvernement: jest.fn().mockResolvedValue([
+                // Deux mandats consécutifs de ministre délégué (remaniement) : le dernier est en cours.
+                membre("PA_V", "Vedrenne", "Ministre délégué", "2025-10-13", "2026-02-26"),
+                membre("PA_V", "Vedrenne", "Ministre délégué", "2026-02-27"),
+                // Promue en cours de gouvernement : un mandat dans chaque rang.
+                membre("PA_R", "Roubache", "Secrétaire d'État", "2025-10-13", "2026-02-26"),
+                membre("PA_R", "Roubache", "Ministre délégué", "2026-02-27"),
+            ]),
+        });
+
+        const result = await getLegislatureOrganisationUseCase(repository, 17, AUJOURDHUI);
+
+        if (!result.success) throw new Error("succès attendu");
+        const rangs = result.data.gouvernements[0].rangs;
+        expect(rangs.map((r) => [r.rang, r.membres.map((m) => [m.uid, m.jusqua])])).toEqual([
+            ["ministre-delegue", [["PA_R", null], ["PA_V", null]]],
+            ["secretaire-etat", [["PA_R", "2026-02-26"]]],
+        ]);
+    });
+
     it("Bureau sans les fonctions « d'âge » ; présidences de groupe et de commission triées", async () => {
         const repository = makeRepository({
             getFonctionsAssemblee: jest.fn().mockResolvedValue([

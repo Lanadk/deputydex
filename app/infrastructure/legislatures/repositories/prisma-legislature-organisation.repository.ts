@@ -1,6 +1,7 @@
 import "server-only";
 
 import { prisma } from "@/app/infrastructure/db/prisma/prisma";
+import { Prisma } from "@/app/infrastructure/db/generated/prisma";
 import { ILegislatureOrganisationRepository } from "@/app/domains/legislatures/repositories/ILegislatureOrganisationRepository";
 import {
     EntreeEnCoursRow,
@@ -18,6 +19,33 @@ import {
  * conversion de fuseau horaire entre Postgres et le navigateur.
  * L'ordre des lignes n'a pas d'importance : les use-cases trient.
  */
+
+/** Photo la plus récente de la personne du mandat `m`. */
+const PHOTO = Prisma.sql`
+    LEFT JOIN LATERAL (
+        SELECT NULLIF(photo_path, 'null') AS photo_path
+        FROM ref_acteurs_photos
+        WHERE acteur_uid = m.acteur_uid
+        ORDER BY legislature DESC
+        LIMIT 1
+    ) rap ON true`;
+
+/**
+ * Groupe politique de la personne du mandat `m` à la date `date` : son groupe
+ * à cette date, sinon le dernier avant (un ministre ancien député garde le
+ * groupe qu'il avait en entrant au gouvernement).
+ */
+const appartenance = (date: Prisma.Sql) => Prisma.sql`
+    LEFT JOIN LATERAL (
+        SELECT rg.code, rg.libelle
+        FROM acteurs_groupes ag
+        JOIN ref_groupes rg ON rg.groupe_id = ag.groupe_id AND rg.groupe_legislature = ag.groupe_legislature
+        WHERE ag.acteur_uid = m.acteur_uid AND ag.date_debut <= ${date}
+        ORDER BY (ag.date_fin IS NULL OR ag.date_fin >= ${date}) DESC, ag.date_debut DESC
+        LIMIT 1
+    ) grp ON true`;
+
+const IDENTITE = Prisma.sql`rap.photo_path, grp.code AS appartenance_code, grp.libelle AS appartenance_libelle`;
 export const prismaLegislatureOrganisationRepository: ILegislatureOrganisationRepository = {
     async getLegislatures(): Promise<LegislaturePeriodeRow[]> {
         return prisma.$queryRaw<LegislaturePeriodeRow[]>`
@@ -34,9 +62,12 @@ export const prismaLegislatureOrganisationRepository: ILegislatureOrganisationRe
         return prisma.$queryRaw<PremierMinistreRow[]>`
             SELECT m.acteur_uid, a.prenom, a.nom,
                    to_char(m.date_debut, 'YYYY-MM-DD') AS debut,
-                   to_char(m.date_fin, 'YYYY-MM-DD')   AS fin
+                   to_char(m.date_fin, 'YYYY-MM-DD')   AS fin,
+                   ${IDENTITE}
             FROM mandats m
             JOIN acteurs a ON a.uid = m.acteur_uid
+            ${PHOTO}
+            ${appartenance(Prisma.sql`m.date_debut`)}
             WHERE m.type_organe = 'MINISTERE' AND m.code_qualite = 'Premier ministre'
             ORDER BY m.date_debut
         `;
@@ -61,9 +92,12 @@ export const prismaLegislatureOrganisationRepository: ILegislatureOrganisationRe
                    EXISTS (
                        SELECT 1 FROM mandats d
                        WHERE d.acteur_uid = m.acteur_uid AND d.type_organe = 'ASSEMBLEE'
-                   ) AS est_depute
+                   ) AS est_depute,
+                   ${IDENTITE}
             FROM mandats m
             JOIN acteurs a ON a.uid = m.acteur_uid
+            ${PHOTO}
+            ${appartenance(Prisma.sql`m.date_debut`)}
             WHERE m.type_organe = 'MINISTERE'
               AND m.date_debut BETWEEN ${debut}::date AND ${fin}::date
         `;
@@ -72,10 +106,13 @@ export const prismaLegislatureOrganisationRepository: ILegislatureOrganisationRe
     async getFonctionsAssemblee(legislature: number, dateReference: string): Promise<FonctionAssembleeRow[]> {
         return prisma.$queryRaw<FonctionAssembleeRow[]>`
             SELECT m.acteur_uid, a.prenom, a.nom, m.type_organe, m.code_qualite, m.organe_uid,
-                   rg.code AS groupe_code, rg.libelle AS groupe_libelle
+                   rg.code AS groupe_code, rg.libelle AS groupe_libelle,
+                   ${IDENTITE}
             FROM mandats m
             JOIN acteurs a ON a.uid = m.acteur_uid
             LEFT JOIN ref_groupes rg ON rg.groupe_id = m.organe_uid AND rg.groupe_legislature = m.legislature
+            ${PHOTO}
+            ${appartenance(Prisma.sql`${dateReference}::date`)}
             WHERE m.legislature = ${legislature}
               AND (m.type_organe = 'BUREAU' OR (m.type_organe IN ('GP', 'COMPER') AND m.code_qualite = 'Président'))
               AND m.date_debut <= ${dateReference}::date

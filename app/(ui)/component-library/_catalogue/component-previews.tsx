@@ -22,6 +22,7 @@ import { getExpandableCardSections } from "@/app/(ui)/component-library/molecule
 import { getPageStateSections } from "@/app/(ui)/component-library/molecules/page-state/page-state-lib.constants";
 import { getTimelineSections } from "@/app/(ui)/component-library/molecules/timeline/timeline-lib.constants";
 import { getOrgChartSections } from "@/app/(ui)/component-library/molecules/org-chart/org-chart-lib.constants";
+import { getProportionBarSections } from "@/app/(ui)/component-library/molecules/proportion-bar/proportion-bar-lib.constants";
 import { getErrorStateSections } from "@/app/(ui)/component-library/molecules/error-state/error-state-lib.constants";
 import { getNotificationSections } from "@/app/(ui)/component-library/molecules/notification/notification-lib.constants";
 import { getSpinnerSections } from "@/app/(ui)/component-library/molecules/spinner/spinner-lib.constants";
@@ -66,6 +67,7 @@ export const COMPONENT_PREVIEWS: Record<string, ComponentPreview> = {
     '/component-library/molecules/expandable-card': { width: 700, render: () => getExpandableCardSections()[0].component },
     '/component-library/molecules/timeline': { width: 1000, render: () => getTimelineSections()[0].component },
     '/component-library/molecules/org-chart': { width: 700, render: () => getOrgChartSections()[0].component },
+    '/component-library/molecules/proportion-bar': { width: 700, render: () => getProportionBarSections()[0].component },
     '/component-library/molecules/page-state': { width: 700, render: () => getPageStateSections()[0].component },
     '/component-library/molecules/error-state': { width: 560, render: () => getErrorStateSections()[1].component },
     '/component-library/molecules/notification': { width: 440, render: () => getNotificationSections()[1].component },

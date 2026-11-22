@@ -4,7 +4,7 @@ import "@testing-library/jest-dom";
 import { arbreAssemblee, arbreExecutif, LegislatureOrganigramme } from "@/app/(ui)/components/legislatures/legislature-organigramme";
 import { LegislatureOrganisationDTO } from "@/app/domains/legislatures/dto/legislature-organisation.dto";
 
-const p = (uid: string, nom: string, fonction = "") => ({ uid, nom, fonction, href: `/deputes/${uid}` });
+const p = (uid: string, nom: string, fonction = "") => ({ uid, nom, fonction, href: `/deputes/${uid}`, photoUrl: null, groupe: null });
 
 const ORGANISATION: LegislatureOrganisationDTO = {
     legislature: 17,
@@ -51,6 +51,22 @@ describe("organigrammes de la législature", () => {
             "Vice-présidences", "Présidences de groupe", "Présidences de commission permanente",
         ]);
         expect(arbre.children![1].children![0]).toMatchObject({ title: "Gabriel Attal", subtitle: "Ensemble pour la République" });
+    });
+
+    it("photo et pastille du groupe politique, aux couleurs du groupe", () => {
+        const arbre = arbreAssemblee({
+            ...ORGANISATION,
+            assemblee: {
+                ...ORGANISATION.assemblee,
+                president: { ...ORGANISATION.assemblee.president!, photoUrl: "/photo.jpg", groupe: { code: "EPR", libelle: "Ensemble pour la République" } },
+            },
+        });
+
+        expect(arbre.avatar).toEqual({ src: "/photo.jpg" });
+        expect(arbre.badge).toMatchObject({ label: "EPR", title: "Groupe : Ensemble pour la République" });
+        expect(arbre.badge!.background).toBeTruthy();
+        // Sans groupe : pas de pastille, mais un avatar (initiales).
+        expect(arbre.children![0].children![0]).toMatchObject({ badge: null, avatar: { src: null } });
     });
 
     it("un onglet par gouvernement ; le plus récent d'abord, puis bascule", () => {

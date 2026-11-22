@@ -1,3 +1,5 @@
+import { MotifEntree } from "@/app/domains/legislatures/motifs-entree";
+
 /** Chiffres clés d'une législature. */
 export type LegislatureChiffresDTO = {
     legislature: number;
@@ -10,5 +12,6 @@ export type LegislatureChiffresDTO = {
     gouvernements: number;
     /** Députés entrés en cours de législature (remplacements, élections partielles…). */
     entreesEnCours: number;
-    entreesParCause: { cause: string; nombre: number }[];
+    /** Entrées en cours de législature regroupées par motif, du plus fréquent au moins fréquent. */
+    entreesParMotif: { motif: MotifEntree; libelle: string; nombre: number }[];
 };

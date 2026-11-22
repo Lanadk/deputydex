@@ -33,17 +33,31 @@ import {
 const parNom = <T extends { nom: string }>(a: T, b: T) => a.nom.localeCompare(b.nom, "fr");
 
 /**
- * Membres de chaque rang (Ministres d'État, Ministres…), par ordre alphabétique ;
- * les rangs vides sont omis. Les parlementaires « en mission » et le Premier
- * ministre (présenté à part) n'en font pas partie.
+ * Un seul mandat par personne : le plus récent. Une personne peut en avoir
+ * plusieurs dans un même rang d'un même gouvernement (changement de portefeuille
+ * lors d'un remaniement) ; c'est le dernier qui dit si elle est encore en poste.
+ */
+export function dernierMandatParPersonne(membres: MembreGouvernementRow[]): MembreGouvernementRow[] {
+    const derniers = new Map<string, MembreGouvernementRow>();
+    for (const m of membres) {
+        const connu = derniers.get(m.acteur_uid);
+        if (!connu || m.debut.localeCompare(connu.debut) > 0) derniers.set(m.acteur_uid, m);
+    }
+    return [...derniers.values()];
+}
+
+/**
+ * Membres de chaque rang (Ministres d'État, Ministres…), par ordre alphabétique,
+ * chaque personne une fois par rang ; les rangs vides sont omis. Les
+ * parlementaires « en mission » et le Premier ministre (présenté à part) n'en
+ * font pas partie.
  */
 export function rangsDuGouvernement(membres: MembreGouvernementRow[], finGouvernement: string | null): RangGouvernementDTO[] {
     return RANGS_GOUVERNEMENT
         .map((r) => ({
             rang: r.rang,
             libelle: r.libelle,
-            membres: membres
-                .filter((m) => (r.qualites as readonly string[]).includes(m.code_qualite))
+            membres: dernierMandatParPersonne(membres.filter((m) => (r.qualites as readonly string[]).includes(m.code_qualite)))
                 .map((m) => mapMembreGouvernementToDTO(m, finGouvernement))
                 .sort(parNom),
         }))

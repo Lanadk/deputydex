@@ -1,11 +1,12 @@
 "use client";
 
-import React from "react";
+import React, { useState } from "react";
 import { BaseLayout } from "@/app/(ui)/component-library/template/base-layout/base-layout-lib";
 import { PageHeaderLib } from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
 import { SpinnerLib } from "@/app/(ui)/component-library/molecules/spinner/spinner-lib";
 import { ErrorStateLib } from "@/app/(ui)/component-library/molecules/error-state/error-state-lib";
 import { formatTimelineDate } from "@/app/(ui)/component-library/molecules/timeline/timeline-lib";
+import { TabsLib, tabPanelProps } from "@/app/(ui)/component-library/molecules/tabs/tabs-lib";
 import { useLegislature } from "@/app/(ui)/providers/legislature-provider";
 import { useAsyncData } from "@/app/(ui)/_shared/hook/use-async-data";
 import { legislaturesGateway } from "@/app/(ui)/gateways/legislatures/legislatures.gateway";
@@ -35,8 +36,12 @@ const periode = (debut: string | null, fin: string | null) => {
 };
 
 export default function LegislaturesPageClient() {
-    const { legislature, legislatures } = useLegislature();
-    const numero = legislature?.number ?? null;
+    // La liste des législatures vient du contexte global ; le choix, lui, est propre
+    // à la page (onglets), le sélecteur global y est masqué.
+    const { legislatures } = useLegislature();
+    const numeros = [...legislatures].map((l) => l.number).sort((a, b) => b - a);
+    const [choix, setChoix] = useState<number | null>(null);
+    const numero = choix ?? numeros[0] ?? null;
 
     const frise = useAsyncData(() => legislaturesGateway.getFrise(), "frise");
     const chiffres = useAsyncData(numero === null ? null : () => legislaturesGateway.getChiffres(numero), String(numero));
@@ -89,7 +94,15 @@ export default function LegislaturesPageClient() {
                 </Section>
 
                 {numero !== null && (
-                    <>
+                    <div className="flex flex-col gap-6">
+                        <TabsLib
+                            tabs={numeros.map((n) => ({ id: String(n), label: libelleLegislature(n) }))}
+                            activeId={String(numero)}
+                            onChange={(id) => setChoix(Number(id))}
+                            ariaLabel="Législature présentée"
+                            idPrefix="legislature"
+                        />
+                        <div {...tabPanelProps("legislature", String(numero))} className="flex flex-col gap-10">
                         <Section id="chiffres" title={`La ${libelleLegislature(numero)} en chiffres`}>
                             {chiffres.error
                                 ? <ErrorStateLib message="Impossible de charger les chiffres de la législature pour le moment." onRetry={chiffres.retry} />
@@ -112,7 +125,8 @@ export default function LegislaturesPageClient() {
                                     ? <LegislatureOrganigramme key={organisation.data.legislature} organisation={organisation.data} />
                                     : <Chargement />}
                         </Section>
-                    </>
+                        </div>
+                    </div>
                 )}
             </div>
         </BaseLayout>

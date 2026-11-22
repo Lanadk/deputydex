@@ -17,9 +17,19 @@ import { libelleLegislature } from "@/app/domains/legislatures/institutions";
 const nomComplet = (row: { prenom: string; nom: string }) => `${row.prenom} ${row.nom}`;
 const ficheDepute = (uid: string) => `/deputes/${uid}`;
 
+type IdentiteRow = { photo_path: string | null; appartenance_code: string | null; appartenance_libelle: string | null };
+
+/** Photo et groupe politique d'une personne. */
+function identite(row: IdentiteRow): Pick<PersonneFonctionDTO, "photoUrl" | "groupe"> {
+    return {
+        photoUrl: row.photo_path,
+        groupe: row.appartenance_code ? { code: row.appartenance_code, libelle: row.appartenance_libelle ?? row.appartenance_code } : null,
+    };
+}
+
 /** Une fonction à l'Assemblée (Bureau) : toujours un député, donc une fiche. */
 export function mapFonctionAssembleeToDTO(row: FonctionAssembleeRow, fonction: string): PersonneFonctionDTO {
-    return { uid: row.acteur_uid, nom: nomComplet(row), fonction, href: ficheDepute(row.acteur_uid) };
+    return { uid: row.acteur_uid, nom: nomComplet(row), fonction, href: ficheDepute(row.acteur_uid), ...identite(row) };
 }
 
 export function mapPresidentGroupeToDTO(row: FonctionAssembleeRow): PresidentGroupeDTO {
@@ -44,6 +54,7 @@ export function mapPremierMinistreToDTO(row: PremierMinistreRow, estDepute: bool
         nom: nomComplet(row),
         fonction: "Premier ministre",
         href: estDepute ? ficheDepute(row.acteur_uid) : null,
+        ...identite(row),
     };
 }
 
@@ -58,6 +69,7 @@ export function mapMembreGouvernementToDTO(row: MembreGouvernementRow, finGouver
         nom: nomComplet(row),
         fonction: row.lib_qualite,
         href: row.est_depute ? ficheDepute(row.acteur_uid) : null,
+        ...identite(row),
         jusqua: parti ? row.fin : null,
     };
 }

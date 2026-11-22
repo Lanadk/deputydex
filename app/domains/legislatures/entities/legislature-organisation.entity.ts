@@ -16,6 +16,10 @@ export type PremierMinistreRow = {
     nom: string;
     debut: string;
     fin: string | null;
+    /** Photo (URL) et groupe politique de la personne à la date utile, s'il s'agit d'un député. */
+    photo_path: string | null;
+    appartenance_code: string | null;
+    appartenance_libelle: string | null;
 };
 
 /** Un mandat de président de l'Assemblée nationale. */
@@ -39,6 +43,10 @@ export type MembreGouvernementRow = {
     fin: string | null;
     /** A été député : sa fiche existe sur le site. */
     est_depute: boolean;
+    /** Photo (URL) et groupe politique de la personne à la date utile, s'il s'agit d'un député. */
+    photo_path: string | null;
+    appartenance_code: string | null;
+    appartenance_libelle: string | null;
 };
 
 /** Une fonction à l'Assemblée en place à la date de référence (Bureau, présidences de groupe et de commission). */
@@ -51,6 +59,10 @@ export type FonctionAssembleeRow = {
     organe_uid: string;
     groupe_code: string | null;
     groupe_libelle: string | null;
+    /** Photo (URL) et groupe politique de la personne à la date utile, s'il s'agit d'un député. */
+    photo_path: string | null;
+    appartenance_code: string | null;
+    appartenance_libelle: string | null;
 };
 
 export type LegislatureChiffresRow = {

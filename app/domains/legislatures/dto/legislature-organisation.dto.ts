@@ -4,6 +4,9 @@ export type PersonneFonctionDTO = {
     nom: string;
     fonction: string;
     href: string | null;
+    photoUrl: string | null;
+    /** Groupe politique de la personne (députés et anciens députés), à la date utile. */
+    groupe: { code: string; libelle: string } | null;
 };
 
 export type MembreGouvernementDTO = PersonneFonctionDTO & {

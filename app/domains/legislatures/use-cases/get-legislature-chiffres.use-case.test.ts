@@ -13,6 +13,7 @@ describe("getLegislatureChiffresUseCase", () => {
             getEntreesEnCours: jest.fn().mockResolvedValue([
                 { cause: "élection partielle", nombre: 4 },
                 { cause: "remplacement d'un député nommé au Gouvernement", nombre: 33 },
+                { cause: "élection partielle, suite à l'annulation de l'élection d'un député", nombre: 3 },
             ]),
         });
 
@@ -25,9 +26,13 @@ describe("getLegislatureChiffresUseCase", () => {
             scrutins: 4106,
             deputesAyantSiege: 618,
             gouvernements: 2,
-            entreesEnCours: 37,
+            entreesEnCours: 40,
         });
-        expect(result.data.entreesParCause.map((e) => e.nombre)).toEqual([33, 4]);
+        // Les deux causes d'élection partielle sont regroupées en un motif.
+        expect(result.data.entreesParMotif).toEqual([
+            { motif: "gouvernement", libelle: "Député nommé au Gouvernement", nombre: 33 },
+            { motif: "partielle", libelle: "Élection partielle", nombre: 7 },
+        ]);
     });
 
     it("17ᵉ en cours : durée jusqu'à aujourd'hui", async () => {

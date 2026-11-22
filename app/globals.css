@@ -926,11 +926,17 @@
     /* -------------------------------------------------------
        TabsLib — onglets
        ------------------------------------------------------- */
+    /*
+     * Ligne de base dessinée par une ombre intérieure (pas une bordure) et onglets
+     * sans marge négative : rien ne dépasse du conteneur, donc pas de défilement
+     * vertical parasite d'un pixel (overflow-x: auto active aussi l'axe vertical).
+     */
     .tabs-lib {
         display: flex;
         gap: 4px;
         overflow-x: auto;
-        border-bottom: 1px solid var(--border-main);
+        overflow-y: hidden;
+        box-shadow: inset 0 -1px 0 var(--border-main);
     }
 
     .tabs-lib__tab {
@@ -938,7 +944,6 @@
         align-items: center;
         gap: 8px;
         padding: 10px 14px;
-        margin-bottom: -1px;
         border-bottom: 2px solid transparent;
         font-size: 14px;
         white-space: nowrap;
@@ -1058,7 +1063,14 @@
         text-decoration: none;
     }
 
-    .timeline-lib__period > a:hover { text-decoration: underline; }
+    /* Période liée à une fiche : soulignée sans survol. */
+    .timeline-lib__period > a {
+        text-decoration: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 3px;
+    }
+
+    .timeline-lib__period > a:hover { text-decoration-thickness: 2px; }
 
     .timeline-lib__period > a:focus-visible {
         outline: 2px solid var(--accent);
@@ -1110,16 +1122,129 @@
     }
 
     /* -------------------------------------------------------
+       ProportionBarLib — répartition en une barre
+       ------------------------------------------------------- */
+    .proportion-bar-lib { margin: 0; }
+
+    .proportion-bar-lib__bar {
+        display: flex;
+        gap: 2px;
+        height: 14px;
+        overflow: hidden;
+        border-radius: 999px;
+        background-color: var(--surface-3);
+    }
+
+    .proportion-bar-lib__segment {
+        flex-basis: 0;
+        min-width: 4px;
+    }
+
+    .proportion-bar-lib__legend {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 16rem), 1fr));
+        gap: 8px 24px;
+        margin: 14px 0 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .proportion-bar-lib__item {
+        display: flex;
+        align-items: baseline;
+        gap: 8px;
+        font-size: 14px;
+    }
+
+    .proportion-bar-lib__dot {
+        flex-shrink: 0;
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+        transform: translateY(1px);
+    }
+
+    .proportion-bar-lib__label { flex: 1; min-width: 0; }
+
+    .proportion-bar-lib__value {
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .proportion-bar-lib__percent {
+        width: 3.2em;
+        text-align: right;
+        font-size: 12px;
+        font-variant-numeric: tabular-nums;
+        color: var(--subtitle-accent);
+    }
+
+    /* -------------------------------------------------------
        OrgChartLib — organigramme
        ------------------------------------------------------- */
+    .org-chart-lib__controls {
+        display: flex;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    .org-chart-lib__row {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .org-chart-lib__toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 24px;
+        height: 24px;
+        margin-top: 10px;
+        border-radius: 6px;
+        color: var(--subtitle-accent);
+    }
+
+    .org-chart-lib__toggle:hover { background-color: var(--surface-3); color: var(--foreground); }
+
+    .org-chart-lib__toggle:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+
     .org-chart-lib__card {
         display: inline-flex;
-        flex-direction: column;
-        gap: 2px;
+        align-items: center;
+        gap: 10px;
+        min-width: 0;
         padding: 8px 12px;
         border: 1px solid var(--border-main);
         border-radius: 8px;
         background-color: var(--surface-2);
+    }
+
+    .org-chart-lib__text {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    .org-chart-lib__heading {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .org-chart-lib__badge {
+        padding: 1px 6px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
     }
 
     .org-chart-lib__card--root { border-left: 4px solid var(--accent); }
@@ -1130,7 +1255,15 @@
         color: var(--foreground);
     }
 
-    a.org-chart-lib__title:hover { text-decoration: underline; }
+    /* Un nom qui mène à une fiche se voit sans survol : couleur d'accent et souligné. */
+    a.org-chart-lib__title {
+        color: var(--accent);
+        text-decoration: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 3px;
+    }
+
+    a.org-chart-lib__title:hover { text-decoration-thickness: 2px; }
 
     a.org-chart-lib__title:focus-visible {
         outline: 2px solid var(--accent);
@@ -1177,6 +1310,9 @@
     .org-chart-lib__children--grid > .org-chart-lib__item { padding: 0; }
     .org-chart-lib__children--grid > .org-chart-lib__item::before { display: none; }
     .org-chart-lib__children--grid .org-chart-lib__card { display: flex; height: 100%; }
+
+    /* Le bouton de repli décale la carte : la branche part du milieu du bouton. */
+    .org-chart-lib__item:has(> .org-chart-lib__row > .org-chart-lib__toggle)::before { top: 22px; }
 
     /* -------------------------------------------------------
        NotificationLib — notifications temporaires

@@ -1,7 +1,8 @@
 "use client";
 
 import React, { useState } from "react";
-import { OrgChartLib, OrgChartNode } from "@/app/(ui)/component-library/molecules/org-chart/org-chart-lib";
+import { OrgChartBadge, OrgChartLib, OrgChartNode } from "@/app/(ui)/component-library/molecules/org-chart/org-chart-lib";
+import { getGroupCardTheme } from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
 import { TabsLib, tabPanelProps } from "@/app/(ui)/component-library/molecules/tabs/tabs-lib";
 import { formatTimelineDate } from "@/app/(ui)/component-library/molecules/timeline/timeline-lib";
 import {
@@ -10,11 +11,20 @@ import {
     PersonneFonctionDTO,
 } from "@/app/domains/legislatures/dto/legislature-organisation.dto";
 
+/** Pastille du groupe politique, aux couleurs du groupe. */
+function badgeGroupe(groupe: PersonneFonctionDTO["groupe"]): OrgChartBadge | null {
+    if (!groupe) return null;
+    const theme = getGroupCardTheme(groupe.code);
+    return { label: groupe.code, background: theme.badgeBg, color: theme.badgeText, title: `Groupe : ${groupe.libelle}` };
+}
+
 const personne = (p: PersonneFonctionDTO, subtitle: string = p.fonction): OrgChartNode => ({
     id: p.uid,
     title: p.nom,
     subtitle,
     href: p.href,
+    avatar: { src: p.photoUrl },
+    badge: badgeGroupe(p.groupe),
 });
 
 const periode = (g: GouvernementDTO) =>
@@ -32,7 +42,7 @@ export function arbreExecutif(organisation: LegislatureOrganisationDTO, gouverne
                 subtitle: `${r.membres.length} membre${r.membres.length > 1 ? "s" : ""}`,
                 children: r.membres.map((m) => ({
                     ...personne(m),
-                    id: `${gouvernement.id}-${m.uid}`,
+                    id: `${gouvernement.id}-${r.rang}-${m.uid}`,
                     note: m.jusqua ? `jusqu'au ${formatTimelineDate(m.jusqua)}` : null,
                 })),
             })),
@@ -53,11 +63,12 @@ export function arbreAssemblee(organisation: LegislatureOrganisationDTO): OrgCha
     const branche = (id: string, title: string, nodes: OrgChartNode[]): OrgChartNode[] =>
         nodes.length ? [{ id, title, subtitle: `${nodes.length}`, children: nodes }] : [];
 
+    const racine: OrgChartNode = a.president
+        ? { ...personne(a.president, "Présidence de l'Assemblée nationale"), id: "assemblee" }
+        : { id: "assemblee", title: "Assemblée nationale" };
+
     return {
-        id: "assemblee",
-        title: a.president ? a.president.nom : "Assemblée nationale",
-        subtitle: a.president ? "Présidence de l'Assemblée nationale" : null,
-        href: a.president?.href ?? null,
+        ...racine,
         children: [
             ...branche("vice-presidents", "Vice-présidences", a.vicePresidents.map((p) => personne(p, "Vice-présidence"))),
             ...branche("questeurs", "Questure", a.questeurs.map((p) => personne(p, "Questure"))),
@@ -77,6 +88,13 @@ export function LegislatureOrganigramme({ organisation }: { organisation: Legisl
 
     return (
         <div className="flex flex-col gap-8">
+            <p className="flex flex-wrap items-center gap-x-4 gap-y-1 text-sm text-subtitle-accent">
+                <span>
+                    <span className="font-semibold text-accent underline underline-offset-2">Noms soulignés</span> : fiche du député sur Députédex.
+                </span>
+                <span>Pastille : groupe politique (au moment des faits pour un ministre ancien député).</span>
+            </p>
+
             <section className="flex flex-col gap-3" aria-labelledby="organigramme-executif">
                 <h3 id="organigramme-executif" className="text-lg font-semibold">Exécutif</h3>
                 {gouvernements.length > 1 && (
@@ -89,13 +107,13 @@ export function LegislatureOrganigramme({ organisation }: { organisation: Legisl
                     />
                 )}
                 <div {...(gouvernement && gouvernements.length > 1 ? tabPanelProps(prefix, gouvernement.id) : {})}>
-                    <OrgChartLib root={arbreExecutif(organisation, gouvernement)} ariaLabel="Organigramme de l'exécutif" />
+                    <OrgChartLib root={arbreExecutif(organisation, gouvernement)} ariaLabel="Organigramme de l'exécutif" showExpandControls />
                 </div>
             </section>
 
             <section className="flex flex-col gap-3" aria-labelledby="organigramme-assemblee">
                 <h3 id="organigramme-assemblee" className="text-lg font-semibold">Assemblée nationale</h3>
-                <OrgChartLib root={arbreAssemblee(organisation)} ariaLabel="Organigramme de l'Assemblée nationale" />
+                <OrgChartLib root={arbreAssemblee(organisation)} ariaLabel="Organigramme de l'Assemblée nationale" showExpandControls />
             </section>
         </div>
     );
