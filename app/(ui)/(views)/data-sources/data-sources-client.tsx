@@ -1,19 +1,17 @@
 "use client";
 
-import React, {useEffect, useState} from "react";
+import React from "react";
 import { BaseLayout } from "@/app/(ui)/component-library/template/base-layout/base-layout-lib";
 import { PageHeaderLib } from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
 import { PageContentLib } from "@/app/(ui)/component-library/template/page-content/page-content-lib";
+import { ButtonLib } from "@/app/(ui)/component-library/atoms/button/button-lib";
 import {datasetsGateway} from "@/app/(ui)/gateways/datasets/datasets.gateway";
+import { useAsyncData } from "@/app/(ui)/_shared/hook/use-async-data";
 
 export default function DataSourcesClient() {
-    const [lastUpdate, setLastUpdate] = useState<Date>();
-
-    useEffect(() => {
-        datasetsGateway.getLastUpdate()
-            .then(setLastUpdate)
-            .catch(console.error);
-    }, [lastUpdate])
+    // Chargée une fois (avant : l'effet dépendait de la date qu'il écrivait, d'où une seconde requête).
+    const lastUpdateData = useAsyncData(() => datasetsGateway.getLastUpdate(), "last-update");
+    const lastUpdate = lastUpdateData.data;
 
 
     return (
@@ -155,13 +153,20 @@ export default function DataSourcesClient() {
                                         Dernière mise à jour
                                     </div>
 
-                                    <div className="text-lg font-semibold">
-                                        {lastUpdate ? new Date(lastUpdate).toLocaleString("fr-FR", {
-                                            day: "2-digit",
-                                            month: "2-digit",
-                                            year: "numeric",
-                                        }) : "Chargement ..."}
-                                    </div>
+                                    {lastUpdateData.error ? (
+                                        <div role="alert" className="flex flex-wrap items-center gap-3">
+                                            <span className="text-lg font-semibold">Indisponible</span>
+                                            <ButtonLib text="Réessayer" size="small" variant="tertiary" onClick={lastUpdateData.retry} />
+                                        </div>
+                                    ) : (
+                                        <div className="text-lg font-semibold">
+                                            {lastUpdate ? new Date(lastUpdate).toLocaleString("fr-FR", {
+                                                day: "2-digit",
+                                                month: "2-digit",
+                                                year: "numeric",
+                                            }) : "Chargement ..."}
+                                        </div>
+                                    )}
 
                                     <p className="text-sm text-subtitle-accent">
                                         Dernière synchronisation complète des datasets.

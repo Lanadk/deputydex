@@ -62,6 +62,8 @@ const components: Record<string, ComponentTheme[]> = {
             theme: 'États de page',
             items: [
                 { name: 'PageState', description: '404, erreur, aucun résultat', path: '/component-library/molecules/page-state' },
+                { name: 'ErrorState', description: 'Erreur de chargement et « Réessayer »', path: '/component-library/molecules/error-state' },
+                { name: 'Notification', description: 'Notification temporaire (toast)', path: '/component-library/molecules/notification' },
                 { name: 'Spinner', description: 'Indicateur de chargement', path: '/component-library/molecules/spinner' },
             ],
         },

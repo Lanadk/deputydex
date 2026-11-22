@@ -11,11 +11,14 @@ import { SpinnerLib } from "@/app/(ui)/component-library/molecules/spinner/spinn
 import { DeputeIdentityDTO } from "@/app/domains/deputes/dto/depute-identity.dto";
 import { deputesGateway } from "@/app/(ui)/gateways/deputes/deputes.gateway";
 import { DEPUTE_SECTIONS } from "@/app/(ui)/(views)/(db)/deputes/[uid]/config";
+import { useAsyncData } from "@/app/(ui)/_shared/hook/use-async-data";
+import { ErrorStateLib } from "@/app/(ui)/component-library/molecules/error-state/error-state-lib";
+import { useNotifications } from "@/app/(ui)/component-library/molecules/notification/notification-lib";
 
 export default function DeputePageClient({ uid }: { uid: string }) {
     const [readyCount, setReadyCount] = useState(0);
-    const [identity, setIdentity] = useState<DeputeIdentityDTO>();
     const { legislature, legislatures, setUnavailableLegislatureNumbers } = useLegislature();
+    const { notify } = useNotifications();
     // null tant que la législature courante n'est pas chargée : ni en-tête ni
     // sections ne sont demandés d'ici là (sinon une requête part pour rien).
     const legislatureNum = legislature?.number ?? null;
@@ -25,13 +28,10 @@ export default function DeputePageClient({ uid }: { uid: string }) {
         [uid, legislatureNum]
     );
 
-    useEffect(() => {
-        if (legislatureNum === null) return;
-        deputesGateway
-            .getDeputeIdentity(uid, legislatureNum)
-            .then(setIdentity)
-            .catch(console.error);
-    }, [uid, legislatureNum]);
+    const identity = useAsyncData<DeputeIdentityDTO>(
+        legislatureNum === null ? null : () => deputesGateway.getDeputeIdentity(uid, legislatureNum),
+        `${uid}|${legislatureNum}`
+    );
 
     // Un député n'a pas forcément siégé sous toutes les législatures (élu
     // en 17e seulement, par exemple) — appeler l'identité sur une
@@ -53,13 +53,16 @@ export default function DeputePageClient({ uid }: { uid: string }) {
                 );
                 setUnavailableLegislatureNumbers(unavailable);
             })
-            .catch(console.error);
+            .catch(() => {
+                // Non bloquant : la page s'affiche, seul le grisage du sélecteur manque.
+                if (!cancelled) notify({ message: "Les législatures où ce député a siégé n'ont pas pu être vérifiées.", variant: "warning" });
+            });
 
         return () => {
             cancelled = true;
             setUnavailableLegislatureNumbers(new Set());
         };
-    }, [uid, legislatures, setUnavailableLegislatureNumbers]);
+    }, [uid, legislatures, setUnavailableLegislatureNumbers, notify]);
 
     const sectionsToAwait = useMemo(
         () => DEPUTE_SECTIONS.filter((s) => s.gatewayFn && !s.lazy),
@@ -71,7 +74,11 @@ export default function DeputePageClient({ uid }: { uid: string }) {
 
     return (
         <AnchorLayout
-            header={identity ? <DeputeHeader identity={identity} /> : <DeputeHeaderSkeleton />}
+            header={
+                identity.error
+                    ? <ErrorStateLib message="Impossible de charger les informations du député pour le moment." onRetry={identity.retry} />
+                    : identity.data ? <DeputeHeader identity={identity.data} /> : <DeputeHeaderSkeleton />
+            }
             sections={DEPUTE_SECTIONS}
         >
             <div className="mt-4">

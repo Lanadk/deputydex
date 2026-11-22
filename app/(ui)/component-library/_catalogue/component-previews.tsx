@@ -20,6 +20,8 @@ import { getDeputyCardSections } from "@/app/(ui)/component-library/molecules/de
 import { getGroupMiniCardSections } from "@/app/(ui)/component-library/molecules/group-mini-card/group-mini-card-lib.constants";
 import { getExpandableCardSections } from "@/app/(ui)/component-library/molecules/expandable-card/expandable-card-lib.constants";
 import { getPageStateSections } from "@/app/(ui)/component-library/molecules/page-state/page-state-lib.constants";
+import { getErrorStateSections } from "@/app/(ui)/component-library/molecules/error-state/error-state-lib.constants";
+import { getNotificationSections } from "@/app/(ui)/component-library/molecules/notification/notification-lib.constants";
 import { getSpinnerSections } from "@/app/(ui)/component-library/molecules/spinner/spinner-lib.constants";
 import { getThemeSwitcherSections } from "@/app/(ui)/component-library/molecules/theme-switcher/theme-switcher-lib.constants";
 import { getCodeBlockSections } from "@/app/(ui)/component-library/molecules/code-block/code-block-lib.constants";
@@ -61,6 +63,8 @@ export const COMPONENT_PREVIEWS: Record<string, ComponentPreview> = {
     '/component-library/molecules/group-mini-card': { width: 700, render: () => getGroupMiniCardSections()[0].component },
     '/component-library/molecules/expandable-card': { width: 700, render: () => getExpandableCardSections()[0].component },
     '/component-library/molecules/page-state': { width: 700, render: () => getPageStateSections()[0].component },
+    '/component-library/molecules/error-state': { width: 560, render: () => getErrorStateSections()[1].component },
+    '/component-library/molecules/notification': { width: 440, render: () => getNotificationSections()[1].component },
     '/component-library/molecules/spinner': { width: 440, render: () => getSpinnerSections()[1].component },
     '/component-library/molecules/theme-switcher': { width: 440, render: () => getThemeSwitcherSections()[0].component },
     '/component-library/molecules/code-block': { width: 600, render: () => getCodeBlockSections()[0].component },
