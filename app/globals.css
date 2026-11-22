@@ -166,6 +166,10 @@
     --btn-primary-hover: var(--ui-info-strong);
     --btn-primary-text: var(--ui-white);
 
+    /* Active tab of TabsLib "segmented" (white on blue-3 would be too faint) */
+    --tab-segmented-active-bg: var(--ui-info-strong);
+    --tab-segmented-active-text: var(--ui-white);
+
     --btn-secondary-bg: var(--ui-ink);
     --btn-secondary-hover: var(--ui-info-strong);
     --btn-secondary-text: var(--ui-white);
@@ -384,6 +388,9 @@
     --btn-primary-hover: var(--ui-info-soft);
     --btn-primary-text: var(--ui-ink); /* dark text on light blue */
 
+    --tab-segmented-active-bg: var(--ui-info);
+    --tab-segmented-active-text: var(--ui-ink);
+
     --btn-secondary-bg: var(--p1-steel-3);
     --btn-secondary-hover: var(--ui-info);
     --btn-secondary-text: var(--ui-paper);
@@ -579,6 +586,9 @@
     --btn-primary-bg: var(--ui-info);
     --btn-primary-hover: var(--p1-blue-3);
     --btn-primary-text: var(--ui-white);
+
+    --tab-segmented-active-bg: var(--ui-info); /* blue-4 in accessible */
+    --tab-segmented-active-text: var(--ui-white);
 
     --btn-secondary-bg: var(--ui-ink);
     --btn-secondary-hover: var(--ui-info);
@@ -926,11 +936,17 @@
     /* -------------------------------------------------------
        TabsLib — onglets
        ------------------------------------------------------- */
+    /*
+     * Ligne de base dessinée par une ombre intérieure (pas une bordure) et onglets
+     * sans marge négative : rien ne dépasse du conteneur, donc pas de défilement
+     * vertical parasite d'un pixel (overflow-x: auto active aussi l'axe vertical).
+     */
     .tabs-lib {
         display: flex;
         gap: 4px;
         overflow-x: auto;
-        border-bottom: 1px solid var(--border-main);
+        overflow-y: hidden;
+        box-shadow: inset 0 -1px 0 var(--border-main);
     }
 
     .tabs-lib__tab {
@@ -938,15 +954,22 @@
         align-items: center;
         gap: 8px;
         padding: 10px 14px;
-        margin-bottom: -1px;
         border-bottom: 2px solid transparent;
         font-size: 14px;
+        /* Interligne explicite : une rangée d'onglets mesure exactement 42 px
+           (10 + 20 + 10 + 2), hauteur réservée par .org-chart-lib__toolbar. */
+        line-height: 20px;
         white-space: nowrap;
         color: var(--subtitle-accent);
         transition: color 150ms ease, border-color 150ms ease;
     }
 
     .tabs-lib__tab:hover { color: var(--foreground); }
+
+    /* Libellé et sa copie en gras dans la même cellule : largeur = celle du gras. */
+    .tabs-lib__label { display: inline-grid; }
+    .tabs-lib__label > * { grid-area: 1 / 1; }
+    .tabs-lib__label-gras { font-weight: 600; visibility: hidden; }
 
     .tabs-lib__tab:focus-visible {
         outline: 2px solid var(--accent);
@@ -964,13 +987,683 @@
         padding: 1px 7px;
         border-radius: 999px;
         font-size: 12px;
+        line-height: 18px; /* 18 + 2 = l'interligne de l'onglet : la pastille ne l'agrandit pas */
         font-weight: 500;
         background-color: var(--surface-3);
         color: var(--subtitle-accent);
     }
 
+    /* Variante « segmented » : sélecteur en pastilles, onglet actif rempli. */
+    .tabs-lib--segmented {
+        display: inline-flex;
+        align-self: flex-start;
+        max-width: 100%;
+        padding: 4px;
+        border: 1px solid var(--border-main);
+        border-radius: 10px;
+        background-color: var(--surface-3);
+        box-shadow: none;
+    }
+
+    .tabs-lib--segmented .tabs-lib__tab {
+        padding: 8px 16px;
+        border-bottom: none;
+        border-radius: 7px;
+        font-weight: 500;
+        color: var(--foreground);
+        transition: color 150ms ease, background-color 150ms ease;
+    }
+
+    .tabs-lib--segmented .tabs-lib__tab:hover {
+        background-color: color-mix(in srgb, var(--foreground) 8%, transparent);
+    }
+
+    .tabs-lib--segmented .tabs-lib__tab--active,
+    .tabs-lib--segmented .tabs-lib__tab--active:hover {
+        background-color: var(--tab-segmented-active-bg);
+        color: var(--tab-segmented-active-text);
+        font-weight: 600;
+    }
+
+    /* Pleine largeur : chaque onglet en part égale, libellé centré. */
+    .tabs-lib--full {
+        display: flex;
+        align-self: stretch;
+        width: 100%;
+    }
+
+    .tabs-lib--full .tabs-lib__tab {
+        flex: 1 1 0;
+        justify-content: center;
+        min-width: 0;
+    }
+
     @media (prefers-reduced-motion: reduce) {
         .tabs-lib__tab { transition: none; }
+    }
+
+    /* -------------------------------------------------------
+       TimelineLib — frise chronologique en couloirs
+       ------------------------------------------------------- */
+    .timeline-lib {
+        --timeline-label-width: 11rem;
+        margin: 0;
+    }
+
+    .timeline-lib__scroll { overflow-x: auto; }
+
+    /* Largeur minimale : sur petit écran, la frise défile dans son cadre au lieu de s'écraser. */
+    .timeline-lib__canvas { min-width: 720px; }
+
+    .timeline-lib__axis {
+        position: relative;
+        height: 1.5rem;
+        margin-left: var(--timeline-label-width);
+        border-bottom: 1px solid var(--border-main);
+    }
+
+    .timeline-lib__tick {
+        position: absolute;
+        bottom: 4px;
+        transform: translateX(-50%);
+        font-size: 12px;
+        color: var(--subtitle-accent);
+    }
+
+    .timeline-lib__body { position: relative; }
+
+    .timeline-lib__lane {
+        display: grid;
+        grid-template-columns: var(--timeline-label-width) minmax(0, 1fr);
+        align-items: center;
+        border-bottom: 1px solid var(--border-main);
+    }
+
+    /* Reste visible quand la frise défile horizontalement (petit écran). */
+    .timeline-lib__lane-label {
+        position: sticky;
+        left: 0;
+        z-index: 3;
+        align-self: stretch;
+        display: flex;
+        align-items: center;
+        padding: 8px 12px 8px 0;
+        font-size: 13px;
+        font-weight: 600;
+        background-color: var(--background);
+    }
+
+    @media (max-width: 639px) {
+        .timeline-lib { --timeline-label-width: 7rem; }
+        .timeline-lib__lane-label { font-size: 12px; }
+    }
+
+    .timeline-lib__track {
+        position: relative;
+        height: 2.75rem;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    .timeline-lib__period {
+        position: absolute;
+        top: 6px;
+        bottom: 6px;
+        min-width: 3px;
+        overflow: hidden;
+        border-left: 3px solid var(--timeline-color);
+        border-radius: 4px;
+        background-color: color-mix(in srgb, var(--timeline-color) 22%, var(--surface-2));
+    }
+
+    .timeline-lib__period > a,
+    .timeline-lib__period > span {
+        display: flex;
+        align-items: center;
+        height: 100%;
+        padding: 0 6px;
+        color: var(--foreground);
+        text-decoration: none;
+    }
+
+    /* Période liée à une fiche : soulignée sans survol. */
+    .timeline-lib__period > a {
+        text-decoration: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 3px;
+    }
+
+    .timeline-lib__period > a:hover { text-decoration-thickness: 2px; }
+
+    .timeline-lib__period > a:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: -2px;
+    }
+
+    .timeline-lib__period-label {
+        overflow: hidden;
+        font-size: 12px;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+    }
+
+    /* Repères d'événements numérotés, au-dessus de l'axe ; deux repères trop proches
+       s'empilent sur deux rangées (--timeline-marker-row). */
+    .timeline-lib__markers {
+        position: relative;
+        height: calc(var(--timeline-marker-rows, 1) * 24px);
+        margin-left: var(--timeline-label-width);
+    }
+
+    .timeline-lib__marker {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 20px;
+        height: 20px;
+        border-radius: 999px;
+        background-color: var(--ui-warning);
+        color: var(--background);
+        font-size: 11px;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+        line-height: 1;
+    }
+
+    .timeline-lib__markers > .timeline-lib__marker {
+        position: absolute;
+        bottom: calc(var(--timeline-marker-row, 0) * 24px + 2px);
+        transform: translateX(-50%);
+        cursor: default;
+    }
+
+    /* Au-dessus des périodes (z-index 2) mais sous l'intitulé collant des couloirs (z-index 3). */
+    .timeline-lib__events {
+        position: absolute;
+        top: -1.5rem; /* traverse aussi l'axe, jusqu'au repère */
+        bottom: 0;
+        left: var(--timeline-label-width);
+        right: 0;
+        z-index: 2;
+        pointer-events: none;
+    }
+
+    .timeline-lib__event-line {
+        position: absolute;
+        top: 0;
+        bottom: 0;
+        width: 0;
+        border-left: 2px dashed var(--ui-warning);
+        transform: translateX(-1px);
+        pointer-events: auto;
+    }
+
+    .timeline-lib__legend {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 24px;
+        margin: 14px 0 0;
+        padding: 0;
+        list-style: none;
+        font-size: 13px;
+    }
+
+    .timeline-lib__legend > li {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .timeline-lib__legend-date {
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* -------------------------------------------------------
+       ProportionBarLib — répartition en une barre
+       ------------------------------------------------------- */
+    .proportion-bar-lib { margin: 0; }
+
+    .proportion-bar-lib__bar {
+        display: flex;
+        gap: 2px;
+        height: 14px;
+        overflow: hidden;
+        border-radius: 999px;
+        background-color: var(--surface-3);
+    }
+
+    .proportion-bar-lib__segment {
+        flex-basis: 0;
+        min-width: 4px;
+    }
+
+    .proportion-bar-lib__legend {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 10rem), 1fr));
+        gap: 14px 24px;
+        margin: 14px 0 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    /* Chiffres en tête, libellé dessous : toutes les entrées ont la même structure,
+       qu'un libellé tienne sur une ligne ou deux. */
+    .proportion-bar-lib__item {
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    .proportion-bar-lib__figures {
+        display: flex;
+        align-items: baseline;
+        gap: 6px;
+    }
+
+    .proportion-bar-lib__dot {
+        flex-shrink: 0;
+        align-self: center;
+        width: 10px;
+        height: 10px;
+        border-radius: 999px;
+    }
+
+    .proportion-bar-lib__value {
+        font-size: 18px;
+        font-weight: 700;
+        font-variant-numeric: tabular-nums;
+    }
+
+    .proportion-bar-lib__percent {
+        font-size: 12px;
+        font-variant-numeric: tabular-nums;
+        color: var(--subtitle-accent);
+    }
+
+    .proportion-bar-lib__label {
+        padding-left: 16px;
+        font-size: 13px;
+        line-height: 1.35;
+        color: var(--subtitle-accent);
+    }
+
+    /* -------------------------------------------------------
+       InfoTipLib — icône « i » et bulle d'information
+       ------------------------------------------------------- */
+    .info-tip-lib {
+        position: relative;
+        display: inline-flex;
+        align-items: center;
+        gap: 4px;
+        vertical-align: middle;
+    }
+
+    .info-tip-lib__button {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 20px;
+        height: 20px;
+        border-radius: 999px;
+        color: var(--subtitle-accent);
+        cursor: pointer;
+    }
+
+    .info-tip-lib__button:hover,
+    .info-tip-lib__button[aria-expanded="true"] {
+        background-color: var(--surface-3);
+        color: var(--foreground);
+    }
+
+    .info-tip-lib__button:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+    }
+
+    .info-tip-lib__bubble {
+        position: absolute;
+        top: calc(100% + 6px);
+        z-index: 30;
+        display: block;
+        width: max-content;
+        max-width: min(20rem, 80vw);
+        padding: 8px 10px;
+        border: 1px solid var(--border-main);
+        border-radius: 8px;
+        background-color: var(--surface-2);
+        box-shadow: 0 6px 20px rgb(0 0 0 / 0.15);
+        font-size: 13px;
+        font-weight: 400;
+        line-height: 1.45;
+        letter-spacing: normal;
+        text-align: left;
+        text-transform: none;
+        white-space: normal;
+        color: var(--foreground);
+    }
+
+    .info-tip-lib__bubble--start { left: 0; }
+    .info-tip-lib__bubble--end { right: 0; }
+
+    /* -------------------------------------------------------
+       OrgChartLib — organigramme
+       ------------------------------------------------------- */
+    .org-chart-lib__controls {
+        display: flex;
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 8px;
+        margin-bottom: 12px;
+    }
+
+    /* Ligne au-dessus des boutons (ex. onglets) : hauteur d'une rangée d'onglets
+       soulignés (42 px, cf. .tabs-lib__tab) même vide, pour que les boutons en
+       dessous ne bougent pas d'un pixel. Défile si trop longue. */
+    .org-chart-lib__toolbar {
+        width: 100%;
+        min-width: 0;
+        min-height: 42px;
+    }
+
+    .org-chart-lib__buttons {
+        display: flex;
+        gap: 8px;
+    }
+
+    .org-chart-lib__row {
+        display: flex;
+        align-items: flex-start;
+        gap: 6px;
+    }
+
+    .org-chart-lib__toggle {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        flex-shrink: 0;
+        width: 24px;
+        height: 24px;
+        margin-top: 10px;
+        border-radius: 6px;
+        color: var(--subtitle-accent);
+    }
+
+    .org-chart-lib__toggle:hover { background-color: var(--surface-3); color: var(--foreground); }
+
+    .org-chart-lib__toggle:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+    }
+
+    /* Largeur fixe : les cartes d'une même colonne s'alignent, pastilles comprises. */
+    .org-chart-lib__card {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        width: min(100%, 24rem);
+        min-width: 0;
+        padding: 8px 12px;
+        border: 1px solid var(--border-main);
+        border-radius: 8px;
+        background-color: var(--surface-2);
+    }
+
+    .org-chart-lib__text {
+        display: flex;
+        flex: 1;
+        flex-direction: column;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    /* Pastille ancrée en haut à droite : même place sur toutes les cartes. */
+    .org-chart-lib__badge {
+        align-self: flex-start;
+        flex-shrink: 0;
+        margin-left: auto;
+        padding: 1px 6px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 0.02em;
+        white-space: nowrap;
+    }
+
+    /* Intitulé de regroupement (« Ministres délégués ») : un titre de section, pas une carte. */
+    .org-chart-lib__row--group { align-items: center; }
+    .org-chart-lib__row--group .org-chart-lib__toggle { margin-top: 0; }
+
+    .org-chart-lib__group {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        min-height: 24px;
+    }
+
+    .org-chart-lib__group-title {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        color: var(--subtitle-accent);
+    }
+
+    .org-chart-lib__group-count {
+        min-width: 20px;
+        padding: 0 6px;
+        border-radius: 999px;
+        background-color: var(--surface-3);
+        font-size: 11px;
+        font-weight: 700;
+        text-align: center;
+        font-variant-numeric: tabular-nums;
+        color: var(--subtitle-accent);
+    }
+
+    .org-chart-lib__card--root { border-left: 4px solid var(--accent); }
+
+    .org-chart-lib__title {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--foreground);
+    }
+
+    /* Un nom qui mène à une fiche se voit sans survol : couleur d'accent et souligné. */
+    a.org-chart-lib__title {
+        color: var(--accent);
+        text-decoration: underline;
+        text-decoration-thickness: 1px;
+        text-underline-offset: 3px;
+    }
+
+    a.org-chart-lib__title:hover { text-decoration-thickness: 2px; }
+
+    a.org-chart-lib__title:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 2px;
+        border-radius: 4px;
+    }
+
+    .org-chart-lib__subtitle,
+    .org-chart-lib__note {
+        font-size: 12px;
+        color: var(--subtitle-accent);
+    }
+
+    /* Intitulés de fonction très longs : deux lignes au plus (texte complet en info-bulle). */
+    .org-chart-lib__subtitle {
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    .org-chart-lib__note { font-style: italic; }
+
+    /* Sous-titre suivi de l'icône « i » de la définition. */
+    .org-chart-lib__subtitle-row {
+        display: flex;
+        align-items: flex-start;
+        gap: 2px;
+        min-width: 0;
+    }
+
+    .org-chart-lib__subtitle-row .info-tip-lib { margin-top: -2px; }
+
+    /* Arbre : chaque niveau est indenté et relié à son parent (ligne verticale + branche). */
+    .org-chart-lib__children {
+        margin: 0 0 0 14px;
+        padding: 10px 0 0 18px;
+        list-style: none;
+        border-left: 1px solid var(--border-main);
+    }
+
+    .org-chart-lib__item {
+        position: relative;
+        padding: 0 0 10px;
+    }
+
+    .org-chart-lib__item::before {
+        content: "";
+        position: absolute;
+        top: 18px;
+        left: -18px;
+        width: 14px;
+        border-top: 1px solid var(--border-main);
+    }
+
+    .org-chart-lib__children--grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(min(100%, 17rem), 1fr));
+        /* Toutes les lignes de la grille ont la hauteur de la plus haute carte. */
+        grid-auto-rows: 1fr;
+        gap: 8px;
+    }
+
+    .org-chart-lib__children--grid > .org-chart-lib__item { padding: 0; }
+    .org-chart-lib__children--grid > .org-chart-lib__item::before { display: none; }
+    .org-chart-lib__children--grid .org-chart-lib__card { width: 100%; height: 100%; }
+
+    /* Le bouton de repli décale la carte : la branche part du milieu du bouton. */
+    .org-chart-lib__item:has(> .org-chart-lib__row > .org-chart-lib__toggle)::before { top: 22px; }
+    .org-chart-lib__item:has(> .org-chart-lib__row--group)::before { top: 12px; }
+
+    /* Sélecteur d'affichage « Arbre / Pyramide », sur la ligne des boutons. */
+    .org-chart-lib__buttons { flex-wrap: wrap; align-items: center; }
+
+    .org-chart-lib__layout {
+        display: inline-flex;
+        padding: 2px;
+        border: 1px solid var(--border-main);
+        border-radius: 8px;
+        background-color: var(--surface-3);
+    }
+
+    .org-chart-lib__layout-btn {
+        padding: 4px 12px;
+        border-radius: 6px;
+        font-size: 13px;
+        line-height: 20px;
+        color: var(--foreground);
+    }
+
+    .org-chart-lib__layout-btn:hover { background-color: color-mix(in srgb, var(--foreground) 8%, transparent); }
+
+    .org-chart-lib__layout-btn:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 1px;
+    }
+
+    .org-chart-lib__layout-btn--active,
+    .org-chart-lib__layout-btn--active:hover {
+        background-color: var(--tab-segmented-active-bg);
+        color: var(--tab-segmented-active-text);
+        font-weight: 600;
+    }
+
+    /* Pyramide : chaque niveau centré sous le précédent, reliés par l'axe central. */
+    .org-chart-lib__pyr-node {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        width: 100%;
+    }
+
+    .org-chart-lib__pyr-head {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        max-width: 100%;
+    }
+
+    .org-chart-lib--pyramide .org-chart-lib__toggle { margin-top: 0; }
+
+    /* Format unique en pyramide : même largeur et même hauteur minimale pour toutes
+       les cartes, quelle que soit la longueur du nom ou de la fonction. */
+    .org-chart-lib--pyramide .org-chart-lib__card {
+        width: 16rem;
+        max-width: 100%;
+        min-height: 4.5rem;
+    }
+
+    /* Noms très longs : deux lignes au plus, pour ne pas étirer la carte. */
+    .org-chart-lib--pyramide .org-chart-lib__title {
+        display: -webkit-box;
+        overflow: hidden;
+        -webkit-box-orient: vertical;
+        -webkit-line-clamp: 2;
+    }
+
+    .org-chart-lib__pyr-stem {
+        display: block;
+        width: 1px;
+        height: 16px;
+        background-color: var(--border-main);
+    }
+
+    .org-chart-lib__pyr-children {
+        width: 100%;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+    }
+
+    /* Feuilles d'un même parent : une rangée centrée, sous un trait horizontal. */
+    /* Grille à colonnes fixes : chaque carte d'une rangée a la même taille (la plus haute donne la hauteur). */
+    .org-chart-lib__pyr-children--row {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, min(100%, 16rem));
+        grid-auto-rows: 1fr;
+        justify-content: center;
+        gap: 8px;
+        padding-top: 12px;
+        border-top: 1px solid var(--border-main);
+    }
+
+    .org-chart-lib__pyr-children--row > .org-chart-lib__pyr-item { display: flex; justify-content: center; }
+    .org-chart-lib__pyr-children--row .org-chart-lib__card { height: 100%; }
+
+    /* Sous-arbres empilés : l'axe central continue de l'un à l'autre. */
+    .org-chart-lib__pyr-children--stack {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+
+    .org-chart-lib__pyr-children--stack > .org-chart-lib__pyr-item { width: 100%; }
+
+    .org-chart-lib__pyr-children--stack > .org-chart-lib__pyr-item + .org-chart-lib__pyr-item::before {
+        content: "";
+        display: block;
+        width: 1px;
+        height: 24px;
+        margin: 0 auto;
+        background-color: var(--border-main);
     }
 
     /* -------------------------------------------------------

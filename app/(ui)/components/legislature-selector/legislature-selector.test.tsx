@@ -55,6 +55,15 @@ describe("LegislatureSelector", () => {
         expect(container).toBeEmptyDOMElement();
     });
 
+    it("renders nothing on /legislatures — the page has its own legislature tabs", () => {
+        mockUsePathname.mockReturnValue("/legislatures");
+        setLegislatureState();
+
+        const { container } = render(<LegislatureSelector />);
+
+        expect(container).toBeEmptyDOMElement();
+    });
+
     it("renders the selector on chiffres-cles pages — they read the app-wide legislature directly, with no picker of their own", () => {
         mockUsePathname.mockReturnValue("/statistics/chiffres-cles");
         setLegislatureState();

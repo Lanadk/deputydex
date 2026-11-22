@@ -1,4 +1,4 @@
-import {Armchair, BarChart3, Component, Gauge, House, Layers, Grid3x3, HandHelping, MessageCircleMore, Database, Scale, GitPullRequest, Vote} from "lucide-react";
+import {Armchair, BarChart3, Component, Gauge, House, Layers, Grid3x3, HandHelping, MessageCircleMore, Database, Scale, GitPullRequest, Vote, Landmark} from "lucide-react";
 import {DEV_PERF_ENABLED} from "@/app/_shared/dev-perf/dev-perf.config";
 
 export const NAVITEMS = [
@@ -7,6 +7,7 @@ export const NAVITEMS = [
     {label: "Groupes", href: "/groupes", icon: Layers, section: "deputydex"},
     {label: "Hémicycle", href: "/hemicycle", icon: Armchair, section: "deputydex"},
     {label: "Scrutins", href: "/scrutins", icon: Vote, section: "deputydex"},
+    {label: "Législatures", href: "/legislatures", icon: Landmark, section: "deputydex"},
     {label: "Statistiques", href: "/statistics", icon: BarChart3, section: "deputydex"}, //TODO V2
     {label: "Data Sources", href: "/data-sources", icon: Database, section: "info"},
     {label: "About us", href: "/about-us", icon: MessageCircleMore, section: "info"},

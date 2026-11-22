@@ -36,6 +36,9 @@ const config: Config = {
         '!app/**/*.d.ts',
         '!app/**/*.test.{ts,tsx}',
         '!app/infrastructure/db/generated/**',
+        // Fichiers de types seuls (aucun code exécutable) : v8 les compterait comme entièrement non couverts.
+        '!app/domains/**/{dto,entities}/**',
+        '!app/domains/**/{repositories,gateways}/I*.ts',
     ],
 }
 
