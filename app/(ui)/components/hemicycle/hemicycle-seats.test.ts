@@ -36,6 +36,25 @@ describe("computeHemicycleSeats", () => {
         expect(meanLeft("RN")).toBeLessThan(meanLeft("NI-17"));
     });
 
+    it("puts the presidency on the perchoir: one seat out of its group's block, same total", () => {
+        const seats = computeHemicycleSeats(groupes, { groupeCode: "EPR" });
+        const perchoir = seats.filter((s) => s.perchoir);
+
+        expect(seats).toHaveLength(293);
+        expect(perchoir).toHaveLength(1);
+        expect(perchoir[0]).toMatchObject({ groupeCode: "EPR", rank: 89, left: 50, rotate: 0 });
+        // Sur l'axe, devant la première rangée : plus bas que les sièges du centre de l'hémicycle.
+        const auCentre = seats.filter((s) => !s.perchoir && Math.abs(s.left - 50) < 5);
+        expect(auCentre.length).toBeGreaterThan(0);
+        expect(perchoir[0].top).toBeGreaterThan(Math.max(...auCentre.map((s) => s.top)));
+        // Les rangs restent uniques dans le groupe (clé du siège, concordance siège ↔ député).
+        expect(new Set(seats.filter((s) => s.groupeCode === "EPR").map((s) => s.rank)).size).toBe(90);
+    });
+
+    it("ignores a perchoir group that is absent from the assembly", () => {
+        expect(computeHemicycleSeats(groupes, { groupeCode: "INCONNU" }).some((s) => s.perchoir)).toBe(false);
+    });
+
     it("handles the real 577 seats and an empty assembly", () => {
         expect(computeHemicycleSeats([{ code: "X", count: 577 }])).toHaveLength(577);
         expect(computeHemicycleSeats([])).toEqual([]);

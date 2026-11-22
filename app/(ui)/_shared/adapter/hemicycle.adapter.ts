@@ -1,5 +1,6 @@
 import { DeputesCardDTO } from "@/app/domains/deputes/dto/deputes-card.dto";
 import { GroupeCardDTO } from "@/app/domains/groupes/dto/groupes-card.dto";
+import { PresidenceAssembleeDTO } from "@/app/domains/legislatures/dto/presidence-assemblee.dto";
 import { compareGroupesGaucheDroite } from "@/app/domains/groupes/constants/groupe-ordre-hemicycle.constants";
 import { getCanonicalGroupTheme, getGroupFullLabel } from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
 import { normalizeForSearch } from "@/app/_shared/utils/string";
@@ -27,6 +28,33 @@ export type HemicycleGroupe = {
     /** Ex: "Présidente du groupe" — affiché sous le nom sur la carte. */
     presidentRole: string | null;
 };
+
+/** Présidence de l'Assemblée, telle qu'affichée sur l'hémicycle : sa carte de député et son groupe (perchoir). */
+export type HemicyclePerchoir = {
+    presidence: PresidenceAssembleeDTO;
+    /** Carte du député (affichée au survol du perchoir). */
+    carte: DeputesCardDTO;
+    /** Groupe du perchoir (couleur du siège). */
+    groupeCode: string;
+};
+
+/** Libellé de la fonction, sous le nom sur la carte du perchoir. */
+export const ROLE_PERCHOIR = "Présidence de l'Assemblée nationale";
+
+/**
+ * Retrouve la présidence parmi les cartes députés de la législature, pour placer
+ * son siège au perchoir. Null sans présidence, ou si sa carte est introuvable ou
+ * sans groupe : elle reste alors à sa place dans les rangées.
+ */
+export function buildHemicyclePerchoir(
+    presidence: PresidenceAssembleeDTO | null,
+    deputes: DeputesCardDTO[]
+): HemicyclePerchoir | null {
+    if (!presidence) return null;
+    const carte = deputes.find((d) => d.deputeUID === presidence.uid);
+    if (!carte?.deputeGroupeCode) return null;
+    return { presidence, carte, groupeCode: carte.deputeGroupeCode };
+}
 
 function getShortLabel(code: string): string {
     return code === "NI" || code.startsWith("NI-") ? "NI" : code;
