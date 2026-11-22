@@ -188,6 +188,7 @@
     --card-surface-1: var(--ui-ink);
     --card-surface-2: var(--ui-info-strong);
     --text-muted: var(--ui-steel-muted);
+    --card-text-muted: var(--ui-steel-muted); /* secondary text on --surface-2 cards */
 
     /* Nameplate */
     --plate-1: var(--type-yellow);
@@ -402,6 +403,7 @@
     --card-surface-1: var(--ui-ink);
     --card-surface-2: var(--ui-info-strong);
     --text-muted: var(--ui-steel);
+    --card-text-muted: var(--ui-info-soft); /* light blue: readable on the blue-deep card bg */
 
     --plate-1: var(--type-yellow);
     --plate-2: var(--ui-info);
@@ -597,6 +599,7 @@
     --card-surface-1: var(--ui-ink);
     --card-surface-2: var(--ui-info);
     --text-muted: var(--ui-steel-muted);
+    --card-text-muted: var(--ui-steel-muted);
 
     --plate-1: var(--type-yellow);
     --plate-2: var(--ui-paper);
@@ -715,6 +718,10 @@
 
     .text-subtitle-accent {
         color: var(--subtitle-accent);
+    }
+
+    .text-card-muted {
+        color: var(--card-text-muted);
     }
 
     .text-highlight {
