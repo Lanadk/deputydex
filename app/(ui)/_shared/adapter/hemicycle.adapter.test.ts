@@ -1,4 +1,4 @@
-import { buildHemicycleGroupes, groupeTooltipTheme } from "@/app/(ui)/_shared/adapter/hemicycle.adapter";
+import { buildHemicycleGroupes, buildHemicyclePerchoir, groupeTooltipTheme } from "@/app/(ui)/_shared/adapter/hemicycle.adapter";
 import { DeputesCardDTO } from "@/app/domains/deputes/dto/deputes-card.dto";
 import { GroupeCardDTO } from "@/app/domains/groupes/dto/groupes-card.dto";
 
@@ -18,6 +18,25 @@ function groupe(code: string, overrides: Partial<GroupeCardDTO> = {}): GroupeCar
         ...overrides,
     };
 }
+
+describe("buildHemicyclePerchoir", () => {
+    const PRESIDENCE = { uid: "PA_YBP", nom: "Yaël Braun-Pivet", depuis: "2024-07-18", jusqua: null };
+
+    it("retrouve la carte et le groupe de la présidence parmi les cartes députés", () => {
+        const carte = depute("PA_YBP", "EPR");
+        expect(buildHemicyclePerchoir(PRESIDENCE, [depute("PA_1", "RN"), carte]))
+            .toEqual({ presidence: PRESIDENCE, carte, groupeCode: "EPR" });
+    });
+
+    it("carte introuvable ou sans groupe : pas de perchoir (siège dans les rangées)", () => {
+        expect(buildHemicyclePerchoir(PRESIDENCE, [depute("PA_1", "RN")])).toBeNull();
+        expect(buildHemicyclePerchoir(PRESIDENCE, [depute("PA_YBP", "")])).toBeNull();
+    });
+
+    it("pas de présidence : null", () => {
+        expect(buildHemicyclePerchoir(null, [depute("PA_1", "RN")])).toBeNull();
+    });
+});
 
 describe("buildHemicycleGroupes", () => {
     it("counts members from the deputy cards, ignores cards without a group, orders left → right", () => {

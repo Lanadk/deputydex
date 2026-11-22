@@ -2615,6 +2615,32 @@
         animation: hemicycle-seat-in .55s cubic-bezier(.2, .7, .2, 1) backwards;
     }
 
+    /* Perchoir (présidence de l'Assemblée) : siège plus grand, aux couleurs du
+       groupe, cerné d'un liseré pour se détacher des rangées. */
+    .hemicycle-seat--perchoir {
+        width: calc(2.2% * var(--hemi-seat-scale, 1));
+        height: calc(5.4% * var(--hemi-seat-scale, 1));
+        margin: calc(-2.7% * var(--hemi-seat-scale, 1)) 0 0 calc(-1.1% * var(--hemi-seat-scale, 1));
+        border-radius: 3px;
+        box-shadow: 0 0 0 2px var(--highlight), 0 2px 4px rgb(0 0 0 / .4);
+        cursor: pointer;
+    }
+
+    /* Zone de survol plus large que le siège : petit, et déformé par la perspective. */
+    .hemicycle-seat--perchoir::before {
+        content: "";
+        position: absolute;
+        inset: -40% -60%;
+    }
+
+    .hemicycle-seat--perchoir:focus-visible {
+        outline: 2px solid var(--foreground);
+        outline-offset: 2px;
+    }
+
+    /* Carte de la présidence au survol du perchoir : largeur d'une carte du DeputéDex. */
+    .hemicycle-perchoir-card { width: 200px; }
+
     /* Siège survolable (fiche scrutin) : zone de survol invisible plus large que le
        siège, qui comble les espaces entre voisins pour que la souris ne « tombe »
        pas entre deux sièges. */

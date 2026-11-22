@@ -31,6 +31,29 @@ describe("legislaturesGateway.getCurrent", () => {
     });
 });
 
+describe("legislaturesGateway.getPresidenceAssemblee", () => {
+    afterEach(() => jest.resetAllMocks());
+
+    it("GETs /api/legislatures/:n/presidence-assemblee and resolves with the parsed JSON", async () => {
+        mockFetchOnce({ ok: true, json: async () => ({ uid: "PA_YBP" }) });
+
+        await expect(legislaturesGateway.getPresidenceAssemblee(17)).resolves.toEqual({ uid: "PA_YBP" });
+        expect(fetch).toHaveBeenCalledWith("/api/legislatures/17/presidence-assemblee");
+    });
+
+    it("resolves with null on a 404", async () => {
+        mockFetchOnce({ ok: false, status: 404 });
+
+        await expect(legislaturesGateway.getPresidenceAssemblee(17)).resolves.toBeNull();
+    });
+
+    it("throws on any other non-ok status", async () => {
+        mockFetchOnce({ ok: false, status: 500 });
+
+        await expect(legislaturesGateway.getPresidenceAssemblee(17)).rejects.toThrow("Failed to get presidence of the Assemblee");
+    });
+});
+
 describe("legislaturesGateway.getAll", () => {
     afterEach(() => jest.resetAllMocks());
 

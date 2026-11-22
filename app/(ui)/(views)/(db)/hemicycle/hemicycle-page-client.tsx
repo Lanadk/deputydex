@@ -4,7 +4,14 @@ import React, { useEffect, useMemo, useState } from "react";
 import { useLegislature } from "@/app/(ui)/providers/legislature-provider";
 import { deputesGateway } from "@/app/(ui)/gateways/deputes/deputes.gateway";
 import { groupesGateways } from "@/app/(ui)/gateways/groupes/groupes.gateway";
-import { buildHemicycleGroupes, HemicycleGroupe } from "@/app/(ui)/_shared/adapter/hemicycle.adapter";
+import { legislaturesGateway } from "@/app/(ui)/gateways/legislatures/legislatures.gateway";
+import { useNotifications } from "@/app/(ui)/component-library/molecules/notification/notification-lib";
+import {
+    buildHemicycleGroupes,
+    buildHemicyclePerchoir,
+    HemicycleGroupe,
+    HemicyclePerchoir,
+} from "@/app/(ui)/_shared/adapter/hemicycle.adapter";
 import { computeHemicycleSeats } from "@/app/(ui)/components/hemicycle/hemicycle-seats";
 import { HemicyclePlan } from "@/app/(ui)/components/hemicycle/hemicycle-plan";
 import { HemicycleLegend } from "@/app/(ui)/components/hemicycle/hemicycle-legend";
@@ -12,11 +19,14 @@ import { HemicycleDetail } from "@/app/(ui)/components/hemicycle/hemicycle-detai
 import { SpinnerLib } from "@/app/(ui)/component-library/molecules/spinner/spinner-lib";
 import { SpanLib } from "@/app/(ui)/component-library/atoms/span/span-lib";
 
-type LoadState = { legislature: number; groupes: HemicycleGroupe[] } | { legislature: number; error: true };
+type LoadState =
+    | { legislature: number; groupes: HemicycleGroupe[]; perchoir: HemicyclePerchoir | null }
+    | { legislature: number; error: true };
 
 export default function HemicyclePageClient() {
     const { legislature } = useLegislature();
     const legislatureNum = legislature?.number;
+    const { notify } = useNotifications();
 
     const [state, setState] = useState<LoadState | null>(null);
     const [selection, setSelection] = useState<{ legislature: number; code: string } | null>(null);
@@ -32,9 +42,18 @@ export default function HemicyclePageClient() {
                 console.error(e);
                 return [];
             }),
+            // Idem pour la présidence de l'Assemblée : sans elle, pas de perchoir (siège dans son groupe).
+            legislaturesGateway.getPresidenceAssemblee(legislatureNum).catch(() => {
+                if (!cancelled) notify({ message: "La présidence de l'Assemblée n'a pas pu être chargée.", variant: "warning" });
+                return null;
+            }),
         ])
-            .then(([deputes, groupes]) => {
-                if (!cancelled) setState({ legislature: legislatureNum, groupes: buildHemicycleGroupes(deputes, groupes) });
+            .then(([deputes, groupes, presidence]) => {
+                if (!cancelled) setState({
+                    legislature: legislatureNum,
+                    groupes: buildHemicycleGroupes(deputes, groupes),
+                    perchoir: buildHemicyclePerchoir(presidence, deputes),
+                });
             })
             .catch((e) => {
                 console.error(e);
@@ -43,15 +62,20 @@ export default function HemicyclePageClient() {
         return () => {
             cancelled = true;
         };
-    }, [legislatureNum]);
+    }, [legislatureNum, notify]);
 
     // Données / sélection d'une autre législature = encore en chargement / pas de sélection.
     const current = state && state.legislature === legislatureNum ? state : null;
     const groupes = useMemo(() => (current && "groupes" in current ? current.groupes : []), [current]);
+    const perchoir = current && "perchoir" in current ? current.perchoir : null;
     const selectedCode = selection && selection.legislature === legislatureNum ? selection.code : null;
     const selectedGroupe = groupes.find((g) => g.code === selectedCode) ?? null;
 
-    const seats = useMemo(() => computeHemicycleSeats(groupes), [groupes]);
+    const perchoirGroupe = perchoir?.groupeCode ?? null;
+    const seats = useMemo(
+        () => computeHemicycleSeats(groupes, perchoirGroupe ? { groupeCode: perchoirGroupe } : null),
+        [groupes, perchoirGroupe]
+    );
 
     const toggle = (code: string) => {
         if (!legislatureNum) return;
@@ -79,7 +103,7 @@ export default function HemicyclePageClient() {
                 </div>
             ) : (
                 <>
-                    <HemicyclePlan key={current.legislature} seats={seats} selectedCode={selectedCode} />
+                    <HemicyclePlan key={current.legislature} seats={seats} selectedCode={selectedCode} perchoir={perchoir} />
                     <section className="hemicycle-panel">
                         <HemicycleLegend groupes={groupes} selectedCode={selectedCode} onToggleAction={toggle} />
                         <HemicycleDetail groupe={selectedGroupe} total={seats.length} />
