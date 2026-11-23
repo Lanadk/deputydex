@@ -149,6 +149,16 @@
     --subtitle-accent: var(--ui-steel-muted);
     --highlight: var(--type-yellow);
 
+    /* Statistiques — « types » blanc / rouge / bleu de la palette P1 : un accent
+       (bandeau, halo, bordure ; fond teinté par color-mix) et l'encre lisible sur
+       la tuile comme sur ce fond teinté. */
+    --stat-type-rouge: var(--ui-warm);
+    --stat-type-rouge-ink: var(--ui-danger);
+    --stat-type-bleu: var(--ui-info);
+    --stat-type-bleu-ink: var(--ui-info-strong);
+    --stat-type-blanc: var(--ui-steel);
+    --stat-type-blanc-ink: var(--ui-ink);
+
     /* Card */
     --bg-card: var(--surface-2);
 
@@ -379,6 +389,15 @@
     --subtitle-accent: var(--ui-steel);
     --highlight: var(--type-yellow);
 
+    /* Statistiques — « types » blanc / rouge / bleu de la palette P1 (voir le
+       thème clair). Tuiles bleu foncé en sombre : encres claires. */
+    --stat-type-rouge: var(--ui-warm);
+    --stat-type-rouge-ink: var(--ui-red-light);
+    --stat-type-bleu: var(--ui-info-soft);
+    --stat-type-bleu-ink: var(--ui-info-soft);
+    --stat-type-blanc: var(--ui-white);
+    --stat-type-blanc-ink: var(--ui-white);
+
     --bg-card: var(--surface-2);
 
     --border-main: var(--ui-steel-muted);
@@ -581,6 +600,15 @@
     --title-accent: var(--ui-info); /* blue only, no red/yellow accent */
     --subtitle-accent: var(--ui-steel-muted);
     --highlight: var(--type-yellow);
+
+    /* Statistiques — « types » blanc / rouge / bleu de la palette P1 (voir le
+       thème clair). Pas de rouge en accessible : le « rouge » devient l'encre marine. */
+    --stat-type-rouge: var(--ui-ink);
+    --stat-type-rouge-ink: var(--ui-ink);
+    --stat-type-bleu: var(--ui-info);
+    --stat-type-bleu-ink: var(--ui-info-strong);
+    --stat-type-blanc: var(--ui-steel);
+    --stat-type-blanc-ink: var(--ui-ink);
 
     --bg-card: var(--surface-2);
 
@@ -3810,6 +3838,29 @@
 
     .bento-tile--link:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
 
+    /* Tuile colorée (prop `color`) : halo dans le coin, qui grandit au survol ;
+       bordure et ombre à la couleur de la tuile. */
+    .bento-tile--tinted::before {
+        content: "";
+        position: absolute;
+        right: -30%;
+        top: -40%;
+        width: 80%;
+        aspect-ratio: 1;
+        border-radius: 999px;
+        background: radial-gradient(circle, color-mix(in srgb, var(--bento-tile-color) 26%, transparent), transparent 70%);
+        pointer-events: none;
+        transition: transform .35s cubic-bezier(.2, .7, .2, 1);
+    }
+
+    /* Contenu au-dessus du halo ; :where = spécificité nulle, un enfant positionné garde sa position. */
+    :where(.bento-tile--tinted) > * { position: relative; }
+    .bento-tile--tinted:hover::before { transform: scale(1.2); }
+    .bento-tile--tinted.bento-tile--link:hover {
+        border-color: color-mix(in srgb, var(--bento-tile-color) 60%, transparent);
+        box-shadow: 0 24px 48px -28px color-mix(in srgb, var(--bento-tile-color) 70%, transparent);
+    }
+
     /* Chargement : reflet qui balaie la tuile. */
     .bento-tile.is-loading::after {
         content: "";
@@ -3852,8 +3903,292 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .bento-tile { transition: none; }
+        .bento-tile, .bento-tile--tinted::before { transition: none; }
         .bento-tile.is-loading::after { animation: none; }
+    }
+
+    /* -------------------------------------------------------
+       Statistiques — tuiles bento aux couleurs P1 (hub et Chiffres clés)
+       Trois « types » blanc / rouge / bleu (--stat-type-*, via stat-type.adapter.ts),
+       reçus par BentoTileLib : --bento-tile-color (accent : bandeau, halo, fonds
+       teintés par color-mix) et --bento-tile-ink (texte et icônes, lisibles sur la
+       tuile comme sur le fond teinté, dans les trois thèmes). Tons doux : pas
+       d'aplat vif, des teintes légères.
+       Apparition en cascade (--stat-i = rang de la tuile).
+       ------------------------------------------------------- */
+    .stat-tile {
+        gap: 8px;
+        animation: stat-tile-in .5s cubic-bezier(.2, .7, .2, 1) backwards;
+        animation-delay: calc(var(--stat-i, 0) * 45ms);
+    }
+
+    @keyframes stat-tile-in {
+        from { opacity: 0; transform: translateY(14px); }
+    }
+
+    /* Fin bandeau de l'accent en haut de la tuile. */
+    .stat-tile::after {
+        content: "";
+        position: absolute;
+        inset: 0 0 auto;
+        height: 4px;
+        background: var(--bento-tile-color, transparent);
+    }
+
+    /* Pastille teintée, icône à l'encre du type. */
+    .stat-tile__icone {
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+        width: 44px;
+        height: 44px;
+        margin: 2px 0 6px;
+        border-radius: 12px;
+        color: var(--bento-tile-ink, var(--foreground));
+        background: color-mix(in srgb, var(--bento-tile-color, var(--foreground)) 18%, transparent);
+        transition: transform .35s cubic-bezier(.2, .7, .2, 1);
+    }
+
+    .stat-tile.bento-tile--link:hover .stat-tile__icone { transform: rotate(-8deg) scale(1.08); }
+
+    .stat-tile__fleche {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        color: var(--subtitle-accent);
+        transition: transform .25s, color .25s;
+    }
+
+    .stat-tile:hover .stat-tile__fleche { transform: translate(3px, -3px); color: var(--bento-tile-ink, var(--foreground)); }
+
+    /* Plaque : fond teinté, encre du type. */
+    .stat-tile__kicker, .stat-tile__compte {
+        align-self: flex-start;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--bento-tile-ink, var(--foreground));
+        background: color-mix(in srgb, var(--bento-tile-color, var(--foreground)) 16%, transparent);
+    }
+
+    .stat-tile__compte { margin-top: auto; }
+
+    .stat-tile__titre {
+        padding-right: 28px; /* place de la flèche */
+        font-size: 17px;
+        font-weight: 800;
+        letter-spacing: -.01em;
+        line-height: 1.2;
+        text-wrap: balance;
+    }
+
+    .stat-tile__texte { font-size: 14px; line-height: 1.45; color: var(--subtitle-accent); text-wrap: pretty; }
+
+    /* Grande tuile d'une catégorie (2 colonnes, 2 × 2 ou bandeau pleine largeur). */
+    .stat-tile--vedette .stat-tile__titre { font-size: clamp(20px, 2.4cqi, 26px); }
+    .stat-tile--vedette .stat-tile__texte { max-width: 520px; font-size: 15px; }
+
+    /* Grande tuile 2 × 2 à droite (une catégorie sur deux) : seulement quand la
+       grille a ses 4 colonnes ; plus étroite, l'ordre normal reprend. */
+    @container bento (min-width: 900px) {
+        .stat-tile--a-droite { grid-column: 3 / span 2; grid-row: 1 / span 2; }
+    }
+
+    /* Sommaire d'une grande tuile : les sections de la page du thème. */
+    .stat-tile__sommaire {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        margin-top: auto;
+        padding-top: 14px;
+        border-top: 1px solid var(--border-main);
+    }
+
+    .stat-tile__sommaire-titre {
+        font-size: 11px;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--subtitle-accent);
+    }
+
+    .stat-tile__sommaire-liste { display: flex; flex-direction: column; gap: 6px; }
+
+    .stat-tile__sommaire-item {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .stat-tile__sommaire-item > svg { flex-shrink: 0; color: var(--bento-tile-ink, var(--foreground)); }
+
+    /* Bandeau pleine largeur (thème seul de sa catégorie) : texte à gauche,
+       sommaire à droite, sur une ligne quand la place le permet. */
+    @container bento (min-width: 900px) {
+        .stat-tile--bandeau {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr) minmax(0, 1fr);
+            grid-template-rows: auto 1fr;
+            align-items: start;
+            column-gap: 18px;
+        }
+
+        .stat-tile--bandeau .stat-tile__icone { grid-row: 1 / span 2; margin: 2px 0 0; }
+        .stat-tile--bandeau .stat-tile__titre { grid-column: 2; }
+        .stat-tile--bandeau .stat-tile__texte { grid-column: 2; }
+
+        .stat-tile--bandeau .stat-tile__sommaire {
+            grid-column: 3;
+            grid-row: 1 / span 2;
+            margin: 0;
+            padding: 0 32px 0 18px; /* à droite : place de la flèche */
+            border-top: 0;
+            border-left: 1px solid var(--border-main);
+        }
+    }
+
+    /* Les deux entrées du hub : fond légèrement teinté de leur couleur, depuis le coin. */
+    .stat-tile.stat-tile--entree {
+        border-color: color-mix(in srgb, var(--bento-tile-color) 35%, var(--border-main));
+        background: linear-gradient(150deg,
+            color-mix(in srgb, var(--bento-tile-color) 14%, var(--surface-2)) 0%,
+            var(--surface-2) 65%);
+    }
+
+    .stat-tile--entree .stat-tile__titre { font-size: clamp(26px, 3.2cqi, 38px); letter-spacing: -.02em; }
+    .stat-tile--entree .stat-tile__texte { max-width: 520px; font-size: 15px; }
+
+    .stat-tile__bas {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: baseline;
+        gap: 4px 10px;
+        margin-top: auto;
+        padding-top: 12px;
+    }
+
+    .stat-tile__nombre {
+        font-size: clamp(44px, 6cqi, 72px);
+        font-weight: 900;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -.045em;
+        line-height: 1;
+        color: var(--bento-tile-ink, var(--foreground));
+    }
+
+    .stat-tile__unite { font-size: 14px; font-weight: 600; color: var(--subtitle-accent); }
+
+    .stat-tile__pastilles, .stat-tile__domaines { display: flex; flex-basis: 100%; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+
+    .stat-tile__pastilles > span {
+        display: grid;
+        place-items: center;
+        width: 32px;
+        height: 32px;
+        border-radius: 10px;
+        color: var(--stat-pastille-ink);
+        background: color-mix(in srgb, var(--stat-pastille) 18%, var(--surface-2));
+        transition: transform .3s cubic-bezier(.2, .7, .2, 1);
+    }
+
+    /* Au survol, les pastilles sautent l'une après l'autre. */
+    .stat-tile:hover .stat-tile__pastilles > span { transform: translateY(-4px); }
+    .stat-tile__pastilles > span:nth-child(2n) { transition-delay: 40ms; }
+    .stat-tile__pastilles > span:nth-child(3n) { transition-delay: 80ms; }
+
+    .stat-tile__domaine {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        padding: 4px 10px;
+        border: 1px solid var(--border-main);
+        border-radius: 999px;
+        background: var(--surface-2);
+        font-size: 12px;
+        font-weight: 600;
+    }
+
+    /* Catégorie sans thème prêt : cadre en pointillés, pas de lien, mais lisible. */
+    .stat-tile--a-venir { border-style: dashed; cursor: not-allowed; }
+
+    /* Section d'une catégorie (page Chiffres clés) ; cible des tuiles du hub (#categorie-…). */
+    .stat-categorie { display: flex; flex-direction: column; gap: 16px; scroll-margin-top: 24px; }
+
+    @media (max-width: 1023px) {
+        .stat-categorie { scroll-margin-top: calc(3.5rem + 16px); } /* sous le bandeau fixe */
+    }
+
+    .stat-categorie__header { display: flex; flex-wrap: wrap; align-items: center; gap: 12px; }
+
+    .stat-categorie__icone {
+        display: grid;
+        place-items: center;
+        width: 36px;
+        height: 36px;
+        border-radius: 10px;
+        color: var(--stat-categorie-ink);
+        background: color-mix(in srgb, var(--stat-categorie-color) 18%, transparent);
+    }
+
+    .stat-categorie__titre { margin: 0; font-size: 20px; font-weight: 800; letter-spacing: -.01em; }
+
+    .stat-categorie__compte {
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+        color: var(--stat-categorie-ink);
+        background: color-mix(in srgb, var(--stat-categorie-color) 16%, transparent);
+    }
+
+    /* Thèmes à venir : plaque « Bientôt », puis les thèmes en pastilles lisibles, sans lien. */
+    .stat-a-venir { display: flex; flex-wrap: wrap; align-items: center; gap: 10px 12px; }
+
+    .stat-a-venir__label {
+        padding: 4px 12px;
+        border-radius: 999px;
+        font-size: 12px;
+        font-weight: 800;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--stat-type-bleu-ink);
+        background: color-mix(in srgb, var(--stat-type-bleu) 18%, transparent);
+    }
+
+    .stat-a-venir__liste { display: flex; flex-wrap: wrap; gap: 8px; margin: 0; padding: 0; list-style: none; }
+
+    .stat-a-venir__theme {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 7px 14px;
+        border: 1.5px dashed color-mix(in srgb, var(--foreground) 40%, transparent);
+        border-radius: 999px;
+        background: var(--surface-2);
+        color: var(--foreground);
+        font-size: 14px;
+        font-weight: 600;
+        cursor: not-allowed;
+    }
+
+    /* Mobile : textes resserrés (tuiles de catégorie en demi-largeur sur le hub). */
+    @container bento (max-width: 519px) {
+        .stat-tile__titre, .stat-tile--vedette .stat-tile__titre { font-size: 16px; }
+        .stat-tile--entree .stat-tile__titre { font-size: 24px; }
+        .stat-tile__nombre { font-size: 40px; }
+        .stat-tile--categorie .stat-tile__titre { padding-right: 0; font-size: 14px; }
+        .stat-tile--categorie .stat-tile__icone { width: 36px; height: 36px; }
+        .stat-tile--categorie .stat-tile__fleche { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .stat-tile { animation: none; }
+        .stat-tile__icone, .stat-tile__fleche, .stat-tile__pastilles > span { transition: none; }
     }
 
     /* -------------------------------------------------------
@@ -4769,6 +5104,9 @@
     }
 
     .home-tile:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    /* Tuile au « type » d'un thème (blanc / rouge / bleu) : pastille teintée, icône à l'encre du type. */
+    .home-tile--type .home-tile__icon { color: var(--home-tile-ink); }
 
     .home-tile__icon {
         display: grid;

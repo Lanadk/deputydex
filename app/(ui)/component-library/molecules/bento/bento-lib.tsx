@@ -57,6 +57,18 @@ export type BentoTileLibProps = {
      * opaque ; `accent` : pleine couleur (appel à l'action).
      */
     variant?: "glass" | "solid" | "accent";
+    /**
+     * Couleur de la tuile (une variable CSS du design system, ex. `var(--chart-3)`) :
+     * halo dans le coin, bordure et ombre teintées au survol. Exposée aux enfants
+     * en `--bento-tile-color` (icône, chiffre…).
+     */
+    color?: string;
+    /**
+     * Encre assortie à `color`, lisible sur la tuile et sur un fond teinté de
+     * `color` (icône dans sa pastille, chiffre, plaque), exposée en
+     * `--bento-tile-ink`. Utile quand `color` est trop clair pour du texte.
+     */
+    ink?: string;
     /** En chargement : tuile vide à la même place, avec un reflet animé. */
     loading?: boolean;
     className?: string;
@@ -70,13 +82,18 @@ export function BentoTileLib({
     rowSpan = 1,
     href,
     variant = "glass",
+    color,
+    ink,
     loading = false,
     className = "",
     style,
 }: BentoTileLibProps) {
-    const classes = `bento-tile bento-tile--${variant} bento-tile--c${colSpan} bento-tile--r${rowSpan}${loading ? " is-loading" : ""} ${className}`;
+    const classes = `bento-tile bento-tile--${variant} bento-tile--c${colSpan} bento-tile--r${rowSpan}${color ? " bento-tile--tinted" : ""}${loading ? " is-loading" : ""} ${className}`;
+    const styles = color
+        ? ({ ...style, "--bento-tile-color": color, ...(ink ? { "--bento-tile-ink": ink } : {}) } as React.CSSProperties)
+        : style;
 
-    if (loading) return <div className={classes} style={style} aria-hidden="true" />;
-    if (href) return <a href={href} className={`${classes} bento-tile--link`} style={style}>{children}</a>;
-    return <div className={classes} style={style}>{children}</div>;
+    if (loading) return <div className={classes} style={styles} aria-hidden="true" />;
+    if (href) return <a href={href} className={`${classes} bento-tile--link`} style={styles}>{children}</a>;
+    return <div className={classes} style={styles}>{children}</div>;
 }

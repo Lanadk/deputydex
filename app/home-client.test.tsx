@@ -23,8 +23,8 @@ jest.mock("next-themes", () => ({ useTheme: () => ({ resolvedTheme: "light" }) }
 // Le registre des thèmes « Chiffres clés » tire les configurations de toutes les pages : inutile ici.
 jest.mock("@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes.registry", () => ({
     KEY_FIGURE_THEMES: [
-        { slug: "femmes-assemblee", title: "Les femmes à l'Assemblée nationale", teaser: "Parité", icon: () => null, category: "humain", sections: [{}] },
-        { slug: "textes-de-loi", title: "Les textes de loi", teaser: "Bientôt", icon: () => null, category: "activite", sections: [] },
+        { slug: "femmes-assemblee", title: "Les femmes à l'Assemblée nationale", teaser: "Parité", icon: () => null, color: "bleu", category: "humain", sections: [{}] },
+        { slug: "textes-de-loi", title: "Les textes de loi", teaser: "Bientôt", icon: () => null, color: "blanc", category: "activite", sections: [] },
     ],
 }));
 

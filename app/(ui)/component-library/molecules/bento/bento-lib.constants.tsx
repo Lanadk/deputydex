@@ -41,6 +41,18 @@ export const BENTO_MOBILE_CODE = `<BentoGridLib columns={4} mobileColumns={2}>
 </BentoGridLib>
 `;
 
+export const BENTO_COLOR_CODE = `<BentoGridLib columns={3} rowMinHeight={140}>
+    <BentoTileLib href="/statistics" variant="solid"
+        color="var(--stat-type-blanc)" ink="var(--stat-type-blanc-ink)">…</BentoTileLib>
+    <BentoTileLib href="/statistics" variant="solid"
+        color="var(--stat-type-rouge)" ink="var(--stat-type-rouge-ink)">…</BentoTileLib>
+    <BentoTileLib href="/statistics" variant="solid"
+        color="var(--stat-type-bleu)" ink="var(--stat-type-bleu-ink)">…</BentoTileLib>
+</BentoGridLib>
+// Dans la tuile : var(--bento-tile-color) pour l'accent et les fonds teintés
+// (color-mix), var(--bento-tile-ink) pour le texte et les icônes.
+`;
+
 export const getBentoSections = () => [
     {
         title: "Grille de 4 colonnes : tailles, lien, chargement, appel à l'action",
@@ -81,6 +93,34 @@ export const getBentoSections = () => [
                     <BentoTileLib><Contenu titre="1 × 1" texte="B" /></BentoTileLib>
                 </BentoGridLib>
             </div>
+        ),
+    },
+    {
+        title: "color + ink : tuiles colorées (halo, survol teinté) ; color pour l'accent, ink pour le texte",
+        code: BENTO_COLOR_CODE,
+        component: (
+            <BentoGridLib columns={3} rowMinHeight={140}>
+                {["blanc", "rouge", "bleu"].map((type) => (
+                    <BentoTileLib
+                        key={type}
+                        href="#"
+                        variant="solid"
+                        color={`var(--stat-type-${type})`}
+                        ink={`var(--stat-type-${type}-ink)`}
+                    >
+                        <span
+                            className="self-start rounded-full px-3 py-1 text-xs font-bold uppercase tracking-wider"
+                            style={{
+                                background: "color-mix(in srgb, var(--bento-tile-color) 18%, transparent)",
+                                color: "var(--bento-tile-ink)",
+                            }}
+                        >
+                            {type}
+                        </span>
+                        <span className="text-3xl font-extrabold">Couleur</span>
+                    </BentoTileLib>
+                ))}
+            </BentoGridLib>
         ),
     },
     {
