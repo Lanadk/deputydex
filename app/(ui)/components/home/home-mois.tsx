@@ -9,8 +9,8 @@ import { DeputesTendancesDTO, DeputeTendanceDTO } from "@/app/domains/deputes/dt
 import { ScrutinListPageDTO, ScrutinListItemDTO } from "@/app/domains/scrutins/dto/scrutin-list.dto";
 import { ScrutinPlusSerreDTO } from "@/app/domains/scrutins/dto/scrutin-plus-serre.dto";
 import { capitalizeFirst } from "@/app/_shared/utils/string";
+import { formatJourCourtFr } from "@/app/_shared/utils/date";
 import {
-    jourCourt,
     periodeCourte,
     phraseEcart,
     uniteAmendements,
@@ -84,7 +84,7 @@ function VoteVedette({ s }: { s: ScrutinListItemDTO }) {
                     <span><strong style={{ color: "var(--vote-abstention)" }}>{nombre(s.abstentions)}</strong> abstentions</span>
                 </span>
                 <span className="home-actu__meta">
-                    {s.date && <span>{jourCourt(s.date)}</span>}
+                    {s.date && <span>{formatJourCourtFr(s.date)}</span>}
                     <span className="home-actu__tag">{s.objet.libelle}</span>
                     {s.type.libelle && <span className="home-actu__tag">{capitalizeFirst(s.type.libelle)}</span>}
                 </span>
@@ -107,7 +107,7 @@ function VotesPrecedents({ items }: { items: ScrutinListItemDTO[] }) {
                             <span className="min-w-0">
                                 <span className="home-actu__ligne-titre">{titreScrutin(s)}</span>
                                 <span className="home-actu__ligne-meta">
-                                    {verdict(s.resultat.isAdopte)}{s.date ? ` · ${jourCourt(s.date)}` : ""}
+                                    {verdict(s.resultat.isAdopte)}{s.date ? ` · ${formatJourCourtFr(s.date)}` : ""}
                                 </span>
                             </span>
                         </a>

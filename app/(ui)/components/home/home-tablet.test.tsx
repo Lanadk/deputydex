@@ -1,15 +1,13 @@
 import React from "react";
 import { fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
+import { ecransDisponibles, HOME_TABLET_SCREEN_MS, HomeTablet } from "@/app/(ui)/components/home/home-tablet";
 import {
     deputesVitrine,
-    ecransDisponibles,
     groupesGaucheDroite,
     HOME_TABLET_DEPUTES,
-    HOME_TABLET_SCREEN_MS,
-    HomeTablet,
     HomeTabletFiche,
-} from "@/app/(ui)/components/home/home-tablet";
+} from "@/app/(ui)/components/home/home-tablet-ecrans";
 import { ScrutinListItemDTO } from "@/app/domains/scrutins/dto/scrutin-list.dto";
 import { GroupeCardDTO } from "@/app/domains/groupes/dto/groupes-card.dto";
 

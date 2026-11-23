@@ -1,5 +1,6 @@
 import { Result, ok, isErr } from "@/app/_shared/result-pattern/result";
 import { fromRepository } from "@/app/_shared/result-pattern/app-error";
+import { toISODateOnly } from "@/app/_shared/utils/date";
 import { IScrutinsPeriodeRepository } from "@/app/domains/scrutins/repositories/IScrutinsPeriodeRepository";
 import { ScrutinPlusSerreDTO } from "@/app/domains/scrutins/dto/scrutin-plus-serre.dto";
 import { ScrutinListItemDTO } from "@/app/domains/scrutins/dto/scrutin-list.dto";
@@ -26,8 +27,6 @@ export function scrutinLePlusSerre(scrutins: ScrutinListItemDTO[]): ScrutinListI
     return premier ?? null;
 }
 
-const jour = (date: Date) => date.toISOString().slice(0, 10);
-
 export async function getScrutinPlusSerreUseCase(
     repository: IScrutinsPeriodeRepository,
     legislature: number
@@ -39,7 +38,7 @@ export async function getScrutinPlusSerreUseCase(
 
     const scrutin = scrutinLePlusSerre(mapScrutinListItemsEntitiesToDTOs(periode.rows));
     return ok({
-        periode: { debut: jour(periode.debut), fin: jour(periode.fin) },
+        periode: { debut: toISODateOnly(periode.debut) ?? "", fin: toISODateOnly(periode.fin) ?? "" },
         scrutin,
         ecart: scrutin ? ecart(scrutin) : null,
     });

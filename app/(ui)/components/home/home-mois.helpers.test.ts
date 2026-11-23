@@ -1,5 +1,4 @@
 import {
-    jourCourt,
     periodeCourte,
     phraseEcart,
     uniteAmendements,
@@ -8,9 +7,8 @@ import {
 } from "@/app/(ui)/components/home/home-mois.helpers";
 
 describe("home-mois.helpers", () => {
-    it("période et date courtes", () => {
+    it("période courte", () => {
         expect(periodeCourte({ debut: "2026-10-21", fin: "2026-11-19" })).toBe("21 oct. → 19 nov. 2026");
-        expect(jourCourt("2026-11-18T00:00:00.000Z")).toBe("18 nov. 2026");
     });
 
     it("écart d'un scrutin serré : égalité, puis « voix » invariable", () => {
