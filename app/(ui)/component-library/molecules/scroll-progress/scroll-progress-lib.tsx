@@ -12,7 +12,8 @@ export type ScrollProgressSection = {
 export type ScrollProgressLibProps = {
     sections: ScrollProgressSection[];
     ariaLabel?: string;
-    /** Collée au bord droit de l'écran (par défaut) ; `false` : dans le flux (démo). */
+    /** Collée au bord droit de l'écran (par défaut, masquée sur écran tactile : la barre
+     *  native du navigateur suffit) ; `false` : dans le flux (démo). */
     fixed?: boolean;
     className?: string;
 };

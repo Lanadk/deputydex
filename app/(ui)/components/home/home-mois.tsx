@@ -25,21 +25,23 @@ const verdict = (isAdopte: boolean) => (isAdopte ? "Adopté" : "Rejeté");
 /**
  * Taille de chaque tuile (l'ordre des tuiles + ces tailles dessinent la grille),
  * et fond opaque (`solid`) pour toutes, sauf l'appel à l'action, pleine couleur.
+ * Classes de placement : sur la grille à 2 colonnes, les votes précédents passent
+ * juste sous le dernier vote (voir globals.css), dans tous ses états (chargement, vide, erreur).
  */
-type Taille = Pick<BentoTileLibProps, "colSpan" | "rowSpan" | "variant">;
+type Taille = Pick<BentoTileLibProps, "colSpan" | "rowSpan" | "variant" | "className">;
 const TAILLES = {
-    vote: { colSpan: 2, rowSpan: 2, variant: "solid" },
+    vote: { colSpan: 2, rowSpan: 2, variant: "solid", className: "home-actu__vedette" },
     serre: { colSpan: 2, variant: "solid" },
     assidu: { variant: "solid" },
     rebelle: { variant: "solid" },
-    autres: { colSpan: 2, variant: "solid" },
+    autres: { colSpan: 2, variant: "solid", className: "home-actu__precedents" },
     amendements: { variant: "solid" },
     cta: { variant: "accent" },
 } as const satisfies Record<string, Taille>;
 
 /** Tuile en erreur : message et « Réessayer » à la place de la tuile. */
 const Erreur = ({ taille, message, onRetry }: { taille: Taille; message: string; onRetry: () => void }) => (
-    <BentoTileLib {...taille} className="home-actu__erreur">
+    <BentoTileLib {...taille} className={`${taille.className ?? ""} home-actu__erreur`}>
         <ErrorStateLib message={message} onRetry={onRetry} />
     </BentoTileLib>
 );
