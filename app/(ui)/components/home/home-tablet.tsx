@@ -1,8 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useRef, useState } from "react";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { DeputesCardDTO } from "@/app/domains/deputes/dto/deputes-card.dto";
 import { ScrutinListItemDTO } from "@/app/domains/scrutins/dto/scrutin-list.dto";
 import { GroupeCardDTO } from "@/app/domains/groupes/dto/groupes-card.dto";
@@ -88,6 +88,51 @@ export function ecransDisponibles(
     );
 }
 
+/** Distance horizontale (px) d'un glissement de pointeur qui change de sujet. */
+const SEUIL_GLISSEMENT_PX = 50;
+/** Défilement horizontal cumulé (trackpad) qui change de sujet. */
+const SEUIL_MOLETTE_PX = 60;
+/** Après un changement à la molette, délai avant d'en accepter un autre (un geste = un sujet). */
+const PAUSE_MOLETTE_MS = 700;
+
+/**
+ * Gestes horizontaux sur la tablette : glissement de pointeur (souris, doigt),
+ * ou défilement horizontal (trackpad). `aller(+1)` vers la gauche, comme on
+ * tourne une page ; `aller(-1)` vers la droite. Un geste surtout vertical est
+ * laissé au défilement de la page.
+ */
+function useGlissementHorizontal(aller: (pas: number) => void) {
+    const depart = useRef<{ x: number; y: number } | null>(null);
+    const molette = useRef({ cumul: 0, bloqueJusqua: 0 });
+
+    return {
+        onPointerDown: (e: React.PointerEvent) => {
+            if (e.isPrimary) depart.current = { x: e.clientX, y: e.clientY };
+        },
+        onPointerUp: (e: React.PointerEvent) => {
+            const d = depart.current;
+            depart.current = null;
+            if (!d) return;
+            const dx = e.clientX - d.x;
+            const dy = e.clientY - d.y;
+            if (Math.abs(dx) >= SEUIL_GLISSEMENT_PX && Math.abs(dx) > Math.abs(dy)) aller(dx < 0 ? 1 : -1);
+        },
+        onPointerCancel: () => {
+            depart.current = null;
+        },
+        onWheel: (e: React.WheelEvent) => {
+            if (Math.abs(e.deltaX) <= Math.abs(e.deltaY)) return;
+            const m = molette.current;
+            if (Date.now() < m.bloqueJusqua) return;
+            m.cumul += e.deltaX;
+            if (Math.abs(m.cumul) < SEUIL_MOLETTE_PX) return;
+            aller(m.cumul > 0 ? 1 : -1);
+            m.cumul = 0;
+            m.bloqueJusqua = Date.now() + PAUSE_MOLETTE_MS;
+        },
+    };
+}
+
 /** Icônes de la barre latérale : les rubriques du vrai menu. */
 const MENU = NAVITEMS.filter((item) => item.section === "deputydex");
 
@@ -152,7 +197,8 @@ function TabletApp({ ecrans, position, cards, legislature, scrutin, groupes, fic
  * important. Sous la tablette, une légende dit ce que la rubrique affichée
  * permet de faire, avec un lien et une barre de progression : c'est la FIN de
  * cette barre qui fait passer à l'écran suivant (pas de minuteur à part, qui
- * se décalerait de la barre).
+ * se décalerait de la barre). On peut aussi changer de sujet à la main : en
+ * glissant la tablette, en défilant horizontalement, ou avec les boutons ‹ ›.
  * La tablette est décorative (`aria-hidden`), la légende non. Sans animation si
  * l'utilisateur la refuse : pas de barre, premier écran fixe.
  */
@@ -170,20 +216,38 @@ export function HomeTablet({ cards, legislature, scrutin = null, groupes = [], f
     const [actifId, setActifId] = useState<EcranId>(ecrans[0].id);
     const position = Math.max(ecrans.findIndex((e) => e.id === actifId), 0);
     const actif = ecrans[position];
-    const suivant = () => setActifId(ecrans[(position + 1) % ecrans.length].id);
+    /** Change de sujet de `pas` écrans (±1), en boucle. La barre de progression repart de zéro. */
+    const aller = (pas: number) => setActifId(ecrans[(position + pas + ecrans.length) % ecrans.length].id);
+    const suivant = () => aller(1);
+    const glisser = useGlissementHorizontal(aller);
 
     return (
         <div className="home-tablet">
-            {/* `inert` : les cartes de la grille sont des liens ; dans la maquette, ni focus ni clic. */}
-            <div className="home-tablet__stage" aria-hidden="true" inert>
-                <DeviceFrameLib device="tablet" className="home-tablet__frame">
-                    <TabletApp ecrans={ecrans} position={position} cards={cards} legislature={legislature} scrutin={scrutin} groupes={groupes} fiche={fiche} />
-                </DeviceFrameLib>
+            {/* Glisser la tablette (souris, doigt) ou défiler horizontalement (trackpad) change
+                de sujet. Les gestes sont captés ici : la tablette elle-même est inerte. */}
+            <div className="home-tablet__swipe" data-testid="home-tablet-swipe" {...glisser}>
+                {/* `inert` : les cartes de la grille sont des liens ; dans la maquette, ni focus ni clic. */}
+                <div className="home-tablet__stage" aria-hidden="true" inert>
+                    <DeviceFrameLib device="tablet" className="home-tablet__frame">
+                        <TabletApp ecrans={ecrans} position={position} cards={cards} legislature={legislature} scrutin={scrutin} groupes={groupes} fiche={fiche} />
+                    </DeviceFrameLib>
+                </div>
             </div>
 
             {/* Légende de l'écran affiché : ce que la rubrique permet de faire. Pas de région
                 « live » : un texte qui change seul toutes les 10 s serait lu en boucle. */}
             <div key={actif.id} className="home-tablet__caption" data-testid="home-tablet-caption">
+                {ecrans.length > 1 && (
+                    <div className="home-tablet__nav">
+                        <span className="home-tablet__nav-position">{position + 1} / {ecrans.length}</span>
+                        <button type="button" className="home-tablet__nav-btn" onClick={() => aller(-1)} aria-label="Sujet précédent">
+                            <ChevronLeft size={18} aria-hidden="true" />
+                        </button>
+                        <button type="button" className="home-tablet__nav-btn" onClick={() => aller(1)} aria-label="Sujet suivant">
+                            <ChevronRight size={18} aria-hidden="true" />
+                        </button>
+                    </div>
+                )}
                 <p className="home-tablet__caption-title">{actif.accroche}</p>
                 <p className="home-tablet__caption-text">{actif.texte}</p>
                 <Link href={actif.href} className="home-section__more">

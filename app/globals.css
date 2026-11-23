@@ -4000,6 +4000,55 @@
 
     .home-tablet__stage { perspective: 2000px; }
 
+    /* Zone de geste autour de la tablette : glisser à gauche / à droite change de sujet.
+       pan-y : le défilement vertical de la page reste au navigateur ; overscroll-behavior-x :
+       un glissement horizontal du trackpad ne déclenche pas « page précédente ». */
+    .home-tablet__swipe {
+        touch-action: pan-y;
+        overscroll-behavior-x: contain;
+        cursor: grab;
+        user-select: none;
+    }
+
+    .home-tablet__swipe:active { cursor: grabbing; }
+
+    /* Navigation manuelle entre les sujets, en haut à droite de la légende. */
+    .home-tablet__nav {
+        position: absolute;
+        top: 12px;
+        right: 12px;
+        display: flex;
+        align-items: center;
+        gap: 6px;
+    }
+
+    .home-tablet__nav-position {
+        margin-right: 4px;
+        font-size: 12px;
+        font-weight: 600;
+        font-variant-numeric: tabular-nums;
+        color: var(--subtitle-accent);
+    }
+
+    .home-tablet__nav-btn {
+        display: grid;
+        place-items: center;
+        width: 30px;
+        height: 30px;
+        border: 1px solid var(--border-main);
+        border-radius: 999px;
+        background: var(--surface-2);
+        color: var(--foreground);
+        cursor: pointer;
+        transition: border-color .2s, color .2s;
+    }
+
+    .home-tablet__nav-btn:hover { border-color: var(--accent); color: var(--accent); }
+    .home-tablet__nav-btn:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    /* Le titre de la légende laisse la place à la navigation. */
+    .home-tablet__caption-title { padding-right: 130px; }
+
     /* Légende de l'écran affiché, sous la tablette (remontée à chaque écran : fondu d'entrée). */
     .home-tablet__caption {
         position: relative;
