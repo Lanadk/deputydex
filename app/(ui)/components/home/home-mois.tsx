@@ -209,7 +209,8 @@ export function HomeMois({ derniers, tendances, plusSerre }: HomeMoisProps) {
                 )}
             </header>
 
-            <BentoGridLib columns={4} fill>
+            {/* Rangées étirées pour remplir l'écran, jusqu'à 150px au plus bas : la page tient dans l'écran. */}
+            <BentoGridLib columns={4} rowMinHeight={150} fill mobileColumns={2}>
                 {derniers.error ? <Erreur taille={TAILLES.vote} message="Les derniers votes n'ont pas pu être chargés." onRetry={derniers.retry} />
                     : !derniers.data ? <BentoTileLib {...TAILLES.vote} loading />
                         : vedette ? <VoteVedette s={vedette} />

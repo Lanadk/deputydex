@@ -21,6 +21,7 @@ import { getGroupMiniCardSections } from "@/app/(ui)/component-library/molecules
 import { getExpandableCardSections } from "@/app/(ui)/component-library/molecules/expandable-card/expandable-card-lib.constants";
 import { getBentoSections } from "@/app/(ui)/component-library/molecules/bento/bento-lib.constants";
 import { getScrollHintSections } from "@/app/(ui)/component-library/molecules/scroll-hint/scroll-hint-lib.constants";
+import { getScrollProgressSections } from "@/app/(ui)/component-library/molecules/scroll-progress/scroll-progress-lib.constants";
 import { getDeviceFrameSections } from "@/app/(ui)/component-library/molecules/device-frame/device-frame-lib.constants";
 import { getPageStateSections } from "@/app/(ui)/component-library/molecules/page-state/page-state-lib.constants";
 import { getTimelineSections } from "@/app/(ui)/component-library/molecules/timeline/timeline-lib.constants";
@@ -71,6 +72,7 @@ export const COMPONENT_PREVIEWS: Record<string, ComponentPreview> = {
     '/component-library/molecules/expandable-card': { width: 700, render: () => getExpandableCardSections()[0].component },
     '/component-library/molecules/bento': { width: 1000, render: () => getBentoSections()[0].component },
     '/component-library/molecules/scroll-hint': { width: 440, render: () => getScrollHintSections()[0].component },
+    '/component-library/molecules/scroll-progress': { width: 440, render: () => getScrollProgressSections()[0].component },
     '/component-library/molecules/device-frame': { width: 600, render: () => getDeviceFrameSections()[0].component },
     '/component-library/molecules/timeline': { width: 1000, render: () => getTimelineSections()[0].component },
     '/component-library/molecules/org-chart': { width: 700, render: () => getOrgChartSections()[0].component },

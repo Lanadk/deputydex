@@ -2,7 +2,7 @@
 
 import Image from "next/image";
 import { useTheme } from "next-themes";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { useInitialAsyncData } from "@/app/(ui)/_shared/hook/use-initial-async-data";
 import { deputesGateway } from "@/app/(ui)/gateways/deputes/deputes.gateway";
 import { legislaturesGateway } from "@/app/(ui)/gateways/legislatures/legislatures.gateway";
@@ -15,7 +15,7 @@ import { HomeStatistiques } from "@/app/(ui)/components/home/home-sections";
 import { resumeLegislaturesCouvertes } from "@/app/(ui)/components/home/home-legislatures";
 import { HomeMois } from "@/app/(ui)/components/home/home-mois";
 import { HomeAssembleeChiffres } from "@/app/(ui)/components/home/home-assemblee-chiffres";
-import { ScrollHintLib } from "@/app/(ui)/component-library/molecules/scroll-hint/scroll-hint-lib";
+import { ScrollProgressLib } from "@/app/(ui)/component-library/molecules/scroll-progress/scroll-progress-lib";
 import { HOME_DERNIERS_VOTES } from "@/app/(ui)/components/home/home-mois.helpers";
 import type { HomeData } from "@/app/home-data";
 
@@ -68,13 +68,18 @@ export default function HomeClient({ initial }: { initial: HomeData }) {
     );
     const couvertes = resumeLegislaturesCouvertes(toutes.data ?? []);
     const sample = cards.data ?? [];
+    const sections = useMemo(() => [
+        { id: "home-accueil", label: "Accueil" },
+        ...(numero !== null ? [{ id: "home-actu", label: "L'actu" }] : []),
+        { id: "home-explorer-page", label: "Explorer" },
+    ], [numero]);
 
     return (
         <div className="home">
             {/* Fond de TOUTE la page (premier écran et sections), collé à l'écran au défilement. */}
             <CardWall cards={sample} />
 
-            <div className="home__layout">
+            <div id="home-accueil" className="home__layout">
 
                 <section className="home__hero">
                     <div className="home__logo">
@@ -112,27 +117,24 @@ export default function HomeClient({ initial }: { initial: HomeData }) {
                     fiche={fiche.data ?? null}
                 />
 
-                <ScrollHintLib
-                    target="home-suite"
-                    label={numero !== null ? "Défiler pour l'actu" : "Défiler pour la suite"}
-                    className="home__scroll-hint"
-                />
             </div>
 
             {/* Sous le premier écran, deux « pages » d'un écran de haut chacune :
                 l'actu, puis l'Assemblée en chiffres (porte d'entrée des rubriques) et les statistiques. */}
-            <div id="home-suite" className="home__sections">
+            <div className="home__sections">
                 {numero !== null && (
-                    <div className="home-panel home-panel--actu">
+                    <div id="home-actu" className="home-panel home-panel--actu">
                         <HomeMois derniers={derniers} tendances={tendances} plusSerre={plusSerre} />
-                        <ScrollHintLib target="home-explorer-page" label="Défiler pour explorer" className="home__scroll-hint" />
                     </div>
                 )}
-                <div id="home-explorer-page" className="home-panel">
+                <div id="home-explorer-page" className="home-panel home-panel--explorer">
                     {numero !== null && <HomeAssembleeChiffres numero={numero} chiffres={chiffres} groupes={groupes.data ?? []} />}
                     <HomeStatistiques />
                 </div>
             </div>
+
+            {/* Bord droit : où en est-on dans la page, et accès direct à chaque « page ». */}
+            <ScrollProgressLib sections={sections} ariaLabel="Sections de l'accueil" />
         </div>
     );
 }

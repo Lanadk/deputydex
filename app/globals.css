@@ -3590,6 +3590,140 @@
     }
 
     /* -------------------------------------------------------
+       ScrollProgressLib — barre verticale de progression dans la page
+       --scroll-progress (0 → 1) est posé par le composant au défilement ;
+       --step-position (0 → 1) place chaque point sur la barre.
+       ------------------------------------------------------- */
+    .scroll-progress-lib {
+        --scroll-progress: 0;
+        --scroll-progress-height: min(46vh, 360px);
+        --scroll-progress-dot: 12px;
+        --scroll-progress-hit: 24px;
+        position: relative;
+        flex-shrink: 0;
+        width: var(--scroll-progress-hit);
+        height: var(--scroll-progress-height);
+    }
+
+    /* Bord droit de l'écran, centrée verticalement. */
+    .scroll-progress-lib--fixed {
+        position: fixed;
+        z-index: 20;
+        right: 16px;
+        top: 50%;
+        translate: 0 -50%;
+    }
+
+    .scroll-progress-lib__track {
+        position: absolute;
+        left: 50%;
+        top: 0;
+        bottom: 0;
+        width: 2px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--foreground) 16%, transparent);
+        translate: -50% 0;
+    }
+
+    .scroll-progress-lib__fill {
+        position: absolute;
+        inset: 0;
+        background: var(--accent);
+        transform: scaleY(var(--scroll-progress));
+        transform-origin: top;
+    }
+
+    .scroll-progress-lib__steps { position: absolute; inset: 0; margin: 0; padding: 0; list-style: none; }
+
+    .scroll-progress-lib__step {
+        position: absolute;
+        left: 50%;
+        top: calc(var(--step-position, 0) * 100%);
+        translate: -50% -50%;
+    }
+
+    /* Zone cliquable plus grande que le point dessiné (::before). */
+    .scroll-progress-lib__dot {
+        position: relative;
+        display: grid;
+        place-items: center;
+        width: var(--scroll-progress-hit);
+        height: var(--scroll-progress-hit);
+        border-radius: 999px;
+    }
+
+    .scroll-progress-lib__dot::before {
+        content: "";
+        width: var(--scroll-progress-dot);
+        height: var(--scroll-progress-dot);
+        border: 2px solid color-mix(in srgb, var(--foreground) 40%, transparent);
+        border-radius: 999px;
+        background: var(--background);
+        transition: background-color .25s, border-color .25s, box-shadow .25s, transform .25s;
+    }
+
+    .scroll-progress-lib__dot.is-past::before { border-color: var(--accent); background: var(--accent); }
+
+    .scroll-progress-lib__dot.is-active::before {
+        border-color: var(--accent);
+        box-shadow: 0 0 0 4px color-mix(in srgb, var(--accent) 25%, transparent);
+        transform: scale(1.2);
+    }
+
+    .scroll-progress-lib__dot:hover::before { border-color: var(--accent); }
+    .scroll-progress-lib__dot:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+    /* Libellé à gauche du point : au survol, au focus, et celui de la section
+       courante pendant le défilement (.is-scrolling, posé par le composant). */
+    .scroll-progress-lib__label {
+        position: absolute;
+        right: calc(100% + 4px);
+        top: 50%;
+        padding: 4px 10px;
+        border: 1px solid var(--border-main);
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--surface-2) 92%, transparent);
+        backdrop-filter: blur(6px);
+        color: var(--foreground);
+        font-size: 12px;
+        font-weight: 600;
+        white-space: nowrap;
+        pointer-events: none;
+        opacity: 0;
+        translate: 6px -50%;
+        transition: opacity .2s, translate .2s;
+    }
+
+    .scroll-progress-lib__dot:hover .scroll-progress-lib__label,
+    .scroll-progress-lib__dot:focus-visible .scroll-progress-lib__label,
+    .scroll-progress-lib.is-scrolling .scroll-progress-lib__dot.is-active .scroll-progress-lib__label {
+        opacity: 1;
+        translate: 0 -50%;
+    }
+
+    /* Sous lg, bandeau fixe de 3.5rem en haut : centrée dans la place restante. */
+    @media (max-width: 1023px) {
+        .scroll-progress-lib--fixed { top: calc(50% + 1.75rem); }
+    }
+
+    /* Mobile : fine, collée au bord, dans la marge de 16px du contenu ; pas de libellés. */
+    @media (max-width: 639px) {
+        .scroll-progress-lib {
+            --scroll-progress-height: min(34vh, 220px);
+            --scroll-progress-dot: 8px;
+            --scroll-progress-hit: 14px;
+        }
+        .scroll-progress-lib--fixed { right: 1px; }
+        .scroll-progress-lib__dot.is-active::before { box-shadow: 0 0 0 3px color-mix(in srgb, var(--accent) 25%, transparent); }
+        .scroll-progress-lib__label { display: none; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .scroll-progress-lib__dot::before, .scroll-progress-lib__label { transition: none; }
+    }
+
+    /* -------------------------------------------------------
        BentoGridLib / BentoTileLib — grille de tuiles de tailles variées
        Responsive sur la largeur de la grille (container query « bento ») :
        --bento-columns colonnes, puis 2 (< 900px), puis 1 (< 520px).
@@ -3684,6 +3818,18 @@
         .bento-lib__grid { grid-template-columns: minmax(0, 1fr); }
         .bento-tile--c2, .bento-tile--c3, .bento-tile--c4 { grid-column: span 1; }
         .bento-tile--r2 { grid-row: span 1; }
+
+        /* mobileColumns={2} : demi-largeur pour les petites tuiles, pleine largeur pour
+           les larges ; rangées basses, à la hauteur du contenu. */
+        .bento-lib--mobile-2 > .bento-lib__grid {
+            grid-template-columns: repeat(2, minmax(0, 1fr));
+            grid-auto-rows: minmax(min(var(--bento-row), 120px), auto);
+            gap: 10px;
+        }
+        .bento-lib--mobile-2 .bento-tile--c2,
+        .bento-lib--mobile-2 .bento-tile--c3,
+        .bento-lib--mobile-2 .bento-tile--c4 { grid-column: span 2; }
+        .bento-lib--mobile-2 .bento-tile { padding: 16px; border-radius: 18px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
@@ -3865,18 +4011,6 @@
         flex-direction: column;
         justify-content: flex-start;
         gap: 22px;
-    }
-
-    /* Invitation à défiler (ScrollHintLib), centrée en bas de son écran (premier écran, actu). */
-    .home__scroll-hint, .home-panel > .home__scroll-hint {
-        width: auto;
-        position: absolute;
-        left: 50%;
-        bottom: 20px;
-        z-index: 3;
-        translate: -50% 0;
-        background: color-mix(in srgb, var(--background) 60%, transparent);
-        backdrop-filter: blur(6px);
     }
 
     /* Logo en tête de page ; hauteur réservée avant le montage (choix du logo selon le thème). */
@@ -4526,7 +4660,6 @@
        le voile s'installe en douceur sous le premier écran. */
     .home-panel--actu {
         justify-content: flex-start;
-        padding-bottom: 128px; /* place de l'invitation à défiler */
         background: linear-gradient(180deg,
             transparent 0,
             color-mix(in srgb, var(--background) 55%, transparent) 200px);
@@ -4545,20 +4678,6 @@
         /* Le premier écran est déjà affiché au chargement : il ne fait que sortir. */
         .home__hero, .home-tablet { animation-name: none, home-page-out; }
 
-        /* Une invitation à défiler (bas du premier écran, bas de l'actu) disparaît dès
-           qu'on a un peu défilé au-delà de sa position : timeline de l'élément
-           lui-même (view), pas du défilement total, pour que celle de l'actu soit
-           visible en arrivant en bas de l'actu. Elle échappe au fondu des pages. */
-        .home__scroll-hint, .home-panel > .home__scroll-hint {
-            animation: home-scroll-hint-out linear both;
-            animation-timeline: view();
-            animation-range: cover 180px cover 320px;
-        }
-
-        @keyframes home-scroll-hint-out {
-            to { opacity: 0; visibility: hidden; }
-        }
-
         @keyframes home-page-in {
             from { opacity: 0; transform: translateY(48px); }
         }
@@ -4569,7 +4688,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .home__hero, .home-tablet, .home-panel > *, .home__scroll-hint, .home-panel > .home__scroll-hint { animation: none; }
+        .home__hero, .home-tablet, .home-panel > * { animation: none; }
     }
 
     .home-section { display: flex; flex-direction: column; gap: 20px; }
@@ -4993,6 +5112,59 @@
     .home-tile__title { font-weight: 700; }
     .home-tile__text { font-size: 14px; color: var(--subtitle-accent); }
 
+    /* Ordinateur (sans bandeau du haut, écran assez haut) : chaque page tient EXACTEMENT
+       dans l'écran. Hauteur fixée, marges et tailles de texte qui suivent la hauteur
+       (vh), rangées des bentos (fill) étirées ou tassées pour occuper le reste.
+       Plus bas que 700px, on retombe sur min-height : la page grandit plutôt que de couper.
+       Placé après les règles de base de l'accueil : à spécificité égale, il les remplace. */
+    @media (min-width: 1024px) and (min-height: 700px) {
+        .home-panel {
+            height: 100vh;
+            height: 100dvh;
+            padding-block: clamp(24px, 4vh, 56px);
+            gap: clamp(20px, 4vh, 48px);
+        }
+
+        .home-panel--actu > .home-actu { min-height: 0; gap: clamp(14px, 2.4vh, 28px); }
+        .home-actu__header { gap: 6px; }
+        .home-actu__titre { font-size: clamp(30px, min(4.6cqi, 6vh), 60px); }
+        .home-actu .bento-tile { gap: 8px; padding: 20px; }
+        .home-actu .home-actu__depute { padding: 0; }
+        .home-actu__depute-texte { padding: 20px; }
+        .home-actu__verdict { font-size: clamp(40px, min(6cqi, 8vh), 84px); }
+        .home-actu__vote-titre { -webkit-line-clamp: 3; }
+        .home-actu__score { font-size: clamp(36px, min(5.4cqi, 6vh), 76px); }
+        .home-actu__chiffre { font-size: clamp(32px, min(4cqi, 5vh), 56px); }
+        .home-actu__ligne { padding: 8px 10px; }
+        .home-actu__ligne-titre { -webkit-line-clamp: 1; }
+
+        /* Explorer : les chiffres prennent la place laissée par les statistiques. */
+        .home-panel--explorer { justify-content: flex-start; }
+        .home-panel--explorer .home-section { gap: 14px; }
+        .home-section--chiffres { flex: 1 1 auto; min-height: 0; }
+        .home-section--chiffres .bento-tile { padding: 18px; }
+        .home-chiffre .home-tile__icon { width: 36px; height: 36px; }
+        .home-chiffre__valeur { margin-top: 10px; font-size: clamp(36px, min(5cqi, 6vh), 72px); }
+        .home-chiffre__detail {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+        }
+
+        /* Statistiques : une seule rangée de tuiles basses, icône à gauche du texte. */
+        .home-grid { grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); }
+        .home-tile {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            align-content: start;
+            gap: 4px 12px;
+            padding: 16px;
+        }
+        .home-tile .home-tile__icon { grid-row: span 2; width: 36px; height: 36px; }
+        .home-tile .home-tile__text { font-size: 13px; }
+    }
+
     /* Moyen : le texte prend toute la largeur ; voile uniforme au lieu du dégradé latéral. */
     @container home (max-width: 979px) {
         .home-panel { gap: 56px; }
@@ -5030,6 +5202,52 @@
 
         .home__hero { gap: 16px; }
         .home__title { font-size: clamp(30px, 9cqi, 40px); }
+
+        .home-panel { gap: 40px; padding-block: 40px; }
+
+        /* Statistiques : tuiles basses, icône à gauche du texte. */
+        .home-tile {
+            display: grid;
+            grid-template-columns: auto minmax(0, 1fr);
+            align-content: start;
+            gap: 2px 12px;
+            padding: 14px;
+        }
+        .home-tile .home-tile__icon { grid-row: span 2; width: 36px; height: 36px; }
+        .home-tile .home-tile__text { font-size: 13px; }
+    }
+
+    /* Bentos de l'accueil sur mobile (mobileColumns={2}) : contenu resserré pour les
+       tuiles en demi-largeur ; un député devient une carte de joueur verticale,
+       portrait en haut, texte dessous (en demi-largeur, côte à côte, ils se chevaucheraient). */
+    @container bento (max-width: 519px) {
+        .bento-lib--mobile-2 .home-actu__depute { padding: 0; }
+        .home-actu__depute .home-actu__portrait {
+            position: relative;
+            right: auto;
+            flex-shrink: 0;
+            width: 100%;
+            height: 96px;
+            background: radial-gradient(circle at 50% 95%, var(--home-actu-g1) 0, var(--home-actu-g2) 45%, transparent 75%);
+            -webkit-mask-image: linear-gradient(180deg, #000 60%, transparent);
+            mask-image: linear-gradient(180deg, #000 60%, transparent);
+        }
+        .home-actu__depute .home-actu__portrait img { right: 50%; height: 100%; translate: 50% 0; }
+        .home-actu__depute-texte { max-width: none; padding: 2px 14px 14px; }
+        .home-actu__chiffre { margin-top: 4px; font-size: 30px; }
+        .home-actu__nom { margin-top: 6px; font-size: 14px; }
+
+        .home-actu__verdict { font-size: 40px; }
+        .home-actu__vote-titre { font-size: 16px; -webkit-line-clamp: 3; }
+        .home-actu__decompte strong { font-size: 22px; }
+        .home-actu__score { font-size: 40px; }
+        .home-actu__cta-titre { font-size: 18px; }
+        .home-actu__cta-logo { width: 80px; height: 80px; }
+
+        .home-chiffre .home-tile__icon { width: 32px; height: 32px; }
+        .home-chiffre__valeur { margin-top: 8px; font-size: 34px; }
+        .home-chiffre__libelle { font-size: 14px; }
+        .home-chiffre__detail { font-size: 12px; }
     }
 
     @media (prefers-reduced-motion: reduce) {
