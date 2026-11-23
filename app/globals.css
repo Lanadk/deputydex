@@ -3766,6 +3766,13 @@
         .scroll-progress-lib__label { display: none; }
     }
 
+    /* Écran tactile (téléphone, tablette) : le navigateur affiche déjà sa propre barre
+       de défilement pendant le geste ; la nôtre ferait doublon. Critère d'appareil et
+       non de largeur : une fenêtre étroite sur ordinateur la garde. */
+    @media (hover: none) and (pointer: coarse) {
+        .scroll-progress-lib--fixed { display: none; }
+    }
+
     @media (prefers-reduced-motion: reduce) {
         .scroll-progress-lib__dot::before, .scroll-progress-lib__label { transition: none; }
     }
@@ -4350,9 +4357,11 @@
         min-height: 100vh;
     }
 
-    /* Sous lg, la sidebar devient un bandeau fixe de 3.5rem (main a pt-14). */
+    /* Sous lg, la sidebar devient un bandeau fixe de 3.5rem (main a pt-14).
+       svh et non dvh : dvh suit la barre d'adresse mobile, qui se replie et réapparaît
+       au défilement — la hauteur changerait et toute la page sauterait. */
     @media (max-width: 1023px) {
-        .home__layout { min-height: calc(100dvh - 3.5rem); }
+        .home__layout { min-height: calc(100svh - 3.5rem); }
     }
 
     .home__hero {
@@ -4406,12 +4415,14 @@
     .card-wall--pret { opacity: 1; }
 
     /* Fenêtre de la taille de l'écran, collée en haut pendant le défilement :
-       le mur remplit toujours 100 % de ce qu'on voit. */
+       le mur remplit toujours 100 % de ce qu'on voit. lvh (écran barre d'adresse
+       repliée) : le mur couvre tout l'écran dans les deux états de la barre, sans se
+       redimensionner quand elle bouge (dvh le ferait sauter). */
     .card-wall__viewport {
         position: sticky;
         top: 0;
         height: 100vh;
-        height: 100dvh;
+        height: 100lvh;
         overflow: hidden;
         perspective: 1600px;
         perspective-origin: 50% 50%;
@@ -4996,8 +5007,9 @@
         flex-direction: column;
         justify-content: center;
         gap: 72px;
+        /* svh et non dvh : stable quand la barre d'adresse mobile bouge (voir .home__layout). */
         min-height: 100vh;
-        min-height: 100dvh;
+        min-height: 100svh;
         padding: 72px var(--home-gutter);
         /* Voile : le mur reste visible, le texte lisible. Il part de l'opacité du voile
            de la page précédente pour s'épaissir en douceur : pas de démarcation entre pages. */
@@ -5477,7 +5489,7 @@
     @media (min-width: 1024px) and (min-height: 700px) {
         .home-panel {
             height: 100vh;
-            height: 100dvh;
+            height: 100svh; /* tablette en paysage : barre d'adresse qui bouge, voir .home__layout */
             padding-block: clamp(24px, 4vh, 56px);
             gap: clamp(20px, 4vh, 48px);
         }
@@ -5572,6 +5584,14 @@
         }
         .home-tile .home-tile__icon { grid-row: span 2; width: 36px; height: 36px; }
         .home-tile .home-tile__text { font-size: 13px; }
+    }
+
+    /* Actu de l'accueil, grille à 2 colonnes (tablette, mobile) : le dernier vote puis les
+       votes précédents, à la suite, avant le plus serré et les députés. Sur 4 colonnes
+       l'ordre du HTML convient (« Juste avant » sous le dernier vote, à gauche). */
+    @container bento (max-width: 899px) {
+        .home-actu__vedette { order: -2; }
+        .home-actu__precedents { order: -1; }
     }
 
     /* Bentos de l'accueil sur mobile (mobileColumns={2}) : contenu resserré pour les

@@ -109,6 +109,13 @@ describe("HomeClient", () => {
         expect(screen.getByText("Pas de données sur la période.")).toBeInTheDocument();
     });
 
+    it("l'actu : dernier vote et votes précédents repérés pour rester à la suite sur 2 colonnes", () => {
+        render(<HomeClient initial={SERVEUR} />);
+
+        expect(screen.getByRole("link", { name: /Dernier vote important/ })).toHaveClass("home-actu__vedette");
+        expect(screen.getByText("Juste avant").closest(".bento-tile")).toHaveClass("home-actu__precedents");
+    });
+
     it("bloc indisponible côté serveur : rechargé par le client, et seulement lui", async () => {
         (legislaturesGateway.getChiffres as jest.Mock).mockResolvedValue(CHIFFRES);
 
