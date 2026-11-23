@@ -2004,16 +2004,35 @@
     }
 
     /* -------------------------------------------------------
-       Tooltip - MUI overrides
+       TooltipLib — bulle d'aide (rendue dans body, position fixe)
+       left / top (posés par le composant) = point d'ancrage au bord
+       du déclencheur ; translate décale la bulle du bon côté.
        ------------------------------------------------------- */
     .tooltip-lib {
-        background-color: var(--surface-1) !important;
-        color: var(--foreground) !important;
-        border: 1px solid var(--border-main) !important;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1) !important;
-        font-size: 12px !important;
-        padding: 6px 10px !important;
-        border-radius: 6px !important;
+        position: fixed;
+        z-index: 60; /* au-dessus de la sidebar (z-50) */
+        max-width: 280px;
+        padding: 6px 10px;
+        border: 1px solid var(--border-main);
+        border-radius: 6px;
+        background-color: var(--surface-1);
+        box-shadow: 0 4px 12px rgb(0 0 0 / .1);
+        color: var(--foreground);
+        font-size: 12px;
+        line-height: 1.4;
+        pointer-events: none;
+        animation: tooltip-lib-in .12s ease-out;
+    }
+
+    .tooltip-lib--top { translate: -50% -100%; }
+    .tooltip-lib--bottom { translate: -50% 0; }
+    .tooltip-lib--right { translate: 0 -50%; }
+    .tooltip-lib--left { translate: -100% -50%; }
+
+    @keyframes tooltip-lib-in { from { opacity: 0; } }
+
+    @media (prefers-reduced-motion: reduce) {
+        .tooltip-lib { animation: none; }
     }
     /* -------------------------------------------------------
        InputLib

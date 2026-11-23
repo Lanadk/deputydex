@@ -50,3 +50,30 @@ describe("AppSidebar — fond du menu mobile", () => {
         expect(screen.queryByRole("button", { name: "Fermer le menu" })).not.toBeInTheDocument();
     });
 });
+
+describe("AppSidebar — bulles du menu replié", () => {
+    beforeEach(() => setViewportWidth(1440));
+
+    it("replié : chaque lien est nommé par son libellé, la bulle s'ouvre au survol", async () => {
+        mockIsOpen = false;
+        render(<AppSidebar />);
+
+        const lien = screen.getByRole("link", { name: "Groupes" });
+        fireEvent.mouseEnter(lien);
+        expect(await screen.findByRole("tooltip")).toHaveTextContent("Groupes");
+        fireEvent.mouseLeave(lien);
+        expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+
+        // L'entrée du menu et le « © » du bas, qui n'affiche que le symbole une fois replié.
+        expect(screen.getAllByRole("link", { name: "Mentions légales" })).toHaveLength(2);
+    });
+
+    it("déplié : libellés visibles, pas de bulle", () => {
+        mockIsOpen = true;
+        render(<AppSidebar />);
+
+        fireEvent.mouseEnter(screen.getByRole("link", { name: "Groupes" }));
+
+        expect(screen.queryByRole("tooltip")).not.toBeInTheDocument();
+    });
+});
