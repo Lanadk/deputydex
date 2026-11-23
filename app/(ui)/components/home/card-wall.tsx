@@ -73,7 +73,8 @@ export function CardWall({ cards }: { cards: DeputesCardDTO[] }) {
         const photos = photosAffichees(columns, mobile ? CARD_WALL_COLUMNS_MOBILE : CARD_WALL_COLUMNS);
         const afficher = () => { if (!annule) setPret(true); };
         const delai = setTimeout(afficher, DELAI_MAX_APPARITION_MS);
-        precharger(photos).then(afficher);
+        // Promesse ignorée volontairement : `precharger` ne rejette jamais (une image en erreur compte comme chargée).
+        void precharger(photos).then(afficher);
         return () => {
             annule = true;
             clearTimeout(delai);
