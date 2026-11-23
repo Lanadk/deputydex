@@ -3,7 +3,7 @@
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { useAsyncData } from "@/app/(ui)/_shared/hook/use-async-data";
+import { useInitialAsyncData } from "@/app/(ui)/_shared/hook/use-initial-async-data";
 import { deputesGateway } from "@/app/(ui)/gateways/deputes/deputes.gateway";
 import { legislaturesGateway } from "@/app/(ui)/gateways/legislatures/legislatures.gateway";
 import { libelleLegislature } from "@/app/domains/legislatures/institutions";
@@ -16,16 +16,19 @@ import { resumeLegislaturesCouvertes } from "@/app/(ui)/components/home/home-leg
 import { HomeMois } from "@/app/(ui)/components/home/home-mois";
 import { HomeAssembleeChiffres } from "@/app/(ui)/components/home/home-assemblee-chiffres";
 import { ScrollHintLib } from "@/app/(ui)/component-library/molecules/scroll-hint/scroll-hint-lib";
-
-/** Nombre de derniers scrutins importants montrés dans « Ce mois-ci ». */
-const HOME_DERNIERS_VOTES = 3;
+import { HOME_DERNIERS_VOTES } from "@/app/(ui)/components/home/home-mois.helpers";
+import type { HomeData } from "@/app/home-data";
 
 /**
- * Accueil. Il présente la législature EN COURS lue en base
- * (`/api/legislatures/current`), pas celle du sélecteur global : changer de
- * législature ailleurs sur le site ne modifie pas l'accueil (le sélecteur y est masqué).
+ * Accueil. Il présente la législature EN COURS lue en base, pas celle du
+ * sélecteur global : changer de législature ailleurs sur le site ne modifie pas
+ * l'accueil (le sélecteur y est masqué).
+ *
+ * Toutes les données arrivent du serveur (`initial`, voir `getHomeData`) : aucun
+ * appel API au chargement. Un bloc indisponible côté serveur (`null`) est
+ * rechargé ici, avec chargement, erreur et « Réessayer ».
  */
-export default function HomeClient() {
+export default function HomeClient({ initial }: { initial: HomeData }) {
     const { resolvedTheme } = useTheme();
     const [mounted, setMounted] = useState(false);
 
@@ -34,26 +37,29 @@ export default function HomeClient() {
         setMounted(true);
     }, []);
 
-    const current = useAsyncData(() => legislaturesGateway.getCurrent(), "current");
-    const toutes = useAsyncData(() => legislaturesGateway.getAll(), "all");
+    const current = useInitialAsyncData(initial.legislature, () => legislaturesGateway.getCurrent(), "current");
+    const toutes = useInitialAsyncData(initial.legislatures, () => legislaturesGateway.getAll(), "all");
     const numero = current.data?.number ?? null;
+    const pour = <T,>(charger: (n: number) => Promise<T>) => (numero === null ? null : () => charger(numero));
     // Mur et tablette décoratifs : en cas d'échec, ils restent vides (la tablette saute
     // les écrans des groupes ou du scrutin s'ils n'ont pas pu être chargés).
-    const cards = useAsyncData(numero === null ? null : () => deputesGateway.getDeputesCardsSample(numero), `cards|${numero}`);
-    // Les 3 derniers scrutins importants (liste par défaut, la plus récente d'abord) :
-    // section « Ce mois-ci », et le premier sur la tablette.
-    const derniers = useAsyncData(
-        numero === null ? null : () => scrutinsGateway.getScrutinsList(numero, { pageSize: String(HOME_DERNIERS_VOTES) }),
+    const cards = useInitialAsyncData(initial.cards, pour((n) => deputesGateway.getDeputesCardsSample(n)), `cards|${numero}`);
+    // Les derniers scrutins importants (liste par défaut, la plus récente d'abord) :
+    // actu, et le premier sur la tablette.
+    const derniers = useInitialAsyncData(
+        initial.derniers,
+        pour((n) => scrutinsGateway.getScrutinsList(n, { pageSize: String(HOME_DERNIERS_VOTES) })),
         `derniers|${numero}`
     );
-    const groupes = useAsyncData(numero === null ? null : () => groupesGateways.getGroupesCards(numero), `groupes|${numero}`);
-    const tendances = useAsyncData(numero === null ? null : () => deputesGateway.getDeputesTendances(numero), `tendances|${numero}`);
-    const plusSerre = useAsyncData(numero === null ? null : () => scrutinsGateway.getScrutinPlusSerre(numero), `serre|${numero}`);
-    const chiffres = useAsyncData(numero === null ? null : () => legislaturesGateway.getChiffres(numero), `chiffres|${numero}`);
+    const groupes = useInitialAsyncData(initial.groupes, pour((n) => groupesGateways.getGroupesCards(n)), `groupes|${numero}`);
+    const tendances = useInitialAsyncData(initial.tendances, pour((n) => deputesGateway.getDeputesTendances(n)), `tendances|${numero}`);
+    const plusSerre = useInitialAsyncData(initial.plusSerre, pour((n) => scrutinsGateway.getScrutinPlusSerre(n)), `serre|${numero}`);
+    const chiffres = useInitialAsyncData(initial.chiffres, pour((n) => legislaturesGateway.getChiffres(n)), `chiffres|${numero}`);
     // Fiche miniature de la tablette : le député le plus assidu du mois, avec ses vraies
     // stats de vote et son vrai calendrier d'activité (rien d'inventé sur une vraie personne).
     const assidu = tendances.data?.assidu?.depute ?? null;
-    const fiche = useAsyncData(
+    const fiche = useInitialAsyncData(
+        initial.fiche,
         numero === null || !assidu ? null : () => Promise.all([
             deputesGateway.getDeputeVoteStats(assidu.deputeUID, numero),
             deputesGateway.getDeputeActivityCalendar(assidu.deputeUID, numero),

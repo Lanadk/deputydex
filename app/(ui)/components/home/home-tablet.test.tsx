@@ -51,6 +51,62 @@ describe("HomeTablet", () => {
         expect(screen.getByTestId("home-tablet-progress")).toHaveStyle({ animationDuration: "10000ms" });
     });
 
+    it("boutons ‹ › : sujet précédent / suivant, en boucle, avec la position", () => {
+        const { container } = render(<HomeTablet cards={[]} legislature={null} scrutin={SCRUTIN} />);
+
+        expect(legende()).toHaveTextContent("1 / 3");
+        fireEvent.click(screen.getByRole("button", { name: "Sujet précédent" }));
+        expect(ecranActif(container)).toBe("scrutin");
+        expect(legende()).toHaveTextContent("3 / 3");
+        fireEvent.click(screen.getByRole("button", { name: "Sujet suivant" }));
+        expect(ecranActif(container)).toBe("deputes");
+    });
+
+    it("glisser la tablette vers la gauche : sujet suivant ; vers la droite : précédent ; un geste vertical ne change rien", () => {
+        // jsdom n'a pas PointerEvent : sans lui, les coordonnées du pointeur sont perdues.
+        if (!("PointerEvent" in window)) {
+            class PointerEventJsdom extends MouseEvent {
+                isPrimary: boolean;
+                constructor(type: string, init: PointerEventInit = {}) {
+                    super(type, init);
+                    this.isPrimary = init.isPrimary ?? true;
+                }
+            }
+            Object.defineProperty(window, "PointerEvent", { value: PointerEventJsdom, configurable: true });
+        }
+        const { container } = render(<HomeTablet cards={[]} legislature={null} scrutin={SCRUTIN} />);
+        const zone = screen.getByTestId("home-tablet-swipe");
+        const glisser = (dx: number, dy = 0) => {
+            fireEvent.pointerDown(zone, { clientX: 300, clientY: 300, isPrimary: true });
+            fireEvent.pointerUp(zone, { clientX: 300 + dx, clientY: 300 + dy });
+        };
+
+        glisser(-120);
+        expect(ecranActif(container)).toBe("stats");
+        glisser(120);
+        expect(ecranActif(container)).toBe("deputes");
+        glisser(-80, 200);
+        expect(ecranActif(container)).toBe("deputes");
+        glisser(-20);
+        expect(ecranActif(container)).toBe("deputes");
+    });
+
+    it("défilement horizontal (trackpad) : un sujet par geste", () => {
+        const { container } = render(<HomeTablet cards={[]} legislature={null} scrutin={SCRUTIN} />);
+        const zone = screen.getByTestId("home-tablet-swipe");
+
+        fireEvent.wheel(zone, { deltaX: 40, deltaY: 0 });
+        expect(ecranActif(container)).toBe("deputes");
+        fireEvent.wheel(zone, { deltaX: 40, deltaY: 0 });
+        expect(ecranActif(container)).toBe("stats");
+        // Suite du même geste : ignorée.
+        fireEvent.wheel(zone, { deltaX: 200, deltaY: 0 });
+        expect(ecranActif(container)).toBe("stats");
+        // Défilement surtout vertical : laissé à la page.
+        fireEvent.wheel(zone, { deltaX: 10, deltaY: 300 });
+        expect(ecranActif(container)).toBe("stats");
+    });
+
     it("passe à l'écran suivant à la fin de la barre de progression ; la légende suit", () => {
         const { container } = render(<HomeTablet cards={[]} legislature="17ᵉ législature" scrutin={SCRUTIN} groupes={GROUPES} />);
 
