@@ -9,7 +9,7 @@ import { Suspense } from 'react';
 type ComponentEntry = { name: string; description: string; path: string };
 type ComponentTheme = { theme: string; items: ComponentEntry[] };
 
-// Rangé par niveau (atoms / molecules / templates), puis par thème. Les noms
+// Rangé par niveau (atoms / molecules / organisms / templates), puis par thème. Les noms
 // sont ceux des composants, sans le suffixe `Lib`.
 const components: Record<string, ComponentTheme[]> = {
     Atoms: [
@@ -87,6 +87,14 @@ const components: Record<string, ComponentTheme[]> = {
             theme: 'Navigation',
             items: [
                 { name: 'Tabs', description: 'Onglets accessibles', path: '/component-library/molecules/tabs' },
+            ],
+        },
+    ],
+    Organisms: [
+        {
+            theme: 'Succès',
+            items: [
+                { name: 'ArenaBadgeTooltip', description: "Badge d'arène avec bulle au survol", path: '/component-library/organisms/arena-badge-tooltip' },
             ],
         },
     ],

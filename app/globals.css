@@ -1910,6 +1910,133 @@
     }
 
     /* -------------------------------------------------------
+       ArenaBadgeLib — badge d'arène (succès)
+       Couleurs de la face et du cerclage : arena-badge-lib.variants.ts
+       ------------------------------------------------------- */
+    .arena-badge-lib {
+        @apply inline-flex flex-col items-center gap-2 m-0;
+        width: var(--arena-badge-size, 96px);
+    }
+
+    .arena-badge-lib__svg {
+        width: 100%;
+        height: auto;
+        overflow: visible;
+        filter: drop-shadow(0 4px 5px color-mix(in srgb, var(--p1-steel-4) 30%, transparent));
+        transition: transform 200ms ease;
+    }
+
+    .arena-badge-lib:hover .arena-badge-lib__svg {
+        transform: translateY(-3px) rotate(-4deg);
+    }
+
+    .arena-badge-lib__outline {
+        fill: var(--p1-steel-4);
+        stroke: var(--p1-steel-4);
+        stroke-width: 14;
+        stroke-linejoin: round;
+    }
+
+    .arena-badge-lib__rim {
+        stroke-width: 10;
+        stroke-linejoin: round;
+    }
+
+    .arena-badge-lib__facets {
+        fill: none;
+        stroke-width: 2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        opacity: 0.55;
+    }
+
+    .arena-badge-lib__shine {
+        fill: var(--p1-white-1);
+        opacity: 0.4;
+    }
+
+    .arena-badge-lib__glint {
+        fill: var(--p1-white-1);
+        opacity: 0;
+    }
+
+    .arena-badge-lib:hover .arena-badge-lib__glint {
+        animation: arena-badge-glint 700ms ease-out;
+    }
+
+    @keyframes arena-badge-glint {
+        0% { opacity: 0; transform: translateX(-20px); }
+        25% { opacity: 0.6; }
+        100% { opacity: 0; transform: translateX(110px); }
+    }
+
+    .arena-badge-lib__label {
+        @apply text-xs font-semibold text-center leading-tight;
+        color: var(--foreground);
+    }
+
+    .arena-badge-lib--locked .arena-badge-lib__svg {
+        filter: grayscale(1);
+        opacity: 0.4;
+    }
+
+    .arena-badge-lib--locked .arena-badge-lib__label {
+        color: var(--text-muted);
+    }
+
+    /* Étui à badges (démo) : rangée de badges sur fond sombre. */
+    .arena-badge-case {
+        @apply inline-grid grid-cols-3 sm:grid-cols-5 lg:grid-cols-9 gap-4 p-5;
+        background: linear-gradient(135deg, var(--deputy-card-bg-start), var(--deputy-card-bg-mid), var(--deputy-card-bg-end));
+        border: 3px solid var(--deputy-card-corner);
+        border-radius: var(--card-radius-lg);
+    }
+
+    .arena-badge-case .arena-badge-lib--locked .arena-badge-lib__svg {
+        opacity: 0.25;
+    }
+
+    /* ArenaBadgeTooltipLib : déclencheur focusable autour du badge. */
+    .arena-badge-tooltip-lib {
+        @apply inline-flex rounded-lg;
+        outline: none;
+        cursor: default;
+    }
+
+    .arena-badge-tooltip-lib:focus-visible {
+        outline: 2px solid var(--accent);
+        outline-offset: 4px;
+    }
+
+    .arena-badge-tooltip-lib:focus-visible .arena-badge-lib__svg {
+        transform: translateY(-3px) rotate(-4deg);
+    }
+
+    .arena-badge-tooltip-lib__bubble {
+        @apply flex flex-col gap-1;
+    }
+
+    .arena-badge-tooltip-lib__title {
+        font-size: 13px;
+    }
+
+    .arena-badge-tooltip-lib__status {
+        font-weight: 600;
+        color: var(--ui-success);
+    }
+
+    .arena-badge-tooltip-lib__status--locked {
+        color: var(--text-muted);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .arena-badge-tooltip-lib:focus-visible .arena-badge-lib__svg { transform: none; }
+        .arena-badge-lib__svg { transition: none; }
+        .arena-badge-lib:hover .arena-badge-lib__svg { transform: none; }
+        .arena-badge-lib:hover .arena-badge-lib__glint { animation: none; }
+    }
+
+    /* -------------------------------------------------------
        SpanLib
        ------------------------------------------------------- */
     .span-lib {

@@ -35,6 +35,7 @@ import { getSpinnerSections } from "@/app/(ui)/component-library/molecules/spinn
 import { getThemeSwitcherSections } from "@/app/(ui)/component-library/molecules/theme-switcher/theme-switcher-lib.constants";
 import { getCodeBlockSections } from "@/app/(ui)/component-library/molecules/code-block/code-block-lib.constants";
 import { getTabsSections } from "@/app/(ui)/component-library/molecules/tabs/tabs-lib.constants";
+import { getArenaBadgeTooltipSections } from "@/app/(ui)/component-library/organisms/arena-badge-tooltip/arena-badge-tooltip-lib.constants";
 import { getBaseLayoutSections } from "@/app/(ui)/component-library/template/base-layout/base-layout-lib.constants";
 import { getPageContentSections } from "@/app/(ui)/component-library/template/page-content/page-content-lib.constants";
 import { getPageHeaderSections } from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib.constants";
@@ -87,6 +88,8 @@ export const COMPONENT_PREVIEWS: Record<string, ComponentPreview> = {
     '/component-library/molecules/theme-switcher': { width: 440, render: () => getThemeSwitcherSections()[0].component },
     '/component-library/molecules/code-block': { width: 600, render: () => getCodeBlockSections()[0].component },
     '/component-library/molecules/tabs': { width: 560, render: () => getTabsSections()[1].component },
+    // Organisms
+    '/component-library/organisms/arena-badge-tooltip': { width: 1000, render: () => getArenaBadgeTooltipSections()[2].component },
     // Templates
     '/component-library/template/base-layout': { width: 700, render: () => getBaseLayoutSections()[0].component },
     '/component-library/template/page-content': { width: 600, render: () => getPageContentSections()[0].component },
