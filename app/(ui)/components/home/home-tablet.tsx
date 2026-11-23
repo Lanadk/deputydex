@@ -22,7 +22,7 @@ import {
  * Durée d'affichage de chaque écran de l'app, en ms : c'est la durée de la barre
  * de progression de la légende, dont la fin déclenche l'écran suivant.
  */
-export const HOME_TABLET_SCREEN_MS = 15_000;
+export const HOME_TABLET_SCREEN_MS = 10_000;
 
 type EcranId = "deputes" | "activite" | "groupes" | "stats" | "scrutin";
 
@@ -182,7 +182,7 @@ export function HomeTablet({ cards, legislature, scrutin = null, groupes = [], f
             </div>
 
             {/* Légende de l'écran affiché : ce que la rubrique permet de faire. Pas de région
-                « live » : un texte qui change seul toutes les 15 s serait lu en boucle. */}
+                « live » : un texte qui change seul toutes les 10 s serait lu en boucle. */}
             <div key={actif.id} className="home-tablet__caption" data-testid="home-tablet-caption">
                 <p className="home-tablet__caption-title">{actif.accroche}</p>
                 <p className="home-tablet__caption-text">{actif.texte}</p>

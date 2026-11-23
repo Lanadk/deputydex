@@ -44,11 +44,11 @@ const finDeBarre = () => fireEvent.animationEnd(screen.getByTestId("home-tablet-
 const ecranActif = (container: HTMLElement) => container.querySelector(".home-tablet__screen.is-active")?.getAttribute("data-screen");
 
 describe("HomeTablet", () => {
-    it("chaque écran dure 15 s : la barre de progression de la légende dure autant", () => {
+    it("chaque écran dure 10 s : la barre de progression de la légende dure autant", () => {
         render(<HomeTablet cards={[]} legislature={null} />);
 
-        expect(HOME_TABLET_SCREEN_MS).toBe(15_000);
-        expect(screen.getByTestId("home-tablet-progress")).toHaveStyle({ animationDuration: "15000ms" });
+        expect(HOME_TABLET_SCREEN_MS).toBe(10_000);
+        expect(screen.getByTestId("home-tablet-progress")).toHaveStyle({ animationDuration: "10000ms" });
     });
 
     it("passe à l'écran suivant à la fin de la barre de progression ; la légende suit", () => {
