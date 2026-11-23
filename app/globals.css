@@ -189,6 +189,10 @@
     --span-clickable: var(--ui-info-strong);
 
     /* Deputy card */
+    /* Cadre d'appareil : téléphone, tablette (DeviceFrameLib) */
+    --device-bezel: var(--ui-ink);
+    --device-edge: var(--ui-steel);
+
     --card-surface-1: var(--ui-ink);
     --card-surface-2: var(--ui-info-strong);
     --text-muted: var(--ui-steel-muted);
@@ -407,6 +411,10 @@
 
     --span-clickable: var(--ui-info);
 
+    /* Cadre d'appareil : téléphone, tablette (DeviceFrameLib) */
+    --device-bezel: var(--ui-ink);
+    --device-edge: var(--ui-steel);
+
     --card-surface-1: var(--ui-ink);
     --card-surface-2: var(--ui-info-strong);
     --text-muted: var(--ui-steel);
@@ -605,6 +613,10 @@
     --toggle-focus: var(--accent);
 
     --span-clickable: var(--ui-info);
+
+    /* Cadre d'appareil : téléphone, tablette (DeviceFrameLib) */
+    --device-bezel: var(--ui-ink);
+    --device-edge: var(--ui-steel);
 
     --card-surface-1: var(--ui-ink);
     --card-surface-2: var(--ui-info);
@@ -1172,8 +1184,11 @@
         line-height: 1;
     }
 
+    /* z-index 3 : au-dessus des lignes d'événement (z-index 2), qui passent alors
+       derrière une bulle voisine plutôt que de la barrer. */
     .timeline-lib__markers > .timeline-lib__marker {
         position: absolute;
+        z-index: 3;
         bottom: calc(var(--timeline-marker-row, 0) * 24px + 2px);
         transform: translateX(-50%);
         cursor: default;
@@ -1182,7 +1197,7 @@
     /* Au-dessus des périodes (z-index 2) mais sous l'intitulé collant des couloirs (z-index 3). */
     .timeline-lib__events {
         position: absolute;
-        top: -1.5rem; /* traverse aussi l'axe, jusqu'au repère */
+        top: 0;
         bottom: 0;
         left: var(--timeline-label-width);
         right: 0;
@@ -1190,9 +1205,11 @@
         pointer-events: none;
     }
 
+    /* Traverse l'axe (1.5rem) et monte jusqu'au bas de la bulle de son repère,
+       quelle que soit sa rangée (même calcul que le `bottom` du repère). */
     .timeline-lib__event-line {
         position: absolute;
-        top: 0;
+        top: calc(-1.5rem - var(--timeline-marker-row, 0) * 24px - 2px);
         bottom: 0;
         width: 0;
         border-left: 2px dashed var(--ui-warning);
@@ -3331,8 +3348,33 @@
         outline-offset: 2px;
     }
 
-    /* Carte de la présidence au survol du perchoir : largeur d'une carte du DeputéDex. */
-    .hemicycle-perchoir-card { width: 200px; }
+    /* Nom et titre de la présidence, centrés sous le perchoir, au survol. */
+    .hemicycle-perchoir-label {
+        position: absolute;
+        z-index: 10;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        padding: 6px 12px;
+        border: 1px solid var(--border-main);
+        border-radius: 8px;
+        background: var(--background);
+        color: var(--foreground);
+        text-align: center;
+        white-space: nowrap;
+        pointer-events: none;
+        animation: hemicycle-perchoir-label-in .15s ease-out;
+    }
+
+    .hemicycle-perchoir-label__nom { font-size: 14px; font-weight: 600; }
+    .hemicycle-perchoir-label__titre { font-size: 12px; color: var(--subtitle-accent); }
+
+    @keyframes hemicycle-perchoir-label-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
 
     /* Siège survolable (fiche scrutin) : zone de survol invisible plus large que le
        siège, qui comble les espaces entre voisins pour que la souris ne « tombe »
@@ -3467,7 +3509,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .hemicycle-seat { animation: none; transition: none; }
+        .hemicycle-seat, .hemicycle-perchoir-label { animation: none; transition: none; }
     }
 }
 
@@ -3489,36 +3531,322 @@
     }
 
     /* -------------------------------------------------------
+       ScrollHintLib — invitation animée à faire défiler
+       ------------------------------------------------------- */
+    .scroll-hint-lib {
+        display: inline-flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        padding: 8px 14px;
+        border-radius: 14px;
+        color: var(--subtitle-accent);
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: .04em;
+        transition: color .2s;
+    }
+
+    .scroll-hint-lib:hover { color: var(--foreground); }
+    .scroll-hint-lib:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .scroll-hint-lib__souris {
+        position: relative;
+        width: 22px;
+        height: 34px;
+        border: 2px solid currentColor;
+        border-radius: 12px;
+    }
+
+    .scroll-hint-lib__molette {
+        position: absolute;
+        left: 50%;
+        top: 6px;
+        width: 4px;
+        height: 7px;
+        border-radius: 2px;
+        background: currentColor;
+        transform: translateX(-50%);
+        animation: scroll-hint-molette 1.8s cubic-bezier(.6, 0, .4, 1) infinite;
+    }
+
+    @keyframes scroll-hint-molette {
+        0% { opacity: 0; transform: translate(-50%, 0); }
+        25% { opacity: 1; }
+        80% { opacity: 0; transform: translate(-50%, 12px); }
+        100% { opacity: 0; transform: translate(-50%, 12px); }
+    }
+
+    .scroll-hint-lib__chevron { animation: scroll-hint-rebond 1.8s ease-in-out infinite; }
+
+    @keyframes scroll-hint-rebond {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(5px); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .scroll-hint-lib__molette, .scroll-hint-lib__chevron { animation: none; }
+        .scroll-hint-lib { transition: none; }
+    }
+
+    /* -------------------------------------------------------
+       BentoGridLib / BentoTileLib — grille de tuiles de tailles variées
+       Responsive sur la largeur de la grille (container query « bento ») :
+       --bento-columns colonnes, puis 2 (< 900px), puis 1 (< 520px).
+       ------------------------------------------------------- */
+    .bento-lib { container: bento / inline-size; }
+
+    .bento-lib__grid {
+        --bento-columns: 4;
+        --bento-row: 210px;
+        display: grid;
+        grid-template-columns: repeat(var(--bento-columns), minmax(0, 1fr));
+        grid-auto-rows: minmax(var(--bento-row), auto);
+        grid-auto-flow: dense;
+        gap: 14px;
+    }
+
+    /* fill : la grille prend la hauteur de son conteneur, rangées étirées à parts égales. */
+    .bento-lib--fill { display: flex; flex-direction: column; flex: 1 1 auto; min-height: 0; }
+    .bento-lib--fill > .bento-lib__grid { flex: 1 1 auto; grid-auto-rows: minmax(var(--bento-row), 1fr); }
+
+    .bento-tile {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 0;
+        padding: 22px;
+        overflow: hidden;
+        border-radius: 22px;
+        color: var(--foreground);
+        transition: transform .25s cubic-bezier(.2, .7, .2, 1), box-shadow .25s, border-color .25s;
+    }
+
+    .bento-tile--c2 { grid-column: span 2; }
+    .bento-tile--c3 { grid-column: span 3; }
+    .bento-tile--c4 { grid-column: span 4; }
+    .bento-tile--r2 { grid-row: span 2; }
+
+    /* Verre : translucide et flouté, le fond se devine derrière. */
+    .bento-tile--glass {
+        border: 1px solid color-mix(in srgb, var(--border-main) 70%, transparent);
+        background: color-mix(in srgb, var(--surface-2) 82%, transparent);
+        backdrop-filter: blur(14px) saturate(1.2);
+        box-shadow: 0 1px 0 color-mix(in srgb, var(--ui-white) 30%, transparent) inset;
+    }
+
+    /* Fond plein, opaque. */
+    .bento-tile--solid {
+        border: 1px solid var(--border-main);
+        background: var(--surface-2);
+    }
+
+    /* Pleine couleur : appel à l'action. */
+    .bento-tile--accent {
+        border: 1px solid transparent;
+        background: linear-gradient(150deg, var(--btn-primary-bg), var(--btn-primary-hover));
+        color: var(--btn-primary-text);
+    }
+
+    .bento-tile--link:hover {
+        transform: translateY(-4px);
+        border-color: color-mix(in srgb, var(--accent) 60%, transparent);
+        box-shadow: 0 24px 48px -28px rgb(0 0 0 / .45);
+    }
+
+    .bento-tile--link:focus-visible { outline: 2px solid var(--accent); outline-offset: 3px; }
+
+    /* Chargement : reflet qui balaie la tuile. */
+    .bento-tile.is-loading::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(100deg,
+            transparent 30%,
+            color-mix(in srgb, var(--foreground) 7%, transparent) 50%,
+            transparent 70%);
+        background-size: 200% 100%;
+        animation: bento-shimmer 1.4s linear infinite;
+    }
+
+    @keyframes bento-shimmer {
+        from { background-position: 150% 0; }
+        to { background-position: -50% 0; }
+    }
+
+    @container bento (max-width: 899px) {
+        .bento-lib__grid { grid-template-columns: repeat(min(var(--bento-columns), 2), minmax(0, 1fr)); }
+        .bento-tile--c3, .bento-tile--c4 { grid-column: span 2; }
+    }
+
+    @container bento (max-width: 519px) {
+        .bento-lib__grid { grid-template-columns: minmax(0, 1fr); }
+        .bento-tile--c2, .bento-tile--c3, .bento-tile--c4 { grid-column: span 1; }
+        .bento-tile--r2 { grid-row: span 1; }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .bento-tile { transition: none; }
+        .bento-tile.is-loading::after { animation: none; }
+    }
+
+    /* -------------------------------------------------------
+       DeviceFrameLib — cadre de téléphone (type iPhone, portrait)
+       ou de tablette (type iPad, paysage)
+       --device-width : largeur ; les autres mesures en découlent
+       ------------------------------------------------------- */
+    .device-frame {
+        --device-width: 300px;
+        /* Mesures du téléphone, surchargées par .device-frame--tablet */
+        --device-ratio: 9 / 19.5;
+        --device-bezel-size: calc(var(--device-width) * .035);
+        --device-radius: calc(var(--device-width) * .16);
+        --device-screen-radius: calc(var(--device-width) * .13);
+        --device-status-height: calc(var(--device-width) * .16);
+        --device-status-padding: calc(var(--device-width) * .085);
+
+        position: relative;
+        flex-shrink: 0;
+        width: var(--device-width);
+        aspect-ratio: var(--device-ratio);
+        padding: var(--device-bezel-size);
+        border-radius: var(--device-radius);
+        background: var(--device-bezel);
+        box-shadow:
+            inset 0 0 0 2px var(--device-edge),
+            inset 0 0 0 5px var(--device-bezel),
+            inset 0 0 0 6px color-mix(in srgb, var(--device-edge) 50%, transparent),
+            0 40px 70px -30px rgb(0 0 0 / .55),
+            0 18px 30px -18px rgb(0 0 0 / .4);
+    }
+
+    /* Tablette en paysage : bord fin et régulier, coins plus doux, caméra au milieu du bord gauche. */
+    .device-frame--tablet {
+        --device-width: 560px;
+        --device-ratio: 4 / 3;
+        --device-bezel-size: calc(var(--device-width) * .028);
+        --device-radius: calc(var(--device-width) * .055);
+        --device-screen-radius: calc(var(--device-width) * .03);
+        --device-status-height: 22px;
+        --device-status-padding: 18px;
+    }
+
+    .device-frame__button {
+        position: absolute;
+        width: 4px;
+        border-radius: 2px;
+        background: var(--device-edge);
+    }
+
+    .device-frame__button--action { left: -3px; top: 17%; height: 5%; }
+    .device-frame__button--volume-up { left: -3px; top: 25%; height: 9%; }
+    .device-frame__button--volume-down { left: -3px; top: 36%; height: 9%; }
+    .device-frame__button--power { right: -3px; top: 28%; height: 13%; }
+    .device-frame__button--top { top: -3px; right: 12%; width: 9%; height: 4px; }
+
+    .device-frame__camera {
+        position: absolute;
+        left: calc(var(--device-bezel-size) / 2);
+        top: 50%;
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--device-edge) 60%, var(--device-bezel));
+        transform: translate(-50%, -50%);
+    }
+
+    .device-frame__screen {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+        border-radius: var(--device-screen-radius);
+        background: var(--background);
+        color: var(--foreground);
+        isolation: isolate;
+    }
+
+    .device-frame__status {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+        height: var(--device-status-height);
+        padding: 0 var(--device-status-padding);
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .device-frame--tablet .device-frame__status { font-size: 11px; }
+
+    .device-frame__time { font-variant-numeric: tabular-nums; }
+    .device-frame__icons { display: flex; align-items: center; gap: 4px; }
+
+    .device-frame__island {
+        position: absolute;
+        left: 50%;
+        top: calc(var(--device-width) * .035);
+        width: 32%;
+        height: calc(var(--device-width) * .095);
+        border-radius: 999px;
+        background: var(--device-bezel);
+        transform: translateX(-50%);
+    }
+
+    .device-frame__content { flex: 1; min-height: 0; overflow: hidden; }
+
+    .device-frame__home-indicator {
+        position: absolute;
+        left: 50%;
+        bottom: 6px;
+        z-index: 1;
+        width: min(36%, 140px);
+        height: 5px;
+        border-radius: 999px;
+        background: var(--foreground);
+        opacity: .8;
+        transform: translateX(-50%);
+    }
+
+    /* -------------------------------------------------------
        Accueil
        Les bascules se font en container queries sur la largeur RÉELLE de
        la page (écran moins la sidebar, ouverte ou repliée), pas sur la
-       largeur de l'écran :
-       - large  (≥ 980px)   texte à gauche, mur à droite
-       - moyen  (< 980px)   texte au-dessus, mur en dessous
+       largeur de l'écran. À toutes les tailles, le mur de cartes incliné
+       couvre toute la page, en fond, atténué ; le texte passe par-dessus.
+       - large  (≥ 980px)   texte à gauche, voile dégradé derrière lui
+       - moyen  (< 980px)   texte sur toute la largeur, mur plus atténué
        - étroit (≤ 600px)   mobile
        Réglages (surchargés par largeur plus bas) :
-       --home-hero-top    espace au-dessus du logo
-       --home-gutter      marges latérales du texte
-       --home-wall-height hauteur de la zone du mur
-       --home-wall-top    position verticale du mur (plus petit = plus haut)
-       --home-wall-scale  taille du mur
+       --home-hero-top      espace au-dessus du logo
+       --home-gutter        marges latérales du texte
+       --home-wall-scale    taille du mur
+       --home-wall-opacity  opacité du mur (plus bas = texte plus lisible)
        ------------------------------------------------------- */
     .home {
         --home-hero-top: clamp(24px, 7vh, 72px);
         --home-gutter: 56px;
-        --home-wall-height: 760px;
-        --home-wall-top: 30%;
-        --home-wall-scale: 1;
+        --home-wall-scale: 2;
+        --home-wall-opacity: .45;
+        --home-logo-width: clamp(200px, 22cqi, 300px);
 
+        position: relative;
         container: home / inline-size;
-        overflow: hidden;
+        /* clip et non hidden : hidden ferait de .home un conteneur de défilement,
+           et le mur (position: sticky) ne collerait plus à l'écran. */
+        overflow: clip;
     }
 
     /* Mise en page portée par un enfant : une container query ne peut pas
        styler le conteneur (.home) lui-même, seulement ses descendants. */
+    /* Contenu calé en haut à gauche (logo en tête), le mur remplit le reste. */
     .home__layout {
+        position: relative;
         display: flex;
-        flex-wrap: wrap;
+        align-items: flex-start;
         min-height: 100vh;
     }
 
@@ -3530,15 +3858,36 @@
     .home__hero {
         position: relative;
         z-index: 2;
-        flex: 1 1 420px; /* 420 + 560 (mur) = 980 : seuil du passage en colonne */
+        flex: 0 1 620px;
         min-width: 0;
-        max-width: 620px;
         padding: var(--home-hero-top) 32px 56px var(--home-gutter);
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         gap: 22px;
     }
+
+    /* Invitation à défiler (ScrollHintLib), centrée en bas de son écran (premier écran, actu). */
+    .home__scroll-hint, .home-panel > .home__scroll-hint {
+        width: auto;
+        position: absolute;
+        left: 50%;
+        bottom: 20px;
+        z-index: 3;
+        translate: -50% 0;
+        background: color-mix(in srgb, var(--background) 60%, transparent);
+        backdrop-filter: blur(6px);
+    }
+
+    /* Logo en tête de page ; hauteur réservée avant le montage (choix du logo selon le thème). */
+    .home__logo {
+        display: flex;
+        align-items: center;
+        width: var(--home-logo-width);
+        aspect-ratio: 674 / 390; /* proportions du SVG */
+    }
+
+    .home__logo img { width: 100%; height: 100%; object-fit: contain; object-position: left center; }
 
     .home__title {
         margin: 0;
@@ -3555,29 +3904,44 @@
         text-wrap: pretty;
     }
 
-    /* Mur de cartes incliné */
+    /* Mur de cartes incliné, en fond de TOUTE la page d'accueil (premier écran et sections). */
     .card-wall {
-        position: relative;
-        flex: 1 1 560px;
-        min-width: 0;
-        min-height: var(--home-wall-height);
-        overflow: hidden;
-        perspective: 1600px;
-        perspective-origin: 50% 35%;
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
     }
 
+    /* Fenêtre de la taille de l'écran, collée en haut pendant le défilement :
+       le mur remplit toujours 100 % de ce qu'on voit. */
+    .card-wall__viewport {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
+        perspective: 1600px;
+        perspective-origin: 50% 50%;
+    }
+
+    /* 12 colonnes de 150px + gouttières ≈ 2000px, agrandi (--home-wall-scale) :
+       une fois incliné, le plan déborde de l'écran dans tous les sens, y compris
+       en haut, où la perspective le rétrécit.
+       Hauteur ≤ celle d'un jeu de cartes d'une colonne (8 × (208 + 18) = 1808px),
+       sinon un trou apparaîtrait dans la boucle. */
     .card-wall__plane {
         position: absolute;
-        left: 52%;
-        top: var(--home-wall-top);
-        width: 1200px;
-        height: 1400px;
-        margin: -700px 0 0 -600px;
+        left: 50%;
+        top: 50%;
+        width: 2000px;
+        height: 1800px;
+        margin: -900px 0 0 -1000px;
         display: flex;
         justify-content: center;
         gap: 18px;
         overflow: hidden;
-        transform: rotateX(58deg) rotateZ(-24deg) scale(var(--home-wall-scale));
+        opacity: var(--home-wall-opacity);
+        transform: rotateX(50deg) rotateZ(-24deg) scale(var(--home-wall-scale));
     }
 
     .card-wall__col {
@@ -3600,57 +3964,1021 @@
         pointer-events: none;
     }
 
+    /* Voile derrière le texte (à gauche) : le mur s'efface sous le titre. */
     .card-wall__fade--left {
         background: linear-gradient(90deg,
             var(--background) 0%,
-            color-mix(in srgb, var(--background) 75%, transparent) 14%,
-            transparent 42%);
+            color-mix(in srgb, var(--background) 80%, transparent) 30%,
+            color-mix(in srgb, var(--background) 40%, transparent) 50%,
+            transparent 70%);
     }
 
-    .card-wall__fade--vertical {
+    .home__coverage {
+        margin: 0;
+        font-size: 13px;
+        color: var(--subtitle-accent);
+    }
+
+    /* Tablette de l'accueil : à droite du texte, inclinée vers la gauche (vers le titre). */
+    .home-tablet {
+        position: relative;
+        z-index: 2;
+        flex: 1 1 0;
+        min-width: 0;
+        align-self: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 28px;
+        padding: 48px var(--home-gutter) 48px 0;
+    }
+
+    .home-tablet__stage { perspective: 2000px; }
+
+    /* Légende de l'écran affiché, sous la tablette (remontée à chaque écran : fondu d'entrée). */
+    .home-tablet__caption {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        width: min(100%, 680px);
+        padding: 16px 18px 18px;
+        border: 1px solid var(--border-main);
+        border-radius: 14px;
+        background: var(--surface-2);
+        overflow: hidden;
+        animation: home-tablet-caption-in .6s cubic-bezier(.2, .7, .2, 1);
+    }
+
+    @keyframes home-tablet-caption-in {
+        from { opacity: 0; transform: translateY(8px); }
+    }
+
+    .home-tablet__caption-title { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -.01em; }
+    .home-tablet__caption-text { margin: 0; font-size: 14px; color: var(--subtitle-accent); text-wrap: pretty; }
+
+    /* Temps restant avant l'écran suivant. */
+    .home-tablet__progress {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 3px;
+        background: var(--accent);
+        transform-origin: left;
+        animation: home-tablet-progress linear forwards;
+    }
+
+    @keyframes home-tablet-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+    .home-tablet__frame {
+        --device-width: clamp(624px, 56cqi, 832px);
+        transform: rotateY(-20deg) rotateX(10deg) rotateZ(-5deg);
+        animation: home-tablet-float 7s ease-in-out infinite;
+    }
+
+    @keyframes home-tablet-float {
+        0%, 100% { translate: 0 0; }
+        50% { translate: 0 -10px; }
+    }
+
+    .home-tablet__app {
+        display: flex;
+        height: 100%;
+        background: var(--background);
+    }
+
+    /* Barre latérale : les icônes du vrai menu, la rubrique de l'écran affiché en surbrillance. */
+    .home-tablet__rail {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        flex: 0 0 40px;
+        padding: 8px 0;
+        border-right: 1px solid var(--border-main);
+        color: var(--subtitle-accent);
+    }
+
+    .home-tablet__rail-item {
+        display: grid;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        transition: background-color .4s, color .4s;
+    }
+
+    .home-tablet__rail-item.is-active {
+        color: var(--accent);
+        background: color-mix(in srgb, var(--accent) 14%, transparent);
+    }
+
+    .home-tablet__main {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .home-tablet__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 4px 14px 8px;
+        border-bottom: 1px solid var(--border-main);
+    }
+
+    .home-tablet__title {
+        font-size: 16px;
+        font-weight: 800;
+        letter-spacing: -.02em;
+        animation: home-tablet-fade .5s ease-out;
+    }
+
+    .home-tablet__pill {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--subtitle-accent);
+        border: 1px solid var(--border-main);
+        border-radius: 999px;
+        padding: 2px 8px;
+    }
+
+    /* Écrans superposés : l'actif glisse depuis la droite, le précédent part vers la gauche. */
+    .home-tablet__screens { position: relative; flex: 1; min-height: 0; overflow: hidden; }
+
+    .home-tablet__screen {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        transform: translateX(8%);
+        transition: opacity .6s ease, transform .6s cubic-bezier(.2, .7, .2, 1);
+    }
+
+    .home-tablet__screen.is-past { transform: translateX(-8%); }
+    .home-tablet__screen.is-active { opacity: 1; transform: none; }
+
+    @keyframes home-tablet-fade {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .home-tablet__dots {
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        display: flex;
+        gap: 5px;
+    }
+
+    .home-tablet__dots > span {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: var(--border-main);
+        transition: width .4s, background-color .4s;
+    }
+
+    .home-tablet__dots > span.is-active { width: 16px; background: var(--accent); }
+
+    /* Écran DéputéDex : la vraie grille (DeputyCard) en miniature, fixe. */
+    .home-tablet__deputes {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 100%;
+        padding: 10px 14px 0;
+        overflow: hidden;
+    }
+
+    .home-tablet__toolbar { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+
+    .home-tablet__search,
+    .home-tablet__chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 24px;
+        padding: 0 10px;
+        border: 1px solid var(--border-main);
+        border-radius: 8px;
+        background: var(--surface-2);
+        font-size: 10px;
+        color: var(--subtitle-accent);
+    }
+
+    .home-tablet__search { flex: 1; }
+
+    /* zoom : la grille est mise en page à taille réelle (6 colonnes d'environ
+       200px sur la plus grande tablette), puis réduite. */
+    .home-tablet__deputes-grid {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 16px;
+        zoom: .58;
+    }
+
+    /* Écran Statistiques : 4 graphiques d'illustration, animés à l'apparition de l'écran. */
+    .home-tablet__stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-auto-rows: 1fr;
+        gap: 10px;
+        height: 100%;
+        padding: 12px 14px 28px;
+    }
+
+    .home-tablet__panel {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-height: 0;
+        padding: 10px 12px;
+        border: 1px solid var(--border-main);
+        border-radius: 10px;
+        background: var(--surface-2);
+    }
+
+    .home-tablet__panel--row { flex-direction: row; align-items: center; gap: 12px; }
+    .home-tablet__panel-title { font-size: 11px; font-weight: 700; }
+    .home-tablet__panel-text { font-size: 10px; color: var(--subtitle-accent); }
+
+    .home-tablet__bars {
+        flex: 1;
+        display: flex;
+        align-items: flex-end;
+        gap: 5px;
+        min-height: 0;
+    }
+
+    .home-tablet__bars > span {
+        flex: 1;
+        border-radius: 3px 3px 0 0;
+        transform-origin: bottom;
+    }
+
+    .home-tablet__hbars {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        min-height: 0;
+    }
+
+    .home-tablet__hbars > span {
+        height: 8px;
+        border-radius: 0 4px 4px 0;
+        transform-origin: left;
+    }
+
+    .home-tablet__screen.is-active .home-tablet__bars > span { animation: home-tablet-grow-y .7s cubic-bezier(.2, .7, .2, 1) backwards; }
+    .home-tablet__screen.is-active .home-tablet__hbars > span { animation: home-tablet-grow-x .7s cubic-bezier(.2, .7, .2, 1) backwards; }
+
+    @keyframes home-tablet-grow-y { from { transform: scaleY(0); } }
+    @keyframes home-tablet-grow-x { from { transform: scaleX(0); } }
+
+    .home-tablet__donut {
+        flex: 0 0 64px;
+        height: 64px;
+        border-radius: 999px;
+        background: conic-gradient(var(--chart-1) 0 37%, var(--chart-2) 37% 100%);
+        mask: radial-gradient(circle, transparent 52%, #000 53%);
+    }
+
+    .home-tablet__screen.is-active .home-tablet__donut { animation: home-tablet-spin .9s cubic-bezier(.2, .7, .2, 1); }
+
+    @keyframes home-tablet-spin { from { transform: rotate(-120deg); opacity: 0; } }
+
+    .home-tablet__line { flex: 1; width: 100%; min-height: 0; }
+
+    .home-tablet__line polyline {
+        fill: none;
+        stroke: var(--chart-1);
+        stroke-width: 2.5;
+        stroke-linejoin: round;
+        vector-effect: non-scaling-stroke;
+        stroke-dasharray: 400;
+    }
+
+    .home-tablet__screen.is-active .home-tablet__line polyline { animation: home-tablet-draw 1.2s ease-out backwards; }
+
+    @keyframes home-tablet-draw { from { stroke-dashoffset: 400; } to { stroke-dashoffset: 0; } }
+
+    /* Écran Fiche député : identité, chiffres de vote, calendrier d'activité (données réelles). */
+    .home-tablet__fiche {
+        display: flex;
+        flex-direction: column;
+        gap: 12px;
+        height: 100%;
+        padding: 14px 16px 28px;
+    }
+
+    .home-tablet__fiche-tete { display: flex; align-items: center; gap: 12px; }
+
+    .home-tablet__fiche-photo {
+        flex: 0 0 56px;
+        height: 56px;
+        overflow: hidden;
+        border-radius: 999px;
+    }
+
+    .home-tablet__fiche-photo img { width: 100%; height: 100%; object-fit: cover; object-position: top; }
+    .home-tablet__fiche-nom { font-size: 17px; font-weight: 800; letter-spacing: -.01em; }
+
+    .home-tablet__fiche-kpis { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
+
+    .home-tablet__fiche-kpis > span {
+        display: flex;
+        flex-direction: column;
+        padding: 8px 10px;
+        border: 1px solid var(--border-main);
+        border-radius: 10px;
+        background: var(--surface-2);
+        font-size: 10px;
+        color: var(--subtitle-accent);
+    }
+
+    .home-tablet__fiche-kpis strong {
+        font-size: 20px;
+        font-weight: 800;
+        color: var(--foreground);
+        font-variant-numeric: tabular-nums;
+    }
+
+    /* Calendrier d'activité miniature : une colonne par semaine, une case par jour. */
+    .home-tablet__calendrier { display: flex; gap: 3px; }
+    .home-tablet__calendrier-semaine { display: flex; flex-direction: column; gap: 3px; flex: 1; }
+
+    .home-tablet__calendrier-jour {
+        aspect-ratio: 1;
+        border-radius: 2px;
+        background: color-mix(in srgb, var(--foreground) 8%, transparent);
+    }
+
+    .home-tablet__calendrier-jour[data-niveau="-1"] { visibility: hidden; }
+    .home-tablet__calendrier-jour[data-niveau="1"] { background: color-mix(in srgb, var(--accent) 30%, transparent); }
+    .home-tablet__calendrier-jour[data-niveau="2"] { background: color-mix(in srgb, var(--accent) 55%, transparent); }
+    .home-tablet__calendrier-jour[data-niveau="3"] { background: color-mix(in srgb, var(--accent) 80%, transparent); }
+    .home-tablet__calendrier-jour[data-niveau="4"] { background: var(--accent); }
+
+    .home-tablet__screen.is-active .home-tablet__calendrier-jour { animation: home-tablet-fade .4s ease-out backwards; }
+
+    /* Écran Groupes : répartition des sièges puis un groupe par ligne (données réelles). */
+    .home-tablet__groupes {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 100%;
+        padding: 12px 16px 28px;
+    }
+
+    .home-tablet__seats {
+        display: flex;
+        flex-shrink: 0;
+        height: 14px;
+        gap: 2px;
+        overflow: hidden;
+        border-radius: 999px;
+    }
+
+    .home-tablet__seats > span { transform-origin: left; }
+
+    .home-tablet__groupes-list {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-height: 0;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        list-style: none;
+    }
+
+    .home-tablet__groupes-list > li {
+        display: grid;
+        grid-template-columns: 10px 64px minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 8px;
+        border-radius: 6px;
+        background: var(--surface-2);
+        font-size: 11px;
+    }
+
+    .home-tablet__groupe-chip { width: 10px; height: 10px; border-radius: 3px; }
+    .home-tablet__groupe-code { font-weight: 700; }
+    .home-tablet__groupe-nom { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .home-tablet__groupe-count { font-weight: 800; font-variant-numeric: tabular-nums; }
+
+    .home-tablet__screen.is-active .home-tablet__seats > span { animation: home-tablet-grow-x .8s cubic-bezier(.2, .7, .2, 1) backwards; }
+    .home-tablet__screen.is-active .home-tablet__groupes-list > li { animation: home-tablet-row-in .5s ease-out backwards; }
+
+    @keyframes home-tablet-row-in { from { opacity: 0; transform: translateX(10px); } }
+
+    /* Écran Scrutins : le dernier scrutin important. */
+    .home-tablet__scrutin {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 100%;
+        padding: 16px 18px 28px;
+    }
+
+    .home-tablet__scrutin-titre {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 700;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .home-tablet__badge {
+        align-self: flex-start;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--ui-white);
+    }
+
+    .home-tablet__votes {
+        display: flex;
+        height: 12px;
+        margin-top: auto;
+        overflow: hidden;
+        border-radius: 999px;
+        background: var(--surface-3);
+    }
+
+    .home-tablet__votes > span { transform-origin: left; }
+    .home-tablet__screen.is-active .home-tablet__votes > span { animation: home-tablet-grow-x .9s cubic-bezier(.2, .7, .2, 1) backwards; }
+
+    .home-tablet__counts {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin: 0;
+    }
+
+    .home-tablet__counts dt { font-size: 10px; color: var(--subtitle-accent); }
+    .home-tablet__counts dd { margin: 0; font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+    /* Entre 600 et 1180px : plus la place à côté du texte, la tablette passe dessous, moins inclinée. */
+    @container home (max-width: 1179px) {
+        .home__layout { flex-wrap: wrap; }
+        .home-tablet { flex: 1 1 100%; padding: 8px var(--home-gutter) 64px; }
+        .home-tablet__frame {
+            --device-width: min(728px, 88cqi);
+            transform: rotateX(14deg) rotateZ(-3deg);
+        }
+    }
+
+    /* Sous le premier écran : des « pages » d'un écran de haut chacune (.home-panel),
+       sur le mur. Contenu limité à 1200px. */
+    .home__sections {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .home-panel {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        gap: 72px;
+        min-height: 100vh;
+        min-height: 100dvh;
+        padding: 72px var(--home-gutter);
+        /* Voile : le mur reste visible, le texte lisible. Il part de l'opacité du voile
+           de la page précédente pour s'épaissir en douceur : pas de démarcation entre pages. */
         background: linear-gradient(180deg,
-            var(--background) 0%,
-            transparent 18%,
-            transparent 78%,
-            var(--background) 100%);
+            color-mix(in srgb, var(--background) 55%, transparent) 0,
+            color-mix(in srgb, var(--background) 84%, transparent) 280px);
     }
 
-    /* Moyen : le texte passe au-dessus du mur ; le mur prend toute la hauteur restante. */
-    @container home (max-width: 979px) {
-        .home__layout {
-            --home-hero-top: 32px;
-            --home-gutter: 32px;
-            --home-wall-height: 560px;
-            --home-wall-top: 45%;
-            --home-wall-scale: .8;
+    /* Toute la largeur, moins les marges latérales (pas de plafond : pas de vide à droite sur grand écran). */
+    .home-panel > * { width: 100%; }
 
-            flex-direction: column;
-            flex-wrap: nowrap;
-        }
-
-        .home__hero { flex: 0 0 auto; max-width: none; padding-bottom: 8px; }
-        .card-wall { flex: 1 0 auto; }
-        .home__title { font-size: clamp(36px, 7cqi, 60px); }
-        .card-wall__fade--left { display: none; }
+    /* Page de l'actu : le bento remplit toute la hauteur de l'écran (BentoGridLib `fill`).
+       Voile plus léger, le mur se devine à travers les tuiles en verre ;
+       le voile s'installe en douceur sous le premier écran. */
+    .home-panel--actu {
+        justify-content: flex-start;
+        padding-bottom: 128px; /* place de l'invitation à défiler */
+        background: linear-gradient(180deg,
+            transparent 0,
+            color-mix(in srgb, var(--background) 55%, transparent) 200px);
     }
 
-    /* Étroit (mobile) : marges de 16px, boutons pleine largeur, mur à 5 colonnes. */
-    @container home (max-width: 600px) {
-        .home__layout {
-            --home-hero-top: 16px;
-            --home-gutter: 16px;
-            --home-wall-height: 400px;
-            --home-wall-scale: .55;
+    /* Fondu entre les pages, piloté par le défilement (sans JavaScript) : le contenu
+       d'une page apparaît en entrant dans l'écran et s'efface en sortant par le haut.
+       Navigateurs sans `animation-timeline` : pas d'effet, contenu affiché normalement. */
+    @supports (animation-timeline: view()) {
+        .home__hero, .home-tablet, .home-panel > * {
+            animation: home-page-in linear both, home-page-out linear both;
+            animation-timeline: view(), view();
+            animation-range: entry 0% entry 70%, exit 20% exit 100%;
         }
 
-        .home__hero { padding-right: 16px; gap: 16px; }
-        .home__title { font-size: clamp(30px, 9cqi, 40px); }
-        .home__hero a { flex: 1 1 100%; }
-        .home__hero .btn-lib { width: 100%; justify-content: center; }
-        .card-wall__col:nth-child(n+6) { display: none; }
+        /* Le premier écran est déjà affiché au chargement : il ne fait que sortir. */
+        .home__hero, .home-tablet { animation-name: none, home-page-out; }
+
+        /* Une invitation à défiler (bas du premier écran, bas de l'actu) disparaît dès
+           qu'on a un peu défilé au-delà de sa position : timeline de l'élément
+           lui-même (view), pas du défilement total, pour que celle de l'actu soit
+           visible en arrivant en bas de l'actu. Elle échappe au fondu des pages. */
+        .home__scroll-hint, .home-panel > .home__scroll-hint {
+            animation: home-scroll-hint-out linear both;
+            animation-timeline: view();
+            animation-range: cover 180px cover 320px;
+        }
+
+        @keyframes home-scroll-hint-out {
+            to { opacity: 0; visibility: hidden; }
+        }
+
+        @keyframes home-page-in {
+            from { opacity: 0; transform: translateY(48px); }
+        }
+
+        @keyframes home-page-out {
+            to { opacity: 0; transform: translateY(-32px); }
+        }
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .card-wall__col { animation: none; }
+        .home__hero, .home-tablet, .home-panel > *, .home__scroll-hint, .home-panel > .home__scroll-hint { animation: none; }
+    }
+
+    .home-section { display: flex; flex-direction: column; gap: 20px; }
+
+    .home-section__header { display: flex; flex-direction: column; gap: 6px; max-width: 720px; }
+
+    .home-section__kicker {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--accent);
+    }
+
+    .home-section__title {
+        margin: 0;
+        font-size: clamp(24px, 3cqi, 34px);
+        font-weight: 800;
+        letter-spacing: -.02em;
+        line-height: 1.1;
+    }
+
+    .home-section__lead { margin: 4px 0 0; color: var(--subtitle-accent); text-wrap: pretty; }
+
+
+    .home-section__more {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        align-self: flex-start;
+        font-weight: 600;
+        color: var(--span-clickable);
+    }
+
+    .home-section__more:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+    .home-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 14px;
+    }
+
+    .home-tile {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 20px;
+        border: 1px solid var(--border-main);
+        border-radius: 14px;
+        background: var(--surface-2);
+        color: var(--foreground);
+        transition: transform .2s, border-color .2s, box-shadow .2s;
+    }
+
+    .home-tile:hover {
+        transform: translateY(-3px);
+        border-color: var(--home-tile-color);
+        box-shadow: 0 10px 24px -14px var(--home-tile-color);
+    }
+
+    .home-tile:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .home-tile__icon {
+        display: grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        color: var(--home-tile-color);
+        background: color-mix(in srgb, var(--home-tile-color) 16%, transparent);
+    }
+
+    /* -------------------------------------------------------
+       L'actu de l'Assemblée — grille « bento » de tuiles en verre
+       (le mur 3D se devine derrière), grands chiffres, portraits détourés.
+       ------------------------------------------------------- */
+    .home-actu { display: flex; flex: 1 1 auto; flex-direction: column; gap: 28px; }
+
+    .home-actu__header { display: flex; flex-direction: column; gap: 10px; }
+
+    .home-actu__live {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        align-self: flex-start;
+        padding: 5px 12px;
+        border: 1px solid var(--border-main);
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--surface-2) 80%, transparent);
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+    }
+
+    .home-actu__live-dot {
+        width: 8px;
+        height: 8px;
+        border-radius: 999px;
+        background: var(--ui-danger);
+        box-shadow: 0 0 0 0 color-mix(in srgb, var(--ui-danger) 60%, transparent);
+        animation: home-actu-pulse 2s ease-out infinite;
+    }
+
+    @keyframes home-actu-pulse {
+        to { box-shadow: 0 0 0 10px transparent; }
+    }
+
+    .home-actu__titre {
+        margin: 0;
+        font-size: clamp(32px, 4.6cqi, 60px);
+        font-weight: 800;
+        letter-spacing: -.035em;
+        line-height: 1;
+    }
+
+    .home-actu__periode { margin: 0; font-size: 15px; color: var(--subtitle-accent); }
+
+    .home-actu__erreur { justify-content: center; }
+
+    /* L'Assemblée en chiffres : un grand chiffre par tuile bento, aux couleurs de
+       sa rubrique (--home-tile-color) : icône teintée, chiffre coloré, halo dans le coin. */
+    .home-chiffre { gap: 4px; }
+
+    .home-chiffre::before {
+        content: "";
+        position: absolute;
+        right: -30%;
+        top: -40%;
+        width: 80%;
+        aspect-ratio: 1;
+        border-radius: 999px;
+        background: radial-gradient(circle, color-mix(in srgb, var(--home-tile-color) 28%, transparent), transparent 70%);
+        pointer-events: none;
+        transition: transform .35s cubic-bezier(.2, .7, .2, 1);
+    }
+
+    .home-chiffre:hover::before { transform: scale(1.15); }
+    .home-chiffre.bento-tile--link:hover { border-color: color-mix(in srgb, var(--home-tile-color) 60%, transparent); }
+
+    /* Icône dans le flux, en haut : elle pousse le chiffre et son texte vers le bas
+       (margin-bottom: auto), sans jamais les chevaucher. */
+    .home-chiffre__icone { position: relative; flex-shrink: 0; margin-bottom: auto; }
+    .home-chiffre__valeur { margin-top: 14px; }
+
+    .home-chiffre__valeur {
+        position: relative;
+        font-size: clamp(40px, 5cqi, 72px);
+        font-weight: 900;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -.045em;
+        line-height: 1;
+        color: var(--home-tile-color);
+    }
+
+    .home-chiffre__libelle, .home-chiffre__detail { position: relative; }
+
+    .home-chiffre__libelle { font-size: 15px; font-weight: 700; }
+    .home-chiffre__detail { font-size: 13px; color: var(--subtitle-accent); }
+
+    .home-actu__label {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--subtitle-accent);
+    }
+
+    .home-actu__fleche {
+        position: absolute;
+        top: 20px;
+        right: 20px;
+        color: var(--subtitle-accent);
+        transition: transform .25s, color .25s;
+    }
+
+    .bento-tile--link:hover .home-actu__fleche { transform: translate(3px, -3px); color: var(--accent); }
+
+    .home-actu__vide { font-size: 14px; color: var(--subtitle-accent); }
+
+    /* Dernier vote important */
+    .home-actu__verdict {
+        font-size: clamp(44px, 6cqi, 84px);
+        font-weight: 900;
+        letter-spacing: -.045em;
+        line-height: .9;
+    }
+
+    .home-actu__vote-titre {
+        max-width: 560px;
+        font-size: 18px;
+        font-weight: 600;
+        line-height: 1.35;
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .home-actu__vote-bas { display: flex; flex-direction: column; gap: 12px; margin-top: auto; }
+
+    .home-actu__barre {
+        display: flex;
+        height: 10px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: var(--surface-3);
+    }
+
+    .home-actu__decompte { display: flex; flex-wrap: wrap; gap: 6px 20px; font-size: 13px; color: var(--subtitle-accent); }
+
+    .home-actu__decompte strong {
+        margin-right: 4px;
+        font-size: 26px;
+        font-weight: 800;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -.02em;
+    }
+
+    .home-actu__meta { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; font-size: 12px; color: var(--subtitle-accent); }
+
+    .home-actu__tag {
+        padding: 2px 10px;
+        border: 1px solid var(--border-main);
+        border-radius: 999px;
+    }
+
+    /* Le plus serré */
+    .home-actu__score {
+        display: flex;
+        align-items: baseline;
+        gap: 14px;
+        font-size: clamp(48px, 5.4cqi, 76px);
+        font-weight: 900;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -.04em;
+        line-height: .95;
+    }
+
+    .home-actu__score-sep { color: var(--subtitle-accent); font-weight: 300; }
+
+    /* Balance : pour à gauche, contre à droite, la part « pour » en largeur. */
+    .home-actu__balance {
+        position: relative;
+        height: 6px;
+        overflow: hidden;
+        border-radius: 999px;
+        background: var(--vote-contre);
+    }
+
+    .home-actu__balance > span { position: absolute; inset: 0 auto 0 0; background: var(--vote-pour); }
+
+    .home-actu__balance::after {
+        content: "";
+        position: absolute;
+        left: 50%;
+        top: -2px;
+        bottom: -2px;
+        width: 2px;
+        background: var(--foreground);
+        transform: translateX(-50%);
+    }
+
+    .home-actu__serre-verdict { font-weight: 700; }
+
+    .home-actu__serre-titre {
+        font-size: 13px;
+        color: var(--subtitle-accent);
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    /* Députés : carte de joueur — portrait détouré sur le dégradé du groupe, à droite. */
+    .home-actu__depute { padding: 0; }
+
+    /* Le portrait reste dans la moitié droite, et son bord gauche s'efface (masque) :
+       le texte, à gauche, est toujours sur le fond neutre de la tuile, jamais sur
+       la couleur du groupe. */
+    .home-actu__portrait {
+        position: absolute;
+        right: -8%;
+        bottom: 0;
+        width: 58%;
+        height: 100%;
+        background:
+            radial-gradient(circle at 62% 72%, var(--home-actu-g1) 0, var(--home-actu-g2) 42%, transparent 70%);
+        opacity: .95;
+        -webkit-mask-image: linear-gradient(90deg, transparent 0, #000 40%);
+        mask-image: linear-gradient(90deg, transparent 0, #000 40%);
+    }
+
+    .home-actu__portrait img {
+        position: absolute;
+        right: 6%;
+        bottom: 0;
+        height: 88%;
+        width: auto;
+        max-width: none;
+        object-fit: contain;
+        object-position: bottom;
+        filter: drop-shadow(0 10px 18px rgb(0 0 0 / .25));
+        transition: transform .35s cubic-bezier(.2, .7, .2, 1);
+    }
+
+    .home-actu__depute:hover .home-actu__portrait img { transform: scale(1.05); }
+
+    .home-actu__depute-texte {
+        position: relative;
+        z-index: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 2px;
+        height: 100%;
+        max-width: 56%;
+        padding: 22px;
+    }
+
+    .home-actu__chiffre {
+        margin-top: 10px;
+        font-size: clamp(40px, 4cqi, 56px);
+        font-weight: 900;
+        font-variant-numeric: tabular-nums;
+        letter-spacing: -.04em;
+        line-height: 1;
+    }
+
+    .home-actu__unite { font-size: 12px; color: var(--subtitle-accent); }
+
+    .home-actu__nom {
+        margin-top: auto;
+        font-size: 15px;
+        font-weight: 800;
+        line-height: 1.15;
+    }
+
+    .home-actu__groupe {
+        align-self: flex-start;
+        margin-top: 4px;
+        padding: 1px 8px;
+        border-radius: 999px;
+        background: var(--home-actu-g1);
+        color: var(--ui-white);
+        font-size: 11px;
+        font-weight: 700;
+    }
+
+    /* Votes précédents */
+    .home-actu__liste { display: flex; flex-direction: column; gap: 6px; margin: 0; padding: 0; list-style: none; }
+
+    .home-actu__ligne {
+        display: flex;
+        align-items: flex-start;
+        gap: 12px;
+        padding: 10px;
+        border-radius: 12px;
+        color: var(--foreground);
+        transition: background-color .2s;
+    }
+
+    .home-actu__ligne:hover { background: color-mix(in srgb, var(--foreground) 6%, transparent); }
+    .home-actu__ligne:focus-visible { outline: 2px solid var(--accent); outline-offset: 1px; }
+
+    .home-actu__pastille { flex: 0 0 10px; height: 10px; margin-top: 5px; border-radius: 999px; }
+
+    .home-actu__ligne-titre {
+        display: -webkit-box;
+        -webkit-line-clamp: 2;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+        font-size: 14px;
+        font-weight: 600;
+    }
+
+    .home-actu__ligne-meta { display: block; margin-top: 2px; font-size: 12px; color: var(--subtitle-accent); }
+
+    /* Appel à l'action (tuile `accent`) : texte en bas. */
+    .home-actu__cta { justify-content: flex-end; }
+
+    .home-actu__cta-titre { font-size: 22px; font-weight: 800; letter-spacing: -.02em; }
+    .home-actu__cta-texte { font-size: 13px; opacity: .85; }
+
+    .home-actu__cta-fleche {
+        position: absolute;
+        top: 22px;
+        right: 22px;
+        transition: transform .25s;
+    }
+
+    .home-actu__cta:hover .home-actu__cta-fleche { transform: translateX(4px); }
+
+    /* Urne en décor : grande, légèrement transparente, qui déborde du coin. */
+    .home-actu__cta-logo {
+        position: absolute;
+        right: -14px;
+        bottom: 18px;
+        width: 120px;
+        height: 120px;
+        opacity: .22;
+        transform: rotate(-10deg);
+        transition: transform .35s cubic-bezier(.2, .7, .2, 1), opacity .35s;
+    }
+
+    .home-actu__cta:hover .home-actu__cta-logo { opacity: .32; transform: rotate(-4deg) scale(1.06); }
+
+    /* Titre et texte au-dessus de l'urne. */
+    .home-actu__cta-titre, .home-actu__cta-texte { position: relative; }
+
+    @media (prefers-reduced-motion: reduce) {
+        .home-actu__cta-logo { transition: none; }
+    }
+
+    .home-actu__note { margin: 0; max-width: 820px; font-size: 12px; color: var(--subtitle-accent); }
+
+    @media (prefers-reduced-motion: reduce) {
+        .home-actu__live-dot { animation: none; }
+        .home-actu__portrait img, .home-actu__fleche, .home-actu__cta-fleche { transition: none; }
+    }
+
+    .home-tile__title { font-weight: 700; }
+    .home-tile__text { font-size: 14px; color: var(--subtitle-accent); }
+
+    /* Moyen : le texte prend toute la largeur ; voile uniforme au lieu du dégradé latéral. */
+    @container home (max-width: 979px) {
+        .home-panel { gap: 56px; }
+
+        .home__layout, .home__sections, .card-wall {
+            --home-hero-top: 32px;
+            --home-gutter: 32px;
+            --home-wall-scale: 1.6;
+            --home-wall-opacity: .3;
+        }
+
+        .home__hero { flex: 1 1 auto; padding-right: var(--home-gutter); }
+        .home__title { font-size: clamp(36px, 7cqi, 60px); }
+        .card-wall__fade--left {
+            background: color-mix(in srgb, var(--background) 45%, transparent);
+        }
+    }
+
+    /* Étroit (mobile) : marges de 16px, mur plus petit. */
+    @container home (max-width: 600px) {
+        .home__layout, .home__sections, .card-wall {
+            --home-hero-top: 16px;
+            --home-gutter: 16px;
+            /* Écran étroit et haut : un plan moins agrandi suffit à le couvrir. */
+            --home-wall-scale: 1.2;
+            --home-logo-width: 170px;
+        }
+
+        .home-grid { grid-template-columns: 1fr; }
+        /* Trop petite pour être lisible sur mobile : le mur en fond suffit. */
+        .home-tablet { display: none; }
+
+        .home__hero { gap: 16px; }
+        .home__title { font-size: clamp(30px, 9cqi, 40px); }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .card-wall__col, .home-tablet__frame, .home-tablet__title, .home-tablet__caption,
+        .home-tablet__screen * { animation: none !important; }
+        .home-tablet__screen, .home-tablet__rail-item, .home-tablet__dots > span { transition: none; }
+        .home-tile { transition: none; }
     }
 }

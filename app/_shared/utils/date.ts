@@ -25,3 +25,16 @@ export function formatJourFr(iso: string): string {
 export function formatJourLongFr(iso: string): string {
     return JOUR_LONG_FR.format(jourUtc(iso));
 }
+
+const JOUR_COURT_FR = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", year: "numeric", timeZone: "UTC" });
+const JOUR_MOIS_FR = new Intl.DateTimeFormat("fr-FR", { day: "numeric", month: "short", timeZone: "UTC" });
+
+/** « 18 juil. 2024 » : un jour (date ISO), mois abrégé, sans glissement selon le fuseau du lecteur. */
+export function formatJourCourtFr(iso: string): string {
+    return JOUR_COURT_FR.format(jourUtc(iso));
+}
+
+/** « 18 juil. » : jour et mois abrégé, sans l'année (date ISO). */
+export function formatJourMoisFr(iso: string): string {
+    return JOUR_MOIS_FR.format(jourUtc(iso));
+}

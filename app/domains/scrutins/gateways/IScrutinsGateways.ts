@@ -4,10 +4,14 @@ import { ScrutinDeputeVoteDTO } from "@/app/domains/scrutins/dto/scrutin-depute-
 import { ScrutinListPageDTO } from "@/app/domains/scrutins/dto/scrutin-list.dto";
 import { ScrutinHemicycleDTO } from "@/app/domains/scrutins/dto/scrutin-hemicycle.dto";
 import { ScrutinListRawParams } from "@/app/domains/scrutins/filters/scrutin-list.filters";
+import { ScrutinPlusSerreDTO } from "@/app/domains/scrutins/dto/scrutin-plus-serre.dto";
 
 export interface IScrutinsGateways {
     /** Liste filtrée et paginée côté serveur */
     getScrutinsList(legislature: number, params: ScrutinListRawParams, signal?: AbortSignal): Promise<ScrutinListPageDTO>;
+
+    /** Le scrutin le plus serré des 30 jours qui finissent au dernier scrutin de la législature */
+    getScrutinPlusSerre(legislature: number): Promise<ScrutinPlusSerreDTO>;
 
     getScrutin(uid: string): Promise<ScrutinDetailDTO>;
 

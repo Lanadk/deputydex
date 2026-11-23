@@ -64,6 +64,15 @@ describe("LegislatureSelector", () => {
         expect(container).toBeEmptyDOMElement();
     });
 
+    it("renders nothing on the home page — it always shows the current legislature from the database", () => {
+        mockUsePathname.mockReturnValue("/");
+        setLegislatureState();
+
+        const { container } = render(<LegislatureSelector />);
+
+        expect(container).toBeEmptyDOMElement();
+    });
+
     it("renders the selector on chiffres-cles pages — they read the app-wide legislature directly, with no picker of their own", () => {
         mockUsePathname.mockReturnValue("/statistics/chiffres-cles");
         setLegislatureState();

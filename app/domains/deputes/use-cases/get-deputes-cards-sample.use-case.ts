@@ -3,7 +3,10 @@ import { IDeputesCardsRepository } from "@/app/domains/deputes/repositories/IDep
 import { DeputesCardDTO } from "@/app/domains/deputes/dto/deputes-card.dto";
 import { mapDeputesCardsToDTOs } from "@/app/domains/deputes/mappers/deputes-cards.mapper";
 
-/** Taille par défaut : le mur de l'accueil fait 7 colonnes × 8 cartes. */
+/**
+ * Taille par défaut : 56 cartes, réparties sur les colonnes du mur de l'accueil
+ * (s'il y a plus de places que de cartes, le mur reboucle en décalant chaque colonne).
+ */
 export const DEPUTES_CARDS_SAMPLE_SIZE = 56;
 
 /** Hash FNV-1a 32 bits : stable, sans dépendance, suffisant pour un tirage déterministe. */

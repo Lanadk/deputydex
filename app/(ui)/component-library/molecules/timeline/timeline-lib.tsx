@@ -135,8 +135,14 @@ export function TimelineLib({ start, end, lanes, events = [], ariaLabel = "Frise
                         ))}
 
                         <div className="timeline-lib__events" aria-hidden="true">
-                            {sortedEvents.map((e) => (
-                                <span key={e.date} className="timeline-lib__event-line" style={{ left: `${pos(e.date)}%` }} title={`${formatJourFr(e.date)} : ${e.label}`} />
+                            {/* Même rangée que le repère : la ligne monte jusqu'à sa bulle, quelle que soit sa rangée. */}
+                            {sortedEvents.map((e, i) => (
+                                <span
+                                    key={e.date}
+                                    className="timeline-lib__event-line"
+                                    style={{ left: `${pos(e.date)}%`, "--timeline-marker-row": markerRows[i] } as React.CSSProperties}
+                                    title={`${formatJourFr(e.date)} : ${e.label}`}
+                                />
                             ))}
                         </div>
                     </div>

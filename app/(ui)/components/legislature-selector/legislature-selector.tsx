@@ -39,6 +39,9 @@ export function LegislatureSelector() {
     // La page des législatures présente toutes les législatures, avec ses propres onglets.
     if (pathname === "/legislatures") return null;
 
+    // L'accueil présente toujours la législature en cours (lue en base), pas celle choisie.
+    if (pathname === "/") return null;
+
     if (loading) return null;
 
     return (
