@@ -7,7 +7,7 @@ import {PanelLeftOpen, PanelLeftClose, Menu} from "lucide-react";
 import {useSidebar} from "@/app/(ui)/providers/sidebar-provider";
 import {ButtonLib} from "@/app/(ui)/component-library/atoms/button/button-lib";
 import {SpanLib} from "@/app/(ui)/component-library/atoms/span/span-lib";
-import Tooltip from "@mui/material/Tooltip";
+import {TooltipLib} from "@/app/(ui)/component-library/molecules/tooltip/tooltip-lib";
 import {isNavItemActive, NAVITEMS, SITE_LABEL} from "@/app/(ui)/components/sidebar/nave-items";
 import {ThemeSwitcherLib} from "@/app/(ui)/component-library/molecules/theme-switcher/theme-switcher-lib";
 
@@ -16,7 +16,6 @@ export default function AppSidebar() {
     const pathname = usePathname();
     const [isMobile, setIsMobile] = useState<boolean | null>(null);
     const {isOpen, toggle, setOpen} = useSidebar();
-    const [activeTooltip, setActiveTooltip] = useState<string | null>(null);
     const activeItem = NAVITEMS.find(item => isNavItemActive(item.href, pathname));
     const sectionLabel = activeItem?.label ?? SITE_LABEL;
 
@@ -91,20 +90,12 @@ export default function AppSidebar() {
                                         <div className="w-full h-px"/>
                                     </div>
                                 )}
-                                <Tooltip
-                                    title={!isOpen && activeTooltip !== item.href ? item.label : ''}
-                                    disableFocusListener
-                                    disableTouchListener
-                                    classes={{ tooltip: `tooltip-lib` }}
-                                    placement="right"
-                                >
+                                <TooltipLib content={item.label} disabled={isOpen} placement="right">
                                     <Link
                                         href={item.href}
-                                        onClick={() => {
-                                            setActiveTooltip(item.href);
-                                            if (isMobile) toggle();
-                                        }}
-                                        onMouseEnter={() => setActiveTooltip(null)}
+                                        // Replié, le lien n'a que son icône : le libellé devient son nom accessible.
+                                        aria-label={isOpen ? undefined : item.label}
+                                        onClick={() => { if (isMobile) toggle(); }}
                                         className={`flex items-center gap-3 px-2.5 py-2.5 rounded-lg sidebar-link
                                                 ${isActive ? "sidebar-link--active" : ""}`}
                                     >
@@ -119,7 +110,7 @@ export default function AppSidebar() {
                                             </SpanLib>
                                         )}
                                     </Link>
-                                </Tooltip>
+                                </TooltipLib>
                             </div>
                         );
                     })}
@@ -127,32 +118,22 @@ export default function AppSidebar() {
 
                 {/* Thème (Light / Dark / Accessible) : ici plutôt qu'en bouton flottant, qui recouvrait les notifications. */}
                 <div className="p-2 border-t border-main shrink-0">
-                    <Tooltip
-                        title={!isOpen ? "Thème" : ''}
-                        disableFocusListener
-                        disableTouchListener
-                        classes={{ tooltip: `tooltip-lib` }}
-                        placement="right"
-                    >
+                    {/* Le bouton du thème a déjà son nom accessible (« Thème ») quand il est replié. */}
+                    <TooltipLib content="Thème" disabled={isOpen} placement="right">
                         <div>
                             <ThemeSwitcherLib
                                 label={isOpen ? "Thème" : undefined}
                                 triggerClassName="flex w-full items-center gap-3 px-2.5 py-2.5 rounded-lg sidebar-link"
                             />
                         </div>
-                    </Tooltip>
+                    </TooltipLib>
                 </div>
 
                 {/* Copyright / mentions légales */}
-                <Tooltip
-                    title={!isOpen ? "Mentions légales" : ''}
-                    disableFocusListener
-                    disableTouchListener
-                    classes={{ tooltip: `tooltip-lib` }}
-                    placement="right"
-                >
+                <TooltipLib content="Mentions légales" disabled={isOpen} placement="right">
                     <Link
                         href="/mentions-legales"
+                        aria-label={isOpen ? undefined : "Mentions légales"}
                         onClick={() => { if (isMobile) toggle(); }}
                         className="flex items-center gap-2 px-4 py-3 border-t border-main text-xs text-subtitle-accent hover:underline shrink-0"
                     >
@@ -167,7 +148,7 @@ export default function AppSidebar() {
                             <SpanLib>©</SpanLib>
                         )}
                     </Link>
-                </Tooltip>
+                </TooltipLib>
             </aside>
 
             {/* Backdrop mobile : un clic à côté du menu le ferme (vrai bouton, nommé pour les lecteurs d'écran). */}
