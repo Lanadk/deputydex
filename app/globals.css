@@ -3829,7 +3829,7 @@
     .home {
         --home-hero-top: clamp(24px, 7vh, 72px);
         --home-gutter: 56px;
-        --home-wall-scale: 2;
+        --home-wall-scale: 2.7;
         --home-wall-opacity: .45;
         --home-logo-width: clamp(200px, 22cqi, 300px);
 
@@ -3910,7 +3910,12 @@
         inset: 0;
         z-index: 0;
         pointer-events: none;
+        /* Invisible tant que ses photos ne sont pas chargées (voir CardWall), puis fondu. */
+        opacity: 0;
+        transition: opacity .9s ease;
     }
+
+    .card-wall--pret { opacity: 1; }
 
     /* Fenêtre de la taille de l'écran, collée en haut pendant le défilement :
        le mur remplit toujours 100 % de ce qu'on voit. */
@@ -3924,18 +3929,18 @@
         perspective-origin: 50% 50%;
     }
 
-    /* 12 colonnes de 150px + gouttières ≈ 2000px, agrandi (--home-wall-scale) :
+    /* 9 colonnes de 150px + gouttières ≈ 1500px, agrandi (--home-wall-scale) :
        une fois incliné, le plan déborde de l'écran dans tous les sens, y compris
        en haut, où la perspective le rétrécit.
-       Hauteur ≤ celle d'un jeu de cartes d'une colonne (8 × (208 + 18) = 1808px),
+       Hauteur ≤ celle d'un jeu de cartes d'une colonne (6 × (208 + 18) = 1356px),
        sinon un trou apparaîtrait dans la boucle. */
     .card-wall__plane {
         position: absolute;
         left: 50%;
         top: 50%;
-        width: 2000px;
-        height: 1800px;
-        margin: -900px 0 0 -1000px;
+        width: 1500px;
+        height: 1350px;
+        margin: -675px 0 0 -750px;
         display: flex;
         justify-content: center;
         gap: 18px;
@@ -4946,7 +4951,7 @@
         .home__layout, .home__sections, .card-wall {
             --home-hero-top: 32px;
             --home-gutter: 32px;
-            --home-wall-scale: 1.6;
+            --home-wall-scale: 2.1;
             --home-wall-opacity: .3;
         }
 
@@ -4963,19 +4968,23 @@
             --home-hero-top: 16px;
             --home-gutter: 16px;
             /* Écran étroit et haut : un plan moins agrandi suffit à le couvrir. */
-            --home-wall-scale: 1.2;
+            --home-wall-scale: 1.6;
             --home-logo-width: 170px;
         }
 
         .home-grid { grid-template-columns: 1fr; }
         /* Trop petite pour être lisible sur mobile : le mur en fond suffit. */
         .home-tablet { display: none; }
+        /* Mur : 5 colonnes (CARD_WALL_COLUMNS_MOBILE) ; les photos des colonnes masquées
+           (chargement différé) ne sont jamais téléchargées. */
+        .card-wall__col:nth-child(n + 6) { display: none; }
 
         .home__hero { gap: 16px; }
         .home__title { font-size: clamp(30px, 9cqi, 40px); }
     }
 
     @media (prefers-reduced-motion: reduce) {
+        .card-wall { transition: none; }
         .card-wall__col, .home-tablet__frame, .home-tablet__title, .home-tablet__caption,
         .home-tablet__screen * { animation: none !important; }
         .home-tablet__screen, .home-tablet__rail-item, .home-tablet__dots > span { transition: none; }

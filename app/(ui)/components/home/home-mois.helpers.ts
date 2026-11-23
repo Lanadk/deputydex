@@ -1,5 +1,8 @@
 import { formatJourCourtFr, formatJourMoisFr } from "@/app/_shared/utils/date";
 
+/** Nombre de derniers scrutins importants montrés dans l'actu de l'accueil (le premier en grand). */
+export const HOME_DERNIERS_VOTES = 3;
+
 const nombre = (n: number) => n.toLocaleString("fr-FR");
 const pluriel = (n: number, singulier: string, plurielForme: string) => (n > 1 ? plurielForme : singulier);
 
