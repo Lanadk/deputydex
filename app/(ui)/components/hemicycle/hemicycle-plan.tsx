@@ -1,43 +1,61 @@
 "use client";
 
-import React, { useRef, useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { HemicycleSeat } from "@/app/(ui)/components/hemicycle/hemicycle-seats";
 import { getCanonicalGroupCode, getGroupCardTheme } from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
 import { HemicyclePerchoir, ROLE_PERCHOIR } from "@/app/(ui)/_shared/adapter/hemicycle.adapter";
-import DeputyCard from "@/app/(ui)/components/deputy/deputy-card";
 
 type HemicyclePlanProps = {
     seats: HemicycleSeat[];
     selectedCode: string | null;
-    /** Présidence de l'Assemblée : sa carte s'affiche au survol (ou au focus) du perchoir. */
+    /** Présidence de l'Assemblée : son nom et son titre s'affichent au survol (ou au focus) du perchoir. */
     perchoir?: HemicyclePerchoir | null;
 };
 
-/** Point d'ancrage de la carte du perchoir, relatif au conteneur du plan. */
+/** Point d'ancrage du libellé du perchoir (milieu du bas du siège), relatif au conteneur du plan. */
 type Ancre = { x: number; y: number };
+
+/**
+ * Délai avant de masquer le libellé quand la souris quitte le perchoir : le
+ * survol d'un élément incliné en 3D est imprécis sur ses bords, une sortie
+ * suivie d'un retour immédiat ne doit pas faire clignoter le libellé.
+ */
+const DELAI_MASQUAGE_MS = 150;
 
 /**
  * Plan des sièges incliné en 3D. Les sièges sont décoratifs (vides) : la
  * légende, avec ses effectifs, sert d'alternative textuelle. Chaque siège porte
  * `data-group` / `data-rank`, prévus pour la future concordance siège ↔ député.
  * Le perchoir est un lien vers la fiche de la présidence, nommé pour les
- * lecteurs d'écran, qui affiche sa carte au survol ou au focus.
+ * lecteurs d'écran, qui affiche son nom et son titre sous le siège au survol ou au focus.
  */
 export function HemicyclePlan({ seats, selectedCode, perchoir = null }: HemicyclePlanProps) {
     const total = seats.length;
     const containerRef = useRef<HTMLDivElement>(null);
+    const masquage = useRef<ReturnType<typeof setTimeout> | null>(null);
     const [ancre, setAncre] = useState<Ancre | null>(null);
 
-    // Le plan est incliné en 3D : la carte suit la souris plutôt que la position
-    // (déformée par la perspective) du siège ; au clavier, elle se cale sur le siège.
-    const suivreSouris = (e: React.MouseEvent) => {
-        const rect = containerRef.current?.getBoundingClientRect();
-        if (rect) setAncre({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+    const annuleMasquage = () => {
+        if (masquage.current) clearTimeout(masquage.current);
+        masquage.current = null;
     };
-    const caleSurSiege = (e: React.FocusEvent<HTMLElement>) => {
+    useEffect(() => annuleMasquage, []);
+
+    // Ancre fixe, calée une fois sur le siège (sa boîte projetée à l'écran) :
+    // le libellé ne bouge pas avec la souris.
+    const afficher = (e: React.SyntheticEvent<HTMLElement>) => {
+        annuleMasquage();
         const rect = containerRef.current?.getBoundingClientRect();
         const siege = e.currentTarget.getBoundingClientRect();
-        if (rect) setAncre({ x: siege.left + siege.width / 2 - rect.left, y: siege.top - rect.top });
+        if (rect) setAncre({ x: siege.left + siege.width / 2 - rect.left, y: siege.bottom - rect.top });
+    };
+    const masquerApresDelai = () => {
+        annuleMasquage();
+        masquage.current = setTimeout(() => setAncre(null), DELAI_MASQUAGE_MS);
+    };
+    const masquer = () => {
+        annuleMasquage();
+        setAncre(null);
     };
 
     return (
@@ -71,11 +89,10 @@ export function HemicyclePlan({ seats, selectedCode, perchoir = null }: Hemicycl
                                     className="hemicycle-seat hemicycle-seat--perchoir"
                                     data-perchoir="true"
                                     style={style}
-                                    onMouseEnter={suivreSouris}
-                                    onMouseMove={suivreSouris}
-                                    onMouseLeave={() => setAncre(null)}
-                                    onFocus={caleSurSiege}
-                                    onBlur={() => setAncre(null)}
+                                    onMouseEnter={afficher}
+                                    onMouseLeave={masquerApresDelai}
+                                    onFocus={afficher}
+                                    onBlur={masquer}
                                     {...attributs}
                                 />
                             );
@@ -95,22 +112,17 @@ export function HemicyclePlan({ seats, selectedCode, perchoir = null }: Hemicycl
             </div>
 
             {perchoir && ancre && (
-                // Aperçu passif (`inert` : ni focus ni lecteur d'écran) : le lien du perchoir
+                // Libellé passif (`inert` : ni focus ni lecteur d'écran) : le lien du perchoir
                 // porte déjà le nom et mène à la fiche.
                 <div
-                    className="hemicycle-perchoir-card pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full"
-                    style={{ left: ancre.x, top: ancre.y - 12 }}
+                    className="hemicycle-perchoir-label"
+                    style={{ left: ancre.x, top: ancre.y + 8 }}
                     inert
                     aria-hidden="true"
-                    data-testid="hemicycle-perchoir-card"
+                    data-testid="hemicycle-perchoir-label"
                 >
-                    <DeputyCard
-                        uid={perchoir.carte.deputeUID}
-                        nom={perchoir.carte.deputeFullName}
-                        groupe={perchoir.carte.deputeGroupeCode}
-                        image={perchoir.carte.deputeImage}
-                        role={ROLE_PERCHOIR}
-                    />
+                    <span className="hemicycle-perchoir-label__nom">{perchoir.carte.deputeFullName}</span>
+                    <span className="hemicycle-perchoir-label__titre">{ROLE_PERCHOIR}</span>
                 </div>
             )}
         </div>

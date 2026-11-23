@@ -1,6 +1,6 @@
 import React from "react";
 import { render } from "@testing-library/react";
-import { buildCardWallColumns, CardWall } from "@/app/(ui)/components/home/card-wall";
+import { buildCardWallColumns, CARD_WALL_COLUMNS, CardWall } from "@/app/(ui)/components/home/card-wall";
 import { DeputesCardDTO } from "@/app/domains/deputes/dto/deputes-card.dto";
 
 describe("buildCardWallColumns", () => {
@@ -36,7 +36,7 @@ describe("CardWall", () => {
 
         expect(container.firstChild).toHaveAttribute("aria-hidden", "true");
         const columns = container.querySelectorAll(".card-wall__col");
-        expect(columns).toHaveLength(7);
+        expect(columns).toHaveLength(CARD_WALL_COLUMNS);
         expect(columns[0].querySelectorAll(".group-mini-card")).toHaveLength(16);
         expect(container.querySelector("img")).toHaveAttribute("loading", "lazy");
     });

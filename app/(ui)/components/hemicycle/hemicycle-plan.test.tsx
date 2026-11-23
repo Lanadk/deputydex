@@ -1,5 +1,5 @@
 import React from "react";
-import { fireEvent, render, screen } from "@testing-library/react";
+import { act, fireEvent, render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
 import { HemicyclePlan } from "@/app/(ui)/components/hemicycle/hemicycle-plan";
 import { computeHemicycleSeats } from "@/app/(ui)/components/hemicycle/hemicycle-seats";
@@ -23,23 +23,47 @@ describe("HemicyclePlan — perchoir", () => {
         expect(screen.getAllByRole("link")).toHaveLength(1);
     });
 
-    it("affiche la carte de la présidence au survol, la masque en sortie", () => {
+    describe("libellé au survol", () => {
+        beforeEach(() => jest.useFakeTimers());
+        afterEach(() => jest.useRealTimers());
+
+        it("affiche le nom et le titre de la présidence au survol, les masque peu après la sortie", () => {
+            render(<HemicyclePlan seats={seats} selectedCode={null} perchoir={PERCHOIR} />);
+            const lien = screen.getByRole("link", { name: /Présidence de l'Assemblée nationale/ });
+
+            expect(screen.queryByTestId("hemicycle-perchoir-label")).not.toBeInTheDocument();
+            fireEvent.mouseEnter(lien);
+            const libelle = screen.getByTestId("hemicycle-perchoir-label");
+            expect(libelle).toHaveTextContent("Yaël Braun-Pivet");
+            expect(libelle).toHaveTextContent("Présidence de l'Assemblée nationale");
+
+            fireEvent.mouseLeave(lien);
+            expect(screen.getByTestId("hemicycle-perchoir-label")).toBeInTheDocument();
+            act(() => jest.advanceTimersByTime(200));
+            expect(screen.queryByTestId("hemicycle-perchoir-label")).not.toBeInTheDocument();
+        });
+
+        it("une sortie suivie d'un retour immédiat ne masque pas le libellé", () => {
+            render(<HemicyclePlan seats={seats} selectedCode={null} perchoir={PERCHOIR} />);
+            const lien = screen.getByRole("link", { name: /Présidence de l'Assemblée nationale/ });
+
+            fireEvent.mouseEnter(lien);
+            fireEvent.mouseLeave(lien);
+            act(() => jest.advanceTimersByTime(50));
+            fireEvent.mouseEnter(lien);
+            act(() => jest.advanceTimersByTime(500));
+            expect(screen.getByTestId("hemicycle-perchoir-label")).toBeInTheDocument();
+        });
+    });
+
+    it("affiche aussi le libellé au focus clavier, le masque au blur", () => {
         render(<HemicyclePlan seats={seats} selectedCode={null} perchoir={PERCHOIR} />);
         const lien = screen.getByRole("link", { name: /Présidence de l'Assemblée nationale/ });
 
-        expect(screen.queryByTestId("hemicycle-perchoir-card")).not.toBeInTheDocument();
-        fireEvent.mouseEnter(lien, { clientX: 100, clientY: 80 });
-        expect(screen.getByTestId("hemicycle-perchoir-card")).toHaveTextContent("Yaël Braun-Pivet");
-
-        fireEvent.mouseLeave(lien);
-        expect(screen.queryByTestId("hemicycle-perchoir-card")).not.toBeInTheDocument();
-    });
-
-    it("affiche aussi la carte au focus clavier", () => {
-        render(<HemicyclePlan seats={seats} selectedCode={null} perchoir={PERCHOIR} />);
-
-        fireEvent.focus(screen.getByRole("link", { name: /Présidence de l'Assemblée nationale/ }));
-        expect(screen.getByTestId("hemicycle-perchoir-card")).toBeInTheDocument();
+        fireEvent.focus(lien);
+        expect(screen.getByTestId("hemicycle-perchoir-label")).toBeInTheDocument();
+        fireEvent.blur(lien);
+        expect(screen.queryByTestId("hemicycle-perchoir-label")).not.toBeInTheDocument();
     });
 
     it("sans présidence : aucun lien, aucune carte", () => {

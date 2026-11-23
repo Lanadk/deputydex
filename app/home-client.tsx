@@ -5,36 +5,56 @@ import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
 import { ButtonLib } from "@/app/(ui)/component-library/atoms/button/button-lib";
-import { useLegislature } from "@/app/(ui)/providers/legislature-provider";
+import { useAsyncData } from "@/app/(ui)/_shared/hook/use-async-data";
 import { deputesGateway } from "@/app/(ui)/gateways/deputes/deputes.gateway";
-import { DeputesCardDTO } from "@/app/domains/deputes/dto/deputes-card.dto";
+import { legislaturesGateway } from "@/app/(ui)/gateways/legislatures/legislatures.gateway";
+import { libelleLegislature } from "@/app/domains/legislatures/institutions";
 import { CardWall } from "@/app/(ui)/components/home/card-wall";
+import { HomeTablet } from "@/app/(ui)/components/home/home-tablet";
+import { scrutinsGateway } from "@/app/(ui)/gateways/scrutins/scrutins.gateway";
+import { groupesGateways } from "@/app/(ui)/gateways/groupes/groupes.gateway";
+import { HomeChiffres, HomeExplorer, HomeStatistiques } from "@/app/(ui)/components/home/home-sections";
+import { resumeLegislaturesCouvertes } from "@/app/(ui)/components/home/home-legislatures";
 
+/**
+ * Accueil. Il présente la législature EN COURS lue en base
+ * (`/api/legislatures/current`), pas celle du sélecteur global : changer de
+ * législature ailleurs sur le site ne modifie pas l'accueil (le sélecteur y est masqué).
+ */
 export default function HomeClient() {
     const { resolvedTheme } = useTheme();
-    const { legislature } = useLegislature();
     const [mounted, setMounted] = useState(false);
-    const [cards, setCards] = useState<DeputesCardDTO[]>([]);
-    const legislatureNum = legislature?.number;
 
     useEffect(() => {
         // eslint-disable-next-line react-hooks/set-state-in-effect
         setMounted(true);
     }, []);
 
-    useEffect(() => {
-        if (!legislatureNum) return;
-        deputesGateway
-            .getDeputesCardsSample(legislatureNum)
-            .then(setCards)
-            .catch(console.error);
-    }, [legislatureNum]);
+    const current = useAsyncData(() => legislaturesGateway.getCurrent(), "current");
+    const toutes = useAsyncData(() => legislaturesGateway.getAll(), "all");
+    const numero = current.data?.number ?? null;
+    // Mur et tablette décoratifs : en cas d'échec, ils restent vides (la tablette saute
+    // les écrans des groupes ou du scrutin s'ils n'ont pas pu être chargés).
+    const cards = useAsyncData(numero === null ? null : () => deputesGateway.getDeputesCardsSample(numero), `cards|${numero}`);
+    // Dernier scrutin important (premier de la liste par défaut, la plus récente d'abord).
+    const scrutin = useAsyncData(
+        numero === null ? null : () => scrutinsGateway.getScrutinsList(numero, { pageSize: "1" }).then((p) => p.items[0] ?? null),
+        `scrutin|${numero}`
+    );
+    const groupes = useAsyncData(numero === null ? null : () => groupesGateways.getGroupesCards(numero), `groupes|${numero}`);
+    const chiffres = useAsyncData(numero === null ? null : () => legislaturesGateway.getChiffres(numero), `chiffres|${numero}`);
+    const couvertes = resumeLegislaturesCouvertes(toutes.data ?? []);
+    const sample = cards.data ?? [];
 
     return (
         <div className="home">
+            {/* Fond de TOUTE la page (premier écran et sections), collé à l'écran au défilement. */}
+            <CardWall cards={sample} />
+
             <div className="home__layout">
+
                 <section className="home__hero">
-                    <div className="h-24 flex items-center">
+                    <div className="home__logo">
                         {mounted && (
                             <Image
                                 src={
@@ -43,14 +63,14 @@ export default function HomeClient() {
                                         : "/assets/imgs/ASS_DEX_ACC.svg"
                                 }
                                 alt="Députédex - base de données des députés français"
-                                width={160}
-                                height={96}
+                                width={300}
+                                height={174}
                                 priority
                             />
                         )}
                     </div>
 
-                    {legislatureNum && <span className="page-pill">{legislatureNum}ème législature</span>}
+                    {numero !== null && <span className="page-pill">{libelleLegislature(numero)} en cours</span>}
 
                     <h1 className="home__title">Bienvenue sur Députédex</h1>
                     <p className="subtitle home__lead">
@@ -66,9 +86,22 @@ export default function HomeClient() {
                             <ButtonLib text="Voir l'hémicycle" variant="secondary" size="large" />
                         </Link>
                     </div>
+
+                    {couvertes && <p className="home__coverage">{couvertes}</p>}
                 </section>
 
-                <CardWall cards={cards} />
+                <HomeTablet
+                    cards={sample}
+                    legislature={numero !== null ? libelleLegislature(numero) : null}
+                    scrutin={scrutin.data ?? null}
+                    groupes={groupes.data ?? []}
+                />
+            </div>
+
+            <div className="home__sections">
+                {numero !== null && <HomeChiffres numero={numero} chiffres={chiffres} />}
+                <HomeExplorer />
+                <HomeStatistiques />
             </div>
         </div>
     );

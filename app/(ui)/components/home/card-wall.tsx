@@ -9,7 +9,8 @@ import {
     getGroupFullLabel,
 } from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
 
-export const CARD_WALL_COLUMNS = 7;
+/** Assez de colonnes pour que le plan incliné couvre toute la page (voir `.card-wall__plane`). */
+export const CARD_WALL_COLUMNS = 12;
 export const CARD_WALL_CARDS_PER_COLUMN = 8;
 
 /**
@@ -26,8 +27,9 @@ export function buildCardWallColumns<T>(cards: T[], columns: number, perColumn: 
 }
 
 /**
- * Mur de cartes incliné de l'accueil : 7 colonnes qui défilent en boucle,
- * une sur deux en sens inverse. Chaque colonne contient ses cartes en double :
+ * Mur de cartes incliné de l'accueil, en fond de toute la page (collé à
+ * l'écran pendant le défilement, agrandi pour le remplir entièrement) : des colonnes
+ * qui défilent en boucle, une sur deux en sens inverse. Chaque colonne contient ses cartes en double :
  * l'animation translateY(0 → -50%) boucle exactement (padding-bottom = gap).
  *
  * Purement décoratif (`aria-hidden`) : la structure accessible de la page
@@ -42,32 +44,34 @@ export function CardWall({ cards }: { cards: DeputesCardDTO[] }) {
 
     return (
         <div className="card-wall" aria-hidden="true">
-            <div className="card-wall__plane">
-                {columns.map((column, k) => (
-                    <div
-                        key={k}
-                        className="card-wall__col"
-                        style={{
-                            animationDuration: `${36 + (k % 4) * 8}s`,
-                            animationDelay: `-${k * 6}s`,
-                            animationDirection: k % 2 ? "reverse" : "normal",
-                        }}
-                    >
-                        {[...column, ...column].map((card, i) => (
-                            <GroupMiniCardLib
-                                key={`${card.deputeUID}-${i}`}
-                                theme={getGroupCardTheme(getCanonicalGroupCode(card.deputeGroupeCode))}
-                                chip={card.deputeGroupeCode}
-                                name={card.deputeFullName}
-                                subtitle={getGroupFullLabel(card.deputeGroupeCode)}
-                                image={card.deputeImage}
-                            />
-                        ))}
-                    </div>
-                ))}
+            {/* Fenêtre collante de la hauteur de l'écran : le mur reste visible pendant tout le défilement de la page. */}
+            <div className="card-wall__viewport">
+                <div className="card-wall__plane">
+                    {columns.map((column, k) => (
+                        <div
+                            key={k}
+                            className="card-wall__col"
+                            style={{
+                                animationDuration: `${36 + (k % 4) * 8}s`,
+                                animationDelay: `-${k * 6}s`,
+                                animationDirection: k % 2 ? "reverse" : "normal",
+                            }}
+                        >
+                            {[...column, ...column].map((card, i) => (
+                                <GroupMiniCardLib
+                                    key={`${card.deputeUID}-${i}`}
+                                    theme={getGroupCardTheme(getCanonicalGroupCode(card.deputeGroupeCode))}
+                                    chip={card.deputeGroupeCode}
+                                    name={card.deputeFullName}
+                                    subtitle={getGroupFullLabel(card.deputeGroupeCode)}
+                                    image={card.deputeImage}
+                                />
+                            ))}
+                        </div>
+                    ))}
+                </div>
+                <div className="card-wall__fade card-wall__fade--left" />
             </div>
-            <div className="card-wall__fade card-wall__fade--left" />
-            <div className="card-wall__fade card-wall__fade--vertical" />
         </div>
     );
 }

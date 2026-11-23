@@ -189,6 +189,10 @@
     --span-clickable: var(--ui-info-strong);
 
     /* Deputy card */
+    /* Cadre d'appareil : téléphone, tablette (DeviceFrameLib) */
+    --device-bezel: var(--ui-ink);
+    --device-edge: var(--ui-steel);
+
     --card-surface-1: var(--ui-ink);
     --card-surface-2: var(--ui-info-strong);
     --text-muted: var(--ui-steel-muted);
@@ -407,6 +411,10 @@
 
     --span-clickable: var(--ui-info);
 
+    /* Cadre d'appareil : téléphone, tablette (DeviceFrameLib) */
+    --device-bezel: var(--ui-ink);
+    --device-edge: var(--ui-steel);
+
     --card-surface-1: var(--ui-ink);
     --card-surface-2: var(--ui-info-strong);
     --text-muted: var(--ui-steel);
@@ -605,6 +613,10 @@
     --toggle-focus: var(--accent);
 
     --span-clickable: var(--ui-info);
+
+    /* Cadre d'appareil : téléphone, tablette (DeviceFrameLib) */
+    --device-bezel: var(--ui-ink);
+    --device-edge: var(--ui-steel);
 
     --card-surface-1: var(--ui-ink);
     --card-surface-2: var(--ui-info);
@@ -1172,8 +1184,11 @@
         line-height: 1;
     }
 
+    /* z-index 3 : au-dessus des lignes d'événement (z-index 2), qui passent alors
+       derrière une bulle voisine plutôt que de la barrer. */
     .timeline-lib__markers > .timeline-lib__marker {
         position: absolute;
+        z-index: 3;
         bottom: calc(var(--timeline-marker-row, 0) * 24px + 2px);
         transform: translateX(-50%);
         cursor: default;
@@ -1182,7 +1197,7 @@
     /* Au-dessus des périodes (z-index 2) mais sous l'intitulé collant des couloirs (z-index 3). */
     .timeline-lib__events {
         position: absolute;
-        top: -1.5rem; /* traverse aussi l'axe, jusqu'au repère */
+        top: 0;
         bottom: 0;
         left: var(--timeline-label-width);
         right: 0;
@@ -1190,9 +1205,11 @@
         pointer-events: none;
     }
 
+    /* Traverse l'axe (1.5rem) et monte jusqu'au bas de la bulle de son repère,
+       quelle que soit sa rangée (même calcul que le `bottom` du repère). */
     .timeline-lib__event-line {
         position: absolute;
-        top: 0;
+        top: calc(-1.5rem - var(--timeline-marker-row, 0) * 24px - 2px);
         bottom: 0;
         width: 0;
         border-left: 2px dashed var(--ui-warning);
@@ -3331,8 +3348,33 @@
         outline-offset: 2px;
     }
 
-    /* Carte de la présidence au survol du perchoir : largeur d'une carte du DeputéDex. */
-    .hemicycle-perchoir-card { width: 200px; }
+    /* Nom et titre de la présidence, centrés sous le perchoir, au survol. */
+    .hemicycle-perchoir-label {
+        position: absolute;
+        z-index: 10;
+        transform: translateX(-50%);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 2px;
+        padding: 6px 12px;
+        border: 1px solid var(--border-main);
+        border-radius: 8px;
+        background: var(--background);
+        color: var(--foreground);
+        text-align: center;
+        white-space: nowrap;
+        pointer-events: none;
+        animation: hemicycle-perchoir-label-in .15s ease-out;
+    }
+
+    .hemicycle-perchoir-label__nom { font-size: 14px; font-weight: 600; }
+    .hemicycle-perchoir-label__titre { font-size: 12px; color: var(--subtitle-accent); }
+
+    @keyframes hemicycle-perchoir-label-in {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
 
     /* Siège survolable (fiche scrutin) : zone de survol invisible plus large que le
        siège, qui comble les espaces entre voisins pour que la souris ne « tombe »
@@ -3467,7 +3509,7 @@
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .hemicycle-seat { animation: none; transition: none; }
+        .hemicycle-seat, .hemicycle-perchoir-label { animation: none; transition: none; }
     }
 }
 
@@ -3489,36 +3531,161 @@
     }
 
     /* -------------------------------------------------------
+       DeviceFrameLib — cadre de téléphone (type iPhone, portrait)
+       ou de tablette (type iPad, paysage)
+       --device-width : largeur ; les autres mesures en découlent
+       ------------------------------------------------------- */
+    .device-frame {
+        --device-width: 300px;
+        /* Mesures du téléphone, surchargées par .device-frame--tablet */
+        --device-ratio: 9 / 19.5;
+        --device-bezel-size: calc(var(--device-width) * .035);
+        --device-radius: calc(var(--device-width) * .16);
+        --device-screen-radius: calc(var(--device-width) * .13);
+        --device-status-height: calc(var(--device-width) * .16);
+        --device-status-padding: calc(var(--device-width) * .085);
+
+        position: relative;
+        flex-shrink: 0;
+        width: var(--device-width);
+        aspect-ratio: var(--device-ratio);
+        padding: var(--device-bezel-size);
+        border-radius: var(--device-radius);
+        background: var(--device-bezel);
+        box-shadow:
+            inset 0 0 0 2px var(--device-edge),
+            inset 0 0 0 5px var(--device-bezel),
+            inset 0 0 0 6px color-mix(in srgb, var(--device-edge) 50%, transparent),
+            0 40px 70px -30px rgb(0 0 0 / .55),
+            0 18px 30px -18px rgb(0 0 0 / .4);
+    }
+
+    /* Tablette en paysage : bord fin et régulier, coins plus doux, caméra au milieu du bord gauche. */
+    .device-frame--tablet {
+        --device-width: 560px;
+        --device-ratio: 4 / 3;
+        --device-bezel-size: calc(var(--device-width) * .028);
+        --device-radius: calc(var(--device-width) * .055);
+        --device-screen-radius: calc(var(--device-width) * .03);
+        --device-status-height: 22px;
+        --device-status-padding: 18px;
+    }
+
+    .device-frame__button {
+        position: absolute;
+        width: 4px;
+        border-radius: 2px;
+        background: var(--device-edge);
+    }
+
+    .device-frame__button--action { left: -3px; top: 17%; height: 5%; }
+    .device-frame__button--volume-up { left: -3px; top: 25%; height: 9%; }
+    .device-frame__button--volume-down { left: -3px; top: 36%; height: 9%; }
+    .device-frame__button--power { right: -3px; top: 28%; height: 13%; }
+    .device-frame__button--top { top: -3px; right: 12%; width: 9%; height: 4px; }
+
+    .device-frame__camera {
+        position: absolute;
+        left: calc(var(--device-bezel-size) / 2);
+        top: 50%;
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--device-edge) 60%, var(--device-bezel));
+        transform: translate(-50%, -50%);
+    }
+
+    .device-frame__screen {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        height: 100%;
+        overflow: hidden;
+        border-radius: var(--device-screen-radius);
+        background: var(--background);
+        color: var(--foreground);
+        isolation: isolate;
+    }
+
+    .device-frame__status {
+        position: relative;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        flex-shrink: 0;
+        height: var(--device-status-height);
+        padding: 0 var(--device-status-padding);
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    .device-frame--tablet .device-frame__status { font-size: 11px; }
+
+    .device-frame__time { font-variant-numeric: tabular-nums; }
+    .device-frame__icons { display: flex; align-items: center; gap: 4px; }
+
+    .device-frame__island {
+        position: absolute;
+        left: 50%;
+        top: calc(var(--device-width) * .035);
+        width: 32%;
+        height: calc(var(--device-width) * .095);
+        border-radius: 999px;
+        background: var(--device-bezel);
+        transform: translateX(-50%);
+    }
+
+    .device-frame__content { flex: 1; min-height: 0; overflow: hidden; }
+
+    .device-frame__home-indicator {
+        position: absolute;
+        left: 50%;
+        bottom: 6px;
+        z-index: 1;
+        width: min(36%, 140px);
+        height: 5px;
+        border-radius: 999px;
+        background: var(--foreground);
+        opacity: .8;
+        transform: translateX(-50%);
+    }
+
+    /* -------------------------------------------------------
        Accueil
        Les bascules se font en container queries sur la largeur RÉELLE de
        la page (écran moins la sidebar, ouverte ou repliée), pas sur la
-       largeur de l'écran :
-       - large  (≥ 980px)   texte à gauche, mur à droite
-       - moyen  (< 980px)   texte au-dessus, mur en dessous
+       largeur de l'écran. À toutes les tailles, le mur de cartes incliné
+       couvre toute la page, en fond, atténué ; le texte passe par-dessus.
+       - large  (≥ 980px)   texte à gauche, voile dégradé derrière lui
+       - moyen  (< 980px)   texte sur toute la largeur, mur plus atténué
        - étroit (≤ 600px)   mobile
        Réglages (surchargés par largeur plus bas) :
-       --home-hero-top    espace au-dessus du logo
-       --home-gutter      marges latérales du texte
-       --home-wall-height hauteur de la zone du mur
-       --home-wall-top    position verticale du mur (plus petit = plus haut)
-       --home-wall-scale  taille du mur
+       --home-hero-top      espace au-dessus du logo
+       --home-gutter        marges latérales du texte
+       --home-wall-scale    taille du mur
+       --home-wall-opacity  opacité du mur (plus bas = texte plus lisible)
        ------------------------------------------------------- */
     .home {
         --home-hero-top: clamp(24px, 7vh, 72px);
         --home-gutter: 56px;
-        --home-wall-height: 760px;
-        --home-wall-top: 30%;
-        --home-wall-scale: 1;
+        --home-wall-scale: 2;
+        --home-wall-opacity: .45;
+        --home-logo-width: clamp(200px, 22cqi, 300px);
 
+        position: relative;
         container: home / inline-size;
-        overflow: hidden;
+        /* clip et non hidden : hidden ferait de .home un conteneur de défilement,
+           et le mur (position: sticky) ne collerait plus à l'écran. */
+        overflow: clip;
     }
 
     /* Mise en page portée par un enfant : une container query ne peut pas
        styler le conteneur (.home) lui-même, seulement ses descendants. */
+    /* Contenu calé en haut à gauche (logo en tête), le mur remplit le reste. */
     .home__layout {
+        position: relative;
         display: flex;
-        flex-wrap: wrap;
+        align-items: flex-start;
         min-height: 100vh;
     }
 
@@ -3530,15 +3697,24 @@
     .home__hero {
         position: relative;
         z-index: 2;
-        flex: 1 1 420px; /* 420 + 560 (mur) = 980 : seuil du passage en colonne */
+        flex: 0 1 620px;
         min-width: 0;
-        max-width: 620px;
         padding: var(--home-hero-top) 32px 56px var(--home-gutter);
         display: flex;
         flex-direction: column;
         justify-content: flex-start;
         gap: 22px;
     }
+
+    /* Logo en tête de page ; hauteur réservée avant le montage (choix du logo selon le thème). */
+    .home__logo {
+        display: flex;
+        align-items: center;
+        width: var(--home-logo-width);
+        aspect-ratio: 674 / 390; /* proportions du SVG */
+    }
+
+    .home__logo img { width: 100%; height: 100%; object-fit: contain; object-position: left center; }
 
     .home__title {
         margin: 0;
@@ -3555,29 +3731,44 @@
         text-wrap: pretty;
     }
 
-    /* Mur de cartes incliné */
+    /* Mur de cartes incliné, en fond de TOUTE la page d'accueil (premier écran et sections). */
     .card-wall {
-        position: relative;
-        flex: 1 1 560px;
-        min-width: 0;
-        min-height: var(--home-wall-height);
-        overflow: hidden;
-        perspective: 1600px;
-        perspective-origin: 50% 35%;
+        position: absolute;
+        inset: 0;
+        z-index: 0;
+        pointer-events: none;
     }
 
+    /* Fenêtre de la taille de l'écran, collée en haut pendant le défilement :
+       le mur remplit toujours 100 % de ce qu'on voit. */
+    .card-wall__viewport {
+        position: sticky;
+        top: 0;
+        height: 100vh;
+        height: 100dvh;
+        overflow: hidden;
+        perspective: 1600px;
+        perspective-origin: 50% 50%;
+    }
+
+    /* 12 colonnes de 150px + gouttières ≈ 2000px, agrandi (--home-wall-scale) :
+       une fois incliné, le plan déborde de l'écran dans tous les sens, y compris
+       en haut, où la perspective le rétrécit.
+       Hauteur ≤ celle d'un jeu de cartes d'une colonne (8 × (208 + 18) = 1808px),
+       sinon un trou apparaîtrait dans la boucle. */
     .card-wall__plane {
         position: absolute;
-        left: 52%;
-        top: var(--home-wall-top);
-        width: 1200px;
-        height: 1400px;
-        margin: -700px 0 0 -600px;
+        left: 50%;
+        top: 50%;
+        width: 2000px;
+        height: 1800px;
+        margin: -900px 0 0 -1000px;
         display: flex;
         justify-content: center;
         gap: 18px;
         overflow: hidden;
-        transform: rotateX(58deg) rotateZ(-24deg) scale(var(--home-wall-scale));
+        opacity: var(--home-wall-opacity);
+        transform: rotateX(50deg) rotateZ(-24deg) scale(var(--home-wall-scale));
     }
 
     .card-wall__col {
@@ -3600,57 +3791,556 @@
         pointer-events: none;
     }
 
+    /* Voile derrière le texte (à gauche) : le mur s'efface sous le titre et les boutons. */
     .card-wall__fade--left {
         background: linear-gradient(90deg,
             var(--background) 0%,
-            color-mix(in srgb, var(--background) 75%, transparent) 14%,
-            transparent 42%);
+            color-mix(in srgb, var(--background) 80%, transparent) 30%,
+            color-mix(in srgb, var(--background) 40%, transparent) 50%,
+            transparent 70%);
     }
 
-    .card-wall__fade--vertical {
+    .home__coverage {
+        margin: 0;
+        font-size: 13px;
+        color: var(--subtitle-accent);
+    }
+
+    /* Tablette de l'accueil : à droite du texte, inclinée vers la gauche (vers le titre). */
+    .home-tablet {
+        position: relative;
+        z-index: 2;
+        flex: 1 1 0;
+        min-width: 0;
+        align-self: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 28px;
+        padding: 48px var(--home-gutter) 48px 0;
+    }
+
+    .home-tablet__stage { perspective: 2000px; }
+
+    /* Légende de l'écran affiché, sous la tablette (remontée à chaque écran : fondu d'entrée). */
+    .home-tablet__caption {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        gap: 6px;
+        width: min(100%, 680px);
+        padding: 16px 18px 18px;
+        border: 1px solid var(--border-main);
+        border-radius: 14px;
+        background: color-mix(in srgb, var(--background) 88%, transparent);
+        backdrop-filter: blur(6px);
+        overflow: hidden;
+        animation: home-tablet-caption-in .6s cubic-bezier(.2, .7, .2, 1);
+    }
+
+    @keyframes home-tablet-caption-in {
+        from { opacity: 0; transform: translateY(8px); }
+    }
+
+    .home-tablet__caption-title { margin: 0; font-size: 18px; font-weight: 800; letter-spacing: -.01em; }
+    .home-tablet__caption-text { margin: 0; font-size: 14px; color: var(--subtitle-accent); text-wrap: pretty; }
+
+    /* Temps restant avant l'écran suivant. */
+    .home-tablet__progress {
+        position: absolute;
+        left: 0;
+        bottom: 0;
+        width: 100%;
+        height: 3px;
+        background: var(--accent);
+        transform-origin: left;
+        animation: home-tablet-progress linear forwards;
+    }
+
+    @keyframes home-tablet-progress { from { transform: scaleX(0); } to { transform: scaleX(1); } }
+
+    .home-tablet__frame {
+        --device-width: clamp(624px, 56cqi, 832px);
+        transform: rotateY(-20deg) rotateX(10deg) rotateZ(-5deg);
+        animation: home-tablet-float 7s ease-in-out infinite;
+    }
+
+    @keyframes home-tablet-float {
+        0%, 100% { translate: 0 0; }
+        50% { translate: 0 -10px; }
+    }
+
+    .home-tablet__app {
+        display: flex;
+        height: 100%;
+        background: var(--background);
+    }
+
+    /* Barre latérale : les icônes du vrai menu, la rubrique de l'écran affiché en surbrillance. */
+    .home-tablet__rail {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        gap: 6px;
+        flex: 0 0 40px;
+        padding: 8px 0;
+        border-right: 1px solid var(--border-main);
+        color: var(--subtitle-accent);
+    }
+
+    .home-tablet__rail-item {
+        display: grid;
+        place-items: center;
+        width: 28px;
+        height: 28px;
+        border-radius: 8px;
+        transition: background-color .4s, color .4s;
+    }
+
+    .home-tablet__rail-item.is-active {
+        color: var(--accent);
+        background: color-mix(in srgb, var(--accent) 14%, transparent);
+    }
+
+    .home-tablet__main {
+        position: relative;
+        display: flex;
+        flex-direction: column;
+        flex: 1;
+        min-width: 0;
+    }
+
+    .home-tablet__header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 4px 14px 8px;
+        border-bottom: 1px solid var(--border-main);
+    }
+
+    .home-tablet__title {
+        font-size: 16px;
+        font-weight: 800;
+        letter-spacing: -.02em;
+        animation: home-tablet-fade .5s ease-out;
+    }
+
+    .home-tablet__pill {
+        font-size: 10px;
+        font-weight: 600;
+        color: var(--subtitle-accent);
+        border: 1px solid var(--border-main);
+        border-radius: 999px;
+        padding: 2px 8px;
+    }
+
+    /* Écrans superposés : l'actif glisse depuis la droite, le précédent part vers la gauche. */
+    .home-tablet__screens { position: relative; flex: 1; min-height: 0; overflow: hidden; }
+
+    .home-tablet__screen {
+        position: absolute;
+        inset: 0;
+        opacity: 0;
+        transform: translateX(8%);
+        transition: opacity .6s ease, transform .6s cubic-bezier(.2, .7, .2, 1);
+    }
+
+    .home-tablet__screen.is-past { transform: translateX(-8%); }
+    .home-tablet__screen.is-active { opacity: 1; transform: none; }
+
+    @keyframes home-tablet-fade {
+        from { opacity: 0; }
+        to { opacity: 1; }
+    }
+
+    .home-tablet__dots {
+        position: absolute;
+        right: 12px;
+        bottom: 12px;
+        display: flex;
+        gap: 5px;
+    }
+
+    .home-tablet__dots > span {
+        width: 6px;
+        height: 6px;
+        border-radius: 999px;
+        background: var(--border-main);
+        transition: width .4s, background-color .4s;
+    }
+
+    .home-tablet__dots > span.is-active { width: 16px; background: var(--accent); }
+
+    /* Écran DéputéDex : la vraie grille (DeputyCard) en miniature, fixe. */
+    .home-tablet__deputes {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 100%;
+        padding: 10px 14px 0;
+        overflow: hidden;
+    }
+
+    .home-tablet__toolbar { display: flex; align-items: center; gap: 6px; flex-shrink: 0; }
+
+    .home-tablet__search,
+    .home-tablet__chip {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        height: 24px;
+        padding: 0 10px;
+        border: 1px solid var(--border-main);
+        border-radius: 8px;
+        background: var(--surface-2);
+        font-size: 10px;
+        color: var(--subtitle-accent);
+    }
+
+    .home-tablet__search { flex: 1; }
+
+    /* zoom : la grille est mise en page à taille réelle (6 colonnes d'environ
+       200px sur la plus grande tablette), puis réduite. */
+    .home-tablet__deputes-grid {
+        display: grid;
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+        gap: 16px;
+        zoom: .58;
+    }
+
+    /* Écran Statistiques : 4 graphiques d'illustration, animés à l'apparition de l'écran. */
+    .home-tablet__stats {
+        display: grid;
+        grid-template-columns: 1fr 1fr;
+        grid-auto-rows: 1fr;
+        gap: 10px;
+        height: 100%;
+        padding: 12px 14px 28px;
+    }
+
+    .home-tablet__panel {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        min-height: 0;
+        padding: 10px 12px;
+        border: 1px solid var(--border-main);
+        border-radius: 10px;
+        background: var(--surface-2);
+    }
+
+    .home-tablet__panel--row { flex-direction: row; align-items: center; gap: 12px; }
+    .home-tablet__panel-title { font-size: 11px; font-weight: 700; }
+    .home-tablet__panel-text { font-size: 10px; color: var(--subtitle-accent); }
+
+    .home-tablet__bars {
+        flex: 1;
+        display: flex;
+        align-items: flex-end;
+        gap: 5px;
+        min-height: 0;
+    }
+
+    .home-tablet__bars > span {
+        flex: 1;
+        border-radius: 3px 3px 0 0;
+        transform-origin: bottom;
+    }
+
+    .home-tablet__hbars {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-around;
+        min-height: 0;
+    }
+
+    .home-tablet__hbars > span {
+        height: 8px;
+        border-radius: 0 4px 4px 0;
+        transform-origin: left;
+    }
+
+    .home-tablet__screen.is-active .home-tablet__bars > span { animation: home-tablet-grow-y .7s cubic-bezier(.2, .7, .2, 1) backwards; }
+    .home-tablet__screen.is-active .home-tablet__hbars > span { animation: home-tablet-grow-x .7s cubic-bezier(.2, .7, .2, 1) backwards; }
+
+    @keyframes home-tablet-grow-y { from { transform: scaleY(0); } }
+    @keyframes home-tablet-grow-x { from { transform: scaleX(0); } }
+
+    .home-tablet__donut {
+        flex: 0 0 64px;
+        height: 64px;
+        border-radius: 999px;
+        background: conic-gradient(var(--chart-1) 0 37%, var(--chart-2) 37% 100%);
+        mask: radial-gradient(circle, transparent 52%, #000 53%);
+    }
+
+    .home-tablet__screen.is-active .home-tablet__donut { animation: home-tablet-spin .9s cubic-bezier(.2, .7, .2, 1); }
+
+    @keyframes home-tablet-spin { from { transform: rotate(-120deg); opacity: 0; } }
+
+    .home-tablet__line { flex: 1; width: 100%; min-height: 0; }
+
+    .home-tablet__line polyline {
+        fill: none;
+        stroke: var(--chart-1);
+        stroke-width: 2.5;
+        stroke-linejoin: round;
+        vector-effect: non-scaling-stroke;
+        stroke-dasharray: 400;
+    }
+
+    .home-tablet__screen.is-active .home-tablet__line polyline { animation: home-tablet-draw 1.2s ease-out backwards; }
+
+    @keyframes home-tablet-draw { from { stroke-dashoffset: 400; } to { stroke-dashoffset: 0; } }
+
+    /* Écran Groupes : répartition des sièges puis un groupe par ligne (données réelles). */
+    .home-tablet__groupes {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 100%;
+        padding: 12px 16px 28px;
+    }
+
+    .home-tablet__seats {
+        display: flex;
+        flex-shrink: 0;
+        height: 14px;
+        gap: 2px;
+        overflow: hidden;
+        border-radius: 999px;
+    }
+
+    .home-tablet__seats > span { transform-origin: left; }
+
+    .home-tablet__groupes-list {
+        display: flex;
+        flex-direction: column;
+        gap: 3px;
+        min-height: 0;
+        margin: 0;
+        padding: 0;
+        overflow: hidden;
+        list-style: none;
+    }
+
+    .home-tablet__groupes-list > li {
+        display: grid;
+        grid-template-columns: 10px 64px minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 8px;
+        padding: 4px 8px;
+        border-radius: 6px;
+        background: var(--surface-2);
+        font-size: 11px;
+    }
+
+    .home-tablet__groupe-chip { width: 10px; height: 10px; border-radius: 3px; }
+    .home-tablet__groupe-code { font-weight: 700; }
+    .home-tablet__groupe-nom { overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+    .home-tablet__groupe-count { font-weight: 800; font-variant-numeric: tabular-nums; }
+
+    .home-tablet__screen.is-active .home-tablet__seats > span { animation: home-tablet-grow-x .8s cubic-bezier(.2, .7, .2, 1) backwards; }
+    .home-tablet__screen.is-active .home-tablet__groupes-list > li { animation: home-tablet-row-in .5s ease-out backwards; }
+
+    @keyframes home-tablet-row-in { from { opacity: 0; transform: translateX(10px); } }
+
+    /* Écran Scrutins : le dernier scrutin important. */
+    .home-tablet__scrutin {
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        height: 100%;
+        padding: 16px 18px 28px;
+    }
+
+    .home-tablet__scrutin-titre {
+        margin: 0;
+        font-size: 15px;
+        font-weight: 700;
+        line-height: 1.3;
+        display: -webkit-box;
+        -webkit-line-clamp: 4;
+        -webkit-box-orient: vertical;
+        overflow: hidden;
+    }
+
+    .home-tablet__badge {
+        align-self: flex-start;
+        padding: 3px 10px;
+        border-radius: 999px;
+        font-size: 11px;
+        font-weight: 700;
+        color: var(--ui-white);
+    }
+
+    .home-tablet__votes {
+        display: flex;
+        height: 12px;
+        margin-top: auto;
+        overflow: hidden;
+        border-radius: 999px;
+        background: var(--surface-3);
+    }
+
+    .home-tablet__votes > span { transform-origin: left; }
+    .home-tablet__screen.is-active .home-tablet__votes > span { animation: home-tablet-grow-x .9s cubic-bezier(.2, .7, .2, 1) backwards; }
+
+    .home-tablet__counts {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 8px;
+        margin: 0;
+    }
+
+    .home-tablet__counts dt { font-size: 10px; color: var(--subtitle-accent); }
+    .home-tablet__counts dd { margin: 0; font-size: 20px; font-weight: 800; font-variant-numeric: tabular-nums; }
+
+    /* Entre 600 et 1180px : plus la place à côté du texte, la tablette passe dessous, moins inclinée. */
+    @container home (max-width: 1179px) {
+        .home__layout { flex-wrap: wrap; }
+        .home-tablet { flex: 1 1 100%; padding: 8px var(--home-gutter) 64px; }
+        .home-tablet__frame {
+            --device-width: min(728px, 88cqi);
+            transform: rotateX(14deg) rotateZ(-3deg);
+        }
+    }
+
+    /* Sections sous le premier écran */
+    /* Les sections passent sur le mur : voile translucide sur toute la largeur,
+       qui s'installe en douceur sous le premier écran ; contenu limité à 1200px. */
+    .home__sections {
+        position: relative;
+        z-index: 2;
+        display: flex;
+        flex-direction: column;
+        gap: 72px;
+        padding: 64px var(--home-gutter) 80px;
         background: linear-gradient(180deg,
-            var(--background) 0%,
-            transparent 18%,
-            transparent 78%,
-            var(--background) 100%);
+            transparent 0,
+            color-mix(in srgb, var(--background) 82%, transparent) 64px);
     }
 
-    /* Moyen : le texte passe au-dessus du mur ; le mur prend toute la hauteur restante. */
+    .home__sections > * { width: 100%; max-width: 1200px; }
+
+    .home-section { display: flex; flex-direction: column; gap: 20px; }
+
+    .home-section__header { display: flex; flex-direction: column; gap: 6px; max-width: 720px; }
+
+    .home-section__kicker {
+        font-size: 12px;
+        font-weight: 700;
+        letter-spacing: .08em;
+        text-transform: uppercase;
+        color: var(--accent);
+    }
+
+    .home-section__title {
+        margin: 0;
+        font-size: clamp(24px, 3cqi, 34px);
+        font-weight: 800;
+        letter-spacing: -.02em;
+        line-height: 1.1;
+    }
+
+    .home-section__lead { margin: 4px 0 0; color: var(--subtitle-accent); text-wrap: pretty; }
+
+    .home-section__actions { display: flex; flex-wrap: wrap; gap: 12px 28px; }
+
+    .home-section__more {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        align-self: flex-start;
+        font-weight: 600;
+        color: var(--span-clickable);
+    }
+
+    .home-section__more:hover { text-decoration: underline; text-underline-offset: 3px; }
+
+    .home-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+        gap: 14px;
+    }
+
+    .home-tile {
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+        padding: 20px;
+        border: 1px solid var(--border-main);
+        border-radius: 14px;
+        background: var(--surface-2);
+        color: var(--foreground);
+        transition: transform .2s, border-color .2s, box-shadow .2s;
+    }
+
+    .home-tile:hover {
+        transform: translateY(-3px);
+        border-color: var(--home-tile-color);
+        box-shadow: 0 10px 24px -14px var(--home-tile-color);
+    }
+
+    .home-tile:focus-visible { outline: 2px solid var(--accent); outline-offset: 2px; }
+
+    .home-tile__icon {
+        display: grid;
+        place-items: center;
+        width: 40px;
+        height: 40px;
+        border-radius: 10px;
+        color: var(--home-tile-color);
+        background: color-mix(in srgb, var(--home-tile-color) 16%, transparent);
+    }
+
+    .home-tile__title { font-weight: 700; }
+    .home-tile__text { font-size: 14px; color: var(--subtitle-accent); }
+
+    /* Moyen : le texte prend toute la largeur ; voile uniforme au lieu du dégradé latéral. */
     @container home (max-width: 979px) {
-        .home__layout {
+        .home__sections { gap: 56px; }
+
+        .home__layout, .home__sections, .card-wall {
             --home-hero-top: 32px;
             --home-gutter: 32px;
-            --home-wall-height: 560px;
-            --home-wall-top: 45%;
-            --home-wall-scale: .8;
-
-            flex-direction: column;
-            flex-wrap: nowrap;
+            --home-wall-scale: 1.6;
+            --home-wall-opacity: .3;
         }
 
-        .home__hero { flex: 0 0 auto; max-width: none; padding-bottom: 8px; }
-        .card-wall { flex: 1 0 auto; }
+        .home__hero { flex: 1 1 auto; padding-right: var(--home-gutter); }
         .home__title { font-size: clamp(36px, 7cqi, 60px); }
-        .card-wall__fade--left { display: none; }
+        .card-wall__fade--left {
+            background: color-mix(in srgb, var(--background) 45%, transparent);
+        }
     }
 
-    /* Étroit (mobile) : marges de 16px, boutons pleine largeur, mur à 5 colonnes. */
+    /* Étroit (mobile) : marges de 16px, boutons pleine largeur, mur plus petit. */
     @container home (max-width: 600px) {
-        .home__layout {
+        .home__layout, .home__sections, .card-wall {
             --home-hero-top: 16px;
             --home-gutter: 16px;
-            --home-wall-height: 400px;
-            --home-wall-scale: .55;
+            /* Écran étroit et haut : un plan moins agrandi suffit à le couvrir. */
+            --home-wall-scale: 1.2;
+            --home-logo-width: 170px;
         }
 
-        .home__hero { padding-right: 16px; gap: 16px; }
+        .home-grid { grid-template-columns: 1fr; }
+        /* Trop petite pour être lisible sur mobile : le mur en fond suffit. */
+        .home-tablet { display: none; }
+
+        .home__hero { gap: 16px; }
         .home__title { font-size: clamp(30px, 9cqi, 40px); }
         .home__hero a { flex: 1 1 100%; }
         .home__hero .btn-lib { width: 100%; justify-content: center; }
-        .card-wall__col:nth-child(n+6) { display: none; }
     }
 
     @media (prefers-reduced-motion: reduce) {
-        .card-wall__col { animation: none; }
+        .card-wall__col, .home-tablet__frame, .home-tablet__title, .home-tablet__caption,
+        .home-tablet__screen * { animation: none !important; }
+        .home-tablet__screen, .home-tablet__rail-item, .home-tablet__dots > span { transition: none; }
+        .home-tile { transition: none; }
     }
 }

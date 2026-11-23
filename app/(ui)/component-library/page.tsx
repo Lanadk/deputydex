@@ -59,6 +59,7 @@ const components: Record<string, ComponentTheme[]> = {
                 { name: 'DeputyCard', description: "Carte d'un député", path: '/component-library/molecules/deputy' },
                 { name: 'GroupMiniCard', description: "Carte aux couleurs d'un groupe", path: '/component-library/molecules/group-mini-card' },
                 { name: 'ExpandableCard', description: 'Carte dépliable', path: '/component-library/molecules/expandable-card' },
+                { name: 'DeviceFrame', description: "Cadre de tablette ou de téléphone autour d'un contenu", path: '/component-library/molecules/device-frame' },
             ],
         },
         {

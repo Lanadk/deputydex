@@ -72,4 +72,21 @@ describe("TimelineLib — rendu", () => {
         expect(eventMarkerRows([10, 11, 12, 20, 21])).toEqual([0, 1, 2, 0, 1]);
         expect(eventMarkerRows([10, 50])).toEqual([0, 0]);
     });
+
+    it("la ligne d'un événement porte la rangée de son repère, pour monter jusqu'à sa bulle", () => {
+        const { container } = render(
+            <TimelineLib
+                start="2022-05-01"
+                end="2026-11-22"
+                lanes={lanes}
+                events={[{ date: "2024-06-09", label: "Dissolution" }, { date: "2024-07-07", label: "Élections" }]}
+            />
+        );
+
+        const rangee = (el: Element) => (el as HTMLElement).style.getPropertyValue("--timeline-marker-row");
+        const reperes = [...container.querySelectorAll(".timeline-lib__markers > .timeline-lib__marker")].map(rangee);
+        const lignes = [...container.querySelectorAll(".timeline-lib__event-line")].map(rangee);
+        expect(reperes).toEqual(["0", "1"]);
+        expect(lignes).toEqual(reperes);
+    });
 });
