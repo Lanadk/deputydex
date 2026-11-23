@@ -5481,15 +5481,18 @@
     .home-tile__title { font-weight: 700; }
     .home-tile__text { font-size: 14px; color: var(--subtitle-accent); }
 
-    /* Ordinateur (sans bandeau du haut, écran assez haut) : chaque page tient EXACTEMENT
-       dans l'écran. Hauteur fixée, marges et tailles de texte qui suivent la hauteur
-       (vh), rangées des bentos (fill) étirées ou tassées pour occuper le reste.
+    /* Ordinateur (sans bandeau du haut, écran assez haut) : chaque page remplit l'écran.
+       Hauteur minimale de l'écran, marges et tailles de texte qui suivent la hauteur
+       (vh), rangées des bentos (fill) étirées pour occuper le reste.
        Plus bas que 700px, on retombe sur min-height : la page grandit plutôt que de couper.
        Placé après les règles de base de l'accueil : à spécificité égale, il les remplace. */
     @media (min-width: 1024px) and (min-height: 700px) {
+        /* Hauteur MINIMALE et non fixe : quand tout tient, la page fait exactement l'écran
+           (les rangées fill s'étirent) ; sinon (écran de portable, tuiles des statistiques
+           sur deux lignes), elle grandit au lieu de faire chevaucher ses sections. */
         .home-panel {
-            height: 100vh;
-            height: 100svh; /* tablette en paysage : barre d'adresse qui bouge, voir .home__layout */
+            min-height: 100vh;
+            min-height: 100svh; /* tablette en paysage : barre d'adresse qui bouge, voir .home__layout */
             padding-block: clamp(24px, 4vh, 56px);
             gap: clamp(20px, 4vh, 48px);
         }
