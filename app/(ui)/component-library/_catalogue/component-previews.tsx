@@ -19,6 +19,8 @@ import { getCardsSections } from "@/app/(ui)/component-library/molecules/cards/c
 import { getDeputyCardSections } from "@/app/(ui)/component-library/molecules/deputy/deputy-card.constants";
 import { getGroupMiniCardSections } from "@/app/(ui)/component-library/molecules/group-mini-card/group-mini-card-lib.constants";
 import { getExpandableCardSections } from "@/app/(ui)/component-library/molecules/expandable-card/expandable-card-lib.constants";
+import { getBentoSections } from "@/app/(ui)/component-library/molecules/bento/bento-lib.constants";
+import { getScrollHintSections } from "@/app/(ui)/component-library/molecules/scroll-hint/scroll-hint-lib.constants";
 import { getDeviceFrameSections } from "@/app/(ui)/component-library/molecules/device-frame/device-frame-lib.constants";
 import { getPageStateSections } from "@/app/(ui)/component-library/molecules/page-state/page-state-lib.constants";
 import { getTimelineSections } from "@/app/(ui)/component-library/molecules/timeline/timeline-lib.constants";
@@ -67,6 +69,8 @@ export const COMPONENT_PREVIEWS: Record<string, ComponentPreview> = {
     '/component-library/molecules/deputy': { width: 1000, render: () => getDeputyCardSections()[0].component },
     '/component-library/molecules/group-mini-card': { width: 700, render: () => getGroupMiniCardSections()[0].component },
     '/component-library/molecules/expandable-card': { width: 700, render: () => getExpandableCardSections()[0].component },
+    '/component-library/molecules/bento': { width: 1000, render: () => getBentoSections()[0].component },
+    '/component-library/molecules/scroll-hint': { width: 440, render: () => getScrollHintSections()[0].component },
     '/component-library/molecules/device-frame': { width: 600, render: () => getDeviceFrameSections()[0].component },
     '/component-library/molecules/timeline': { width: 1000, render: () => getTimelineSections()[0].component },
     '/component-library/molecules/org-chart': { width: 700, render: () => getOrgChartSections()[0].component },

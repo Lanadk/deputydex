@@ -5,6 +5,7 @@ import { ScrutinDeputeVoteDTO } from "@/app/domains/scrutins/dto/scrutin-depute-
 import { ScrutinListPageDTO } from "@/app/domains/scrutins/dto/scrutin-list.dto";
 import { ScrutinHemicycleDTO } from "@/app/domains/scrutins/dto/scrutin-hemicycle.dto";
 import { ScrutinListRawParams } from "@/app/domains/scrutins/filters/scrutin-list.filters";
+import { ScrutinPlusSerreDTO } from "@/app/domains/scrutins/dto/scrutin-plus-serre.dto";
 
 export const scrutinsGateway: IScrutinsGateways = {
     async getScrutinsList(legislature: number, params: ScrutinListRawParams, signal?: AbortSignal): Promise<ScrutinListPageDTO> {
@@ -14,6 +15,12 @@ export const scrutinsGateway: IScrutinsGateways = {
         }
         const res = await fetch(`/api/scrutins/list/${legislature}?${query}`, { signal });
         if (!res.ok) throw new Error("Failed to get scrutins");
+        return res.json();
+    },
+
+    async getScrutinPlusSerre(legislature: number): Promise<ScrutinPlusSerreDTO> {
+        const res = await fetch(`/api/scrutins/plus-serre/${legislature}`);
+        if (!res.ok) throw new Error("Failed to get closest scrutin");
         return res.json();
     },
 

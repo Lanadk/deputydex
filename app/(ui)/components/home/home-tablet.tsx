@@ -6,6 +6,9 @@ import { ArrowRight, Search } from "lucide-react";
 import { DeputesCardDTO } from "@/app/domains/deputes/dto/deputes-card.dto";
 import { ScrutinListItemDTO } from "@/app/domains/scrutins/dto/scrutin-list.dto";
 import { GroupeCardDTO } from "@/app/domains/groupes/dto/groupes-card.dto";
+import { DeputeVoteStatsDTO } from "@/app/domains/deputes/dto/depute-vote-stats.dto";
+import { ActivityCalendarDay } from "@/app/_shared/calendar/activity-calendar-day.dto";
+import { grilleActivite } from "@/app/(ui)/components/home/home-activite.helpers";
 import { compareGroupesGaucheDroite } from "@/app/domains/groupes/constants/groupe-ordre-hemicycle.constants";
 import { DeviceFrameLib } from "@/app/(ui)/component-library/molecules/device-frame/device-frame-lib";
 import DeputyCard from "@/app/(ui)/components/deputy/deputy-card";
@@ -45,7 +48,17 @@ export function deputesVitrine(cards: DeputesCardDTO[]): DeputesCardDTO[] {
  */
 export const HOME_TABLET_SCREEN_MS = 15_000;
 
-type EcranId = "deputes" | "groupes" | "stats" | "scrutin";
+type EcranId = "deputes" | "activite" | "groupes" | "stats" | "scrutin";
+
+/** Fiche député miniature (écran « activité ») : données réelles d'un député. */
+export type HomeTabletFiche = {
+    depute: DeputesCardDTO;
+    stats: DeputeVoteStatsDTO;
+    activite: ActivityCalendarDay[];
+};
+
+/** Semaines affichées dans le calendrier d'activité de la fiche miniature. */
+const SEMAINES_ACTIVITE = 26;
 /**
  * `href` : rubrique du site (surbrillance dans la barre latérale, lien de la légende).
  * `accroche` / `texte` / `lien` : légende sous la tablette, ce que la rubrique permet de faire.
@@ -62,6 +75,14 @@ const ECRANS: Ecran[] = [
         lien: "Ouvrir le DéputéDex",
     },
     {
+        id: "activite",
+        titre: "Fiche député",
+        href: "/deputydex",
+        accroche: "Suivre l'activité de chaque député",
+        texte: "Pour chaque député : son calendrier d'activité jour par jour, ses votes, sa fidélité à son groupe, ses amendements et les dossiers qu'il a portés.",
+        lien: "Trouver un député",
+    },
+    {
         id: "groupes",
         titre: "Groupes",
         href: "/groupes",
@@ -74,7 +95,7 @@ const ECRANS: Ecran[] = [
         titre: "Statistiques",
         href: "/statistics",
         accroche: "Analyser l'Assemblée en graphiques",
-        texte: "Participation et présence aux scrutins, cohésion des groupes, qui vote avec qui, parité, âge, métiers d'origine : des graphiques expliqués, et un mode avancé pour comparer.",
+        texte: "Participation et présence aux scrutins, cohésion des groupes, qui vote avec qui, parité, âge, métiers d'origine : des graphiques expliqués simplement.",
         lien: "Voir les statistiques",
     },
     {
@@ -87,9 +108,17 @@ const ECRANS: Ecran[] = [
     },
 ];
 
-/** Écrans montrés : ceux des groupes et du scrutin seulement si leurs données ont été chargées. */
-export function ecransDisponibles(scrutin: ScrutinListItemDTO | null, groupes: GroupeCardDTO[] = []): Ecran[] {
-    return ECRANS.filter((e) => (e.id !== "scrutin" || scrutin !== null) && (e.id !== "groupes" || groupes.length > 0));
+/** Écrans montrés : ceux de la fiche, des groupes et du scrutin seulement si leurs données ont été chargées. */
+export function ecransDisponibles(
+    scrutin: ScrutinListItemDTO | null,
+    groupes: GroupeCardDTO[] = [],
+    fiche: HomeTabletFiche | null = null
+): Ecran[] {
+    return ECRANS.filter((e) =>
+        (e.id !== "scrutin" || scrutin !== null)
+        && (e.id !== "groupes" || groupes.length > 0)
+        && (e.id !== "activite" || fiche !== null)
+    );
 }
 
 /** Groupes de la gauche vers la droite de l'hémicycle (sans les groupes vides). */
@@ -253,6 +282,51 @@ function EcranGroupes({ groupes }: { groupes: GroupeCardDTO[] }) {
     );
 }
 
+const pourcent = (taux: number | null) => (taux === null ? "–" : `${Math.round(taux)} %`);
+
+/**
+ * Fiche député miniature (données réelles) : identité, quelques chiffres de
+ * vote et le calendrier d'activité des derniers mois, comme sur sa vraie fiche.
+ */
+function EcranActivite({ fiche }: { fiche: HomeTabletFiche }) {
+    const { depute, stats, activite } = fiche;
+    const theme = getGroupCardTheme(getCanonicalGroupCode(depute.deputeGroupeCode));
+    const grille = useMemo(() => grilleActivite(activite, SEMAINES_ACTIVITE), [activite]);
+    return (
+        <div className="home-tablet__fiche">
+            <div className="home-tablet__fiche-tete">
+                <span className="home-tablet__fiche-photo" style={{ background: `linear-gradient(160deg, ${theme.bg[0]}, ${theme.bg[1]})` }}>
+                    {/* eslint-disable-next-line @next/next/no-img-element -- photos servies telles quelles, comme sur les cartes */}
+                    {depute.deputeImage && <img src={depute.deputeImage} alt="" />}
+                </span>
+                <span className="flex min-w-0 flex-col">
+                    <span className="home-tablet__fiche-nom">{depute.deputeFullName}</span>
+                    <span className="home-tablet__panel-text">{getGroupFullLabel(depute.deputeGroupeCode)}</span>
+                </span>
+            </div>
+
+            <div className="home-tablet__fiche-kpis">
+                <span><strong>{pourcent(stats.tauxParticipation)}</strong>participation</span>
+                <span><strong>{pourcent(stats.tauxFidelite)}</strong>fidélité au groupe</span>
+                <span><strong>{stats.totalVotes.toLocaleString("fr-FR")}</strong>votes</span>
+            </div>
+
+            <div className="home-tablet__panel">
+                <span className="home-tablet__panel-title">Activité, semaine par semaine</span>
+                <div className="home-tablet__calendrier">
+                    {grille.map((semaine, s) => (
+                        <span key={s} className="home-tablet__calendrier-semaine">
+                            {semaine.map((niveau, j) => (
+                                <span key={j} className="home-tablet__calendrier-jour" data-niveau={niveau} style={{ animationDelay: `${s * 25}ms` }} />
+                            ))}
+                        </span>
+                    ))}
+                </div>
+            </div>
+        </div>
+    );
+}
+
 type TabletAppProps = {
     ecrans: Ecran[];
     position: number;
@@ -260,10 +334,11 @@ type TabletAppProps = {
     legislature: string | null;
     scrutin: ScrutinListItemDTO | null;
     groupes: GroupeCardDTO[];
+    fiche: HomeTabletFiche | null;
 };
 
 /** L'écran de la tablette : barre latérale du site, en-tête, écrans superposés, points de pagination. */
-function TabletApp({ ecrans, position, cards, legislature, scrutin, groupes }: TabletAppProps) {
+function TabletApp({ ecrans, position, cards, legislature, scrutin, groupes, fiche }: TabletAppProps) {
     const actif = ecrans[position];
     return (
         <div className="home-tablet__app">
@@ -289,6 +364,7 @@ function TabletApp({ ecrans, position, cards, legislature, scrutin, groupes }: T
                             data-screen={e.id}
                         >
                             {e.id === "deputes" && <EcranDeputes cards={cards} />}
+                            {e.id === "activite" && fiche && <EcranActivite fiche={fiche} />}
                             {e.id === "groupes" && <EcranGroupes groupes={groupes} />}
                             {e.id === "stats" && <EcranStats />}
                             {e.id === "scrutin" && scrutin && <EcranScrutin scrutin={scrutin} />}
@@ -307,21 +383,22 @@ function TabletApp({ ecrans, position, cards, legislature, scrutin, groupes }: T
 /**
  * Maquette de l'app sur l'accueil : une tablette en paysage, inclinée vers la
  * gauche (vers le texte). Son écran reprend la barre latérale du site et
- * enchaîne des aperçus — la grille du DéputéDex, les groupes, des graphiques,
- * le résultat du dernier scrutin important. Sous la tablette, une légende dit
+ * enchaîne des aperçus — la grille du DéputéDex, une fiche député (activité),
+ * les groupes, des graphiques, le résultat du dernier scrutin important. Sous la tablette, une légende dit
  * ce que la rubrique affichée permet de faire, avec un lien et une barre de
  * progression : c'est la FIN de cette barre qui fait passer à l'écran suivant
  * (pas de minuteur à part, qui se décalerait de la barre).
  * La tablette est décorative (`aria-hidden`), la légende non. Sans animation si
  * l'utilisateur la refuse : pas de barre, premier écran fixe.
  */
-export function HomeTablet({ cards, legislature, scrutin = null, groupes = [] }: {
+export function HomeTablet({ cards, legislature, scrutin = null, groupes = [], fiche = null }: {
     cards: DeputesCardDTO[];
     legislature: string | null;
     scrutin?: ScrutinListItemDTO | null;
     groupes?: GroupeCardDTO[];
+    fiche?: HomeTabletFiche | null;
 }) {
-    const ecrans = ecransDisponibles(scrutin, groupes);
+    const ecrans = ecransDisponibles(scrutin, groupes, fiche);
     const reduit = usePrefersReducedMotion();
     // Écran suivi par son id : un écran qui apparaît en cours de route (données
     // chargées après coup) ne fait pas sauter l'écran affiché.
@@ -335,7 +412,7 @@ export function HomeTablet({ cards, legislature, scrutin = null, groupes = [] }:
             {/* `inert` : les cartes de la grille sont des liens ; dans la maquette, ni focus ni clic. */}
             <div className="home-tablet__stage" aria-hidden="true" inert>
                 <DeviceFrameLib device="tablet" className="home-tablet__frame">
-                    <TabletApp ecrans={ecrans} position={position} cards={cards} legislature={legislature} scrutin={scrutin} groupes={groupes} />
+                    <TabletApp ecrans={ecrans} position={position} cards={cards} legislature={legislature} scrutin={scrutin} groupes={groupes} fiche={fiche} />
                 </DeviceFrameLib>
             </div>
 

@@ -1,10 +1,8 @@
 "use client";
 
-import Link from "next/link";
 import Image from "next/image";
 import { useTheme } from "next-themes";
 import { useEffect, useState } from "react";
-import { ButtonLib } from "@/app/(ui)/component-library/atoms/button/button-lib";
 import { useAsyncData } from "@/app/(ui)/_shared/hook/use-async-data";
 import { deputesGateway } from "@/app/(ui)/gateways/deputes/deputes.gateway";
 import { legislaturesGateway } from "@/app/(ui)/gateways/legislatures/legislatures.gateway";
@@ -13,8 +11,14 @@ import { CardWall } from "@/app/(ui)/components/home/card-wall";
 import { HomeTablet } from "@/app/(ui)/components/home/home-tablet";
 import { scrutinsGateway } from "@/app/(ui)/gateways/scrutins/scrutins.gateway";
 import { groupesGateways } from "@/app/(ui)/gateways/groupes/groupes.gateway";
-import { HomeChiffres, HomeExplorer, HomeStatistiques } from "@/app/(ui)/components/home/home-sections";
+import { HomeStatistiques } from "@/app/(ui)/components/home/home-sections";
 import { resumeLegislaturesCouvertes } from "@/app/(ui)/components/home/home-legislatures";
+import { HomeMois } from "@/app/(ui)/components/home/home-mois";
+import { HomeAssembleeChiffres } from "@/app/(ui)/components/home/home-assemblee-chiffres";
+import { ScrollHintLib } from "@/app/(ui)/component-library/molecules/scroll-hint/scroll-hint-lib";
+
+/** Nombre de derniers scrutins importants montrés dans « Ce mois-ci ». */
+const HOME_DERNIERS_VOTES = 3;
 
 /**
  * Accueil. Il présente la législature EN COURS lue en base
@@ -36,13 +40,26 @@ export default function HomeClient() {
     // Mur et tablette décoratifs : en cas d'échec, ils restent vides (la tablette saute
     // les écrans des groupes ou du scrutin s'ils n'ont pas pu être chargés).
     const cards = useAsyncData(numero === null ? null : () => deputesGateway.getDeputesCardsSample(numero), `cards|${numero}`);
-    // Dernier scrutin important (premier de la liste par défaut, la plus récente d'abord).
-    const scrutin = useAsyncData(
-        numero === null ? null : () => scrutinsGateway.getScrutinsList(numero, { pageSize: "1" }).then((p) => p.items[0] ?? null),
-        `scrutin|${numero}`
+    // Les 3 derniers scrutins importants (liste par défaut, la plus récente d'abord) :
+    // section « Ce mois-ci », et le premier sur la tablette.
+    const derniers = useAsyncData(
+        numero === null ? null : () => scrutinsGateway.getScrutinsList(numero, { pageSize: String(HOME_DERNIERS_VOTES) }),
+        `derniers|${numero}`
     );
     const groupes = useAsyncData(numero === null ? null : () => groupesGateways.getGroupesCards(numero), `groupes|${numero}`);
+    const tendances = useAsyncData(numero === null ? null : () => deputesGateway.getDeputesTendances(numero), `tendances|${numero}`);
+    const plusSerre = useAsyncData(numero === null ? null : () => scrutinsGateway.getScrutinPlusSerre(numero), `serre|${numero}`);
     const chiffres = useAsyncData(numero === null ? null : () => legislaturesGateway.getChiffres(numero), `chiffres|${numero}`);
+    // Fiche miniature de la tablette : le député le plus assidu du mois, avec ses vraies
+    // stats de vote et son vrai calendrier d'activité (rien d'inventé sur une vraie personne).
+    const assidu = tendances.data?.assidu?.depute ?? null;
+    const fiche = useAsyncData(
+        numero === null || !assidu ? null : () => Promise.all([
+            deputesGateway.getDeputeVoteStats(assidu.deputeUID, numero),
+            deputesGateway.getDeputeActivityCalendar(assidu.deputeUID, numero),
+        ]).then(([stats, activite]) => ({ depute: assidu, stats, activite })),
+        `fiche|${assidu?.deputeUID}|${numero}`
+    );
     const couvertes = resumeLegislaturesCouvertes(toutes.data ?? []);
     const sample = cards.data ?? [];
 
@@ -78,30 +95,37 @@ export default function HomeClient() {
                         parlementaires, scrutins, votes et statistiques de l&apos;Assemblée nationale.
                     </p>
 
-                    <div className="flex flex-wrap gap-4 mt-1">
-                        <Link href="/deputydex">
-                            <ButtonLib text="Explorer les députés" variant="primary" size="large" />
-                        </Link>
-                        <Link href="/hemicycle">
-                            <ButtonLib text="Voir l'hémicycle" variant="secondary" size="large" />
-                        </Link>
-                    </div>
-
                     {couvertes && <p className="home__coverage">{couvertes}</p>}
                 </section>
 
                 <HomeTablet
                     cards={sample}
                     legislature={numero !== null ? libelleLegislature(numero) : null}
-                    scrutin={scrutin.data ?? null}
+                    scrutin={derniers.data?.items[0] ?? null}
                     groupes={groupes.data ?? []}
+                    fiche={fiche.data ?? null}
+                />
+
+                <ScrollHintLib
+                    target="home-suite"
+                    label={numero !== null ? "Défiler pour l'actu" : "Défiler pour la suite"}
+                    className="home__scroll-hint"
                 />
             </div>
 
-            <div className="home__sections">
-                {numero !== null && <HomeChiffres numero={numero} chiffres={chiffres} />}
-                <HomeExplorer />
-                <HomeStatistiques />
+            {/* Sous le premier écran, deux « pages » d'un écran de haut chacune :
+                l'actu, puis l'Assemblée en chiffres (porte d'entrée des rubriques) et les statistiques. */}
+            <div id="home-suite" className="home__sections">
+                {numero !== null && (
+                    <div className="home-panel home-panel--actu">
+                        <HomeMois derniers={derniers} tendances={tendances} plusSerre={plusSerre} />
+                        <ScrollHintLib target="home-explorer-page" label="Défiler pour explorer" className="home__scroll-hint" />
+                    </div>
+                )}
+                <div id="home-explorer-page" className="home-panel">
+                    {numero !== null && <HomeAssembleeChiffres numero={numero} chiffres={chiffres} groupes={groupes.data ?? []} />}
+                    <HomeStatistiques />
+                </div>
             </div>
         </div>
     );

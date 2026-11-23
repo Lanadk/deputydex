@@ -8,6 +8,7 @@ import {
     HOME_TABLET_DEPUTES,
     HOME_TABLET_SCREEN_MS,
     HomeTablet,
+    HomeTabletFiche,
 } from "@/app/(ui)/components/home/home-tablet";
 import { ScrutinListItemDTO } from "@/app/domains/scrutins/dto/scrutin-list.dto";
 import { GroupeCardDTO } from "@/app/domains/groupes/dto/groupes-card.dto";
@@ -30,6 +31,15 @@ const groupe = (code: string, membres: number): GroupeCardDTO => ({
     groupeQualitySexLabel: "Président du", groupeCountMembers: membres, groupeHref: `/groupes/${code}`,
 });
 const GROUPES = [groupe("RN", 123), groupe("LFI-NFP", 71), groupe("VIDE", 0)];
+
+const FICHE: HomeTabletFiche = {
+    depute: { deputeUID: "PA794954", deputeFullName: "Emeric Salmon", deputeGroupeCode: "RN", deputeImage: "/img/salmon.png" },
+    stats: {
+        totalVotes: 9000, totalPour: 3000, totalContre: 4000, totalAbstentions: 1400, totalNonVotants: 600,
+        rebelVotesCount: 40, tauxFidelite: 88.4, tauxParticipation: 93.3,
+    },
+    activite: [{ date: "2026-11-18", count: 40, level: 4 }, { date: "2026-11-10", count: 3, level: 1 }],
+};
 
 const legende = () => screen.getByTestId("home-tablet-caption");
 const finDeBarre = () => fireEvent.animationEnd(screen.getByTestId("home-tablet-progress"));
@@ -111,9 +121,22 @@ describe("HomeTablet", () => {
         expect(legende().closest("[aria-hidden]")).toBeNull();
     });
 
-    it("écrans des groupes et du scrutin seulement si leurs données sont chargées", () => {
+    it("écrans de la fiche, des groupes et du scrutin seulement si leurs données sont chargées", () => {
         expect(ecransDisponibles(null).map((e) => e.id)).toEqual(["deputes", "stats"]);
-        expect(ecransDisponibles(SCRUTIN, GROUPES).map((e) => e.id)).toEqual(["deputes", "groupes", "stats", "scrutin"]);
+        expect(ecransDisponibles(SCRUTIN, GROUPES, FICHE).map((e) => e.id)).toEqual(["deputes", "activite", "groupes", "stats", "scrutin"]);
+    });
+
+    it("fiche député miniature : identité, chiffres de vote et calendrier d'activité réels", () => {
+        const { container } = render(<HomeTablet cards={[]} legislature={null} fiche={FICHE} />);
+        finDeBarre();
+
+        expect(ecranActif(container)).toBe("activite");
+        expect(legende()).toHaveTextContent("Suivre l'activité de chaque député");
+        const fiche = container.querySelector('[data-screen="activite"]') as HTMLElement;
+        expect(fiche).toHaveTextContent("Emeric Salmon");
+        expect(fiche).toHaveTextContent("93 %participation");
+        expect(fiche).toHaveTextContent("88 %fidélité au groupe");
+        expect(fiche.querySelector('.home-tablet__calendrier-jour[data-niveau="4"]')).toBeInTheDocument();
     });
 
     it("groupes de la gauche vers la droite, sans les groupes vides", () => {

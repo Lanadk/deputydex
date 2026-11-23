@@ -33,7 +33,7 @@ export function buildCardWallColumns<T>(cards: T[], columns: number, perColumn: 
  * l'animation translateY(0 → -50%) boucle exactement (padding-bottom = gap).
  *
  * Purement décoratif (`aria-hidden`) : la structure accessible de la page
- * est portée par le titre et les boutons. Animation continue (pas de pause au
+ * est portée par le titre et les sections de la page. Animation continue (pas de pause au
  * survol), désactivée avec `prefers-reduced-motion` (voir `.card-wall` dans globals.css).
  */
 export function CardWall({ cards }: { cards: DeputesCardDTO[] }) {

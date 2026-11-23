@@ -10,8 +10,9 @@ import { prisma } from "@/app/infrastructure/db/prisma/prisma";
  * Objet du scrutin déduit du début de son titre, très régulier dans l'open data AN
  * (« l'ensemble du projet de loi… », « l'amendement n° 12… », « l'article 3… »).
  * Provisoire : à remplacer par la colonne calculée côté deputydex-data (issue #170, étape 1).
+ * Exporté pour les autres lectures de listes de scrutins (ex. scrutins du dernier mois).
  */
-const OBJET_SQL = Prisma.sql`
+export const OBJET_SQL = Prisma.sql`
     CASE
         WHEN s.titre ~* '^l[''’]ensemble'                           THEN 'ensemble'
         WHEN s.titre ~* '^(l[''’]|les |le |la )?(sous-)?amende?m+e?n?ts?' THEN 'amendement'
