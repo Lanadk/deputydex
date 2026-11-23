@@ -34,6 +34,13 @@ export const BENTO_FILL_CODE = `<div style={{ height: 420, display: "flex", flex
 </div>
 `;
 
+export const BENTO_MOBILE_CODE = `<BentoGridLib columns={4} mobileColumns={2}>
+    <BentoTileLib colSpan={2}>Pleine largeur sur mobile</BentoTileLib>
+    <BentoTileLib>Demi</BentoTileLib>
+    <BentoTileLib>Demi</BentoTileLib>
+</BentoGridLib>
+`;
+
 export const getBentoSections = () => [
     {
         title: "Grille de 4 colonnes : tailles, lien, chargement, appel à l'action",
@@ -70,6 +77,19 @@ export const getBentoSections = () => [
                 <BentoGridLib columns={3} rowMinHeight={100} fill>
                     <BentoTileLib colSpan={2}><Contenu titre="2 × 1" texte="Large" /></BentoTileLib>
                     <BentoTileLib rowSpan={2}><Contenu titre="1 × 2" texte="Haute" /></BentoTileLib>
+                    <BentoTileLib><Contenu titre="1 × 1" texte="A" /></BentoTileLib>
+                    <BentoTileLib><Contenu titre="1 × 1" texte="B" /></BentoTileLib>
+                </BentoGridLib>
+            </div>
+        ),
+    },
+    {
+        title: "mobileColumns={2} : sur mobile, petites tuiles en demi-largeur (réduire la fenêtre sous 520px)",
+        code: BENTO_MOBILE_CODE,
+        component: (
+            <div style={{ maxWidth: 400 }}>
+                <BentoGridLib columns={4} mobileColumns={2}>
+                    <BentoTileLib colSpan={2}><Contenu titre="2 × 1" texte="Pleine largeur" /></BentoTileLib>
                     <BentoTileLib><Contenu titre="1 × 1" texte="A" /></BentoTileLib>
                     <BentoTileLib><Contenu titre="1 × 1" texte="B" /></BentoTileLib>
                 </BentoGridLib>

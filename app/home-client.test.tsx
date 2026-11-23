@@ -1,5 +1,5 @@
 import React from "react";
-import { render, screen } from "@testing-library/react";
+import { render, screen, within } from "@testing-library/react";
 import "@testing-library/jest-dom";
 
 jest.mock("@/app/(ui)/gateways/legislatures/legislatures.gateway", () => ({
@@ -134,14 +134,16 @@ describe("HomeClient", () => {
         expect(deputesGateway.getDeputeActivityCalendar).toHaveBeenCalledWith("PA1", 17);
     });
 
-    it("invite à défiler vers la suite de la page", () => {
+    it("barre de progression : un point par « page » de l'accueil, chacun vers sa page", () => {
         const { container } = render(<HomeClient initial={SERVEUR} />);
 
-        expect(screen.getByRole("link", { name: "Défiler pour l'actu" })).toHaveAttribute("href", "#home-suite");
-        expect(container.querySelector("#home-suite")).toBeInTheDocument();
-        // Puis, en bas de l'actu, vers la page suivante.
-        expect(screen.getByRole("link", { name: "Défiler pour explorer" })).toHaveAttribute("href", "#home-explorer-page");
-        expect(container.querySelector("#home-explorer-page")).toBeInTheDocument();
+        const nav = within(screen.getByRole("navigation", { name: "Sections de l'accueil" }));
+        expect(nav.getAllByRole("link").map((a) => a.getAttribute("href"))).toEqual(["#home-accueil", "#home-actu", "#home-explorer-page"]);
+        for (const id of ["home-accueil", "home-actu", "home-explorer-page"]) {
+            expect(container.querySelector(`#${id}`)).toBeInTheDocument();
+        }
+        // L'ancienne invitation à défiler n'est plus sur l'accueil.
+        expect(screen.queryByRole("link", { name: /Défiler pour/ })).not.toBeInTheDocument();
     });
 
     it("plus de mode avancé sur l'accueil", () => {

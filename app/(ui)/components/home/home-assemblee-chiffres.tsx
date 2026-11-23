@@ -76,7 +76,7 @@ export function HomeAssembleeChiffres({ numero, chiffres, groupes }: {
     groupes: GroupeCardDTO[];
 }) {
     return (
-        <section className="home-section" aria-labelledby="home-chiffres">
+        <section className="home-section home-section--chiffres" aria-labelledby="home-chiffres">
             <header className="home-section__header">
                 <span className="home-section__kicker">Explorer · {libelleLegislature(numero)}</span>
                 <h2 id="home-chiffres" className="home-section__title">L&apos;Assemblée en chiffres</h2>
@@ -86,7 +86,7 @@ export function HomeAssembleeChiffres({ numero, chiffres, groupes }: {
             {chiffres.error ? (
                 <ErrorStateLib message="Les chiffres de l'Assemblée n'ont pas pu être chargés." onRetry={chiffres.retry} />
             ) : (
-                <BentoGridLib columns={4} rowMinHeight={170}>
+                <BentoGridLib columns={4} rowMinHeight={140} fill mobileColumns={2}>
                     {!chiffres.data
                         ? Array.from({ length: 6 }, (_, i) => <BentoTileLib key={i} colSpan={i === 0 || i === 5 ? 2 : 1} variant="solid" loading />)
                         : chiffresAssemblee(chiffres.data, groupes).map(({ valeur, libelle, detail, href, icon: Icon, couleur, taille }) => (

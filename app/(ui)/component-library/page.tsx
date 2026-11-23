@@ -61,6 +61,7 @@ const components: Record<string, ComponentTheme[]> = {
                 { name: 'ExpandableCard', description: 'Carte dépliable', path: '/component-library/molecules/expandable-card' },
                 { name: 'Bento', description: 'Grille de tuiles de tailles variées', path: '/component-library/molecules/bento' },
                 { name: 'ScrollHint', description: 'Invitation animée à faire défiler', path: '/component-library/molecules/scroll-hint' },
+                { name: 'ScrollProgress', description: 'Barre de progression dans la page, un point par section', path: '/component-library/molecules/scroll-progress' },
                 { name: 'DeviceFrame', description: "Cadre de tablette ou de téléphone autour d'un contenu", path: '/component-library/molecules/device-frame' },
             ],
         },

@@ -12,6 +12,12 @@ export type BentoGridLibProps = {
      * (ex. flex: 1 dans une colonne flex de hauteur fixe).
      */
     fill?: boolean;
+    /**
+     * Colonnes sur mobile (grille < 520px). 2 : les tuiles d'une colonne passent
+     * en demi-largeur, les plus larges en pleine largeur, rangées plus basses
+     * (moins de place perdue qu'une tuile par ligne).
+     */
+    mobileColumns?: 1 | 2;
     className?: string;
     ariaLabel?: string;
 };
@@ -22,9 +28,12 @@ export type BentoGridLibProps = {
  * de la grille (container query) : `columns` colonnes, puis 2, puis 1 ; les
  * tuiles plus larges que la grille sont ramenées à sa largeur.
  */
-export function BentoGridLib({ children, columns = 4, rowMinHeight = 210, fill = false, className = "", ariaLabel }: BentoGridLibProps) {
+export function BentoGridLib({ children, columns = 4, rowMinHeight = 210, fill = false, mobileColumns = 1, className = "", ariaLabel }: BentoGridLibProps) {
     return (
-        <div className={`bento-lib${fill ? " bento-lib--fill" : ""} ${className}`} aria-label={ariaLabel}>
+        <div
+            className={`bento-lib${fill ? " bento-lib--fill" : ""}${mobileColumns === 2 ? " bento-lib--mobile-2" : ""} ${className}`}
+            aria-label={ariaLabel}
+        >
             <div
                 className="bento-lib__grid"
                 style={{ "--bento-columns": columns, "--bento-row": `${rowMinHeight}px` } as React.CSSProperties}
