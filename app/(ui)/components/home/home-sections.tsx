@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { ArrowRight, LucideIcon } from "lucide-react";
 import { KEY_FIGURE_THEMES } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes.registry";
+import { TypeStat, typeStatCouleur, typeStatEncre } from "@/app/(ui)/_shared/adapter/stat-type.adapter";
 
 /** En-tête de section de l'accueil : sur-titre, titre, chapeau. */
 function HomeSectionHeader({ id, kicker, title, lead }: { id: string; kicker: string; title: string; lead?: React.ReactNode }) {
@@ -14,10 +15,14 @@ function HomeSectionHeader({ id, kicker, title, lead }: { id: string; kicker: st
     );
 }
 
-/** Tuile cliquable : icône colorée, titre, texte. */
-function HomeTile({ href, icon: Icon, title, text, color }: { href: string; icon: LucideIcon; title: string; text: string; color: string }) {
+/** Tuile cliquable : icône dans une pastille teintée au « type » du thème (encre lisible), titre, texte. */
+function HomeTile({ href, icon: Icon, title, text, type }: { href: string; icon: LucideIcon; title: string; text: string; type: TypeStat }) {
     return (
-        <Link href={href} className="home-tile" style={{ "--home-tile-color": color } as React.CSSProperties}>
+        <Link
+            href={href}
+            className="home-tile home-tile--type"
+            style={{ "--home-tile-color": typeStatCouleur(type), "--home-tile-ink": typeStatEncre(type) } as React.CSSProperties}
+        >
             <span className="home-tile__icon" aria-hidden="true"><Icon size={20} /></span>
             <span className="home-tile__title">{title}</span>
             <span className="home-tile__text">{text}</span>
@@ -59,14 +64,14 @@ export function HomeStatistiques() {
                 lead={<>Qui sont les député·es, comment votent les groupes, qui vote avec qui : {total} thèmes expliqués en graphiques.</>}
             />
             <div className="home-grid">
-                {themes.map((t, i) => (
+                {themes.map((t) => (
                     <HomeTile
                         key={t.slug}
                         href={`/statistics/chiffres-cles/${t.slug}`}
                         icon={t.icon}
                         title={t.title}
                         text={t.teaser}
-                        color={`var(--chart-${(i % 8) + 1})`}
+                        type={t.color}
                     />
                 ))}
             </div>

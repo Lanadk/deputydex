@@ -4,49 +4,37 @@ import React from "react";
 import Link from "next/link";
 import { BaseLayout } from "@/app/(ui)/component-library/template/base-layout/base-layout-lib";
 import { PageHeaderLib } from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib";
-import { SpanLib } from "@/app/(ui)/component-library/atoms/span/span-lib";
-import { BadgeLib } from "@/app/(ui)/component-library/atoms/badge/badge-lib";
-import { KEY_FIGURE_CATEGORIES, KEY_FIGURE_THEMES, KeyFigureTheme } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes.registry";
+import { BentoGridLib } from "@/app/(ui)/component-library/molecules/bento/bento-lib";
+import { typeStatCouleur, typeStatEncre } from "@/app/(ui)/_shared/adapter/stat-type.adapter";
+import { KEY_FIGURE_CATEGORIES, themesDeCategorie } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes.registry";
+import {
+    dispositionThemes,
+    KeyFigureThemesAVenir,
+    KeyFigureThemeTile,
+    libelleNombreThemes,
+} from "@/app/(ui)/components/statistics/key-figure-tiles";
 
 /**
- * Un thème sans section (voir `themes.registry.ts`) n'a rien à montrer —
- * `theme-page-client.tsx` n'affiche qu'un message "pas encore disponible"
- * derrière. Plutôt que de laisser une tuile identique aux autres (border,
- * hover, mêmes couleurs) pour finalement mener à une page vide, on la grise
- * ET on retire sa navigation — même convention que les autres éléments
- * "pas encore dispo" de l'app (`opacity-40` + `cursor-not-allowed`, voir
- * `stat-picker.tsx`/`legislature-selector.tsx`), pas un style ad hoc.
+ * Catégories dont la grande tuile 2 × 2 passe à droite : une sur deux parmi
+ * celles qui en ont une (les autres dispositions ne comptent pas), pour que
+ * deux sections de suite ne se ressemblent pas.
  */
-function ThemeTile({ theme }: { theme: KeyFigureTheme }) {
-    const available = theme.sections.length > 0;
-
-    const card = (
-        <div
-            className={`flex h-full flex-col gap-3 rounded-xl border border-main bg-surface-1 p-5 transition-[transform,box-shadow] duration-200 ${
-                available
-                    ? "hover:-translate-y-0.5 hover:bg-surface-2 hover:shadow-md active:translate-y-0 active:scale-[0.97]"
-                    : "cursor-not-allowed opacity-40"
-            }`}
-        >
-            <div className="flex items-start justify-between gap-3">
-                <theme.icon className="h-6 w-6" style={{ color: "var(--accent)" }} />
-                {!available && <BadgeLib text="Bientôt disponible" variant="tertiary" />}
-            </div>
-            <div>
-                <h3 className="text-base font-semibold">{theme.title}</h3>
-                <SpanLib className="mt-1 block text-sm leading-relaxed text-subtitle-accent">
-                    {theme.teaser}
-                </SpanLib>
-            </div>
-        </div>
-    );
-
-    if (!available) return card;
-
-    return <Link href={`/statistics/chiffres-cles/${theme.slug}`}>{card}</Link>;
+export function categoriesGrandeADroite(nombreDeThemes: { id: string; disponibles: number }[]): Set<string> {
+    const avecGrande = nombreDeThemes.filter((c) => dispositionThemes(c.disponibles).some((t) => t.rowSpan === 2));
+    return new Set(avecGrande.filter((_, i) => i % 2 === 1).map((c) => c.id));
 }
 
+/**
+ * Une section par catégorie : ses thèmes en grille bento, chacun à sa couleur,
+ * avec une disposition propre à son nombre de thèmes (`dispositionThemes`). Les
+ * thèmes sans page (voir `themes.registry.ts`) ne sont pas des tuiles menant à
+ * une page vide : une ligne « Bientôt » les liste, sans lien.
+ */
 export default function ChiffresClesPageClient() {
+    const grandeADroite = categoriesGrandeADroite(
+        KEY_FIGURE_CATEGORIES.map(({ id }) => ({ id, disponibles: themesDeCategorie(id).disponibles.length }))
+    );
+
     return (
         <BaseLayout>
             <div className="mb-8 border-b border-main pb-6">
@@ -61,19 +49,45 @@ export default function ChiffresClesPageClient() {
                 />
             </div>
 
-            <div className="flex flex-col gap-10">
-                {KEY_FIGURE_CATEGORIES.map((category) => {
-                    const themes = KEY_FIGURE_THEMES.filter((theme) => theme.category === category.id);
-                    if (themes.length === 0) return null;
+            <div className="flex flex-col gap-12">
+                {KEY_FIGURE_CATEGORIES.map((categorie) => {
+                    const { disponibles, aVenir } = themesDeCategorie(categorie.id);
+                    if (disponibles.length === 0 && aVenir.length === 0) return null;
+                    const Icon = categorie.icon;
+                    const titreId = `categorie-${categorie.id}-titre`;
 
                     return (
-                        <section key={category.id}>
-                            <h2 className="mb-4 text-lg font-semibold">{category.label}</h2>
-                            <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-                                {themes.map((theme) => (
-                                    <ThemeTile key={theme.slug} theme={theme} />
-                                ))}
-                            </div>
+                        <section
+                            key={categorie.id}
+                            id={`categorie-${categorie.id}`}
+                            className="stat-categorie"
+                            style={{
+                                "--stat-categorie-color": typeStatCouleur(categorie.color),
+                                "--stat-categorie-ink": typeStatEncre(categorie.color),
+                            } as React.CSSProperties}
+                            aria-labelledby={titreId}
+                        >
+                            <header className="stat-categorie__header">
+                                <span className="stat-categorie__icone" aria-hidden="true"><Icon size={20} /></span>
+                                <h2 id={titreId} className="stat-categorie__titre">{categorie.label}</h2>
+                                <span className="stat-categorie__compte">{libelleNombreThemes(disponibles.length)}</span>
+                            </header>
+
+                            {disponibles.length > 0 && (
+                                <BentoGridLib columns={4} rowMinHeight={170}>
+                                    {dispositionThemes(disponibles.length).map((taille, i) => (
+                                        <KeyFigureThemeTile
+                                            key={disponibles[i].slug}
+                                            theme={disponibles[i]}
+                                            taille={taille}
+                                            aDroite={grandeADroite.has(categorie.id)}
+                                            index={i}
+                                        />
+                                    ))}
+                                </BentoGridLib>
+                            )}
+
+                            <KeyFigureThemesAVenir themes={aVenir} />
                         </section>
                     );
                 })}

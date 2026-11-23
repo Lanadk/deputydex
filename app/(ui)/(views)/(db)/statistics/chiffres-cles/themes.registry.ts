@@ -1,5 +1,6 @@
 import { LucideIcon, Venus, CalendarDays, Vote, Handshake, Users, Briefcase, FileText, History, Map, RefreshCw, Megaphone, Gauge, PieChart, UsersRound, Network } from "lucide-react";
 import { PageSection } from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
+import { TypeStat } from "@/app/(ui)/_shared/adapter/stat-type.adapter";
 import { FEMMES_ASSEMBLEE_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/femmes-assemblee.sections";
 import { FEMINISATION_GROUPES_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/feminisation-groupes.sections";
 import { AGE_DES_DEPUTES_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/age-des-deputes.sections";
@@ -21,11 +22,27 @@ import { PROXIMITE_ENTRE_GROUPES_SECTIONS } from "@/app/(ui)/(views)/(db)/statis
  * L'ordre de ce tableau fixe l'ordre d'affichage des sections dans le hub.
  */
 export const KEY_FIGURE_CATEGORIES = [
-    { id: "humain", label: "Qui sont les député·es ?" },
-    { id: "groupes", label: "Les groupes parlementaires" },
-    { id: "votes", label: "Comment vote l'Assemblée ?" },
-    { id: "activite", label: "Activité législative" },
-] as const;
+    { id: "humain", label: "Qui sont les député·es ?", icon: Users, color: "bleu" },
+    { id: "groupes", label: "Les groupes parlementaires", icon: UsersRound, color: "rouge" },
+    { id: "votes", label: "Comment vote l'Assemblée ?", icon: Vote, color: "bleu" },
+    { id: "activite", label: "Activité législative", icon: FileText, color: "blanc" },
+] as const satisfies readonly { id: string; label: string; icon: LucideIcon; color: TypeStat }[];
+
+export type KeyFigureCategory = (typeof KEY_FIGURE_CATEGORIES)[number];
+
+/** Thèmes qui ont une page (au moins une section), dans l'ordre du registre. */
+export function themesDisponibles(themes: KeyFigureTheme[] = KEY_FIGURE_THEMES): KeyFigureTheme[] {
+    return themes.filter((theme) => theme.sections.length > 0);
+}
+
+/** Thèmes d'une catégorie, séparés entre ceux qui ont une page et ceux à venir. */
+export function themesDeCategorie(categorie: KeyFigureCategoryId, themes: KeyFigureTheme[] = KEY_FIGURE_THEMES) {
+    const ceux = themes.filter((theme) => theme.category === categorie);
+    return {
+        disponibles: ceux.filter((theme) => theme.sections.length > 0),
+        aVenir: ceux.filter((theme) => theme.sections.length === 0),
+    };
+}
 
 export type KeyFigureCategoryId = (typeof KEY_FIGURE_CATEGORIES)[number]["id"];
 
@@ -36,6 +53,13 @@ export interface KeyFigureTheme {
     /** Teaser affiché sur la tuile du hub (chiffres-cles/page.tsx) */
     teaser: string;
     icon: LucideIcon;
+    /**
+     * Couleur du thème, un des trois « types » de la palette P1 (blanc / rouge / bleu,
+     * voir `stat-type.adapter.ts`), la même partout : tuiles des Chiffres clés,
+     * du hub Statistiques et de l'accueil. Deux thèmes voisins d'une même
+     * catégorie n'ont pas la même.
+     */
+    color: TypeStat;
     /** Section du hub dans laquelle la tuile est regroupée — voir `KEY_FIGURE_CATEGORIES`. */
     category: KeyFigureCategoryId;
     /**
@@ -60,6 +84,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
     // ── Qui sont les député·es ? ──────────────────────────────────────────
     {
         slug: "femmes-assemblee",
+        color: "bleu",
         title: "Les femmes à l'Assemblée nationale",
         teaser: "Répartition actuelle et évolution de la part de femmes élues, législature après législature.",
         icon: Venus,
@@ -68,6 +93,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
     },
     {
         slug: "age-des-deputes",
+        color: "rouge",
         title: "L'âge des député·es",
         teaser: "Les plus jeunes, les plus expérimenté·es, et la moyenne d'âge par groupe politique.",
         icon: CalendarDays,
@@ -76,6 +102,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
     },
     {
         slug: "cumul-mandats",
+        color: "blanc",
         title: "Le cumul des mandats",
         // Volet "qui cumule le plus de mandats" (individuel) pas encore
         // traité — pas de vue source côté deputydex-data ; teaser recentré
@@ -87,6 +114,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
     },
     {
         slug: "feminisation-groupes",
+        color: "bleu",
         title: "La féminisation des groupes politiques",
         teaser: "Classement des groupes parlementaires par part de femmes parmi leurs membres.",
         icon: Users,
@@ -95,6 +123,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
     },
     {
         slug: "categories-socio-pro",
+        color: "rouge",
         title: "Les catégories socio-professionnelles",
         teaser: "De quels horizons professionnels viennent les député·es ?",
         icon: Briefcase,
@@ -103,6 +132,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
     },
     {
         slug: "origines-geographiques",
+        color: "blanc",
         title: "Les origines géographiques des député·es",
         teaser: "D'où sont élu·es les député·es de chaque groupe, et où sont-ils/elles né·es.",
         icon: Map,
@@ -113,6 +143,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
     // ── Les groupes parlementaires ────────────────────────────────────────
     {
         slug: "effectifs-groupes",
+        color: "rouge",
         title: "La taille des groupes parlementaires",
         // Le volet "turnover" (député·es passé·es par un groupe) dépend de
         // agg_groupes_stats_stabilite, encore "PAS ENCORE VALIDE" côté
@@ -126,6 +157,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
     },
     {
         slug: "stabilite-groupes",
+        color: "bleu",
         title: "La stabilité des groupes",
         teaser: "Entrées, sorties, taux de rotation — certains groupes sont plus stables que d'autres.",
         icon: RefreshCw,
@@ -136,6 +168,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
     // ── Comment vote l'Assemblée ? ────────────────────────────────────────
     {
         slug: "cohesion-groupes",
+        color: "bleu",
         title: "La cohésion des groupes",
         teaser: "À quel point les membres d'un même groupe votent-ils ensemble ?",
         icon: Vote,
@@ -144,6 +177,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
     },
     {
         slug: "proximite-entre-groupes",
+        color: "rouge",
         title: "Qui vote avec qui ?",
         teaser: "Quels groupes votent le plus souvent dans le même sens — et lesquels s'opposent le plus.",
         icon: Network,
@@ -152,6 +186,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
     },
     {
         slug: "proximite-groupe",
+        color: "blanc",
         title: "La proximité des député·es à leur groupe",
         teaser: "Dans quelle mesure chaque député suit-il la ligne de son groupe ?",
         icon: Handshake,
@@ -160,6 +195,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
     },
     {
         slug: "assiduite-fidelite",
+        color: "bleu",
         title: "Assiduité et fidélité des député·es",
         teaser: "Qui vote le plus souvent, qui reste le plus fidèle à son groupe — et qui s'en écarte le plus.",
         icon: Gauge,
@@ -168,6 +204,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
     },
     {
         slug: "participation-presence",
+        color: "blanc",
         title: "Participation & présence",
         teaser: "Qui vote, qui s'abstient, qui est absent — et comment ça évolue.",
         icon: Vote,
@@ -176,6 +213,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
     },
     {
         slug: "positions-de-vote",
+        color: "bleu",
         title: "Comment votent les groupes",
         teaser: "La répartition pour / contre / abstention de chaque groupe sur l'ensemble des scrutins.",
         icon: PieChart,
@@ -184,6 +222,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
     },
     {
         slug: "expression-votes",
+        color: "rouge",
         title: "L'expression des votes",
         teaser: "Quels groupes s'expriment le plus aux scrutins, et lesquels s'abstiennent le plus souvent.",
         icon: Megaphone,
@@ -194,6 +233,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
     // ── Activité législative ──────────────────────────────────────────────
     {
         slug: "textes-de-loi",
+        color: "blanc",
         title: "Les textes de loi",
         teaser: "Nombre de textes examinés, législature après législature.",
         icon: FileText,
