@@ -22,24 +22,40 @@ export const AnchorNavLib: React.FC<AnchorNavLibProps> = ({
     const { activeId, setActiveId } = useAnchorSection();
 
     useEffect(() => {
-        const observers: IntersectionObserver[] = [];
+        const observed = new Map<string, Element>();
+        const intersection = new IntersectionObserver(
+            (entries) => {
+                for (const entry of entries) {
+                    if (entry.isIntersecting) setActiveId(entry.target.id);
+                }
+            },
+            { rootMargin: "-20% 0px -70% 0px", threshold: 0 }
+        );
 
-        sections.forEach(({ id }) => {
-            const el = document.getElementById(id);
-            if (!el) return;
+        // Les sections peuvent arriver APRÈS le montage de la nav (ex: les
+        // Chiffres clés n'affichent leurs sections qu'une fois la législature
+        // chargée, un spinner avant) ou être remplacées par un re-rendu : on
+        // (ré)attache l'observateur à chaque changement du DOM plutôt qu'une
+        // seule fois, sinon la nav ne suit jamais le défilement.
+        const attach = () => {
+            for (const { id } of sections) {
+                const el = document.getElementById(id);
+                if (!el || observed.get(id) === el) continue;
+                const previous = observed.get(id);
+                if (previous) intersection.unobserve(previous);
+                intersection.observe(el);
+                observed.set(id, el);
+            }
+        };
 
-            const observer = new IntersectionObserver(
-                ([entry]) => {
-                    if (entry.isIntersecting) setActiveId(id);
-                },
-                { rootMargin: "-20% 0px -70% 0px", threshold: 0 }
-            );
+        attach();
+        const mutations = new MutationObserver(attach);
+        mutations.observe(document.body, { childList: true, subtree: true });
 
-            observer.observe(el);
-            observers.push(observer);
-        });
-
-        return () => observers.forEach((o) => o.disconnect());
+        return () => {
+            mutations.disconnect();
+            intersection.disconnect();
+        };
     }, [sections, setActiveId]);
 
     const handleClick = (e: React.MouseEvent<HTMLAnchorElement>, id: string) => {
