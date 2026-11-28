@@ -8,28 +8,27 @@ import { HemicycleGroupe } from "@/app/(ui)/_shared/adapter/hemicycle.adapter";
 
 const GROUPES: HemicycleGroupe[] = [
     {
-        code: "LFI-NFP", shortLabel: "LFI-NFP", label: "La France insoumise", count: 71,
+        code: "LFI-NFP", shortLabel: "LFI-NFP", label: "La France insoumise", count: 71, membres: [],
         presidence: "Présidente du groupe : Mathilde Panot", presidentFullName: "Mathilde Panot",
         presidentRole: "Présidente du groupe",
         president: { deputeUID: "PA1", deputeFullName: "Mathilde Panot", deputeGroupeCode: "LFI-NFP", deputeImage: "/img/PA1.png" },
     },
     {
-        code: "NI-17", shortLabel: "NI", label: "Non inscrits", count: 10,
+        code: "NI-17", shortLabel: "NI", label: "Non inscrits", count: 10, membres: [],
         presidence: null, presidentFullName: null, presidentRole: null, president: null,
     },
 ];
 
-function Harness() {
-    const [selected, setSelected] = useState<string | null>(null);
-    const groupe = GROUPES.find((g) => g.code === selected) ?? null;
+function Harness({ total = 81 }: { total?: number }) {
+    const [selected, setSelected] = useState<string[]>([]);
     return (
         <>
             <HemicycleLegend
                 groupes={GROUPES}
-                selectedCode={selected}
-                onToggleAction={(code) => setSelected((cur) => (cur === code ? null : code))}
+                selectedCodes={selected}
+                onToggleAction={(code) => setSelected((cur) => (cur.includes(code) ? cur.filter((c) => c !== code) : [...cur, code]))}
             />
-            <HemicycleDetail groupe={groupe} total={81} />
+            <HemicycleDetail groupes={GROUPES.filter((g) => selected.includes(g.code))} total={total} onClearAction={() => setSelected([])} />
         </>
     );
 }
@@ -73,6 +72,33 @@ describe("HemicycleLegend + HemicycleDetail", () => {
         await user.tab();
         await user.keyboard(" ");
         expect(screen.getByRole("button", { name: "Non inscrits : 10 sièges" })).toHaveAttribute("aria-pressed", "true");
+    });
+
+    it("coalition : plusieurs groupes cumulent leurs sièges et se comparent à la majorité absolue", async () => {
+        const user = userEvent.setup();
+        render(<Harness total={577} />);
+
+        await user.click(screen.getByRole("button", { name: "La France insoumise : 71 sièges" }));
+        await user.click(screen.getByRole("button", { name: "Non inscrits : 10 sièges" }));
+
+        expect(screen.getByText("81 sièges")).toBeInTheDocument();
+        expect(screen.getByText("Coalition LFI-NFP + NI")).toBeInTheDocument();
+        expect(screen.getByText("14,0 % des 577 sièges pourvus")).toBeInTheDocument();
+        expect(screen.getByText("Majorité absolue : 289 sièges requis, il en manque 208.")).toBeInTheDocument();
+
+        await user.click(screen.getByRole("button", { name: "Effacer la sélection" }));
+        expect(screen.getByText("577 sièges")).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "La France insoumise : 71 sièges" })).toHaveAttribute("aria-pressed", "false");
+    });
+
+    it("coalition majoritaire : sièges en plus de la majorité", async () => {
+        const user = userEvent.setup();
+        render(<Harness total={81} />);
+
+        await user.click(screen.getByRole("button", { name: "La France insoumise : 71 sièges" }));
+        await user.click(screen.getByRole("button", { name: "Non inscrits : 10 sièges" }));
+
+        expect(screen.getByText("Majorité absolue atteinte : 41 sièges requis, 40 de plus.")).toBeInTheDocument();
     });
 
     it("encodes the group code in the /deputydex link", () => {

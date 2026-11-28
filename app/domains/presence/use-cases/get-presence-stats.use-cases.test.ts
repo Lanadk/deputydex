@@ -18,6 +18,7 @@ import {
     getReperesLegislaturesUseCase,
     sortParValeurDecroissante,
 } from "@/app/domains/presence/use-cases/get-presence-stats.use-cases";
+import { getIndicateursDeputesUseCase } from "@/app/domains/presence/use-cases/get-indicateurs-deputes.use-case";
 
 function makeRepository(overrides: Partial<IPresenceStatsRepository> = {}): IPresenceStatsRepository {
     return {
@@ -25,6 +26,7 @@ function makeRepository(overrides: Partial<IPresenceStatsRepository> = {}): IPre
         getDeputeMensuelle: jest.fn().mockResolvedValue([]),
         getDeputeAnnuelle: jest.fn().mockResolvedValue([]),
         getDeputeDebutsMandat: jest.fn().mockResolvedValue([]),
+        getIndicateursDeputes: jest.fn().mockResolvedValue([]),
         getGroupes: jest.fn().mockResolvedValue([]),
         getGroupesMensuelle: jest.fn().mockResolvedValue([]),
         getGroupeMensuelle: jest.fn().mockResolvedValue([]),
@@ -447,6 +449,32 @@ describe("présence de l'Assemblée — toutes législatures", () => {
             success: true,
             data: [{ at: "2023-2024", label: "Début de la 17ᵉ législature" }],
         });
+    });
+});
+
+describe("getIndicateursDeputesUseCase", () => {
+    it("lit les indicateurs de la législature et les expose en camelCase", async () => {
+        const repo = makeRepository({
+            getIndicateursDeputes: jest.fn().mockResolvedValue([{
+                acteur_uid: "PA1", jours_attendus: 120, taux_presence: 57,
+                taux_presence_seance: 50.2, taux_presence_commission: null, taux_participation_scrutins: 19.1,
+            }]),
+        });
+
+        expect(await getIndicateursDeputesUseCase(repo, 17)).toEqual({
+            success: true,
+            data: [{
+                uid: "PA1", joursAttendus: 120, tauxPresence: 57,
+                tauxPresenceSeance: 50.2, tauxPresenceCommission: null, tauxParticipationScrutins: 19.1,
+            }],
+        });
+        expect(repo.getIndicateursDeputes).toHaveBeenCalledWith(17);
+    });
+
+    it("échec du dépôt : DB_ERROR", async () => {
+        const repo = makeRepository({ getIndicateursDeputes: jest.fn().mockRejectedValue(new Error("down")) });
+        const result = await getIndicateursDeputesUseCase(repo, 17);
+        expect(result.success).toBe(false);
     });
 });
 

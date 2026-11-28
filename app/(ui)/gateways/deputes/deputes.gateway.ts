@@ -12,6 +12,7 @@ import { DeputesAgeExtremesDTO } from "@/app/domains/deputes/dto/deputes-age-ext
 import { DeputesTendancesDTO } from "@/app/domains/deputes/dto/deputes-tendances.dto";
 import { DeputeDossierContributionDTO } from "@/app/domains/deputes/dto/depute-dossier-contribution.dto";
 import { DeputeDossierAmendementDTO } from "@/app/domains/deputes/dto/depute-dossier-amendement.dto";
+import { DeputeIndicateursDTO } from "@/app/domains/presence/dto/depute-indicateurs.dto";
 
 export const deputesGateway: IDeputesGateways = {
 
@@ -24,6 +25,12 @@ export const deputesGateway: IDeputesGateways = {
     async getDeputesCards(legislature: number): Promise<DeputesCardDTO[]> {
         const res = await fetch(`/api/deputes/cards/${legislature}`);
         if (!res.ok) throw new Error("Failed to get deputes cards");
+        return res.json();
+    },
+
+    async getDeputesIndicateurs(legislature: number): Promise<DeputeIndicateursDTO[]> {
+        const res = await fetch(`/api/deputes/indicateurs/${legislature}`);
+        if (!res.ok) throw new Error("Failed to get deputes indicateurs");
         return res.json();
     },
 

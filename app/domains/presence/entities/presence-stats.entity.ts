@@ -25,6 +25,19 @@ export interface DeputePresenceLegislatureRow {
     jours_presence_par_mois: number | null;
 }
 
+/**
+ * Indicateurs d'un député sur une législature, pour colorer son siège dans
+ * l'hémicycle (`agg_deputes_presence`). null = pas de valeur (aucun jour attendu…).
+ */
+export interface DeputeIndicateursRow {
+    acteur_uid: string;
+    jours_attendus: number | null;
+    taux_presence: number | null;
+    taux_presence_seance: number | null;
+    taux_presence_commission: number | null;
+    taux_participation_scrutins: number | null;
+}
+
 /** Prise de fonction d'un député dans une législature (début de son « année de mandat 1 »). */
 export interface DeputeDebutMandatRow {
     legislature: number;

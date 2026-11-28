@@ -5,6 +5,7 @@ import {
     AssembleePresenceMoisRow,
     DebutLegislatureRow,
     DeputeDebutMandatRow,
+    DeputeIndicateursRow,
     DeputePresenceLegislatureRow,
     DeputePresenceMoisRow,
     GroupePresenceAnneeRow,
@@ -31,6 +32,8 @@ export interface IPresenceStatsRepository {
     getDeputeAnnuelle(acteurUid: string, type: PresenceTypePeriode, perimetre?: PerimetreLegislature): Promise<PresenceAnneeRow[]>;
     /** Prise de fonction du député, une ligne par législature où il a siégé. */
     getDeputeDebutsMandat(acteurUid: string, legislature?: number): Promise<DeputeDebutMandatRow[]>;
+    /** Indicateurs de tous les députés d'une législature (coloration des sièges de l'hémicycle). */
+    getIndicateursDeputes(legislature: number): Promise<DeputeIndicateursRow[]>;
 
     // Groupes, `perimetre` : un numéro = cette législature ; « toutes » = les groupes de chaque
     // législature, côte à côte (pas de fusion : un groupe n'est pas identifiable d'une législature à l'autre).

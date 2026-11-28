@@ -10,6 +10,7 @@ import {
     AssembleePresenceMoisRow,
     DebutLegislatureRow,
     DeputeDebutMandatRow,
+    DeputeIndicateursRow,
     DeputePresenceLegislatureRow,
     DeputePresenceMoisRow,
     GroupePresenceAnneeRow,
@@ -99,6 +100,16 @@ export const prismaPresenceStatsRepository: IPresenceStatsRepository = {
               AND type_periode = 'mandat'
               AND periode = '1'
               ${legislatureFiltre(Prisma.sql`legislature`, legislature)}
+        `;
+    },
+
+    async getIndicateursDeputes(legislature: number): Promise<DeputeIndicateursRow[]> {
+        return prisma.$queryRaw<DeputeIndicateursRow[]>`
+            SELECT acteur_uid, jours_attendus::int,
+                   taux_presence::float, taux_presence_seance::float, taux_presence_commission::float,
+                   taux_participation_scrutins::float
+            FROM agg_deputes_presence
+            WHERE legislature = ${legislature}
         `;
     },
 

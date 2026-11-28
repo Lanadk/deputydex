@@ -18,10 +18,15 @@ import { HemicycleLegend } from "@/app/(ui)/components/hemicycle/hemicycle-legen
 import { HemicycleDetail } from "@/app/(ui)/components/hemicycle/hemicycle-detail";
 import { SpinnerLib } from "@/app/(ui)/component-library/molecules/spinner/spinner-lib";
 import { SpanLib } from "@/app/(ui)/component-library/atoms/span/span-lib";
+import { COLORATION_GROUPE, HemicycleColorationChoix, HemicycleEchelle } from "@/app/(ui)/components/hemicycle/hemicycle-coloration";
+import { assignerDeputes, habillerSieges, INDICATEURS_HEMICYCLE } from "@/app/(ui)/components/hemicycle/hemicycle-indicateurs";
+import { DeputeIndicateursDTO } from "@/app/domains/presence/dto/depute-indicateurs.dto";
 
 type LoadState =
     | { legislature: number; groupes: HemicycleGroupe[]; perchoir: HemicyclePerchoir | null }
     | { legislature: number; error: true };
+
+type IndicateursCharges = { legislature: number; parUid: Map<string, DeputeIndicateursDTO> };
 
 export default function HemicyclePageClient() {
     const { legislature } = useLegislature();
@@ -29,7 +34,9 @@ export default function HemicyclePageClient() {
     const { notify } = useNotifications();
 
     const [state, setState] = useState<LoadState | null>(null);
-    const [selection, setSelection] = useState<{ legislature: number; code: string } | null>(null);
+    const [selection, setSelection] = useState<{ legislature: number; codes: string[] } | null>(null);
+    const [coloration, setColoration] = useState<string>(COLORATION_GROUPE);
+    const [indicateurs, setIndicateurs] = useState<IndicateursCharges | null>(null);
 
     useEffect(() => {
         if (!legislatureNum) return;
@@ -64,12 +71,38 @@ export default function HemicyclePageClient() {
         };
     }, [legislatureNum, notify]);
 
+    const indicateur = INDICATEURS_HEMICYCLE.find((i) => i.id === coloration) ?? null;
+    const indicateursCourants = indicateurs && indicateurs.legislature === legislatureNum ? indicateurs.parUid : null;
+
+    // Indicateurs par député : chargés au premier choix d'un indicateur, une fois par législature.
+    useEffect(() => {
+        if (!indicateur || !legislatureNum || indicateursCourants) return;
+        let cancelled = false;
+        deputesGateway
+            .getDeputesIndicateurs(legislatureNum)
+            .then((lignes) => {
+                if (!cancelled) setIndicateurs({ legislature: legislatureNum, parUid: new Map(lignes.map((l) => [l.uid, l])) });
+            })
+            .catch((e) => {
+                console.error(e);
+                if (cancelled) return;
+                notify({ message: "Les indicateurs des députés n'ont pas pu être chargés.", variant: "warning" });
+                setColoration(COLORATION_GROUPE);
+            });
+        return () => {
+            cancelled = true;
+        };
+    }, [indicateur, legislatureNum, indicateursCourants, notify]);
+
     // Données / sélection d'une autre législature = encore en chargement / pas de sélection.
     const current = state && state.legislature === legislatureNum ? state : null;
     const groupes = useMemo(() => (current && "groupes" in current ? current.groupes : []), [current]);
     const perchoir = current && "perchoir" in current ? current.perchoir : null;
-    const selectedCode = selection && selection.legislature === legislatureNum ? selection.code : null;
-    const selectedGroupe = groupes.find((g) => g.code === selectedCode) ?? null;
+    const selectedCodes = useMemo(
+        () => (selection && selection.legislature === legislatureNum ? selection.codes : []),
+        [selection, legislatureNum]
+    );
+    const selectedGroupes = groupes.filter((g) => selectedCodes.includes(g.code));
 
     const perchoirGroupe = perchoir?.groupeCode ?? null;
     const seats = useMemo(
@@ -77,9 +110,21 @@ export default function HemicyclePageClient() {
         [groupes, perchoirGroupe]
     );
 
+    const { habillage, echelle } = useMemo(() => {
+        const actif = indicateur && indicateursCourants ? indicateur : null;
+        const valeur = actif && indicateursCourants
+            ? (uid: string) => {
+                const ligne = indicateursCourants.get(uid);
+                return ligne ? actif.lire(ligne) : null;
+            }
+            : undefined;
+        return habillerSieges(assignerDeputes(seats, groupes, perchoir, valeur), groupes, actif, indicateursCourants);
+    }, [seats, groupes, perchoir, indicateur, indicateursCourants]);
+
     const toggle = (code: string) => {
         if (!legislatureNum) return;
-        setSelection(selectedCode === code ? null : { legislature: legislatureNum, code });
+        const codes = selectedCodes.includes(code) ? selectedCodes.filter((c) => c !== code) : [...selectedCodes, code];
+        setSelection(codes.length > 0 ? { legislature: legislatureNum, codes } : null);
     };
 
     return (
@@ -88,8 +133,9 @@ export default function HemicyclePageClient() {
                 {legislatureNum && <span className="page-pill">{legislatureNum}ème législature</span>}
                 <h1>L&apos;hémicycle</h1>
                 <p className="subtitle">
-                    Chaque carte est un siège, regroupé par groupe parlementaire. Choisis un groupe pour le
-                    mettre en relief.
+                    Chaque carte est un siège, regroupé par groupe parlementaire. Choisis un ou plusieurs groupes
+                    pour les mettre en relief et mesurer une coalition, ou colore les sièges selon la présence de
+                    chaque député.
                 </p>
             </header>
 
@@ -103,10 +149,18 @@ export default function HemicyclePageClient() {
                 </div>
             ) : (
                 <>
-                    <HemicyclePlan key={current.legislature} seats={seats} selectedCode={selectedCode} perchoir={perchoir} />
+                    <HemicyclePlan
+                        key={current.legislature}
+                        seats={seats}
+                        selectedCodes={selectedCodes}
+                        habillage={habillage}
+                        perchoir={perchoir}
+                    />
                     <section className="hemicycle-panel">
-                        <HemicycleLegend groupes={groupes} selectedCode={selectedCode} onToggleAction={toggle} />
-                        <HemicycleDetail groupe={selectedGroupe} total={seats.length} />
+                        <HemicycleColorationChoix valeur={coloration} onChangeAction={setColoration} />
+                        {indicateur && <HemicycleEchelle indicateur={indicateur} echelle={echelle} chargement={!indicateursCourants} />}
+                        <HemicycleLegend groupes={groupes} selectedCodes={selectedCodes} onToggleAction={toggle} />
+                        <HemicycleDetail groupes={selectedGroupes} total={seats.length} onClearAction={() => setSelection(null)} />
                     </section>
                 </>
             )}

@@ -6,15 +6,16 @@ import { getCanonicalGroupCode, getGroupCardTheme } from "@/app/(ui)/theme/parli
 
 type HemicycleLegendProps = {
     groupes: HemicycleGroupe[];
-    selectedCode: string | null;
+    selectedCodes: string[];
     onToggleAction: (code: string) => void;
 };
 
 /**
- * Un vrai `<button aria-pressed>` par groupe (Entrée/Espace natifs). Un second
- * clic sur le groupe sélectionné le désélectionne (géré par l'appelant).
+ * Un vrai `<button aria-pressed>` par groupe (Entrée/Espace natifs). Chaque clic
+ * ajoute ou retire le groupe de la sélection (plusieurs groupes = une coalition),
+ * géré par l'appelant.
  */
-export function HemicycleLegend({ groupes, selectedCode, onToggleAction }: HemicycleLegendProps) {
+export function HemicycleLegend({ groupes, selectedCodes, onToggleAction }: HemicycleLegendProps) {
     return (
         <div className="hemicycle-legend" role="group" aria-label="Groupes parlementaires">
             {groupes.map((groupe) => {
@@ -25,7 +26,7 @@ export function HemicycleLegend({ groupes, selectedCode, onToggleAction }: Hemic
                         key={groupe.code}
                         type="button"
                         className="hemicycle-legend__btn"
-                        aria-pressed={selectedCode === groupe.code}
+                        aria-pressed={selectedCodes.includes(groupe.code)}
                         aria-label={`${groupe.label} : ${groupe.count} sièges`}
                         title={groupe.label}
                         style={{ "--group-color": theme.border } as React.CSSProperties}

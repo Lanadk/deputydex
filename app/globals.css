@@ -3510,6 +3510,90 @@
         width: var(--hemi-card-width);
     }
 
+    /* Siège dont le taux repose sur peu de jours attendus : hachures par-dessus sa couleur. */
+    .hemicycle-seat--peu-fiable::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        border-radius: inherit;
+        background: repeating-linear-gradient(45deg, rgb(255 255 255 / .6) 0 2px, transparent 2px 4px);
+    }
+
+    .hemicycle-legend__dot.hemicycle-seat--peu-fiable { position: relative; }
+
+    /* Choix de la couleur des sièges et échelle de l'indicateur : toute la largeur du panneau. */
+    .hemicycle-coloration {
+        flex: 1 1 100%;
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 8px;
+    }
+
+    .hemicycle-coloration__titre {
+        margin-right: 4px;
+        font-size: 13px;
+        font-weight: 600;
+        color: var(--subtitle-accent);
+    }
+
+    .hemicycle-echelle {
+        flex: 1 1 100%;
+        display: flex;
+        flex-direction: column;
+        gap: 8px;
+    }
+
+    .hemicycle-echelle__liste {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 8px 20px;
+    }
+
+    .hemicycle-echelle__item {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        font-size: 13px;
+        font-weight: 600;
+    }
+
+    /* Coalition : barre des sièges, segmentée par groupe, et seuil de majorité absolue. */
+    .hemicycle-coalition {
+        flex: 1 1 auto;
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+        max-width: 460px;
+    }
+
+    .hemicycle-coalition__barre {
+        position: relative;
+        display: flex;
+        height: 12px;
+        margin: 8px 0 4px;
+        border-radius: 999px;
+        background: var(--surface-3);
+    }
+
+    .hemicycle-coalition__part {
+        height: 100%;
+        transition: width .3s;
+    }
+
+    .hemicycle-coalition__part:first-child { border-radius: 999px 0 0 999px; }
+
+    .hemicycle-coalition__seuil {
+        position: absolute;
+        top: -5px;
+        bottom: -5px;
+        width: 2px;
+        margin-left: -1px;
+        background: var(--foreground);
+    }
+
+    .hemicycle-coalition__statut--atteinte { color: var(--p1-green-4); }
+
     /* Tablette : légende et détail l'un sous l'autre (retour à la ligne naturel). */
     @media (max-width: 1023px) {
         .hemicycle-page {

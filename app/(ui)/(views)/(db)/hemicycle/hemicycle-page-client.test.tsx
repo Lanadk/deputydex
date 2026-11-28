@@ -1,12 +1,13 @@
 import React from "react";
 import { render, screen, waitFor } from "@testing-library/react";
+import userEvent from "@testing-library/user-event";
 import "@testing-library/jest-dom";
 
 jest.mock("@/app/(ui)/gateways/legislatures/legislatures.gateway", () => ({
     legislaturesGateway: { getCurrent: jest.fn(), getAll: jest.fn(), getPresidenceAssemblee: jest.fn() },
 }));
 jest.mock("@/app/(ui)/gateways/deputes/deputes.gateway", () => ({
-    deputesGateway: { getDeputesCards: jest.fn() },
+    deputesGateway: { getDeputesCards: jest.fn(), getDeputesIndicateurs: jest.fn() },
 }));
 jest.mock("@/app/(ui)/gateways/groupes/groupes.gateway", () => ({
     groupesGateways: { getGroupesCards: jest.fn() },
@@ -23,6 +24,7 @@ const getCurrent = legislaturesGateway.getCurrent as jest.Mock;
 const getAll = legislaturesGateway.getAll as jest.Mock;
 const getPresidenceAssemblee = legislaturesGateway.getPresidenceAssemblee as jest.Mock;
 const getDeputesCards = deputesGateway.getDeputesCards as jest.Mock;
+const getDeputesIndicateurs = deputesGateway.getDeputesIndicateurs as jest.Mock;
 const getGroupesCards = groupesGateways.getGroupesCards as jest.Mock;
 
 const L17 = { id: 17, number: 17, startDate: "2024-07-18", endDate: null };
@@ -82,5 +84,76 @@ describe("HemicyclePageClient — présidence au perchoir", () => {
         renderPage();
 
         expect(await screen.findByText("Impossible de charger l'hémicycle.")).toBeInTheDocument();
+    });
+});
+
+describe("HemicyclePageClient — coalition et couleur des sièges", () => {
+    const indicateur = (uid: string, tauxPresence: number | null, joursAttendus = 100) => ({
+        uid, joursAttendus, tauxPresence, tauxPresenceSeance: null, tauxPresenceCommission: null, tauxParticipationScrutins: null,
+    });
+
+    beforeEach(() => {
+        jest.clearAllMocks();
+        jest.spyOn(console, "error").mockImplementation(() => {});
+        getCurrent.mockResolvedValue(L17);
+        getAll.mockResolvedValue([L17]);
+        getDeputesCards.mockResolvedValue(DEPUTES);
+        getGroupesCards.mockResolvedValue([]);
+        getPresidenceAssemblee.mockResolvedValue(null);
+    });
+    afterEach(() => jest.restoreAllMocks());
+
+    const titres = (container: HTMLElement) =>
+        Array.from(container.querySelectorAll(".hemicycle-seat")).map((s) => s.getAttribute("title"));
+
+    it("chaque siège nomme son député ; les indicateurs ne sont chargés qu'au choix d'un indicateur", async () => {
+        const { container } = renderPage();
+
+        await waitFor(() => expect(titres(container)).toEqual(["Mathilde Panot · LFI-NFP", "Gabriel Attal · EPR", "Yaël Braun-Pivet · EPR"]));
+        expect(getDeputesIndicateurs).not.toHaveBeenCalled();
+    });
+
+    it("couleur par présence : quartiles, info-bulle avec la valeur, échelle", async () => {
+        getDeputesIndicateurs.mockResolvedValue([indicateur("PA1", 80), indicateur("PA721908", 50, 12), indicateur("PA3", 20)]);
+        const user = userEvent.setup();
+        const { container } = renderPage();
+
+        await user.click(await screen.findByRole("button", { name: "Présence" }));
+
+        expect(getDeputesIndicateurs).toHaveBeenCalledWith(17);
+        expect(await screen.findByRole("list", { name: "Échelle : Taux de présence" })).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "Présence" })).toHaveAttribute("aria-pressed", "true");
+        expect(titres(container)).toContain("Mathilde Panot · LFI-NFP\nTaux de présence : 80,0 % (sur 100 jours attendus)");
+        expect(container.querySelectorAll(".hemicycle-seat.hemicycle-seat--peu-fiable")).toHaveLength(1);
+        expect(screen.getByText("Hachuré : moins de 30 jours attendus")).toBeInTheDocument();
+
+        // Un autre indicateur réutilise les données déjà chargées.
+        await user.click(screen.getByRole("button", { name: "Séance" }));
+        expect(getDeputesIndicateurs).toHaveBeenCalledTimes(1);
+        expect(titres(container)).toContain("Mathilde Panot · LFI-NFP\nPrésence en séance : pas de donnée");
+        expect(screen.getByText("Présence en séance : pas de donnée pour cette législature.")).toBeInTheDocument();
+    });
+
+    it("échec des indicateurs : notification et retour à la couleur des groupes", async () => {
+        getDeputesIndicateurs.mockRejectedValue(new Error("500"));
+        const user = userEvent.setup();
+        renderPage();
+
+        await user.click(await screen.findByRole("button", { name: "Présence" }));
+
+        expect(await screen.findByText("Les indicateurs des députés n'ont pas pu être chargés.")).toBeInTheDocument();
+        expect(screen.getByRole("button", { name: "Groupe" })).toHaveAttribute("aria-pressed", "true");
+    });
+
+    it("coalition de deux groupes : sièges cumulés et majorité absolue", async () => {
+        const user = userEvent.setup();
+        renderPage();
+
+        const [lfi, epr] = await screen.findAllByRole("button", { name: /: \d+ sièges$/ });
+        await user.click(lfi);
+        await user.click(epr);
+
+        expect(screen.getByText("Coalition LFI-NFP + EPR")).toBeInTheDocument();
+        expect(screen.getByText("Majorité absolue atteinte : 2 sièges requis, 1 de plus.")).toBeInTheDocument();
     });
 });
