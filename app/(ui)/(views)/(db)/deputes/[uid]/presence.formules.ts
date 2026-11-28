@@ -47,7 +47,7 @@ export const F_DEPUTE_COMMISSION: FormulaLibProps = {
 };
 
 export const F_DEPUTE_SCRUTINS: FormulaLibProps = {
-    label: "participation aux scrutins",
+    label: "participation aux scrutins (votes personnels)",
     result: "τ^{scrutins}_{d}",
     numerator: "Σ_{j} VP_{d,j}",
     denominator: "Σ_{j} 𝟙[M_{d,j}] · n_{j}",

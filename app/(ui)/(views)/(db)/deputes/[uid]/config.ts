@@ -30,6 +30,7 @@ import {
     F_DEPUTE_TAUX,
     F_DEPUTE_TAUX_MOIS,
 } from "@/app/(ui)/(views)/(db)/deputes/[uid]/presence.formules";
+import { F_DEPUTE_PARTICIPATION_VOTES } from "@/app/(ui)/(views)/(db)/deputes/[uid]/votes.formules";
 
 export const DEPUTE_SECTIONS: PageSection[] = [
     // ── Activité ────────────────────────────────────────────────────────────
@@ -98,7 +99,7 @@ export const DEPUTE_SECTIONS: PageSection[] = [
                 "kpi-presence-taux": { data: { label: "taux de présence", value: pct(valeurs.get("Présence (tous jours attendus)")) } },
                 "kpi-presence-seance": { data: { label: "présence en séance", value: pct(valeurs.get("En séance")) } },
                 "kpi-presence-commission": { data: { label: "présence en commission", value: pct(valeurs.get("En commission")) } },
-                "kpi-presence-scrutins": { data: { label: "participation aux scrutins", value: pct(valeurs.get("Participation aux scrutins")) } },
+                "kpi-presence-scrutins": { data: { label: "participation aux scrutins (votes personnels)", value: pct(valeurs.get("Participation aux scrutins")) } },
                 "chart-presence-comparaison": comparaison([
                     { nom: "Ce député", valeurs },
                     { nom: groupeCode ? `Groupe ${groupeCode}` : "Son groupe", valeurs: valeursGroupe(groupesComposantes, groupesTaux, groupeCode) },
@@ -151,7 +152,7 @@ export const DEPUTE_SECTIONS: PageSection[] = [
             return {
                 "kpi-vote-participation": {
                     data: {
-                        label: "taux de participation",
+                        label: "participation aux votes (délégations comprises)",
                         value: stats.tauxParticipation !== null ? `${stats.tauxParticipation}%` : "—",
                     },
                 },
@@ -167,10 +168,11 @@ export const DEPUTE_SECTIONS: PageSection[] = [
                         value: stats.rebelVotesCount,
                     },
                 },
+                // Ses votes exprimés, rapportés aux scrutins où il pouvait voter (dénominateur du taux).
                 "kpi-vote-total": {
                     data: {
-                        label: "scrutins sur cette législature",
-                        value: stats.totalVotes,
+                        label: `votes exprimés, sur ${stats.scrutinsVotables} scrutins où il pouvait voter`,
+                        value: stats.votesExprimes,
                     },
                 },
                 "kpi-vote-breakdown": {
@@ -211,6 +213,8 @@ export const DEPUTE_SECTIONS: PageSection[] = [
             { type: "card", colSpan: 1, config: card("kpi-vote-participation") },
             { type: "card", colSpan: 1, config: card("kpi-vote-fidelite") },
             { type: "card", colSpan: 1, config: card("kpi-vote-rebel") },
+            // Rangée de 4 KPI : un seul accordéon sur toute la largeur.
+            { type: "formulas", colSpan: 4, formulas: [F_DEPUTE_PARTICIPATION_VOTES] },
             { type: "card", colSpan: 1, config: card("kpi-amendements-deposes") },
             { type: "card", colSpan: 1, config: card("kpi-amendements-adoptes") },
             { type: "card", colSpan: 1, config: card("kpi-amendements-taux") },

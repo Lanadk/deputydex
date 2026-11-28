@@ -73,6 +73,7 @@ const SERVEUR: HomeData = {
         stats: {
             totalVotes: 1, totalPour: 1, totalContre: 0, totalAbstentions: 0, totalNonVotants: 0,
             rebelVotesCount: 0, tauxFidelite: 100, tauxParticipation: 100,
+            scrutinsVotables: 1, votesExprimes: 1, votesParDelegation: 0,
         },
         activite: [],
     },

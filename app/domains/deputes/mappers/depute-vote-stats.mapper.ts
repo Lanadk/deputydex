@@ -10,6 +10,10 @@ export function mapDeputeVoteStatsEntityToDTO(entity: DeputeVoteStatsEntity): De
         totalNonVotants: Number(entity.total_non_votants),
         rebelVotesCount: Number(entity.total_rebel),
         tauxFidelite: entity.taux_fidelite !== null ? Math.round(Number(entity.taux_fidelite)) : null,
-        tauxParticipation: entity.taux_participation !== null ? Math.round(Number(entity.taux_participation)) : null,
+        // Une décimale : la participation est souvent faible (des centaines de scrutins par jour).
+        tauxParticipation: entity.taux_participation !== null ? Math.round(Number(entity.taux_participation) * 10) / 10 : null,
+        scrutinsVotables: Number(entity.scrutins_mandat) - Number(entity.non_votants_statutaires),
+        votesExprimes: Number(entity.votes_exprimes),
+        votesParDelegation: Number(entity.votes_par_delegation),
     };
 }

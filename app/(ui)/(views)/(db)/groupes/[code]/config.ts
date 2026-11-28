@@ -338,7 +338,9 @@ export const GROUPES_SECTIONS: PageSection[] = [
                 },
                 'kpi-groupe-average-scruttin-presence-legislature': {
                     data: {
-                        label: 'présence moyenne',
+                        // Participation aux scrutins éligibles (agg_groupes_stats_participation_legislature),
+                        // pas la présence : celle-ci a sa propre section.
+                        label: 'participation aux votes',
                         value: cohesion.tauxParticipationLegislature != null ? `${cohesion.tauxParticipationLegislature}%` : '-',
                     }
                 },
