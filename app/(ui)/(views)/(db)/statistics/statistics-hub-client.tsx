@@ -55,8 +55,8 @@ export default function StatisticsHubClient() {
                     <ArrowUpRight className="stat-tile__fleche" size={22} aria-hidden="true"/>
                     <span className="stat-tile__titre">Chiffres clés</span>
                     <span className="stat-tile__texte">
-                        Les grands chiffres de l&apos;Assemblée nationale expliqués simplement : qui sont
-                        les député·es, comment votent-ils, comment ça évolue. Un thème à la fois, avec du contexte.
+                        Les grands chiffres de l&apos;Assemblée nationale expliqués simplement : profil
+                        des député·es, votes des groupes et évolutions. Un thème à la fois, avec du contexte.
                     </span>
                     <span className="stat-tile__bas">
                         <span className="stat-tile__nombre">{themes.length}</span>

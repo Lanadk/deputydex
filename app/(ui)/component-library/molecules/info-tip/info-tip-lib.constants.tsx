@@ -7,7 +7,7 @@ const CODE_ICONE = `<p>
   Questure <InfoTipLib subject="Questure">Les questeurs gèrent le budget de l'Assemblée.</InfoTipLib>
 </p>`;
 
-const CODE_LABEL = `<InfoTipLib label="Qu'est-ce qu'un ministre délégué ?" subject="Ministre délégué">
+const CODE_LABEL = `<InfoTipLib label="Définition : ministre délégué" subject="Ministre délégué">
   Membre du Gouvernement chargé d'une partie des attributions d'un ministre.
 </InfoTipLib>`;
 
@@ -30,7 +30,7 @@ export const getInfoTipSections = () => [
         title: "Avec un texte avant l'icône (label)",
         code: CODE_LABEL,
         component: (
-            <InfoTipLib label="Qu'est-ce qu'un ministre délégué ?" subject="Ministre délégué">
+            <InfoTipLib label="Définition : ministre délégué" subject="Ministre délégué">
                 Membre du Gouvernement chargé d&apos;une partie des attributions d&apos;un ministre.
             </InfoTipLib>
         ),

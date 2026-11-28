@@ -54,7 +54,7 @@ const ECRANS: Ecran[] = [
         titre: "Groupes",
         href: "/groupes",
         accroche: "Comprendre les groupes politiques",
-        texte: "Qui siège avec qui : le poids de chaque groupe dans l'hémicycle, sa présidence, ses membres, et sa façon de voter — cohésion, participation, proximité avec les autres groupes.",
+        texte: "Le poids de chaque groupe dans l'hémicycle, sa présidence, ses membres, et sa façon de voter — cohésion, participation, proximité avec les autres groupes.",
         lien: "Découvrir les groupes",
     },
     {
@@ -62,7 +62,7 @@ const ECRANS: Ecran[] = [
         titre: "Statistiques",
         href: "/statistics",
         accroche: "Analyser l'Assemblée en graphiques",
-        texte: "Participation et présence aux scrutins, cohésion des groupes, qui vote avec qui, parité, âge, métiers d'origine : des graphiques expliqués simplement.",
+        texte: "Participation et présence aux scrutins, cohésion des groupes, proximités de vote, parité, âge, métiers d'origine : des graphiques expliqués simplement.",
         lien: "Voir les statistiques",
     },
     {

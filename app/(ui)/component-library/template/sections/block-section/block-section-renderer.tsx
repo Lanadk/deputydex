@@ -76,7 +76,7 @@ export type ParagraphSource =
 /**
  * Commun à tous les blocs : formules de calcul affichées SOUS le bloc, dans
  * sa cellule de grille, chacune dans un panneau d'accordéon fermé
- * (« Comment c'est calculé — <label> »).
+ * (« Calcul : <label> »).
  */
 export type BlockFormulas = { formulas?: FormulaLibProps[] };
 
@@ -250,7 +250,7 @@ export const BlockSectionRenderer: React.FC<BlockSectionRendererProps> = ({
                 <AccordionLib
                     items={formulas.map(({ label, ...formula }, i) => ({
                         id: String(i),
-                        title: label ? `Comment c'est calculé — ${label}` : "Comment c'est calculé",
+                        title: label ? `Calcul : ${label}` : "Méthode de calcul",
                         content: <FormulaLib {...formula} framed={false} />,
                     }))}
                 />

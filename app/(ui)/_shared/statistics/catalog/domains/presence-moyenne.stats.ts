@@ -36,7 +36,7 @@ function annee(domain: StatDomain, type: TypeAnnee, mesure: "taux" | "jours"): S
         keywords: ["présence", "moyenne", "année", type, mesure === "taux" ? "taux" : "jours", "députés"],
         description: mesure === "taux"
             ? `La part des jours attendus où les député·es ont été présent·es, ${libelle} par ${libelle}.`
-            : `Combien de jours par mois un·e député·e est présent·e en moyenne, ${libelle} par ${libelle} — toutes sources confondues.`,
+            : `Jours de présence par mois d'un·e député·e, en moyenne, ${libelle} par ${libelle} — toutes sources confondues.`,
         methodology: MOYENNE_METHODOLOGIE + MOYENNE_ANNEES + (mesure === "jours"
             ? " Valeur = jours de présence (attendus ou non, un jour compté une fois) ÷ mois-députés actifs (mois avec une séance ou un jour attendu) : une année entamée reste comparable à une année complète."
             : ""),
@@ -78,7 +78,7 @@ export function presenceMoyenneStats(domain: StatDomain): StatDefinition[] {
             title: "Jours de présence moyens, mois par mois",
             category: "Présence",
             keywords: ["présence", "moyenne", "jours", "volume", "mensuel", "députés"],
-            description: "Combien de jours, chaque mois, un·e député·e est présent·e en moyenne — toutes sources confondues : vote, prise de parole, commission.",
+            description: "Jours de présence d'un·e député·e, en moyenne, mois par mois — toutes sources confondues : vote, prise de parole, commission.",
             methodology: MOYENNE_METHODOLOGIE + " Jours de présence (attendus ou non, un jour compté une fois) ÷ députés actifs du mois.",
             dataShape: "timeseries",
             unit: "jours",
@@ -98,7 +98,7 @@ export function presenceMoyenneStats(domain: StatDomain): StatDefinition[] {
             title: "Nombre de député·es présent·es, jour par jour",
             category: "Présence",
             keywords: ["présence", "nombre", "jour", "quotidien", "députés"],
-            description: "Combien de député·es ont été vu·es présent·es (vote, prise de parole, commission), chaque jour de séance avec au moins un scrutin public.",
+            description: "Nombre de député·es vu·es présent·es (vote, prise de parole, commission), chaque jour de séance avec au moins un scrutin public.",
             methodology: MOYENNE_METHODOLOGIE + " Tous les députés présents ce jour-là, attendus ou non, comptés une fois.",
             dataShape: "timeseries",
             unit: "députés",

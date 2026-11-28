@@ -153,7 +153,7 @@ export const PRESENCE_DEPUTES_SECTIONS: PageSection[] = [
     },
     {
         id: "presence-groupes",
-        label: "Groupe par groupe",
+        label: "Présence par groupe",
         icon: Users2,
         description:
             "Chaque jour compte pour le groupe du député CE JOUR-LÀ (un changement de groupe en cours de " +
@@ -237,7 +237,7 @@ export const PRESENCE_DEPUTES_SECTIONS: PageSection[] = [
     },
     {
         id: "presence-annees",
-        label: "Année après année",
+        label: "Présence par année",
         icon: CalendarRange,
         description:
             "Année parlementaire : 1er octobre → 30 septembre, comme les sessions (juillet–septembre 2024, début de " +

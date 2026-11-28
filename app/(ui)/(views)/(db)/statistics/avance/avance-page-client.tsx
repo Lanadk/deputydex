@@ -124,7 +124,7 @@ function StatisticsAdvancedHub() {
                         confine l'écart de hauteur à SA propre paire : les deux cartes
                         démarrent alignées en haut, mais `items-start` (au lieu du
                         `stretch` par défaut de CSS Grid) laisse chacune sa propre hauteur
-                        — ouvrir "Comment c'est calculé ?" ou un insight plus long d'un
+                        — ouvrir « Méthode de calcul » ou un insight plus long d'un
                         côté n'étire jamais la carte d'en face.
                     */}
                     {selectedDefinitions.map((definition) => (

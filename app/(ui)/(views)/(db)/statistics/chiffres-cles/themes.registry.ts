@@ -24,9 +24,9 @@ import { PRESENCE_DEPUTES_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/ch
  * L'ordre de ce tableau fixe l'ordre d'affichage des sections dans le hub.
  */
 export const KEY_FIGURE_CATEGORIES = [
-    { id: "humain", label: "Qui sont les député·es ?", icon: Users, color: "bleu" },
+    { id: "humain", label: "Profil des député·es", icon: Users, color: "bleu" },
     { id: "groupes", label: "Les groupes parlementaires", icon: UsersRound, color: "rouge" },
-    { id: "votes", label: "Comment vote l'Assemblée ?", icon: Vote, color: "bleu" },
+    { id: "votes", label: "Votes de l'Assemblée", icon: Vote, color: "bleu" },
     { id: "activite", label: "Activité législative", icon: FileText, color: "blanc" },
 ] as const satisfies readonly { id: string; label: string; icon: LucideIcon; color: TypeStat }[];
 
@@ -94,7 +94,7 @@ export interface KeyFigureNotice {
  * dynamique `[theme]/`.
  */
 export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
-    // ── Qui sont les député·es ? ──────────────────────────────────────────
+    // ── Profil des député·es ──────────────────────────────────────────────
     {
         slug: "femmes-assemblee",
         color: "bleu",
@@ -120,7 +120,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
         // Volet "qui cumule le plus de mandats" (individuel) pas encore
         // traité — pas de vue source côté deputydex-data ; teaser recentré
         // sur l'ancienneté par groupe (voir cumul-mandats.sections.ts).
-        teaser: "Depuis combien d'années les membres de chaque groupe siègent-ils, en moyenne, à l'Assemblée ?",
+        teaser: "Ancienneté moyenne à l'Assemblée des membres de chaque groupe.",
         icon: History,
         category: "humain",
         sections: CUMUL_MANDATS_SECTIONS,
@@ -138,7 +138,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
         slug: "categories-socio-pro",
         color: "rouge",
         title: "Les catégories socio-professionnelles",
-        teaser: "De quels horizons professionnels viennent les député·es ?",
+        teaser: "Origines professionnelles des député·es avant leur mandat.",
         icon: Briefcase,
         category: "humain",
         sections: CATEGORIES_SOCIO_PRO_SECTIONS,
@@ -147,7 +147,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
         slug: "origines-geographiques",
         color: "blanc",
         title: "Les origines géographiques des député·es",
-        teaser: "D'où sont élu·es les député·es de chaque groupe, et où sont-ils/elles né·es.",
+        teaser: "Lieux d'élection et de naissance des député·es de chaque groupe.",
         icon: Map,
         category: "humain",
         sections: [],
@@ -163,7 +163,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
         // deputydex-data — teaser recentré sur l'effectif actuel, seule
         // donnée fiable disponible pour l'instant (voir
         // effectifs-groupes.sections.ts).
-        teaser: "Quel est le plus grand groupe, et quel est le plus petit, à l'Assemblée aujourd'hui.",
+        teaser: "Effectif actuel de chaque groupe, du plus grand au plus petit.",
         icon: UsersRound,
         category: "groupes",
         sections: EFFECTIFS_GROUPES_SECTIONS,
@@ -178,12 +178,12 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
         sections: [],
     },
 
-    // ── Comment vote l'Assemblée ? ────────────────────────────────────────
+    // ── Votes de l'Assemblée ──────────────────────────────────────────────
     {
         slug: "cohesion-groupes",
         color: "bleu",
         title: "La cohésion des groupes",
-        teaser: "À quel point les membres d'un même groupe votent-ils ensemble ?",
+        teaser: "Part des scrutins où les membres d'un même groupe votent dans le même sens.",
         icon: Vote,
         category: "votes",
         sections: COHESION_GROUPES_SECTIONS,
@@ -191,8 +191,8 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
     {
         slug: "proximite-entre-groupes",
         color: "rouge",
-        title: "Qui vote avec qui ?",
-        teaser: "Quels groupes votent le plus souvent dans le même sens — et lesquels s'opposent le plus.",
+        title: "La proximité de vote entre groupes",
+        teaser: "Les groupes qui votent le plus souvent dans le même sens, et ceux qui s'opposent le plus.",
         icon: Network,
         category: "votes",
         sections: PROXIMITE_ENTRE_GROUPES_SECTIONS,
@@ -201,7 +201,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
         slug: "proximite-groupe",
         color: "blanc",
         title: "La proximité des député·es à leur groupe",
-        teaser: "Dans quelle mesure chaque député suit-il la ligne de son groupe ?",
+        teaser: "Alignement de chaque député sur la ligne de son groupe.",
         icon: Handshake,
         category: "votes",
         sections: [],
@@ -210,7 +210,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
         slug: "assiduite-fidelite",
         color: "bleu",
         title: "Assiduité et fidélité des député·es",
-        teaser: "Qui vote le plus souvent, qui reste le plus fidèle à son groupe — et qui s'en écarte le plus.",
+        teaser: "Assiduité aux scrutins et fidélité au groupe, député par député.",
         icon: Gauge,
         category: "votes",
         sections: [],
@@ -219,7 +219,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
         slug: "participation-presence",
         color: "blanc",
         title: "Participation & présence",
-        teaser: "Qui vote, qui est présent en séance et en commission, quels jours de la semaine — et comment ça évolue d'année en année.",
+        teaser: "Participation aux scrutins, présence en séance et en commission, rythme de la semaine et évolution d'une année à l'autre.",
         icon: Vote,
         category: "votes",
         // Volet participation aux scrutins, puis volet présence (séance,
@@ -238,7 +238,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
                     "n'apparaît nulle part, et le travail en circonscription, les auditions, les missions ou les " +
                     "rendez-vous ministériels ne laissent aucune trace. Les séances sans aucun scrutin public ne sont " +
                     "pas comptées comme attendues, faute de pouvoir y voir qui était là.",
-                    "Les formules exactes sont sous chaque graphique (« Comment c'est calculé »). Elles permettent de " +
+                    "La formule exacte figure sous chaque graphique. Ces chiffres permettent de " +
                     "comparer des député·es, des groupes ou des périodes entre eux, pas de juger l'assiduité d'une personne.",
                 ],
             },
@@ -247,7 +247,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
     {
         slug: "positions-de-vote",
         color: "bleu",
-        title: "Comment votent les groupes",
+        title: "Les positions de vote des groupes",
         teaser: "La répartition pour / contre / abstention de chaque groupe sur l'ensemble des scrutins.",
         icon: PieChart,
         category: "votes",
@@ -257,7 +257,7 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
         slug: "expression-votes",
         color: "rouge",
         title: "L'expression des votes",
-        teaser: "Quels groupes s'expriment le plus aux scrutins, et lesquels s'abstiennent le plus souvent.",
+        teaser: "Part des votes exprimés et des abstentions aux scrutins, groupe par groupe.",
         icon: Megaphone,
         category: "votes",
         sections: EXPRESSION_VOTES_SECTIONS,

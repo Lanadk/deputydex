@@ -96,7 +96,7 @@ export const GROUPES_SECTIONS: PageSection[] = [
         id: 'groupe-composition',
         label: 'Composition du groupe',
         icon: Users,
-        description: "Qui sont ses membres ?",
+        description: "Membres du groupe : effectif, parité, âge et professions",
         cols: 4,
         lazy: false,
         gatewayFn: async ({code, legislature}: Record<string, unknown>) => {
@@ -224,7 +224,7 @@ export const GROUPES_SECTIONS: PageSection[] = [
     {
         id: 'votes-cohesion',
         label: 'Votes & Cohésion',
-        description: 'Comment le groupe vote-t-il ?',
+        description: 'Positions de vote du groupe et cohésion de ses membres',
         icon: Vote,
         cols: 4,
         lazy: false,
@@ -289,7 +289,7 @@ export const GROUPES_SECTIONS: PageSection[] = [
     {
         id: 'comportement-politique',
         label: 'Comportement politique',
-        description: 'Comment le groupe vote-t-il ?',
+        description: 'Participation, proximité avec les autres groupes et évolution des votes',
         icon: Vote,
         cols: 4,
         lazy: false,

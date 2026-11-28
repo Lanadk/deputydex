@@ -90,7 +90,7 @@ function buildParticipationRecit(data: BlockDataWrapper | undefined): ParagraphI
 export const PARTICIPATION_PRESENCE_SECTIONS: PageSection[] = [
     {
         id: "participation-presence-classement",
-        label: "Qui participe le plus aux scrutins — et qui est le plus absent",
+        label: "Classement des groupes par participation",
         icon: Vote,
         description: "Être éligible à voter ne veut pas dire voter : certains groupes transforment beaucoup plus souvent cette éligibilité en position exprimée que d'autres — et à l'inverse, sont absents (non-votants) beaucoup moins souvent.",
         cols: 4,
@@ -153,7 +153,7 @@ export const PARTICIPATION_PRESENCE_SECTIONS: PageSection[] = [
     },
     {
         id: "participation-presence-evolution",
-        label: "Comment ça évolue, tous groupes confondus",
+        label: "Évolution de la participation, tous groupes confondus",
         icon: TrendingUp,
         description: "Le taux de participation aux scrutins n'est pas figé — il varie au fil des mois, et d'une " +
             "législature à l'autre. Vue d'ensemble ici : pour chaque scrutin, part de député·es " +
@@ -177,7 +177,7 @@ export const PARTICIPATION_PRESENCE_SECTIONS: PageSection[] = [
     },
     {
         id: "participation-presence-evolution-groupe",
-        label: "Comment ça évolue, groupe par groupe",
+        label: "Évolution de la participation par groupe",
         icon: Users2,
         description: "Tous les groupes sont superposés par défaut — cliquez un groupe pour retirer ou remettre " +
             "sa courbe à la volée, y compris les groupes renommés ou dissous en cours de législature " +

@@ -43,8 +43,8 @@ export default function ChiffresClesPageClient() {
                 </Link>
                 <PageHeaderLib
                     title="Chiffres clés"
-                    subtitle="Les grands chiffres de l'Assemblée nationale, expliqués : qui sont les député·es,
-                    comment votent-ils, comment ça évolue."
+                    subtitle="Les grands chiffres de l'Assemblée nationale, expliqués : profil des député·es,
+                    votes des groupes et évolutions."
                     className="mt-3 mb-0"
                 />
             </div>

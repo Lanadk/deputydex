@@ -77,7 +77,7 @@ function buildCohesionRecit(data: BlockDataWrapper | undefined): ParagraphItem[]
 export const COHESION_GROUPES_SECTIONS: PageSection[] = [
     {
         id: "cohesion-groupes-classement",
-        label: "Quels groupes votent le plus soudés",
+        label: "Classement des groupes par cohésion",
         icon: Vote,
         description: "La cohésion mesure la part des votes d'un·e député·e alignés avec la position majoritaire " +
             "de son groupe (pour, contre ou abstention), sur les scrutins où le groupe a suffisamment voté pour " +
@@ -139,7 +139,7 @@ export const COHESION_GROUPES_SECTIONS: PageSection[] = [
     },
     {
         id: "cohesion-groupes-evolution",
-        label: "Comment ça évolue, groupe par groupe",
+        label: "Évolution de la cohésion par groupe",
         icon: Users2,
         description: "Tous les groupes sont superposés par défaut — cliquez un groupe pour retirer ou remettre " +
             "sa courbe à la volée, y compris les groupes renommés ou dissous en cours de législature " +

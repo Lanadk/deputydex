@@ -142,7 +142,7 @@ export const StatViewer: React.FC<StatViewerProps> = ({
             <TableExportActions exportEnabled={!!data} onExportAction={handleExport} />
 
             <details className="text-sm">
-                <summary className="cursor-pointer text-subtitle-accent">Comment c&apos;est calculé ?</summary>
+                <summary className="cursor-pointer text-subtitle-accent">Méthode de calcul</summary>
                 <p className="mt-2 text-subtitle-accent">{definition.methodology}</p>
             </details>
         </div>

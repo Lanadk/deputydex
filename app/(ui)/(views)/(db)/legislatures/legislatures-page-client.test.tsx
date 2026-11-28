@@ -48,7 +48,7 @@ describe("LegislaturesPageClient", () => {
 
         render(<LegislaturesPageClient />);
 
-        expect(screen.getByRole("heading", { name: "Qu'est-ce qu'une législature ?" })).toBeInTheDocument();
+        expect(screen.getByRole("heading", { name: "La législature" })).toBeInTheDocument();
         // Bloc alimenté par la frise : affiché une fois celle-ci chargée.
         expect(await screen.findByRole("heading", { name: "Les législatures présentes dans Députédex" })).toBeInTheDocument();
         expect(screen.getByText("28 juin 2022")).toBeInTheDocument();

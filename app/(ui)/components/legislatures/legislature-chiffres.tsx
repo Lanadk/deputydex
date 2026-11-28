@@ -32,7 +32,7 @@ export function LegislatureChiffres({ chiffres }: { chiffres: LegislatureChiffre
             {chiffres.entreesEnCours > 0 && (
                 <div className="flex flex-col gap-3 rounded-lg border border-main bg-surface-2 p-5">
                     <div>
-                        <p className="font-semibold">Pourquoi {nombre(chiffres.entreesEnCours)} députés sont entrés en cours de législature</p>
+                        <p className="font-semibold">{nombre(chiffres.entreesEnCours)} députés entrés en cours de législature</p>
                         <p className="text-sm text-subtitle-accent">
                             Un siège qui se libère est repris par le suppléant, ou pourvu par une élection partielle.
                         </p>
