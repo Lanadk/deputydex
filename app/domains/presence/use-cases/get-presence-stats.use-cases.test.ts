@@ -10,6 +10,8 @@ import {
     getDeputePresenceComposantesUseCase,
     getDeputePresenceContexteUseCase,
     getDeputePresenceEvolutionUseCase,
+    getGroupePresenceAnnuelleUseCase,
+    getGroupePresenceComposantesUseCase,
     getGroupesPresenceAnnuelleUseCase,
     getGroupesPresenceComposantesUseCase,
     getGroupesPresenceComposanteUseCase,
@@ -449,6 +451,59 @@ describe("présence de l'Assemblée — toutes législatures", () => {
             success: true,
             data: [{ at: "2023-2024", label: "Début de la 17ᵉ législature" }],
         });
+    });
+});
+
+describe("Présence d'un groupe", () => {
+    const ligneGroupe = (groupe_code: string, taux: number) => ({
+        legislature: 17, groupe_code, groupe_label: groupe_code,
+        taux_presence: taux, taux_presence_seance: 55.1, taux_presence_commission: null,
+        taux_excuses_commission: 4.2, taux_participation_scrutins: 21, jours_presence_par_mois: 7,
+    });
+    const ligneAssemblee = {
+        legislature: 17, taux_presence: 57, taux_presence_seance: 50.2, taux_presence_commission: 38,
+        taux_excuses_commission: 5, taux_participation_scrutins: 19.1, jours_presence_par_mois: 6.5, effectif_moyen: 577,
+    };
+
+    it("composantes : le groupe puis l'Assemblée, sur la législature demandée", async () => {
+        const repo = makeRepository({
+            getGroupes: jest.fn().mockResolvedValue([ligneGroupe("LFI-NFP", 62.3), ligneGroupe("RN", 58.7)]),
+            getAssemblee: jest.fn().mockResolvedValue([ligneAssemblee]),
+        });
+
+        const result = await getGroupePresenceComposantesUseCase(repo, "RN", 17);
+
+        expect(repo.getGroupes).toHaveBeenCalledWith(17);
+        expect(repo.getAssemblee).toHaveBeenCalledWith(17);
+        expect(result.success && result.data.series.map((s) => s.name)).toEqual(["RN", "Assemblée"]);
+        expect(result.success && result.data.series[0].items).toEqual([
+            { label: "1 · Présence (tous jours attendus)", value: 58.7 },
+            { label: "2 · En séance", value: 55.1 },
+            { label: "4 · Excusés en commission", value: 4.2 },
+            { label: "5 · Participation aux scrutins", value: 21 },
+        ]);
+    });
+
+    it("composantes d'un groupe sans ligne (non-inscrits) : seule l'Assemblée reste", async () => {
+        const repo = makeRepository({ getAssemblee: jest.fn().mockResolvedValue([ligneAssemblee]) });
+        const result = await getGroupePresenceComposantesUseCase(repo, "NI-17", 17);
+        expect(result.success && result.data.series.map((s) => s.name)).toEqual(["Assemblée"]);
+    });
+
+    it("années : les points du seul groupe demandé, dans l'ordre chronologique", async () => {
+        const repo = makeRepository({
+            getGroupesAnnuelle: jest.fn().mockResolvedValue([
+                { legislature: 17, groupe_code: "RN", periode: "2025-2026", jours_presence_par_mois: 7.1 },
+                { legislature: 17, groupe_code: "EPR", periode: "2024-2025", jours_presence_par_mois: 6 },
+                { legislature: 17, groupe_code: "RN", periode: "2024-2025", jours_presence_par_mois: 7.4 },
+            ]),
+        });
+
+        expect(await getGroupePresenceAnnuelleUseCase(repo, "RN", 17, "parlementaire")).toEqual({
+            success: true,
+            data: { points: [{ label: "2024-2025", value: 7.4 }, { label: "2025-2026", value: 7.1 }] },
+        });
+        expect(repo.getGroupesAnnuelle).toHaveBeenCalledWith(17, "parlementaire");
     });
 });
 

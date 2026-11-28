@@ -172,6 +172,38 @@ export function getGroupesPresenceAnnuelleUseCase(repo: IPresenceStatsRepository
     return lire(() => repo.getGroupesAnnuelle(perimetre, type), (rows) => sortSeries(mapGroupesAnnuelleToDTO(rows, perimetre === TOUTES_LEGISLATURES)));
 }
 
+/** Libellé de la série de l'Assemblée dans la comparaison d'un groupe. */
+export const SERIE_ASSEMBLEE = "Assemblée";
+
+/**
+ * Un groupe (CODE, une législature) : ses composantes de présence (taux global,
+ * séance, commission, excusés, scrutins), puis celles de l'Assemblée — deux
+ * séries dans cet ordre. Non-inscrits : pas de ligne de groupe (vue), seule
+ * l'Assemblée reste.
+ */
+export async function getGroupePresenceComposantesUseCase(repo: IPresenceStatsRepository, code: string, legislature: number): PresenceResult<PresenceStatSeriesDTO> {
+    const [groupes, assemblee] = await Promise.all([
+        fromRepository(() => repo.getGroupes(legislature)),
+        fromRepository(() => repo.getAssemblee(legislature)),
+    ]);
+    if (isErr(groupes)) return groupes;
+    if (isErr(assemblee)) return assemblee;
+
+    const series = [
+        { name: code, items: mapComposantesToDTO(groupes.data.filter((r) => r.groupe_code === code)).series[0]?.items ?? [] },
+        { name: SERIE_ASSEMBLEE, items: mapComposantesToDTO(assemblee.data).series[0]?.items ?? [] },
+    ];
+    return ok({ series: series.filter((s) => s.items.length > 0) });
+}
+
+/** Un groupe (CODE, une législature) : jours de présence par mois, un point par année civile / parlementaire. */
+export function getGroupePresenceAnnuelleUseCase(repo: IPresenceStatsRepository, code: string, legislature: number, type: Annee): PresenceResult<PresenceStatPointsDTO> {
+    return lire(
+        () => repo.getGroupesAnnuelle(legislature, type),
+        (rows) => points({ points: mapGroupesAnnuelleToDTO(rows.filter((r) => r.groupe_code === code)).series[0]?.items ?? [] })
+    );
+}
+
 // ── Assemblée (périmètre : une législature, « toutes », ou absent = une ligne par législature) ──
 
 export function getAssembleePresenceParLegislatureUseCase(repo: IPresenceStatsRepository, perimetre?: PerimetreLegislature): PresenceResult<PresenceStatItemsDTO> {

@@ -17,6 +17,8 @@ import { PresenceComposante } from "@/app/domains/presence/entities/presence-sta
 import {
     getGroupesPresenceComposantesUseCase,
     getGroupesPresenceComposanteUseCase,
+    getGroupePresenceAnnuelleUseCase,
+    getGroupePresenceComposantesUseCase,
     getGroupePresenceEvolutionUseCase,
     getGroupesPresenceAnnuelleUseCase,
     getGroupesPresenceEvolutionUseCase,
@@ -63,6 +65,27 @@ function groupesPresenceComposante(composante: PresenceComposante): StatHandler 
 function groupesPresenceAnnuelle(type: "civile" | "parlementaire"): StatHandler {
     return presenceGroupes((p) => getGroupesPresenceAnnuelleUseCase(presenceRepo, p, type), series, type);
 }
+
+/**
+ * Présence d'UN groupe (entityId = CODE) sur une législature précise : un groupe
+ * n'est pas identifiable d'une législature à l'autre, « toutes » est refusé.
+ */
+function presenceUnGroupe<T>(
+    run: (code: string, legislature: number) => Promise<Result<T, "DB_ERROR">>,
+    toRaw: (data: T) => RawStatData,
+): StatHandler {
+    return async (params) => {
+        const code = params.entityId;
+        const legislature = params.filters?.legislature;
+        if (!code || typeof legislature !== "number") return err("INVALID_INPUT");
+
+        const result = await run(code, legislature);
+        if (isErr(result)) return result;
+        return ok(toRaw(result.data));
+    };
+}
+
+const chronique = (data: { points: { label: string; value: number }[] }): RawStatData => ({ shape: "timeseries", points: data.points });
 
 /**
  * Le cache est géré une seule fois, de façon générique, par `route.ts`
@@ -196,4 +219,7 @@ export const GROUPES_STAT_HANDLERS: Record<string, StatHandler> = {
     "presence-composantes": presenceGroupes((p) => getGroupesPresenceComposantesUseCase(presenceRepo, p), series),
     "presence-annee-civile": groupesPresenceAnnuelle("civile"),
     "presence-annee-parlementaire": groupesPresenceAnnuelle("parlementaire"),
+    "presence-composantes-groupe": presenceUnGroupe((code, leg) => getGroupePresenceComposantesUseCase(presenceRepo, code, leg), series),
+    "presence-annee-parlementaire-groupe": presenceUnGroupe((code, leg) => getGroupePresenceAnnuelleUseCase(presenceRepo, code, leg, "parlementaire"), chronique),
+    "presence-annee-civile-groupe": presenceUnGroupe((code, leg) => getGroupePresenceAnnuelleUseCase(presenceRepo, code, leg, "civile"), chronique),
 };
