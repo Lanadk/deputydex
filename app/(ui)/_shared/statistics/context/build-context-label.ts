@@ -1,11 +1,13 @@
 import { StatDomain, StatFetchParams } from "@/app/_shared/statistics/stat-scope.types";
+import { estToutesLegislatures } from "@/app/_shared/statistics/perimetre-legislature";
 
 const DOMAIN_AGGREGATE_LABELS: Record<StatDomain, string> = {
     acteurs: "Tous les députés",
     groupes: "Tous les groupes",
     votes: "Tous les votes",
     scrutins: "Tous les scrutins",
-    legislatures: "Toutes les législatures",
+    // Préfixe de « — 17ᵉ législature » : la population, c'est l'Assemblée.
+    legislatures: "Assemblée nationale",
 };
 
 /**
@@ -18,8 +20,10 @@ const DOMAIN_AGGREGATE_LABELS: Record<StatDomain, string> = {
 export function buildContextLabel(domain: StatDomain | null, context: StatFetchParams, fallback: string): string {
     if (!domain) return fallback;
 
-    const legislature = context.filters?.legislature as number | undefined;
-    const legislatureSuffix = legislature ? ` — ${legislature}ᵉ législature` : "";
+    const legislature = context.filters?.legislature as number | string | undefined;
+    const legislatureSuffix = estToutesLegislatures(legislature)
+        ? " — toutes législatures"
+        : legislature ? ` — ${legislature}ᵉ législature` : "";
 
     if (context.entityId) {
         const entityLabel = (context.filters?.entityLabel as string | undefined) ?? context.entityId;

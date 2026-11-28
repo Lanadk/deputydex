@@ -54,7 +54,7 @@ export function chiffresAssemblee(chiffres: LegislatureChiffresDTO, groupes: Gro
         },
         {
             valeur: chiffres.gouvernements, libelle: chiffres.gouvernements > 1 ? "gouvernements" : "gouvernement",
-            detail: "Qui gouvernait, qui présidait : la chronologie des institutions.",
+            detail: "Gouvernements et présidences : la chronologie des institutions.",
             href: "/legislatures", icon: Landmark, couleur: "var(--chart-5)",
         },
         {

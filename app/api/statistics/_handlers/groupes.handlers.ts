@@ -13,6 +13,34 @@ import { getGroupeStatParticipationEvolutionUseCase } from "@/app/domains/groupe
 import { getGroupeStatParticipationEvolutionTousUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-participation-evolution-tous.use-case";
 import { prismaGroupesStatsRepository } from "@/app/infrastructure/groupes/repositories/prisma-groupes-stats.repository";
 import { StatHandler } from "@/app/api/statistics/_handlers/stat-handler.types";
+import { PresenceComposante } from "@/app/domains/presence/entities/presence-stats.entity";
+import {
+    getGroupesPresenceComposantesUseCase,
+    getGroupesPresenceComposanteUseCase,
+    getGroupePresenceAnnuelleUseCase,
+    getGroupePresenceComposantesUseCase,
+    getGroupePresenceEvolutionUseCase,
+    getGroupesPresenceAnnuelleUseCase,
+    getGroupesPresenceEvolutionUseCase,
+    getGroupesPresenceJoursParMoisUseCase,
+    getGroupesPresenceUseCase,
+} from "@/app/domains/presence/use-cases/get-presence-stats.use-cases";
+import { prismaPresenceStatsRepository as presenceRepo } from "@/app/infrastructure/presence/repositories/prisma-presence-stats.repository";
+import { courbe, parEntiteEtLegislature, parPerimetre, repartition, series } from "@/app/api/statistics/_handlers/presence-handlers.helpers";
+
+// Présence de tous les groupes (`parPerimetre`) : une législature ou « toutes »
+// (chaque groupe de chaque législature à part, « RN · 16ᵉ » — pas de fusion).
+// Présence d'UN groupe (`parEntiteEtLegislature`) : une législature précise.
+
+/** Classement des groupes sur une composante de la présence (séance, commission, excusés, scrutins). */
+function groupesPresenceComposante(composante: PresenceComposante): StatHandler {
+    return parPerimetre((p) => getGroupesPresenceComposanteUseCase(presenceRepo, p, composante), repartition);
+}
+
+/** Présence de tous les groupes par type d'année (civile / parlementaire) — une série par groupe. */
+function groupesPresenceAnnuelle(type: "civile" | "parlementaire"): StatHandler {
+    return parPerimetre((p) => getGroupesPresenceAnnuelleUseCase(presenceRepo, p, type), series, type);
+}
 
 /**
  * Le cache est géré une seule fois, de façon générique, par `route.ts`
@@ -124,4 +152,21 @@ export const GROUPES_STAT_HANDLERS: Record<string, StatHandler> = {
         if (isErr(result)) return result;
         return ok({ shape: "multi-series", series: result.data.series });
     },
+
+    // ── Présence des groupes (domaine presence) ──
+    presence: parPerimetre((p) => getGroupesPresenceUseCase(presenceRepo, p), repartition),
+    "presence-jours-par-mois": parPerimetre((p) => getGroupesPresenceJoursParMoisUseCase(presenceRepo, p), repartition),
+    "presence-evolution-groupes": parPerimetre((p) => getGroupesPresenceEvolutionUseCase(presenceRepo, p), series, "mois"),
+    // Un groupe précis : par législature seulement (son code ne désigne pas le même groupe d'une législature à l'autre).
+    "presence-evolution": parEntiteEtLegislature((code, leg) => getGroupePresenceEvolutionUseCase(presenceRepo, code, leg), courbe),
+    "presence-seance": groupesPresenceComposante("seance"),
+    "presence-commission": groupesPresenceComposante("commission"),
+    "presence-excuses-commission": groupesPresenceComposante("excuses"),
+    "presence-scrutins": groupesPresenceComposante("scrutins"),
+    "presence-composantes": parPerimetre((p) => getGroupesPresenceComposantesUseCase(presenceRepo, p), series),
+    "presence-annee-civile": groupesPresenceAnnuelle("civile"),
+    "presence-annee-parlementaire": groupesPresenceAnnuelle("parlementaire"),
+    "presence-composantes-groupe": parEntiteEtLegislature((code, leg) => getGroupePresenceComposantesUseCase(presenceRepo, code, leg), series),
+    "presence-annee-parlementaire-groupe": parEntiteEtLegislature((code, leg) => getGroupePresenceAnnuelleUseCase(presenceRepo, code, leg, "parlementaire"), courbe),
+    "presence-annee-civile-groupe": parEntiteEtLegislature((code, leg) => getGroupePresenceAnnuelleUseCase(presenceRepo, code, leg, "civile"), courbe),
 };

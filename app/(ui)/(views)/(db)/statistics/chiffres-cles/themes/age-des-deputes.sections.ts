@@ -119,7 +119,7 @@ export const AGE_DES_DEPUTES_SECTIONS: PageSection[] = [
         id: "age-des-deputes-individuel",
         label: "Les âges extrêmes",
         icon: CalendarDays,
-        description: "Au-delà des moyennes, qui sont le/la plus jeune et le/la doyen·ne de l'Assemblée ? " +
+        description: "Au-delà des moyennes : le/la plus jeune député·e et le/la doyen·ne de l'Assemblée. " +
             "Âge calculé à partir de la date de naissance déclarée, parmi l'ensemble des député·es actuellement " +
             "en mandat pour la législature sélectionnée.",
         cols: 4,

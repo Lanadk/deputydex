@@ -4,10 +4,14 @@ import React, { useEffect, useRef, useState } from "react";
 import { HemicycleSeat } from "@/app/(ui)/components/hemicycle/hemicycle-seats";
 import { getCanonicalGroupCode, getGroupCardTheme } from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
 import { HemicyclePerchoir, ROLE_PERCHOIR } from "@/app/(ui)/_shared/adapter/hemicycle.adapter";
+import { HabillageSiege } from "@/app/(ui)/components/hemicycle/hemicycle-indicateurs";
 
 type HemicyclePlanProps = {
     seats: HemicycleSeat[];
-    selectedCode: string | null;
+    /** Groupes mis en relief (un groupe, ou une coalition) ; vide = tous. */
+    selectedCodes: string[];
+    /** Habillage par `seat.index` (député en info-bulle, couleur d'un indicateur) ; couleur du groupe à défaut. */
+    habillage?: Map<number, HabillageSiege>;
     /** Présidence de l'Assemblée : son nom et son titre s'affichent au survol (ou au focus) du perchoir. */
     perchoir?: HemicyclePerchoir | null;
 };
@@ -23,13 +27,14 @@ type Ancre = { x: number; y: number };
 const DELAI_MASQUAGE_MS = 150;
 
 /**
- * Plan des sièges incliné en 3D. Les sièges sont décoratifs (vides) : la
- * légende, avec ses effectifs, sert d'alternative textuelle. Chaque siège porte
- * `data-group` / `data-rank`, prévus pour la future concordance siège ↔ député.
- * Le perchoir est un lien vers la fiche de la présidence, nommé pour les
- * lecteurs d'écran, qui affiche son nom et son titre sous le siège au survol ou au focus.
+ * Plan des sièges incliné en 3D. Les sièges sont décoratifs : la légende, avec
+ * ses effectifs (et l'échelle d'un indicateur), sert d'alternative textuelle ;
+ * l'info-bulle native (`habillage`) nomme le député au survol. Chaque siège porte
+ * `data-group` / `data-rank`. Le perchoir est un lien vers la fiche de la
+ * présidence, nommé pour les lecteurs d'écran, qui affiche son nom et son titre
+ * sous le siège au survol ou au focus.
  */
-export function HemicyclePlan({ seats, selectedCode, perchoir = null }: HemicyclePlanProps) {
+export function HemicyclePlan({ seats, selectedCodes, habillage, perchoir = null }: HemicyclePlanProps) {
     const total = seats.length;
     const containerRef = useRef<HTMLDivElement>(null);
     const masquage = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -65,12 +70,14 @@ export function HemicyclePlan({ seats, selectedCode, perchoir = null }: Hemicycl
                     <div className="hemicycle-glow" aria-hidden="true" />
                     {seats.map((seat) => {
                         const theme = getGroupCardTheme(getCanonicalGroupCode(seat.groupeCode));
-                        const isOn = !selectedCode || selectedCode === seat.groupeCode;
-                        const lift = selectedCode && isOn ? "translateZ(26px) " : "";
+                        const habit = habillage?.get(seat.index);
+                        const enRelief = selectedCodes.length > 0;
+                        const isOn = !enRelief || selectedCodes.includes(seat.groupeCode);
+                        const lift = enRelief && isOn ? "translateZ(26px) " : "";
                         const style: React.CSSProperties = {
                             left: `${seat.left.toFixed(2)}%`,
                             top: `${seat.top.toFixed(2)}%`,
-                            background: `linear-gradient(160deg, ${theme.bg[0]}, ${theme.bg[1]})`,
+                            background: habit?.background ?? `linear-gradient(160deg, ${theme.bg[0]}, ${theme.bg[1]})`,
                             animationDelay: `${((seat.index / total) * 1.4).toFixed(2)}s`,
                             transform: `${lift}rotate(${seat.rotate.toFixed(1)}deg)`,
                             opacity: isOn ? 1 : 0.16,
@@ -101,8 +108,9 @@ export function HemicyclePlan({ seats, selectedCode, perchoir = null }: Hemicycl
                         return (
                             <div
                                 key={`${seat.groupeCode}-${seat.rank}`}
-                                className={`hemicycle-seat${seat.perchoir ? " hemicycle-seat--perchoir" : ""}`}
+                                className={`hemicycle-seat${seat.perchoir ? " hemicycle-seat--perchoir" : ""}${habit?.peuFiable ? " hemicycle-seat--peu-fiable" : ""}`}
                                 aria-hidden="true"
+                                title={habit?.title}
                                 style={style}
                                 {...attributs}
                             />

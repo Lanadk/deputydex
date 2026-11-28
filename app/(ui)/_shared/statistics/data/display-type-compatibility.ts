@@ -1,5 +1,6 @@
 import { StatDataShape } from "@/app/_shared/statistics/raw-stat-data.types";
 import { ChartConfig } from "@/app/(ui)/component-library/template/sections/block-section/chart-config.types";
+import { StatDefinition } from "@/app/(ui)/_shared/statistics/catalog/stat-definition.types";
 
 type ChartDisplayType = ChartConfig["displayType"];
 
@@ -15,6 +16,19 @@ export const DISPLAY_TYPE_COMPATIBILITY: Record<StatDataShape, ChartDisplayType[
     points: ["scatter"],
     scalar: [],
 };
+
+/**
+ * Formats proposés pour UNE stat : ceux de sa forme de donnée, moins ceux
+ * qu'elle exclut (`excludedDisplayTypes`, ex: pas de camembert pour un
+ * classement de taux). Si l'exclusion retirait tout, on garde la liste
+ * complète plutôt que de ne rien pouvoir afficher.
+ */
+export function compatibleDisplayTypesFor(definition: Pick<StatDefinition, "dataShape" | "excludedDisplayTypes">): ChartDisplayType[] {
+    const all = DISPLAY_TYPE_COMPATIBILITY[definition.dataShape];
+    const excluded = definition.excludedDisplayTypes ?? [];
+    const allowed = all.filter((dt) => !excluded.includes(dt));
+    return allowed.length > 0 ? allowed : all;
+}
 
 /** Libellés FR affichés dans le format-switcher (SelectLib), un par displayType du catalogue. */
 export const DISPLAY_TYPE_LABELS: Record<ChartDisplayType, string> = {

@@ -6,6 +6,7 @@ import { groupesGateways } from "@/app/(ui)/gateways/groupes/groupes.gateway";
 import { statisticsGateway } from "@/app/(ui)/gateways/statistics/statistics.gateway";
 import { GroupeCardDTO } from "@/app/domains/groupes/dto/groupes-card.dto";
 import { card, chart, entityChart, table, GroupeParticipationTableRow } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/registry";
+import { F_PARTICIPATION_ASSEMBLEE, F_PARTICIPATION_GROUPE, F_PARTICIPATION_GROUPE_MOIS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/participation-presence.formules";
 
 function toGroupCardData(code: string, cards: GroupeCardDTO[], caption: string): GroupCardData {
     const found = cards.find((c) => c.groupeCode === code);
@@ -89,7 +90,7 @@ function buildParticipationRecit(data: BlockDataWrapper | undefined): ParagraphI
 export const PARTICIPATION_PRESENCE_SECTIONS: PageSection[] = [
     {
         id: "participation-presence-classement",
-        label: "Qui participe le plus aux scrutins — et qui est le plus absent",
+        label: "Classement des groupes par participation",
         icon: Vote,
         description: "Être éligible à voter ne veut pas dire voter : certains groupes transforment beaucoup plus souvent cette éligibilité en position exprimée que d'autres — et à l'inverse, sont absents (non-votants) beaucoup moins souvent.",
         cols: 4,
@@ -137,6 +138,7 @@ export const PARTICIPATION_PRESENCE_SECTIONS: PageSection[] = [
                 colSpan: 4,
                 ...table("table-participation-groupes"),
                 title: "Classement des groupes par taux de participation",
+                formulas: [F_PARTICIPATION_GROUPE],
                 export: {
                     filenameBase: "participation-presence-groupes",
                     csvColumns: [
@@ -151,7 +153,7 @@ export const PARTICIPATION_PRESENCE_SECTIONS: PageSection[] = [
     },
     {
         id: "participation-presence-evolution",
-        label: "Comment ça évolue, tous groupes confondus",
+        label: "Évolution de la participation, tous groupes confondus",
         icon: TrendingUp,
         description: "Le taux de participation aux scrutins n'est pas figé — il varie au fil des mois, et d'une " +
             "législature à l'autre. Vue d'ensemble ici : pour chaque scrutin, part de député·es " +
@@ -170,12 +172,12 @@ export const PARTICIPATION_PRESENCE_SECTIONS: PageSection[] = [
             } as unknown as Record<string, BlockDataWrapper>;
         },
         blocks: [
-            { type: "chart" as const, colSpan: 4, config: chart("chart-participation-evolution-assemblee") },
+            { type: "chart" as const, colSpan: 4, config: chart("chart-participation-evolution-assemblee"), formulas: [F_PARTICIPATION_ASSEMBLEE] },
         ],
     },
     {
         id: "participation-presence-evolution-groupe",
-        label: "Comment ça évolue, groupe par groupe",
+        label: "Évolution de la participation par groupe",
         icon: Users2,
         description: "Tous les groupes sont superposés par défaut — cliquez un groupe pour retirer ou remettre " +
             "sa courbe à la volée, y compris les groupes renommés ou dissous en cours de législature " +
@@ -191,7 +193,7 @@ export const PARTICIPATION_PRESENCE_SECTIONS: PageSection[] = [
             } as unknown as Record<string, BlockDataWrapper>;
         },
         blocks: [
-            { type: "entity-chart" as const, colSpan: 4, config: entityChart("entity-chart-participation-groupe") },
+            { type: "entity-chart" as const, colSpan: 4, config: entityChart("entity-chart-participation-groupe"), formulas: [F_PARTICIPATION_GROUPE_MOIS] },
         ],
     },
 ];

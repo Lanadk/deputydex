@@ -13,6 +13,7 @@ import { StatPicker } from "@/app/(ui)/components/statistics/stat-picker";
 import { StatViewer } from "@/app/(ui)/components/statistics/stat-viewer";
 import { ENTITY_RESOLVERS } from "@/app/(ui)/components/statistics/entity-resolvers/entity-resolvers.registry";
 import { buildContextLabel } from "@/app/(ui)/_shared/statistics/context/build-context-label";
+import { estToutesLegislatures } from "@/app/_shared/statistics/perimetre-legislature";
 
 /**
  * Le hub "Mode avancé" : StatPicker (explorer/sélectionner) + une grille
@@ -38,7 +39,12 @@ function StatisticsAdvancedHub() {
     // variable à faire différer entre les deux contextes (une entité à
     // choisir, une législature...) — voir ENTITY_RESOLVERS. Sans ça, les
     // deux colonnes afficheraient strictement la même donnée non filtrée.
-    const canCompare = selectedDefinitions.length > 0 && !!ENTITY_RESOLVERS[selectedDefinitions[0].domain];
+    const domainCanCompare = selectedDefinitions.length > 0 && !!ENTITY_RESOLVERS[selectedDefinitions[0].domain];
+    // « Toutes les législatures » réunit déjà toutes les législatures dans un
+    // seul graphe : rien à mettre en face. Comparer est alors désactivé (et,
+    // en comparaison, StatPicker ne propose pas « Toutes »).
+    const toutesLegislatures = estToutesLegislatures(contexts[0]?.filters?.legislature);
+    const canCompare = domainCanCompare && !toutesLegislatures;
 
     return (
         <div className="flex w-full flex-col gap-6">
@@ -68,17 +74,23 @@ function StatisticsAdvancedHub() {
                             {selectedDefinitions.length} statistique{selectedDefinitions.length > 1 ? "s" : ""} sélectionnée
                             {selectedDefinitions.length > 1 ? "s" : ""}
                         </SpanLib>
-                        {mode === "single" && selectedDefinitions.length > 0 && !canCompare && (
+                        {mode === "single" && selectedDefinitions.length > 0 && !domainCanCompare && (
                             <SpanLib className="text-xs text-subtitle-accent">
                                 Comparaison indisponible : ce domaine n&apos;a pas d&apos;entité ni de filtre à faire varier.
                             </SpanLib>
                         )}
+                        {mode === "single" && domainCanCompare && toutesLegislatures && (
+                            <SpanLib className="text-xs text-subtitle-accent">
+                                Comparaison indisponible : « Toutes » réunit déjà toutes les législatures. Choisis une législature pour comparer.
+                            </SpanLib>
+                        )}
                     </div>
-                    {(mode === "split" || canCompare) && (
+                    {(mode === "split" || domainCanCompare) && (
                         <ButtonLib
                             text={mode === "split" ? "Quitter la comparaison" : "Comparer"}
                             size="small"
                             variant={mode === "split" ? "secondary" : "primary"}
+                            disabled={mode === "single" && !canCompare}
                             onClick={mode === "split" ? disableSplit : enableSplit}
                         />
                     )}
@@ -124,7 +136,7 @@ function StatisticsAdvancedHub() {
                         confine l'écart de hauteur à SA propre paire : les deux cartes
                         démarrent alignées en haut, mais `items-start` (au lieu du
                         `stretch` par défaut de CSS Grid) laisse chacune sa propre hauteur
-                        — ouvrir "Comment c'est calculé ?" ou un insight plus long d'un
+                        — ouvrir « Méthode de calcul » ou un insight plus long d'un
                         côté n'étire jamais la carte d'en face.
                     */}
                     {selectedDefinitions.map((definition) => (

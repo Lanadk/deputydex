@@ -1,8 +1,10 @@
 import {
     CardConfig,
     CardDataWrapper, DeputeCardData, DeputeCardPairData, GroupCardData, GroupCardPairData, KpiBarCardData,
-    KpiCardData, SummaryListCardData
+    KpiCardData, ScoreBreakdownCardData, ScoreCardData, SummaryListCardData
 } from "@/app/(ui)/component-library/template/sections/block-section/card-config.types";
+import {ScoreCardLib} from "@/app/(ui)/component-library/molecules/cards/score-card/score-card-lib";
+import {ScoreBreakdownCardLib} from "@/app/(ui)/component-library/molecules/cards/score-breakdown-card/score-breakdown-card-lib";
 import {KpiCardLib} from "@/app/(ui)/component-library/molecules/cards/kpi-card/kpi-card-lib";
 import {KpiBarCardLib} from "@/app/(ui)/component-library/molecules/cards/kpi-bar-card/kpi-bar-card-lib";
 import {SummaryListCardLib} from "@/app/(ui)/component-library/molecules/cards/summary-list-card/summary-list-card";
@@ -107,6 +109,24 @@ export function BlockCardRenderer({config, data, loading}: BlockCardRendererProp
                     <DeputeCardWithCaption data={d.data}/>
                 </div>
             );
+        }
+        case 'score-card': {
+            const d = data as { data: ScoreCardData };
+            return (
+                <ScoreCardLib
+                    title={d.data.title}
+                    score={d.data.score}
+                    max={d.data.max}
+                    verdict={d.data.verdict}
+                    caption={d.data.caption}
+                    badge={d.data.badge}
+                    badges={d.data.badges}
+                />
+            );
+        }
+        case 'score-breakdown-card': {
+            const d = data as { data: ScoreBreakdownCardData };
+            return <ScoreBreakdownCardLib title={d.data.title} items={d.data.items} footer={d.data.footer}/>;
         }
         case 'depute-card-pair': {
             const d = data as { data: DeputeCardPairData };

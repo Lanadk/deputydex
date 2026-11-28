@@ -20,6 +20,8 @@ export type HemicycleGroupe = {
     /** Libellé complet, issu du front (`getGroupFullLabel`), à défaut celui de l'API. */
     label: string;
     count: number;
+    /** Cartes des membres (`count` cartes) : un député par siège du groupe. */
+    membres: DeputesCardDTO[];
     /** Ex: "Présidente du groupe : Mathilde Panot" — null si pas de présidence (NI). */
     presidence: string | null;
     presidentFullName: string | null;
@@ -109,6 +111,7 @@ export function buildHemicycleGroupes(
                 shortLabel: getShortLabel(code),
                 label: getLabel(code, groupe?.groupeLabel),
                 count: members.length,
+                membres: members,
                 presidence: presidentRole ? `${presidentRole} : ${presidentFullName}` : null,
                 presidentFullName,
                 president: president ?? null,

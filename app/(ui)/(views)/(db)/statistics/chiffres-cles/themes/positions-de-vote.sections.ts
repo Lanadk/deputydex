@@ -55,7 +55,7 @@ function buildPositionsRecit(data: BlockDataWrapper | undefined): ParagraphItem[
 }
 
 /**
- * "Comment votent les groupes" — répartition pour/contre/abstention de
+ * "Les positions de vote des groupes" — répartition pour/contre/abstention de
  * chaque groupe politique, sur l'ensemble des scrutins de la législature.
  * Nouvelle stat catalogue `groupes.positions-de-vote` (scope aggregate,
  * shape multi-series) — voir `groupes.handlers.ts` /
@@ -66,7 +66,7 @@ function buildPositionsRecit(data: BlockDataWrapper | undefined): ParagraphItem[
 export const POSITIONS_DE_VOTE_SECTIONS: PageSection[] = [
     {
         id: "positions-de-vote-classement",
-        label: "Comment votent les groupes",
+        label: "Pour, contre et abstention par groupe",
         icon: PieChart,
         description: "Un même scrutin peut recevoir un \"pour\" massif d'un groupe et un \"contre\" tout aussi " +
             "massif d'un autre — la répartition varie fortement d'un groupe à l'autre. Pour chaque groupe : part " +

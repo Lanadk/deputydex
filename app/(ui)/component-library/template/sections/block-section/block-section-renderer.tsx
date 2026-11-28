@@ -37,6 +37,11 @@ import {
     BlockHemicycleRenderer
 } from "@/app/(ui)/component-library/template/sections/block-section/_renderers/block-hemicycle-renderer";
 
+import {FormulaLib, FormulaLibProps} from "@/app/(ui)/component-library/molecules/formula/formula-lib";
+import {AccordionLib} from "@/app/(ui)/component-library/molecules/accordion/accordion-lib";
+import {CalloutVariant} from "@/app/(ui)/component-library/molecules/callout/callout-lib";
+import {ComingSoonLib} from "@/app/(ui)/component-library/molecules/coming-soon/coming-soon-lib";
+
 export type ColSpan = 1 | 2 | 3 | 4;
 export type ParagraphItem =
     | { type: "text"; content: string }
@@ -47,6 +52,12 @@ export type ParagraphItem =
     | { type: "subheading"; content: string }
     /** Lien de citation externe (ex: source INSEE d'une donnée de référence) — discret, pas une phrase du récit */
     | { type: "source"; label: string; href: string }
+    /** Formule de calcul exacte d'un indicateur + légende de ses symboles — voir FormulaLib */
+    | ({ type: "formula" } & FormulaLibProps)
+    /** Encadré Remarque / Info / Attention (CalloutLib) — un paragraphe par entrée de `paragraphs` */
+    | { type: "callout"; variant: CalloutVariant; title?: string; paragraphs: string[] }
+    /** Panneaux repliables (AccordionLib), chacun contenant d'autres items de paragraphe — ex: une formule par panneau */
+    | { type: "accordion"; panels: { title: string; hint?: string; items: ParagraphItem[] }[]; multiple?: boolean; defaultOpen?: number[] }
 
 //Blocks
 
@@ -63,7 +74,28 @@ export type ParagraphSource =
     | { items: ParagraphItem[] }
     | { dataId: string; render: (data: BlockDataWrapper | undefined) => ParagraphItem[] };
 
-export type SectionBlock<TRow = unknown> =
+/**
+ * Commun à tous les blocs : formules de calcul affichées SOUS le bloc, dans
+ * sa cellule de grille, chacune dans un panneau d'accordéon fermé
+ * (« Calcul : <label> »).
+ */
+export type BlockFormulas = { formulas?: FormulaLibProps[] };
+
+/**
+ * Commun à tous les blocs : hauteur en rangées de grille, appliquée sur grand
+ * écran seulement (4 colonnes) — ex. une carte à gauche d'un calendrier ET du
+ * bloc placé dessous. Sur tablette / mobile, les blocs s'empilent.
+ */
+export type BlockRowSpan = { rowSpan?: 1 | 2 };
+
+/**
+ * Commun à tous les blocs : contenu à venir. Le bloc (et ses formules) est
+ * flouté sous une mention (ComingSoonLib) : `true` = « Disponible bientôt »,
+ * une chaîne = mention personnalisée.
+ */
+export type BlockBientot = { bientot?: boolean | string };
+
+export type SectionBlock<TRow = unknown> = BlockFormulas & BlockRowSpan & BlockBientot & (
     | {
     type: "chart";
     /** Occupe 2 colonnes dans la grille (défaut: 1) */
@@ -96,7 +128,16 @@ export type SectionBlock<TRow = unknown> =
     type: "hemicycle";
     colSpan?: ColSpan;
     config: HemicycleConfig;
-}
+} | {
+    /**
+     * Formules seules, sur `colSpan` colonnes — pour une RANGÉE de petits
+     * blocs (ex: 4 KPI alignés) : un seul accordéon sous toute la rangée
+     * plutôt qu'un accordéon étroit sous chaque KPI.
+     */
+    type: "formulas";
+    colSpan?: ColSpan;
+    formulas: FormulaLibProps[];
+});
 
 export type BlockDataWrapper =
     | ChartDataWrapper
@@ -126,11 +167,13 @@ export const BlockSectionRenderer: React.FC<BlockSectionRendererProps> = ({
                                                                               params,
                                                                               actions
                                                                           }) => {
-    const colSpanClass =
+    const colSpanClass = [
         block.colSpan === 2 ? "sm:col-span-2" :
             block.colSpan === 3 ? "sm:col-span-2 xl:col-span-3" :
                 block.colSpan === 4 ? "sm:col-span-2 xl:col-span-4" :
-                    "";
+                    "",
+        block.rowSpan === 2 ? "xl:row-span-2" : "",
+    ].filter(Boolean).join(" ");
 
     const rendered = (() => {
         switch (block.type) {
@@ -204,15 +247,47 @@ export const BlockSectionRenderer: React.FC<BlockSectionRendererProps> = ({
                         loading={loading}
                     />
                 );
+
+            case "formulas":
+                // Rien à rendre au-dessus : l'accordéon des formules suffit (voir plus bas).
+                return null;
         }
     })();
 
-    return (
-        <div className={colSpanClass}>
+    // Formules sous le bloc, DANS sa cellule de grille : en deux colonnes,
+    // chacune reste sous son propre graphique. Fermés, les accordéons ont
+    // tous la même hauteur (un en-tête), les deux colonnes restent alignées.
+    const formulas = block.formulas ?? [];
+
+    const contenu = (
+        <>
             {/* Outil de perf (dev seulement) : temps de rendu React de chaque bloc. Sans l'outil, rendu direct. */}
-            <DevPerfProfiler type={profiledBlockType(block)} id={profiledBlockId(block)}>{rendered}</DevPerfProfiler>
-        </div>
+            {rendered !== null && <DevPerfProfiler type={profiledBlockType(block)} id={profiledBlockId(block)}>{rendered}</DevPerfProfiler>}
+            {formulas.length > 0 && (
+                <AccordionLib
+                    items={formulas.map(({ label, ...formula }, i) => ({
+                        id: String(i),
+                        title: label ? `Calcul : ${label}` : "Méthode de calcul",
+                        content: <FormulaLib {...formula} framed={false} />,
+                    }))}
+                />
+            )}
+        </>
     );
+    const empile = formulas.length > 0 ? "flex flex-col gap-2" : "";
+
+    // Bloc à venir : le même contenu, flouté sous la mention, dans la même cellule de grille.
+    if (block.bientot) {
+        return (
+            <div className={colSpanClass}>
+                <ComingSoonLib label={typeof block.bientot === "string" ? block.bientot : undefined}>
+                    <div className={empile}>{contenu}</div>
+                </ComingSoonLib>
+            </div>
+        );
+    }
+
+    return <div className={[colSpanClass, empile].filter(Boolean).join(" ")}>{contenu}</div>;
 };
 
 /** Type de bloc pour l'outil de perf, précisé pour un graphique (« chart:bar »). */
@@ -227,6 +302,8 @@ function profiledBlockId(block: SectionBlock): string {
             return block.id;
         case "paragraph":
             return "dataId" in block ? block.dataId : "texte";
+        case "formulas":
+            return "formules";
         default:
             return block.config.id;
     }

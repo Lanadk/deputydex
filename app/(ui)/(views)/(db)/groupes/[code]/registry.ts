@@ -69,6 +69,10 @@ const GROUPES_KPI_REGISTRY: CardConfig[] = [
     {id: 'kpi-extreme-plus-jeune', displayType: 'kpi-card'},
     {id: 'kpi-extreme-plus-experimente', displayType: 'kpi-card'},
     {id: 'kpi-extreme-moins-experimente', displayType: 'kpi-card'},
+    {id: 'kpi-presence-taux', displayType: 'kpi-card'},
+    {id: 'kpi-presence-seance', displayType: 'kpi-card'},
+    {id: 'kpi-presence-commission', displayType: 'kpi-card'},
+    {id: 'kpi-presence-scrutins', displayType: 'kpi-card'},
 ];
 
 //Chart registry
@@ -96,6 +100,26 @@ const GROUPE_CHART_REGISTRY: ChartConfig[] = [
         title: 'Evolution de la cohésion durant la législature',
         theme: 'cohesion',
         displayType: 'line'
+    },
+    {
+        id: 'chart-presence-comparaison',
+        title: "Comparé à l'Assemblée (en %)",
+        subtitle: 'Taux de présence et ses composantes, sur la législature affichée',
+        theme: 'presence',
+        displayType: 'bar-multi',
+    },
+    {
+        id: 'chart-presence-evolution',
+        title: 'Taux de présence, mois par mois (en %)',
+        theme: 'presence',
+        displayType: 'line',
+    },
+    {
+        id: 'chart-presence-annee-parlementaire',
+        title: 'Jours de présence par mois, par année parlementaire',
+        subtitle: 'Moyenne par membre, du 1er octobre au 30 septembre',
+        theme: 'presence',
+        displayType: 'bar',
     },
     {
         id: 'chart-evolution-participation-legislature',

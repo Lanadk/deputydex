@@ -1,4 +1,4 @@
-import {CalendarDays, Users, Vote} from "lucide-react";
+import {CalendarDays, Gauge, Users, Vote} from "lucide-react";
 import {MdOutlineGroups2} from "react-icons/md";
 import {activityCalendar, card, chart, table} from "@/app/(ui)/(views)/(db)/groupes/[code]/registry";
 import {PageSection} from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
@@ -9,6 +9,38 @@ import {GROUPE_MEMBERS_SORT_OPTIONS} from "@/app/domains/groupes/filters/groupe-
 import {GroupeCompositionDTO} from "@/app/domains/groupes/dto/groupe-composition.dto";
 import {GroupeCohesionDTO} from "@/app/domains/groupes/dto/groupe-cohesion.dto";
 import {GroupeComportementDTO} from "@/app/domains/groupes/dto/groupe-comportement.dto";
+import {statisticsGateway} from "@/app/(ui)/gateways/statistics/statistics.gateway";
+import {
+    avertissementPresence,
+    CLE_TAUX,
+    comparaison,
+    itemsOf,
+    lireStat,
+    pct,
+    pointsOf,
+    seriesOf,
+    valeursComposantes,
+    valeursGroupe,
+} from "@/app/(ui)/_shared/statistics/presence/presence-section.helpers";
+import {F_GROUPE_COMPARAISON} from "@/app/(ui)/(views)/(db)/groupes/[code]/presence.formules";
+import {
+    F_PRESENCE_GROUPE,
+    F_PRESENCE_GROUPE_ANNEE,
+    F_PRESENCE_GROUPE_COMMISSION,
+    F_PRESENCE_GROUPE_MOIS,
+    F_PRESENCE_GROUPE_SCRUTINS,
+    F_PRESENCE_GROUPE_SEANCE,
+} from "@/app/(ui)/_shared/statistics/presence/presence-formules";
+
+/**
+ * Non-inscrits : pas un groupe politique, exclus des taux et du classement
+ * des groupes (vues agg_groupes_presence) ; seule leur courbe mensuelle existe.
+ */
+function noteNonInscrits(code: string | undefined): string | undefined {
+    return code?.startsWith('NI')
+        ? "Les non-inscrits ne forment pas un groupe politique : ils n'ont ni taux ni classement, seule leur courbe mensuelle est calculée"
+        : undefined;
+}
 
 export const sampleData = [
     {date: '2024-01-01', count: 0, level: 0},
@@ -66,37 +98,10 @@ export const GROUPES_SECTIONS: PageSection[] = [
         ],
     },
     {
-        id: 'groupe-members',
-        label: 'Members du groupe',
-        icon: MdOutlineGroups2,
-        description: 'Parcourer la liste de tous les membres du groupe parlementaire',
-        cols: 4,
-        lazy: false,
-        gatewayFn: async ({code, legislature}: Record<string, unknown>) => {
-            const members = await groupesGateways.getGroupeMembers(code as string, legislature as number);
-            return { 'groupe-members-table': members } as Record<string, BlockDataWrapper>;
-        },
-        blocks: [
-            {
-                type: "table" as const,
-                colSpan: 4,
-                ...table("groupe-members-table"),
-                title: "Membres du groupe",
-                subtitle: "Cliquer sur un député pour voir sa fiche",
-                filter: {
-                    sortOptions: GROUPE_MEMBERS_SORT_OPTIONS,
-                    filterFields: undefined,
-                    applyMode: "auto",
-                },
-                export: undefined,
-            } satisfies SectionBlock<GroupeMembersDTO>
-        ],
-    },
-    {
         id: 'groupe-composition',
         label: 'Composition du groupe',
         icon: Users,
-        description: "Qui sont ses membres ?",
+        description: "Membres du groupe : effectif, parité, âge et professions",
         cols: 4,
         lazy: false,
         gatewayFn: async ({code, legislature}: Record<string, unknown>) => {
@@ -221,10 +226,97 @@ export const GROUPES_SECTIONS: PageSection[] = [
             {type: 'chart', colSpan: 4, config: chart('chart-groupe-professions-gaterorie')},
         ],
     },
+    // ── Présence ────────────────────────────────────────────────────────────
+    // Législature du sélecteur : mêmes stats que le mode avancé (`groupes.presence*`),
+    // comparées à toute l'Assemblée (`acteurs.presence-moyenne`).
+    {
+        id: 'presence',
+        label: 'Présence',
+        icon: Gauge,
+        description: "En séance, en commission et aux scrutins sur cette législature, comparé à l'ensemble des députés",
+        cols: 4,
+        lazy: false,
+        gatewayFn: async ({code, legislature}: Record<string, unknown>) => {
+            const groupe = code as string;
+            const legislatureSeule = {filters: {legislature: legislature as number}};
+
+            const [taux, composantes, evolution, annees, assemblee] = await Promise.all([
+                lireStat(statisticsGateway.fetchStat("groupes", "presence", legislatureSeule)),
+                lireStat(statisticsGateway.fetchStat("groupes", "presence-composantes", legislatureSeule)),
+                lireStat(statisticsGateway.fetchStat("groupes", "presence-evolution", {entityId: groupe, ...legislatureSeule})),
+                lireStat(statisticsGateway.fetchStat("groupes", "presence-annee-parlementaire", legislatureSeule)),
+                lireStat(statisticsGateway.fetchStat("acteurs", "presence-moyenne", legislatureSeule)),
+            ]);
+
+            const valeurs = valeursGroupe(composantes, taux, groupe);
+            const classement = [...itemsOf(taux)].sort((a, b) => b.value - a.value);
+            const rang = classement.findIndex((i) => i.label === groupe) + 1;
+
+            return {
+                'presence-avertissement': {code: groupe, rang, nbGroupes: classement.length},
+                'kpi-presence-taux': {data: {label: rang > 0 ? `taux de présence · ${rang}ᵉ groupe sur ${classement.length}` : 'taux de présence', value: pct(valeurs.get(CLE_TAUX))}},
+                'kpi-presence-seance': {data: {label: 'présence en séance', value: pct(valeurs.get('En séance'))}},
+                'kpi-presence-commission': {data: {label: 'présence en commission', value: pct(valeurs.get('En commission'))}},
+                'kpi-presence-scrutins': {data: {label: 'participation aux scrutins', value: pct(valeurs.get('Participation aux scrutins'))}},
+                'chart-presence-comparaison': comparaison([
+                    {nom: `Groupe ${groupe}`, valeurs},
+                    {nom: 'Assemblée', valeurs: valeursComposantes(assemblee)},
+                ]),
+                'chart-presence-evolution': {data: pointsOf(evolution)},
+                'chart-presence-annee-parlementaire': {
+                    data: seriesOf(annees).find((s) => s.name === groupe)?.items ?? [],
+                },
+            } as unknown as Record<string, BlockDataWrapper>;
+        },
+        blocks: [
+            {
+                type: 'paragraph',
+                colSpan: 4,
+                dataId: 'presence-avertissement',
+                render: (data) => avertissementPresence(noteNonInscrits((data as {code?: string} | undefined)?.code)),
+            },
+            {type: 'card', colSpan: 1, config: card('kpi-presence-taux')},
+            {type: 'card', colSpan: 1, config: card('kpi-presence-seance')},
+            {type: 'card', colSpan: 1, config: card('kpi-presence-commission')},
+            {type: 'card', colSpan: 1, config: card('kpi-presence-scrutins')},
+            // Rangée de 4 KPI : un seul accordéon sur toute la largeur.
+            {type: 'formulas', colSpan: 4, formulas: [F_PRESENCE_GROUPE, F_PRESENCE_GROUPE_SEANCE, F_PRESENCE_GROUPE_COMMISSION, F_PRESENCE_GROUPE_SCRUTINS]},
+            {type: 'chart', colSpan: 4, config: chart('chart-presence-comparaison'), formulas: [F_GROUPE_COMPARAISON]},
+            {type: 'chart', colSpan: 2, config: chart('chart-presence-evolution'), formulas: [F_PRESENCE_GROUPE_MOIS]},
+            {type: 'chart', colSpan: 2, config: chart('chart-presence-annee-parlementaire'), formulas: [F_PRESENCE_GROUPE_ANNEE]},
+        ],
+    },
+    {
+        id: 'groupe-members',
+        label: 'Members du groupe',
+        icon: MdOutlineGroups2,
+        description: 'Parcourer la liste de tous les membres du groupe parlementaire',
+        cols: 4,
+        lazy: false,
+        gatewayFn: async ({code, legislature}: Record<string, unknown>) => {
+            const members = await groupesGateways.getGroupeMembers(code as string, legislature as number);
+            return { 'groupe-members-table': members } as Record<string, BlockDataWrapper>;
+        },
+        blocks: [
+            {
+                type: "table" as const,
+                colSpan: 4,
+                ...table("groupe-members-table"),
+                title: "Membres du groupe",
+                subtitle: "Cliquer sur un député pour voir sa fiche",
+                filter: {
+                    sortOptions: GROUPE_MEMBERS_SORT_OPTIONS,
+                    filterFields: undefined,
+                    applyMode: "auto",
+                },
+                export: undefined,
+            } satisfies SectionBlock<GroupeMembersDTO>
+        ],
+    },
     {
         id: 'votes-cohesion',
         label: 'Votes & Cohésion',
-        description: 'Comment le groupe vote-t-il ?',
+        description: 'Positions de vote du groupe et cohésion de ses membres',
         icon: Vote,
         cols: 4,
         lazy: false,
@@ -246,7 +338,9 @@ export const GROUPES_SECTIONS: PageSection[] = [
                 },
                 'kpi-groupe-average-scruttin-presence-legislature': {
                     data: {
-                        label: 'présence moyenne',
+                        // Participation aux scrutins éligibles (agg_groupes_stats_participation_legislature),
+                        // pas la présence : celle-ci a sa propre section.
+                        label: 'participation aux votes',
                         value: cohesion.tauxParticipationLegislature != null ? `${cohesion.tauxParticipationLegislature}%` : '-',
                     }
                 },
@@ -289,7 +383,7 @@ export const GROUPES_SECTIONS: PageSection[] = [
     {
         id: 'comportement-politique',
         label: 'Comportement politique',
-        description: 'Comment le groupe vote-t-il ?',
+        description: 'Participation, proximité avec les autres groupes et évolution des votes',
         icon: Vote,
         cols: 4,
         lazy: false,

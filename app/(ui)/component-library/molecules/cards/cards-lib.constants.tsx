@@ -1,6 +1,8 @@
 import {KpiCardLib} from "@/app/(ui)/component-library/molecules/cards/kpi-card/kpi-card-lib";
 import {KpiBarCardLib} from "@/app/(ui)/component-library/molecules/cards/kpi-bar-card/kpi-bar-card-lib";
 import {SummaryListCardLib} from "@/app/(ui)/component-library/molecules/cards/summary-list-card/summary-list-card";
+import {ScoreCardLib} from "@/app/(ui)/component-library/molecules/cards/score-card/score-card-lib";
+import {ScoreBreakdownCardLib} from "@/app/(ui)/component-library/molecules/cards/score-breakdown-card/score-breakdown-card-lib";
 
 const KPI_CODE_SIMPLE_USAGE = `<KpiCardLib
     kpiValue="88"
@@ -33,9 +35,41 @@ const KPI_BAR_CARD_FOOTER_USAGE = `<KpiBarCardLib
     showFooterDivider={true}
 />`
 
-const SUMMARY_LIST_CARD_SIMPLE_USAGE = ``
+const SCORE_CARD_USAGE = `<ScoreCardLib
+    title="Score"
+    score={59}
+    verdict="Dans la moyenne"
+    caption="Mieux que 64 % des députés de la législature"
+    badge="Aperçu"
+/>`
 
-const SUMMARY_LIST_CARD_BADGE_USAGE = ``
+const SCORE_BREAKDOWN_CARD_USAGE = `<ScoreBreakdownCardLib
+    title="Détail du score"
+    items={[
+        { label: "Présence", description: "Jours présents parmi les jours attendus.", poids: 30, score: 72 },
+        { label: "Participation aux votes", poids: 25, score: 58 },
+        { label: "Interventions en séance", poids: 15, score: null },
+    ]}
+    footer="Chaque composante apporte poids × sous-score ÷ 100 points."
+/>`
+
+const SUMMARY_LIST_CARD_SIMPLE_USAGE = `<SummaryListCardLib
+    title="Députés"
+    items={[
+        { label: "Femmes", value: 25 },
+        { label: "Hommes", value: 25 },
+    ]}
+/>`
+
+const SUMMARY_LIST_CARD_BADGE_USAGE = `<SummaryListCardLib
+    title="Derniers votes"
+    items={[
+        { label: "Projet de loi de finances — vote solennel", badge: { text: "Pour", variant: "primary" } },
+        { label: "Motion de censure", badge: { text: "Contre", variant: "secondary" } },
+        { label: "Amendement n° 119", badge: { text: "Abstention", variant: "tertiary" } },
+        { label: "Texte avec lien", href: "https://www.assemblee-nationale.fr", badge: { text: "Pour", variant: "primary" } },
+    ]}
+/>`
 
 
 export const getCardsSections = () => [
@@ -93,6 +127,36 @@ export const getCardsSections = () => [
         )
     },
     {
+        title: 'Score card (score sur 100, verdict, badge)',
+        code: SCORE_CARD_USAGE,
+        component: (
+            <div className="w-64">
+                <ScoreCardLib
+                    title="Score"
+                    score={59}
+                    verdict="Dans la moyenne"
+                    caption="Mieux que 64 % des députés de la législature"
+                    badge="Aperçu"
+                />
+            </div>
+        )
+    },
+    {
+        title: 'Score breakdown card (détail par composante)',
+        code: SCORE_BREAKDOWN_CARD_USAGE,
+        component: (
+            <ScoreBreakdownCardLib
+                title="Détail du score"
+                items={[
+                    {label: "Présence", description: "Jours présents parmi les jours attendus.", poids: 30, score: 72},
+                    {label: "Participation aux votes", poids: 25, score: 58},
+                    {label: "Interventions en séance", poids: 15, score: null},
+                ]}
+                footer="Chaque composante apporte poids × sous-score ÷ 100 points."
+            />
+        )
+    },
+    {
         title: 'Summary list card simple usage',
         code: SUMMARY_LIST_CARD_SIMPLE_USAGE,
         component: (
@@ -110,15 +174,16 @@ export const getCardsSections = () => [
     {
         title: 'Summary list card badge usage',
         code: SUMMARY_LIST_CARD_BADGE_USAGE,
-        component: ( //TODO fix this
-        //    <SummaryListCardLib
-        //        title='Députes'
-        //        items={[
-        //            { label: 'Femmes', badge: { text: 'F', variant: 'primary' } },
-        //            { label: 'Hommes', badge: { text: 'H', variant: 'secondary' } },
-        //        ]}
-        //    />
-            <></>
+        component: (
+            <SummaryListCardLib
+                title='Derniers votes'
+                items={[
+                    {label: 'Projet de loi de finances — vote solennel', badge: {text: 'Pour', variant: 'primary'}},
+                    {label: 'Motion de censure', badge: {text: 'Contre', variant: 'secondary'}},
+                    {label: 'Amendement n° 119', badge: {text: 'Abstention', variant: 'tertiary'}},
+                    {label: 'Texte avec lien', href: 'https://www.assemblee-nationale.fr', badge: {text: 'Pour', variant: 'primary'}},
+                ]}
+            />
         )
     },
 ];

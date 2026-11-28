@@ -1,0 +1,54 @@
+/**
+ * Libellés des statistiques de présence. Les graphiques multi-séries trient
+ * leurs libellés par ordre lexicographique (`toMultiSeriesDataset`) : les jours
+ * de la semaine sont donc préfixés par leur numéro ISO pour rester dans
+ * l'ordre lundi → dimanche.
+ */
+
+const JOURS_SEMAINE = ["Lundi", "Mardi", "Mercredi", "Jeudi", "Vendredi", "Samedi", "Dimanche"];
+
+/** 1 (ISO, lundi) → « 1 · Lundi » ; 7 → « 7 · Dimanche ». */
+export function jourSemaineLabel(isoDow: number): string {
+    return `${isoDow} · ${JOURS_SEMAINE[isoDow - 1] ?? "?"}`;
+}
+
+/** « 17ᵉ législature » ; null (ligne toutes législatures des vues) → « Toutes législatures ». */
+export function legislatureLabel(legislature: number | null): string {
+    return legislature == null ? "Toutes législatures" : `${legislature}ᵉ législature`;
+}
+
+/**
+ * Libellé d'une période annuelle, préfixé par la législature pour qu'une même
+ * année civile (2024 : fin de la 16ᵉ et début de la 17ᵉ) ou un même rang de
+ * mandat n'apparaisse pas deux fois sous le même libellé : « 17ᵉ · 2025-2026 »,
+ * « 17ᵉ · année 1 ». Toutes législatures (legislature null) : une seule ligne
+ * par période, donc pas de préfixe — « 2023-2024 ».
+ */
+export function periodeLabel(legislature: number | null, periode: string, type: "civile" | "parlementaire" | "mandat"): string {
+    const libelle = type === "mandat" ? `année ${periode}` : periode;
+    return legislature == null ? libelle : `${legislature}ᵉ · ${libelle}`;
+}
+
+/**
+ * Groupe d'une législature donnée, en périmètre « toutes législatures » :
+ * « RN · 16ᵉ ». Les groupes ne se fusionnent pas d'une législature à l'autre
+ * (identifiants et sigles qui changent) : chacun garde sa série.
+ */
+export function groupeLegislatureLabel(code: string, legislature: number): string {
+    return `${code} · ${legislature}ᵉ`;
+}
+
+/** Inverse de `groupeLegislatureLabel` : « RN · 16ᵉ » → « RN » ; un sigle seul est rendu tel quel. */
+export function codeDeGroupeLabel(label: string): string {
+    return label.replace(/ · \d+ᵉ$/, "");
+}
+
+/** Date → « 2025-10 » (mois) */
+export function moisLabel(mois: Date): string {
+    return mois.toISOString().slice(0, 7);
+}
+
+/** Date → « 2025-10-14 » (jour) */
+export function jourLabel(jour: Date): string {
+    return jour.toISOString().slice(0, 10);
+}

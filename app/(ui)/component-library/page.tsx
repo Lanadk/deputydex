@@ -45,6 +45,7 @@ const components: Record<string, ComponentTheme[]> = {
             items: [
                 { name: 'Table', description: 'Tableau paginé ou non', path: '/component-library/molecules/table' },
                 { name: 'Charts', description: 'Barres, lignes, camemberts, nuages de points', path: '/component-library/molecules/chart' },
+                { name: 'Formula', description: "Formule de calcul d'un indicateur et sa légende", path: '/component-library/molecules/formula' },
                 { name: 'ActivityCalendar', description: "Calendrier d'activité", path: '/component-library/molecules/activity-calendar' },
                 { name: 'DifficultyGauge', description: 'Jauge de 1 à 5', path: '/component-library/molecules/difficulty-gauge' },
                 { name: 'Timeline', description: 'Frise chronologique en couloirs', path: '/component-library/molecules/timeline' },
@@ -70,6 +71,8 @@ const components: Record<string, ComponentTheme[]> = {
             items: [
                 { name: 'PageState', description: '404, erreur, aucun résultat', path: '/component-library/molecules/page-state' },
                 { name: 'ErrorState', description: 'Erreur de chargement et « Réessayer »', path: '/component-library/molecules/error-state' },
+                { name: 'Callout', description: 'Encadré Remarque / Info / Attention', path: '/component-library/molecules/callout' },
+                { name: 'ComingSoon', description: 'Aperçu flouté « Disponible bientôt »', path: '/component-library/molecules/coming-soon' },
                 { name: 'InfoTip', description: "Icône « i » et bulle d'information", path: '/component-library/molecules/info-tip' },
                 { name: 'Tooltip', description: "Bulle d'aide au survol et au focus clavier", path: '/component-library/molecules/tooltip' },
                 { name: 'Notification', description: 'Notification temporaire (toast)', path: '/component-library/molecules/notification' },
@@ -87,6 +90,7 @@ const components: Record<string, ComponentTheme[]> = {
             theme: 'Navigation',
             items: [
                 { name: 'Tabs', description: 'Onglets accessibles', path: '/component-library/molecules/tabs' },
+                { name: 'Accordion', description: 'Panneaux repliables accessibles', path: '/component-library/molecules/accordion' },
             ],
         },
     ],
@@ -109,6 +113,7 @@ const components: Record<string, ComponentTheme[]> = {
             items: [
                 { name: 'BlockSection', description: 'Sections de page pilotées par config', path: '/component-library/template/sections/block-section' },
                 { name: 'AnchorSection', description: 'Navigation par ancres et ses layouts', path: '/component-library/template/sections/anchor-section' },
+                { name: 'TabSection', description: 'Une section par onglet et son layout', path: '/component-library/template/sections/tab-section' },
             ],
         },
     ],

@@ -30,6 +30,10 @@ import { getInfoTipSections } from "@/app/(ui)/component-library/molecules/info-
 import { getTooltipSections } from "@/app/(ui)/component-library/molecules/tooltip/tooltip-lib.constants";
 import { getProportionBarSections } from "@/app/(ui)/component-library/molecules/proportion-bar/proportion-bar-lib.constants";
 import { getErrorStateSections } from "@/app/(ui)/component-library/molecules/error-state/error-state-lib.constants";
+import { getFormulaSections } from "@/app/(ui)/component-library/molecules/formula/formula-lib.constants";
+import { getAccordionSections } from "@/app/(ui)/component-library/molecules/accordion/accordion-lib.constants";
+import { getCalloutSections } from "@/app/(ui)/component-library/molecules/callout/callout-lib.constants";
+import { getComingSoonSections } from "@/app/(ui)/component-library/molecules/coming-soon/coming-soon-lib.constants";
 import { getNotificationSections } from "@/app/(ui)/component-library/molecules/notification/notification-lib.constants";
 import { getSpinnerSections } from "@/app/(ui)/component-library/molecules/spinner/spinner-lib.constants";
 import { getThemeSwitcherSections } from "@/app/(ui)/component-library/molecules/theme-switcher/theme-switcher-lib.constants";
@@ -40,6 +44,7 @@ import { getPageContentSections } from "@/app/(ui)/component-library/template/pa
 import { getPageHeaderSections } from "@/app/(ui)/component-library/template/headers/page-header/page-header-lib.constants";
 import { getBlockSectionLibSections } from "@/app/(ui)/component-library/template/sections/block-section/block-section-lib.constants";
 import { getAnchorSectionLibSections } from "@/app/(ui)/component-library/template/sections/anchor-section/anchor-section-lib.constants";
+import { getTabSectionLibSections } from "@/app/(ui)/component-library/template/sections/tab-section/tab-section-lib.constants";
 
 /*
  * Aperçus du catalogue : on réutilise une section des pages de démo (la plus
@@ -65,6 +70,7 @@ export const COMPONENT_PREVIEWS: Record<string, ComponentPreview> = {
     '/component-library/molecules/filter-bar': { width: 1000, render: () => getFilterBarSections()[0].component },
     '/component-library/molecules/table': { width: 1000, render: () => getTableSections()[1].component },
     '/component-library/molecules/chart': { width: 700, render: () => getChartSection()[0].component },
+    '/component-library/molecules/formula': { width: 600, render: () => getFormulaSections()[0].component },
     '/component-library/molecules/activity-calendar': { width: 1000, render: () => getActivityCalendarSections()[0].component },
     '/component-library/molecules/difficulty-gauge': { width: 440, render: () => getDifficultyGaugeSections()[0].component },
     '/component-library/molecules/cards': { width: 600, render: () => getCardsSections()[2].component },
@@ -82,15 +88,19 @@ export const COMPONENT_PREVIEWS: Record<string, ComponentPreview> = {
     '/component-library/molecules/proportion-bar': { width: 700, render: () => getProportionBarSections()[0].component },
     '/component-library/molecules/page-state': { width: 700, render: () => getPageStateSections()[0].component },
     '/component-library/molecules/error-state': { width: 560, render: () => getErrorStateSections()[1].component },
+    '/component-library/molecules/callout': { width: 560, render: () => getCalloutSections()[0].component },
+    '/component-library/molecules/coming-soon': { width: 320, render: () => getComingSoonSections()[0].component },
     '/component-library/molecules/notification': { width: 440, render: () => getNotificationSections()[1].component },
     '/component-library/molecules/spinner': { width: 440, render: () => getSpinnerSections()[1].component },
     '/component-library/molecules/theme-switcher': { width: 440, render: () => getThemeSwitcherSections()[0].component },
     '/component-library/molecules/code-block': { width: 600, render: () => getCodeBlockSections()[0].component },
     '/component-library/molecules/tabs': { width: 560, render: () => getTabsSections()[1].component },
+    '/component-library/molecules/accordion': { width: 600, render: () => getAccordionSections()[1].component },
     // Templates
     '/component-library/template/base-layout': { width: 700, render: () => getBaseLayoutSections()[0].component },
     '/component-library/template/page-content': { width: 600, render: () => getPageContentSections()[0].component },
     '/component-library/template/headers/page-header': { width: 700, render: () => getPageHeaderSections()[0].component },
     '/component-library/template/sections/block-section': { width: 1000, render: () => getBlockSectionLibSections()[2].component },
     '/component-library/template/sections/anchor-section': { width: 1000, render: () => getAnchorSectionLibSections()[0].component },
+    '/component-library/template/sections/tab-section': { width: 1000, render: () => getTabSectionLibSections()[0].component },
 };

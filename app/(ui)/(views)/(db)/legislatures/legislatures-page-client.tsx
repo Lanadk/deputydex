@@ -51,7 +51,7 @@ export default function LegislaturesPageClient() {
             </div>
 
             <div className="flex flex-col gap-10">
-                <Section id="comprendre" title="Qu'est-ce qu'une législature ?">
+                <Section id="comprendre" title="La législature">
                     <div className="flex flex-col gap-3 rounded-lg border border-main bg-surface-2 p-5 leading-relaxed">
                         <p>
                             Une législature est la période pendant laquelle siège une même Assemblée nationale.

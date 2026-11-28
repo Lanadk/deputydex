@@ -10,47 +10,8 @@ import { LineChartLib } from "@/app/(ui)/component-library/molecules/chart/line-
 import { DashedLineChartLib } from "@/app/(ui)/component-library/molecules/chart/line-chart/dashed-line-chart-lib";
 import { ScatterChartLib } from "@/app/(ui)/component-library/molecules/chart/point-chart/scatter-chart-lib";
 import { KpiCardLib } from "@/app/(ui)/component-library/molecules/cards/kpi-card/kpi-card-lib";
-import { MultiDatum, SeriesConfig } from "@/app/(ui)/component-library/template/sections/block-section/chart-config.types";
 import { ChartColorVariant } from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
-
-/**
- * Pivote une liste de séries "longues" (une entrée par série, chacune avec
- * ses propres {label, value}) vers le format "large" attendu par
- * BarChartLib/LineChartLib en mode multi-séries (une ligne par label, une
- * colonne par série). `stacked` ajoute un `stack` commun à toutes les
- * séries — c'est ce qui fait un bar-multi empilé plutôt que groupé, sans
- * dépendre du StackedBarChartLib (celui-ci est figé sur pour/contre/abstention,
- * non réutilisable pour une donnée de catalogue générique).
- */
-function toMultiSeriesDataset(
-    series: { name: string; items: { label: string; value: number }[] }[],
-    stacked: boolean
-): { data: MultiDatum[]; series: SeriesConfig[] } {
-    // Triés : l'ordre d'apparition dans `series` (première série qui
-    // mentionne un label donné) ne correspond pas forcément à l'ordre
-    // chronologique — ex: groupes.participation-evolution-groupes, où
-    // chaque groupe démarre à un mois différent. Un tri lexicographique
-    // suffit ici car tous les labels connus sont au format "YYYY-MM".
-    const labels = Array.from(new Set(series.flatMap((s) => s.items.map((item) => item.label)))).sort((a, b) =>
-        a.localeCompare(b)
-    );
-
-    const seriesConfig: SeriesConfig[] = series.map((s, i) => ({
-        dataKey: `s${i}`,
-        label: s.name,
-        ...(stacked ? { stack: "stack" } : {}),
-    }));
-
-    const data: MultiDatum[] = labels.map((label) => {
-        const row: MultiDatum = { label };
-        series.forEach((s, i) => {
-            row[`s${i}`] = s.items.find((item) => item.label === label)?.value ?? null;
-        });
-        return row;
-    });
-
-    return { data, series: seriesConfig };
-}
+import { toMultiSeriesDataset } from "@/app/(ui)/_shared/statistics/data/multi-series-dataset";
 
 interface RenderStatChartProps {
     data: RawStatData | null;
@@ -107,7 +68,8 @@ export const RenderStatChart: React.FC<RenderStatChartProps> = ({ data, displayT
                 return <DashedLineChartLib title={title} loading={loading} data={data.points} variant={variant} groupLabel={groupLabel} />;
             }
             if (displayType === "line") {
-                return <LineChartLib title={title} loading={loading} data={data.points} variant={variant} groupLabel={groupLabel} />;
+                // `markers` : repères posés par le serveur (ex: début de chaque législature sur une courbe « toutes »).
+                return <LineChartLib title={title} loading={loading} data={data.points} variant={variant} groupLabel={groupLabel} markers={data.markers} />;
             }
             // Fallback bar : les labels sont des mois, pas des groupes — pas
             // de variant ici, `BarChartLib` chercherait un groupe par mois.
@@ -119,7 +81,7 @@ export const RenderStatChart: React.FC<RenderStatChartProps> = ({ data, displayT
             const dataset = toMultiSeriesDataset(data.series, stacked);
 
             if (displayType === "line-multi") {
-                return <LineChartLib title={title} loading={loading} data={dataset.data} series={dataset.series} variant={variant} />;
+                return <LineChartLib title={title} loading={loading} data={dataset.data} series={dataset.series} variant={variant} markers={data.markers} />;
             }
             if (displayType === "line-dashed-multi") {
                 return <DashedLineChartLib title={title} loading={loading} data={dataset.data} series={dataset.series} variant={variant} />;

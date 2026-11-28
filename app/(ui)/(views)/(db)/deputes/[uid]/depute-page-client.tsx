@@ -1,8 +1,8 @@
 "use client";
 
 import React, { useCallback, useEffect, useMemo, useState } from "react";
-import { AnchorLayout } from "@/app/(ui)/component-library/template/sections/anchor-section/anchor-layout";
-import { PageContentLib } from "@/app/(ui)/component-library/template/page-content/page-content-lib";
+import { TabLayout } from "@/app/(ui)/component-library/template/sections/tab-section/tab-layout";
+import { TabPanelLib } from "@/app/(ui)/component-library/template/sections/tab-section/tab-panel-lib";
 import { useLegislature } from "@/app/(ui)/providers/legislature-provider";
 import { DeputeHeader } from "@/app/(ui)/components/deputy/fiche/depute-header";
 import { DeputeHeaderSkeleton } from "@/app/(ui)/components/deputy/fiche/depute-header-skeleton";
@@ -10,7 +10,7 @@ import { SectionBlockLoader } from "@/app/(ui)/component-library/template/sectio
 import { SpinnerLib } from "@/app/(ui)/component-library/molecules/spinner/spinner-lib";
 import { DeputeIdentityDTO } from "@/app/domains/deputes/dto/depute-identity.dto";
 import { deputesGateway } from "@/app/(ui)/gateways/deputes/deputes.gateway";
-import { DEPUTE_SECTIONS } from "@/app/(ui)/(views)/(db)/deputes/[uid]/config";
+import { DEPUTE_ONGLETS, DEPUTE_SECTIONS } from "@/app/(ui)/(views)/(db)/deputes/[uid]/config";
 import { useAsyncData } from "@/app/(ui)/_shared/hook/use-async-data";
 import { ErrorStateLib } from "@/app/(ui)/component-library/molecules/error-state/error-state-lib";
 import { useNotifications } from "@/app/(ui)/component-library/molecules/notification/notification-lib";
@@ -73,13 +73,15 @@ export default function DeputePageClient({ uid }: { uid: string }) {
     const handleReady = useCallback(() => setReadyCount((c) => c + 1), []);
 
     return (
-        <AnchorLayout
+        // Une thématique par onglet : la fiche complète, en défilement, était trop longue.
+        <TabLayout
             header={
                 identity.error
                     ? <ErrorStateLib message="Impossible de charger les informations du député pour le moment." onRetry={identity.retry} />
                     : identity.data ? <DeputeHeader identity={identity.data} /> : <DeputeHeaderSkeleton />
             }
-            sections={DEPUTE_SECTIONS}
+            sections={DEPUTE_ONGLETS}
+            tabsLabel="Fiche du député"
         >
             <div className="mt-4">
                 {!allReady && (
@@ -88,22 +90,26 @@ export default function DeputePageClient({ uid }: { uid: string }) {
                     </div>
                 )}
                 <div className={allReady ? "" : "hidden"}>
-                    <PageContentLib>
-                        {legislatureNum !== null && DEPUTE_SECTIONS.map((section) => (
-                            <SectionBlockLoader
-                                key={section.id}
-                                section={section}
-                                params={params}
-                                onReady={
-                                    section.gatewayFn && !section.lazy
-                                        ? handleReady
-                                        : noopReady
-                                }
-                            />
-                        ))}
-                    </PageContentLib>
+                    {legislatureNum !== null && DEPUTE_ONGLETS.map((onglet) => (
+                        // Un onglet par thème ; ses sections (sous-thèmes) dans la nav latérale du panneau,
+                        // espacées par le panneau lui-même.
+                        <TabPanelLib key={onglet.id} id={onglet.id} sections={onglet.sections} navLabel={onglet.label}>
+                            {onglet.sections.map((section) => (
+                                <SectionBlockLoader
+                                    key={section.id}
+                                    section={section}
+                                    params={params}
+                                    onReady={
+                                        section.gatewayFn && !section.lazy
+                                            ? handleReady
+                                            : noopReady
+                                    }
+                                />
+                            ))}
+                        </TabPanelLib>
+                    ))}
                 </div>
             </div>
-        </AnchorLayout>
+        </TabLayout>
     );
 }

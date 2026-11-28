@@ -281,7 +281,7 @@ export default function ContributeClient() {
                     {/* COMMENT CONTRIBUER */}
                     <section className="chart-lib">
                         <div className="chart-lib__header">
-                            <div className="chart-lib__title">Comment contribuer</div>
+                            <div className="chart-lib__title">Contribuer au projet</div>
                         </div>
 
                         <div className="chart-lib__body grid grid-cols-1 md:grid-cols-3 gap-4">

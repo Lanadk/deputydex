@@ -2,6 +2,7 @@
 
 import React from "react";
 import {WireLabel} from "@/app/(ui)/component-library/template/debug/wireframe/wire-frame.utils";
+import {ActiviteScoreDemo} from "@/app/(ui)/component-library/template/sections/block-section/activite-score-demo";
 
 //Wireframes
 const WireframeParagraphBlock = () => (
@@ -304,6 +305,13 @@ const CODE_CHART_BLOCK = `// Dans sections.config.ts
 }`;
 
 
+const CODE_ACTIVITE_SCORE = `// deputes/[uid]/config.ts — section « Activité et score »
+blocks: [
+    { type: "card", colSpan: 1, rowSpan: 2, config: card("card-score-depute") },
+    { type: "activity-calendar", colSpan: 3, config: activityCalendar("depute-activity-calendar") },
+    { type: "card", colSpan: 3, config: card("card-score-detail"), formulas: [F_DEPUTE_SCORE] },
+]`;
+
 //Sections export
 export const getBlockSectionLibSections = () => [
     {
@@ -326,8 +334,16 @@ export const getBlockSectionLibSections = () => [
     },
     {
         title: "BlockSectionRenderer — Dispatcher de blocks",
-        description: "Dispatche vers le bon composant selon block.type. Gère le colSpan dans la grille de la section parente.",
+        description: "Dispatche vers le bon composant selon block.type. Gère le colSpan (et le rowSpan, sur grand écran) dans la grille de la section parente.",
         code: CODE_BLOCK_SECTION_RENDERER,
         component: <WireframeBlockSectionRenderer />,
+    },
+    {
+        title: "Démo — Activité et score de la fiche député (données simulées)",
+        description:
+            "Rendu réel, sans appel réseau : score à gauche sur deux rangées (rowSpan: 2), calendrier d'activité sur une " +
+            "année simulée, détail du score dessous avec sa formule. Sous 1280 px, les blocs s'empilent.",
+        code: CODE_ACTIVITE_SCORE,
+        component: <ActiviteScoreDemo />,
     },
 ];

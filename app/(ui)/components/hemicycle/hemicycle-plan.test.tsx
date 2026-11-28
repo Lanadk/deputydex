@@ -16,7 +16,7 @@ describe("HemicyclePlan — perchoir", () => {
     const seats = computeHemicycleSeats(GROUPES, { groupeCode: "EPR" });
 
     it("le perchoir est un lien nommé vers la fiche de la présidence ; les autres sièges restent décoratifs", () => {
-        render(<HemicyclePlan seats={seats} selectedCode={null} perchoir={PERCHOIR} />);
+        render(<HemicyclePlan seats={seats} selectedCodes={[]} perchoir={PERCHOIR} />);
 
         const lien = screen.getByRole("link", { name: "Présidence de l'Assemblée nationale : Yaël Braun-Pivet" });
         expect(lien).toHaveAttribute("href", "/deputes/PA_YBP");
@@ -28,7 +28,7 @@ describe("HemicyclePlan — perchoir", () => {
         afterEach(() => jest.useRealTimers());
 
         it("affiche le nom et le titre de la présidence au survol, les masque peu après la sortie", () => {
-            render(<HemicyclePlan seats={seats} selectedCode={null} perchoir={PERCHOIR} />);
+            render(<HemicyclePlan seats={seats} selectedCodes={[]} perchoir={PERCHOIR} />);
             const lien = screen.getByRole("link", { name: /Présidence de l'Assemblée nationale/ });
 
             expect(screen.queryByTestId("hemicycle-perchoir-label")).not.toBeInTheDocument();
@@ -44,7 +44,7 @@ describe("HemicyclePlan — perchoir", () => {
         });
 
         it("une sortie suivie d'un retour immédiat ne masque pas le libellé", () => {
-            render(<HemicyclePlan seats={seats} selectedCode={null} perchoir={PERCHOIR} />);
+            render(<HemicyclePlan seats={seats} selectedCodes={[]} perchoir={PERCHOIR} />);
             const lien = screen.getByRole("link", { name: /Présidence de l'Assemblée nationale/ });
 
             fireEvent.mouseEnter(lien);
@@ -57,7 +57,7 @@ describe("HemicyclePlan — perchoir", () => {
     });
 
     it("affiche aussi le libellé au focus clavier, le masque au blur", () => {
-        render(<HemicyclePlan seats={seats} selectedCode={null} perchoir={PERCHOIR} />);
+        render(<HemicyclePlan seats={seats} selectedCodes={[]} perchoir={PERCHOIR} />);
         const lien = screen.getByRole("link", { name: /Présidence de l'Assemblée nationale/ });
 
         fireEvent.focus(lien);
@@ -66,8 +66,33 @@ describe("HemicyclePlan — perchoir", () => {
         expect(screen.queryByTestId("hemicycle-perchoir-label")).not.toBeInTheDocument();
     });
 
+    it("habillage : couleur imposée, info-bulle du député, siège peu fiable hachuré", () => {
+        const sieges = computeHemicycleSeats(GROUPES);
+        const habillage = new Map([
+            [0, { background: "rgb(63, 168, 101)", title: "Alice · LFI-NFP\nTaux de présence : 80,0 %", peuFiable: false }],
+            [1, { background: "rgb(200, 80, 72)", title: "Bruno · LFI-NFP\nTaux de présence : 20,0 %", peuFiable: true }],
+        ]);
+        const { container } = render(<HemicyclePlan seats={sieges} selectedCodes={[]} habillage={habillage} />);
+        const [premier, second, troisieme] = Array.from(container.querySelectorAll<HTMLElement>(".hemicycle-seat"));
+
+        expect(premier).toHaveAttribute("title", "Alice · LFI-NFP\nTaux de présence : 80,0 %");
+        expect(premier.style.background).toBe("rgb(63, 168, 101)");
+        expect(premier).not.toHaveClass("hemicycle-seat--peu-fiable");
+        expect(second).toHaveClass("hemicycle-seat--peu-fiable");
+        // Sans habillage : couleur du groupe, pas d'info-bulle.
+        expect(troisieme).not.toHaveAttribute("title");
+    });
+
+    it("coalition : les groupes sélectionnés restent pleins, les autres s'estompent", () => {
+        const { container } = render(<HemicyclePlan seats={computeHemicycleSeats(GROUPES)} selectedCodes={["EPR"]} />);
+        const opacites = Array.from(container.querySelectorAll<HTMLElement>(".hemicycle-seat")).map((s) => [s.dataset.group, s.style.opacity]);
+
+        expect(opacites).toContainEqual(["EPR", "1"]);
+        expect(opacites).toContainEqual(["LFI-NFP", "0.16"]);
+    });
+
     it("sans présidence : aucun lien, aucune carte", () => {
-        render(<HemicyclePlan seats={computeHemicycleSeats(GROUPES)} selectedCode={null} />);
+        render(<HemicyclePlan seats={computeHemicycleSeats(GROUPES)} selectedCodes={[]} />);
 
         expect(screen.queryByRole("link")).not.toBeInTheDocument();
     });

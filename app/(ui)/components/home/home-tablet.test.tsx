@@ -35,6 +35,7 @@ const FICHE: HomeTabletFiche = {
     stats: {
         totalVotes: 9000, totalPour: 3000, totalContre: 4000, totalAbstentions: 1400, totalNonVotants: 600,
         rebelVotesCount: 40, tauxFidelite: 88.4, tauxParticipation: 93.3,
+        scrutinsVotables: 9000, votesExprimes: 8400, votesParDelegation: 120,
     },
     activite: [{ date: "2026-11-18", count: 40, level: 4 }, { date: "2026-11-10", count: 3, level: 1 }],
 };

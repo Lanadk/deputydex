@@ -61,7 +61,7 @@ export default function MentionsLegalesClient() {
                     cols={2}
                 >
                     <div className="border border-main bg-surface-1 p-4 rounded-lg flex flex-col gap-2">
-                        <div className="font-semibold">Qui édite le site</div>
+                        <div className="font-semibold">Éditeur du site</div>
                         <p className="text-sm text-subtitle-accent">
                             Députédex est édité à titre non professionnel par Ottman BECUWE et Souheil NAOUEL.
                         </p>

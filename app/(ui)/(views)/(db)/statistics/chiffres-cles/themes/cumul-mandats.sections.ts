@@ -80,7 +80,7 @@ export const CUMUL_MANDATS_SECTIONS: PageSection[] = [
         id: "cumul-mandats-groupes",
         label: "L'ancienneté moyenne par groupe",
         icon: History,
-        description: "Depuis combien d'années les membres de chaque groupe siègent-ils à l'Assemblée ? " +
+        description: "Nombre moyen d'années passées à l'Assemblée par les membres de chaque groupe. " +
             "Moyenne calculée sur les membres actuels du groupe, à partir de toutes les législatures " +
             "présentes dans nos données.",
         cols: 4,

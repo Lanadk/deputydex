@@ -6,7 +6,8 @@ import {
     SimpleDatum,
     MultiDatum,
     SeriesConfig,
-    ScatterSeries
+    ScatterSeries,
+    ChartMarker
 } from "../chart-config.types";
 import {BarChartLib} from "@/app/(ui)/component-library/molecules/chart/bar-chart/bar-chart-lib";
 import {LineChartLib} from "@/app/(ui)/component-library/molecules/chart/line-chart/line-chart-lib";
@@ -44,21 +45,21 @@ export function BlockChartRenderer({config, data, loading}: BlockChartRendererPr
         case 'stacked-bar':
         case 'line-multi':
         case 'line-dashed-multi': {
-            const d = data as { data: MultiDatum[]; series: SeriesConfig[] };
+            const d = data as { data: MultiDatum[]; series: SeriesConfig[]; markers?: ChartMarker[] };
             if (config.displayType === 'stacked-bar')
                 return <StackedBarChartLib {...base} data={d.data as never}/>;
             if (config.displayType === 'line-multi')
-                return <LineChartLib {...base} data={d.data} series={d.series} variant={config.variant}/>;
+                return <LineChartLib {...base} data={d.data} series={d.series} variant={config.variant} markers={d.markers}/>;
             if (config.displayType === 'line-dashed-multi')
                 return <DashedLineChartLib {...base} data={d.data} series={d.series} variant={config.variant}/>;
             return <BarChartLib {...base} data={d.data} series={d.series} variant={config.variant}/>;
         }
         case 'line':
         case 'line-dashed': {
-            const d = data as { data: SimpleDatum[]; groupLabel?: string };
+            const d = data as { data: SimpleDatum[]; groupLabel?: string; markers?: ChartMarker[] };
             if (config.displayType === 'line-dashed')
                 return <DashedLineChartLib {...base} data={d.data} variant={config.variant} groupLabel={d.groupLabel}/>;
-            return <LineChartLib {...base} data={d.data} variant={config.variant} groupLabel={d.groupLabel}/>;
+            return <LineChartLib {...base} data={d.data} variant={config.variant} groupLabel={d.groupLabel} markers={d.markers}/>;
         }
         case 'scatter': {
             const d = data as { series: ScatterSeries[]; xLabel?: string; yLabel?: string };

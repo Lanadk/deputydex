@@ -61,7 +61,7 @@ export function HomeStatistiques() {
                 id="home-stats"
                 kicker="Statistiques"
                 title="Des graphes pour comprendre l'Assemblée"
-                lead={<>Qui sont les député·es, comment votent les groupes, qui vote avec qui : {total} thèmes expliqués en graphiques.</>}
+                lead={<>Profil des député·es, positions de vote et proximités entre groupes : {total} thèmes expliqués en graphiques.</>}
             />
             <div className="home-grid">
                 {themes.map((t) => (

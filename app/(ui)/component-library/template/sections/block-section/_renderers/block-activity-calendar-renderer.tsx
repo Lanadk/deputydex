@@ -118,15 +118,24 @@ export function BlockActivityCalendarRenderer({config, data, loading, params, ac
         case 'tooltip-and-href':
             return (
                 <div className="flex flex-col gap-4">
-                    {years.length > 1 && (
-                        <div className="flex justify-end">
-                            <div className="w-32">
-                                <SelectLib
-                                    options={years.map((y) => ({value: String(y), label: String(y)}))}
-                                    value={String(activeYear)}
-                                    onChange={handleYearChange}
-                                />
-                            </div>
+                    {/* En-tête : titre à gauche (même style que les titres de carte), année à droite. */}
+                    {(config.title || years.length > 1) && (
+                        <div className="flex flex-wrap items-center justify-between gap-3">
+                            {config.title && (
+                                <div className="min-w-0">
+                                    <h3 className="text-sm font-bold uppercase tracking-wide">{config.title}</h3>
+                                    {config.subtitle && <p className="text-xs text-subtitle-accent mt-0.5">{config.subtitle}</p>}
+                                </div>
+                            )}
+                            {years.length > 1 && (
+                                <div className="w-32 ml-auto">
+                                    <SelectLib
+                                        options={years.map((y) => ({value: String(y), label: String(y)}))}
+                                        value={String(activeYear)}
+                                        onChange={handleYearChange}
+                                    />
+                                </div>
+                            )}
                         </div>
                     )}
 

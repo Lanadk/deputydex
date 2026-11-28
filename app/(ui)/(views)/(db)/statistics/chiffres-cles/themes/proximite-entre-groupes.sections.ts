@@ -110,7 +110,7 @@ function buildGouvernementRecit(data: BlockDataWrapper | undefined): ParagraphIt
 }
 
 /**
- * "Qui vote avec qui ?" — proximité de vote ENTRE groupes (pas la proximité
+ * "La proximité de vote entre groupes" — proximité de vote ENTRE groupes (pas la proximité
  * d'un·e député·e à son propre groupe, qui reste le thème `proximite-groupe`).
  * Route dédiée `/api/groupes/proximite/[legislature]` plutôt qu'une stat
  * catalogue : une paire de groupes ne rentre dans aucun shape `RawStatData`
@@ -136,7 +136,7 @@ async function fetchProximite(legislature: number) {
 export const PROXIMITE_ENTRE_GROUPES_SECTIONS: PageSection[] = [
     {
         id: "proximite-entre-groupes-paires",
-        label: "Quels groupes votent ensemble",
+        label: "Proximité entre groupes",
         icon: Network,
         description: "Pour chaque paire de groupes : la part des scrutins où leurs positions majoritaires " +
             "(pour, contre ou abstention) sont identiques, sur toute la législature. Un groupe renommé en cours de " +
@@ -193,7 +193,7 @@ export const PROXIMITE_ENTRE_GROUPES_SECTIONS: PageSection[] = [
     },
     {
         id: "proximite-entre-groupes-gouvernement",
-        label: "Qui vote comme le groupe du gouvernement",
+        label: "Proximité avec le groupe du gouvernement",
         icon: Landmark,
         description: "La même mesure, vue depuis le groupe de référence du gouvernement : à quel point chaque " +
             "groupe vote-t-il comme lui ?",

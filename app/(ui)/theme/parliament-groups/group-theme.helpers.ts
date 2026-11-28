@@ -3,6 +3,7 @@ import {
     PARLIAMENTARY_GROUP_THEME_REGISTRY,
 } from "./group-theme.registry";
 import type {GroupTheme} from "./group-theme.types";
+import {codeDeGroupeLabel} from "@/app/domains/presence/presence-labels";
 
 export type ChartColorVariant = "default" | "parliament-group";
 
@@ -84,7 +85,9 @@ export const GROUP_COMPOSITION_MAP: Record<string, string> = {
 };
 
 export function getCanonicalGroupCode(code: string | null | undefined): string {
-    return GROUP_COMPOSITION_MAP[code ?? ""] ?? (code ?? "DEFAULT");
+    // « RN · 16ᵉ » (groupe d'une législature, périmètre « toutes ») garde la couleur de « RN ».
+    const sigle = code == null ? code : codeDeGroupeLabel(code);
+    return GROUP_COMPOSITION_MAP[sigle ?? ""] ?? (sigle ?? "DEFAULT");
 }
 
 function normalizeGroupKey(value: string | null | undefined): string {
