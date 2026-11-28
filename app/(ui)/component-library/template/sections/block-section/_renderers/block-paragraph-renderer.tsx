@@ -3,6 +3,9 @@
 import React from "react";
 import { TrendingUp, TrendingDown, Minus, ExternalLink } from "lucide-react";
 import {ParagraphItem} from "@/app/(ui)/component-library/template/sections/block-section/block-section-renderer";
+import {FormulaLib} from "@/app/(ui)/component-library/molecules/formula/formula-lib";
+import {AccordionLib} from "@/app/(ui)/component-library/molecules/accordion/accordion-lib";
+import {CalloutLib} from "@/app/(ui)/component-library/molecules/callout/callout-lib";
 
 interface BlockParagraphRendererProps {
     items: ParagraphItem[];
@@ -11,7 +14,8 @@ interface BlockParagraphRendererProps {
 /**
  * BlockParagraphRenderer
  * Rendu d'un block paragraphe déclaratif.
- * Supporte : text, highlight, list, kpi.
+ * Supporte : text, highlight, list, kpi, subheading, source, formula, callout,
+ * accordion (panneaux repliables d'items, rendus récursivement).
  */
 export const BlockParagraphRenderer: React.FC<BlockParagraphRendererProps> = ({ items }) => {
     return (
@@ -30,6 +34,35 @@ export const BlockParagraphRenderer: React.FC<BlockParagraphRendererProps> = ({ 
                             >
                                 {item.content}
                             </span>
+                        );
+
+                    case "formula": {
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                        const { type, ...formula } = item;
+                        return <FormulaLib key={i} {...formula} />;
+                    }
+
+                    case "callout":
+                        return (
+                            <CalloutLib key={i} variant={item.variant} title={item.title}>
+                                {item.paragraphs.map((p, j) => <p key={j} className="m-0">{p}</p>)}
+                            </CalloutLib>
+                        );
+
+                    case "accordion":
+                        return (
+                            <AccordionLib
+                                key={i}
+                                multiple={item.multiple}
+                                defaultOpenIds={(item.defaultOpen ?? []).map(String)}
+                                items={item.panels.map((panel, j) => ({
+                                    id: String(j),
+                                    title: panel.title,
+                                    hint: panel.hint,
+                                    // Le panneau est déjà encadré : formules sans cadre propre.
+                                    content: <BlockParagraphRenderer items={panel.items.map((it) => (it.type === "formula" ? { ...it, framed: false } : it))} />,
+                                }))}
+                            />
                         );
 
                     case "source":

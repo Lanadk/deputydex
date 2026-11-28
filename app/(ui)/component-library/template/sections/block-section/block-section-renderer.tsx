@@ -37,6 +37,10 @@ import {
     BlockHemicycleRenderer
 } from "@/app/(ui)/component-library/template/sections/block-section/_renderers/block-hemicycle-renderer";
 
+import {FormulaLib, FormulaLibProps} from "@/app/(ui)/component-library/molecules/formula/formula-lib";
+import {AccordionLib} from "@/app/(ui)/component-library/molecules/accordion/accordion-lib";
+import {CalloutVariant} from "@/app/(ui)/component-library/molecules/callout/callout-lib";
+
 export type ColSpan = 1 | 2 | 3 | 4;
 export type ParagraphItem =
     | { type: "text"; content: string }
@@ -47,6 +51,12 @@ export type ParagraphItem =
     | { type: "subheading"; content: string }
     /** Lien de citation externe (ex: source INSEE d'une donnée de référence) — discret, pas une phrase du récit */
     | { type: "source"; label: string; href: string }
+    /** Formule de calcul exacte d'un indicateur + légende de ses symboles — voir FormulaLib */
+    | ({ type: "formula" } & FormulaLibProps)
+    /** Encadré Remarque / Info / Attention (CalloutLib) — un paragraphe par entrée de `paragraphs` */
+    | { type: "callout"; variant: CalloutVariant; title?: string; paragraphs: string[] }
+    /** Panneaux repliables (AccordionLib), chacun contenant d'autres items de paragraphe — ex: une formule par panneau */
+    | { type: "accordion"; panels: { title: string; hint?: string; items: ParagraphItem[] }[]; multiple?: boolean; defaultOpen?: number[] }
 
 //Blocks
 
@@ -63,7 +73,14 @@ export type ParagraphSource =
     | { items: ParagraphItem[] }
     | { dataId: string; render: (data: BlockDataWrapper | undefined) => ParagraphItem[] };
 
-export type SectionBlock<TRow = unknown> =
+/**
+ * Commun à tous les blocs : formules de calcul affichées SOUS le bloc, dans
+ * sa cellule de grille, chacune dans un panneau d'accordéon fermé
+ * (« Comment c'est calculé — <label> »).
+ */
+export type BlockFormulas = { formulas?: FormulaLibProps[] };
+
+export type SectionBlock<TRow = unknown> = BlockFormulas & (
     | {
     type: "chart";
     /** Occupe 2 colonnes dans la grille (défaut: 1) */
@@ -96,7 +113,16 @@ export type SectionBlock<TRow = unknown> =
     type: "hemicycle";
     colSpan?: ColSpan;
     config: HemicycleConfig;
-}
+} | {
+    /**
+     * Formules seules, sur `colSpan` colonnes — pour une RANGÉE de petits
+     * blocs (ex: 4 KPI alignés) : un seul accordéon sous toute la rangée
+     * plutôt qu'un accordéon étroit sous chaque KPI.
+     */
+    type: "formulas";
+    colSpan?: ColSpan;
+    formulas: FormulaLibProps[];
+});
 
 export type BlockDataWrapper =
     | ChartDataWrapper
@@ -204,13 +230,31 @@ export const BlockSectionRenderer: React.FC<BlockSectionRendererProps> = ({
                         loading={loading}
                     />
                 );
+
+            case "formulas":
+                // Rien à rendre au-dessus : l'accordéon des formules suffit (voir plus bas).
+                return null;
         }
     })();
 
+    // Formules sous le bloc, DANS sa cellule de grille : en deux colonnes,
+    // chacune reste sous son propre graphique. Fermés, les accordéons ont
+    // tous la même hauteur (un en-tête), les deux colonnes restent alignées.
+    const formulas = block.formulas ?? [];
+
     return (
-        <div className={colSpanClass}>
+        <div className={formulas.length > 0 ? `${colSpanClass} flex flex-col gap-2` : colSpanClass}>
             {/* Outil de perf (dev seulement) : temps de rendu React de chaque bloc. Sans l'outil, rendu direct. */}
-            <DevPerfProfiler type={profiledBlockType(block)} id={profiledBlockId(block)}>{rendered}</DevPerfProfiler>
+            {rendered !== null && <DevPerfProfiler type={profiledBlockType(block)} id={profiledBlockId(block)}>{rendered}</DevPerfProfiler>}
+            {formulas.length > 0 && (
+                <AccordionLib
+                    items={formulas.map(({ label, ...formula }, i) => ({
+                        id: String(i),
+                        title: label ? `Comment c'est calculé — ${label}` : "Comment c'est calculé",
+                        content: <FormulaLib {...formula} framed={false} />,
+                    }))}
+                />
+            )}
         </div>
     );
 };
@@ -227,6 +271,8 @@ function profiledBlockId(block: SectionBlock): string {
             return block.id;
         case "paragraph":
             return "dataId" in block ? block.dataId : "texte";
+        case "formulas":
+            return "formules";
         default:
             return block.config.id;
     }
