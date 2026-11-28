@@ -70,7 +70,7 @@ function formatDuree(dateDebutISO: string, dateFinISO: string | null): string {
 // ── Calendrier d'activité ────────────────────────────────────────────────────
 
 const DEPUTE_ACTIVITY_CALENDAR_REGISTRY: ActivityCalendarConfig[] = [
-    { id: "depute-activity-calendar", displayType: "tooltip-and-href" },
+    { id: "depute-activity-calendar", displayType: "tooltip-and-href", title: "Calendrier d'activité" },
 ];
 
 // ── Tables ──────────────────────────────────────────────────────────────────
@@ -253,6 +253,8 @@ const DEPUTE_DOSSIER_LIST_REGISTRY: Omit<ExpandableCardListConfig<DeputeDossierC
 // ── Cards ────────────────────────────────────────────────────────────────────
 
 const DEPUTE_CARD_REGISTRY: CardConfig[] = [
+    { id: "card-score-depute", displayType: "score-card" },
+    { id: "card-score-detail", displayType: "score-breakdown-card" },
     { id: "kpi-vote-participation", displayType: "kpi-card" },
     { id: "kpi-vote-fidelite", displayType: "kpi-card" },
     { id: "kpi-vote-rebel", displayType: "kpi-card" },

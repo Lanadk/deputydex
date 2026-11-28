@@ -14,12 +14,12 @@ jest.mock("@/app/(ui)/gateways/deputes/deputes.gateway", () => ({
     deputesGateway: { getDeputeIdentity: jest.fn(), getDeputeLegislatures: jest.fn() },
 }));
 // Sections, mise en page et en-tête remplacés : c'est la gestion des erreurs de la fiche qui est testée ici.
-jest.mock("@/app/(ui)/(views)/(db)/deputes/[uid]/config", () => ({ DEPUTE_SECTIONS: [] }));
+jest.mock("@/app/(ui)/(views)/(db)/deputes/[uid]/config", () => ({ DEPUTE_ONGLETS: [], DEPUTE_SECTIONS: [] }));
 jest.mock("@/app/(ui)/component-library/template/sections/block-section/_loader/section-block-loader", () => ({
     SectionBlockLoader: () => null,
 }));
-jest.mock("@/app/(ui)/component-library/template/sections/anchor-section/anchor-layout", () => ({
-    AnchorLayout: ({ header, children }: { header: React.ReactNode; children: React.ReactNode }) => <div>{header}{children}</div>,
+jest.mock("@/app/(ui)/component-library/template/sections/tab-section/tab-layout", () => ({
+    TabLayout: ({ header, children }: { header: React.ReactNode; children: React.ReactNode }) => <div>{header}{children}</div>,
 }));
 jest.mock("@/app/(ui)/components/deputy/fiche/depute-header", () => ({
     DeputeHeader: ({ identity }: { identity: { nom: string } }) => <h1>{identity.nom}</h1>,

@@ -1,6 +1,7 @@
-import { BookOpen, CalendarDays, Gauge, Landmark, Vote } from "lucide-react";
+import { BookOpen, CalendarDays, CalendarRange, FileText, Gauge, History, Landmark, ListChecks, TrendingUp, Vote } from "lucide-react";
 import { activityCalendar, card, chart, dossierList, table } from "@/app/(ui)/(views)/(db)/deputes/[uid]/registry";
 import { PageSection } from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
+import { TabDefinition } from "@/app/(ui)/component-library/template/sections/tab-section/tab.types";
 import { BlockDataWrapper, SectionBlock } from "@/app/(ui)/component-library/template/sections/block-section/block-section-renderer";
 import { deputesGateway } from "@/app/(ui)/gateways/deputes/deputes.gateway";
 import { statisticsGateway } from "@/app/(ui)/gateways/statistics/statistics.gateway";
@@ -31,19 +32,48 @@ import {
     F_DEPUTE_TAUX_MOIS,
 } from "@/app/(ui)/(views)/(db)/deputes/[uid]/presence.formules";
 import { F_DEPUTE_PARTICIPATION_VOTES } from "@/app/(ui)/(views)/(db)/deputes/[uid]/votes.formules";
+import { F_DEPUTE_SCORE, scoreDeputeApercu, verdictScore } from "@/app/(ui)/(views)/(db)/deputes/[uid]/score";
 
-export const DEPUTE_SECTIONS: PageSection[] = [
-    // ── Activité ────────────────────────────────────────────────────────────
+// ── Activité ────────────────────────────────────────────────────────────────
+// Calendrier d'activité et score du député : le score à gauche du calendrier,
+// son détail sous le calendrier. Score : maquette (`scoreDeputeApercu`, voir score.ts)
+// en attendant les données de deputydex-data.
+
+const ACTIVITE: PageSection[] = [
     {
         id: "activite-calendrier",
-        label: "Activité",
+        label: "Activité et score",
         icon: CalendarDays,
-        description: "Jours d'activité du député sur cette législature (votes, amendements déposés ou co-signés)",
+        description: "Jours d'activité du député sur cette législature (votes, amendements déposés ou co-signés), et son score pour en avoir une première idée",
         cols: 4,
         lazy: false,
         gatewayFn: async ({ uid, legislature }: Record<string, unknown>) => {
-            const data = await deputesGateway.getDeputeActivityCalendar(uid as string, legislature as number);
-            return { "depute-activity-calendar": { data } } as Record<string, BlockDataWrapper>;
+            const [data, score] = await Promise.all([
+                deputesGateway.getDeputeActivityCalendar(uid as string, legislature as number),
+                Promise.resolve(scoreDeputeApercu()),
+            ]);
+            return {
+                "depute-activity-calendar": { data },
+                "card-score-depute": {
+                    data: {
+                        title: "Score",
+                        score: score.score,
+                        verdict: verdictScore(score.score),
+                        caption: score.percentile != null ? `Mieux que ${score.percentile} % des députés de la législature` : undefined,
+                        badge: score.apercu ? "Aperçu" : undefined,
+                        badges: score.badges,
+                    },
+                },
+                "card-score-detail": {
+                    data: {
+                        title: "Détail du score",
+                        items: score.composantes,
+                        footer: score.apercu
+                            ? "Aperçu : composantes, poids et valeurs fictifs, en attendant le calcul réel du score."
+                            : "Chaque composante apporte poids × sous-score ÷ 100 points ; leur somme donne le score.",
+                    },
+                },
+            } as unknown as Record<string, BlockDataWrapper>;
         },
         actions: {
             onActivityClick: async ({ date, uid, legislature }) => {
@@ -55,36 +85,42 @@ export const DEPUTE_SECTIONS: PageSection[] = [
             },
         },
         blocks: [
+            // Score à gauche, sur la hauteur du calendrier ET du détail (2 rangées) ;
+            // calendrier sur 3 colonnes à sa droite, détail du score dessous.
+            // Score : maquette floutée « Disponible bientôt » tant que les données n'existent pas.
+            { type: "card", colSpan: 1, rowSpan: 2, config: card("card-score-depute"), bientot: true },
             {
                 type: "activity-calendar",
-                colSpan: 4,
+                colSpan: 3,
                 config: activityCalendar("depute-activity-calendar"),
             },
+            { type: "card", colSpan: 3, config: card("card-score-detail"), formulas: [F_DEPUTE_SCORE], bientot: true },
         ],
     },
+];
 
-    // ── Présence ────────────────────────────────────────────────────────────
-    // Législature du sélecteur : mêmes stats que le mode avancé
-    // (`acteurs.presence-*`, filtre législature), comparées à son groupe du
-    // moment (`groupes.presence*`) et à toute l'Assemblée (`acteurs.presence-moyenne`).
+// ── Présence ────────────────────────────────────────────────────────────────
+// Législature du sélecteur : mêmes stats que le mode avancé
+// (`acteurs.presence-*`, filtre législature), comparées à son groupe du
+// moment (`groupes.presence*`) et à toute l'Assemblée (`acteurs.presence-moyenne`).
+// Chaque sous-thème charge ses seules stats.
+
+const statDepute = (uid: unknown, legislature: unknown) => ({ entityId: uid as string, filters: { legislature: legislature as number } });
+
+const PRESENCE: PageSection[] = [
     {
-        id: "presence",
-        label: "Présence",
+        id: "presence-synthese",
+        label: "Synthèse",
         icon: Gauge,
         description: "En séance, en commission et aux scrutins sur cette législature, comparé à son groupe et à l'ensemble des députés",
         cols: 4,
         lazy: false,
         gatewayFn: async ({ uid, legislature }: Record<string, unknown>) => {
             const leg = legislature as number;
-            const depute = { entityId: uid as string, filters: { legislature: leg } };
             const legislatureSeule = { filters: { legislature: leg } };
 
-            const [composantes, evolution, jours, sources, mandat, assemblee, groupesComposantes, groupesTaux, identite] = await Promise.all([
-                lireStat(statisticsGateway.fetchStat("acteurs", "presence-composantes", depute)),
-                lireStat(statisticsGateway.fetchStat("acteurs", "presence", depute)),
-                lireStat(statisticsGateway.fetchStat("acteurs", "presence-jours-mensuels", depute)),
-                lireStat(statisticsGateway.fetchStat("acteurs", "presence-sources", depute)),
-                lireStat(statisticsGateway.fetchStat("acteurs", "presence-annee-mandat", depute)),
+            const [composantes, assemblee, groupesComposantes, groupesTaux, identite] = await Promise.all([
+                lireStat(statisticsGateway.fetchStat("acteurs", "presence-composantes", statDepute(uid, leg))),
                 lireStat(statisticsGateway.fetchStat("acteurs", "presence-moyenne", legislatureSeule)),
                 lireStat(statisticsGateway.fetchStat("groupes", "presence-composantes", legislatureSeule)),
                 lireStat(statisticsGateway.fetchStat("groupes", "presence", legislatureSeule)),
@@ -105,12 +141,6 @@ export const DEPUTE_SECTIONS: PageSection[] = [
                     { nom: groupeCode ? `Groupe ${groupeCode}` : "Son groupe", valeurs: valeursGroupe(groupesComposantes, groupesTaux, groupeCode) },
                     { nom: "Assemblée", valeurs: valeursComposantes(assemblee) },
                 ]),
-                "chart-presence-evolution": { data: pointsOf(evolution) },
-                "chart-presence-jours-mensuels": { data: pointsOf(jours) },
-                "chart-presence-sources": {
-                    data: (seriesOf(sources)[0]?.items ?? []).map((i) => ({ label: sansPrefixe(i.label), value: i.value })),
-                },
-                "chart-presence-annee-mandat": { data: pointsOf(mandat).map((p) => ({ label: sansPrefixe(p.label), value: p.value })) },
             } as unknown as Record<string, BlockDataWrapper>;
         },
         blocks: [
@@ -127,27 +157,68 @@ export const DEPUTE_SECTIONS: PageSection[] = [
             // Rangée de 4 KPI : un seul accordéon sur toute la largeur.
             { type: "formulas", colSpan: 4, formulas: [F_DEPUTE_TAUX, F_DEPUTE_SEANCE, F_DEPUTE_COMMISSION, F_DEPUTE_SCRUTINS] },
             { type: "chart", colSpan: 4, config: chart("chart-presence-comparaison"), formulas: [F_COMPARAISON] },
+        ],
+    },
+    {
+        id: "presence-mois",
+        label: "Mois par mois",
+        icon: TrendingUp,
+        description: "Taux de présence et jours de présence, mois après mois, sur cette législature",
+        cols: 4,
+        lazy: false,
+        gatewayFn: async ({ uid, legislature }: Record<string, unknown>) => {
+            const [evolution, jours] = await Promise.all([
+                lireStat(statisticsGateway.fetchStat("acteurs", "presence", statDepute(uid, legislature))),
+                lireStat(statisticsGateway.fetchStat("acteurs", "presence-jours-mensuels", statDepute(uid, legislature))),
+            ]);
+            return {
+                "chart-presence-evolution": { data: pointsOf(evolution) },
+                "chart-presence-jours-mensuels": { data: pointsOf(jours) },
+            } as unknown as Record<string, BlockDataWrapper>;
+        },
+        blocks: [
             { type: "chart", colSpan: 2, config: chart("chart-presence-evolution"), formulas: [F_DEPUTE_TAUX_MOIS] },
             { type: "chart", colSpan: 2, config: chart("chart-presence-jours-mensuels"), formulas: [F_DEPUTE_JOURS_MOIS] },
+        ],
+    },
+    {
+        id: "presence-sources",
+        label: "Sources et années de mandat",
+        icon: CalendarRange,
+        description: "Ce qui atteste sa présence (vote, prise de parole, commission) et son rythme d'une année de mandat à l'autre",
+        cols: 4,
+        lazy: false,
+        gatewayFn: async ({ uid, legislature }: Record<string, unknown>) => {
+            const [sources, mandat] = await Promise.all([
+                lireStat(statisticsGateway.fetchStat("acteurs", "presence-sources", statDepute(uid, legislature))),
+                lireStat(statisticsGateway.fetchStat("acteurs", "presence-annee-mandat", statDepute(uid, legislature))),
+            ]);
+            return {
+                "chart-presence-sources": {
+                    data: (seriesOf(sources)[0]?.items ?? []).map((i) => ({ label: sansPrefixe(i.label), value: i.value })),
+                },
+                "chart-presence-annee-mandat": { data: pointsOf(mandat).map((p) => ({ label: sansPrefixe(p.label), value: p.value })) },
+            } as unknown as Record<string, BlockDataWrapper>;
+        },
+        blocks: [
             { type: "chart", colSpan: 2, config: chart("chart-presence-sources"), formulas: [F_DEPUTE_SOURCES] },
             { type: "chart", colSpan: 2, config: chart("chart-presence-annee-mandat"), formulas: [F_DEPUTE_ANNEE_MANDAT] },
         ],
     },
+];
 
-    // ── Comportement au vote & activité législative ────────────────────────────
+// ── Votes et activité législative ───────────────────────────────────────────
+
+const VOTES: PageSection[] = [
     {
-        id: "votes-activite",
-        label: "Comportement au vote et activité législative",
+        id: "votes-comportement",
+        label: "Comportement au vote",
         icon: Vote,
-        description: "Participation, fidélité au groupe, votes rebelles, ainsi que les amendements déposés et adoptés sur cette législature",
+        description: "Participation, fidélité au groupe et votes rebelles sur cette législature",
         cols: 4,
         lazy: false,
         gatewayFn: async ({ uid, legislature }: Record<string, unknown>) => {
-            const [stats, recentVotes, amendementStats] = await Promise.all([
-                deputesGateway.getDeputeVoteStats(uid as string, legislature as number),
-                deputesGateway.getDeputeRecentVotes(uid as string, legislature as number),
-                deputesGateway.getDeputeAmendementStats(uid as string, legislature as number),
-            ]);
+            const stats = await deputesGateway.getDeputeVoteStats(uid as string, legislature as number);
 
             return {
                 "kpi-vote-participation": {
@@ -196,7 +267,48 @@ export const DEPUTE_SECTIONS: PageSection[] = [
                         { label: "Non-votant", value: stats.totalNonVotants },
                     ],
                 },
-                "depute-recent-votes-table": recentVotes,
+            } as unknown as Record<string, BlockDataWrapper>;
+        },
+        blocks: [
+            { type: "card", colSpan: 1, config: card("kpi-vote-total") },
+            { type: "card", colSpan: 1, config: card("kpi-vote-participation") },
+            { type: "card", colSpan: 1, config: card("kpi-vote-fidelite") },
+            { type: "card", colSpan: 1, config: card("kpi-vote-rebel") },
+            // Rangée de 4 KPI : un seul accordéon sur toute la largeur.
+            { type: "formulas", colSpan: 4, formulas: [F_DEPUTE_PARTICIPATION_VOTES] },
+            { type: "card", colSpan: 2, config: card("kpi-vote-breakdown") },
+            { type: "chart", colSpan: 2, config: chart("chart-vote-positions") },
+        ],
+    },
+    {
+        id: "votes-recents",
+        label: "Votes récents",
+        icon: ListChecks,
+        description: "Ses derniers votes sur cette législature",
+        cols: 4,
+        lazy: false,
+        gatewayFn: async ({ uid, legislature }: Record<string, unknown>) => {
+            const recentVotes = await deputesGateway.getDeputeRecentVotes(uid as string, legislature as number);
+            return { "depute-recent-votes-table": recentVotes } as unknown as Record<string, BlockDataWrapper>;
+        },
+        blocks: [
+            {
+                type: "table" as const,
+                colSpan: 4,
+                ...table("depute-recent-votes-table"),
+            } satisfies SectionBlock<DeputeRecentVoteDTO>,
+        ],
+    },
+    {
+        id: "amendements",
+        label: "Amendements",
+        icon: FileText,
+        description: "Amendements déposés et adoptés sur cette législature",
+        cols: 3,
+        lazy: false,
+        gatewayFn: async ({ uid, legislature }: Record<string, unknown>) => {
+            const amendementStats = await deputesGateway.getDeputeAmendementStats(uid as string, legislature as number);
+            return {
                 "kpi-amendements-deposes": {
                     data: { label: "amendements déposés", value: amendementStats.totalDepose },
                 },
@@ -209,26 +321,16 @@ export const DEPUTE_SECTIONS: PageSection[] = [
             } as unknown as Record<string, BlockDataWrapper>;
         },
         blocks: [
-            { type: "card", colSpan: 1, config: card("kpi-vote-total") },
-            { type: "card", colSpan: 1, config: card("kpi-vote-participation") },
-            { type: "card", colSpan: 1, config: card("kpi-vote-fidelite") },
-            { type: "card", colSpan: 1, config: card("kpi-vote-rebel") },
-            // Rangée de 4 KPI : un seul accordéon sur toute la largeur.
-            { type: "formulas", colSpan: 4, formulas: [F_DEPUTE_PARTICIPATION_VOTES] },
             { type: "card", colSpan: 1, config: card("kpi-amendements-deposes") },
             { type: "card", colSpan: 1, config: card("kpi-amendements-adoptes") },
             { type: "card", colSpan: 1, config: card("kpi-amendements-taux") },
-            { type: "card", colSpan: 2, config: card("kpi-vote-breakdown") },
-            { type: "chart", colSpan: 2, config: chart("chart-vote-positions") },
-            {
-                type: "table" as const,
-                colSpan: 4,
-                ...table("depute-recent-votes-table"),
-            } satisfies SectionBlock<DeputeRecentVoteDTO>,
         ],
     },
+];
 
-    // ── Mandats ─────────────────────────────────────────────────────────────
+// ── Mandats ─────────────────────────────────────────────────────────────────
+
+const MANDATS: PageSection[] = [
     {
         id: "mandats",
         label: "Historique des mandats",
@@ -248,8 +350,11 @@ export const DEPUTE_SECTIONS: PageSection[] = [
             } satisfies SectionBlock<DeputeMandatDTO>,
         ],
     },
+];
 
-    // ── Dossiers législatifs ───────────────────────────────────────────────
+// ── Dossiers législatifs ────────────────────────────────────────────────────
+
+const DOSSIERS: PageSection[] = [
     {
         id: "dossiers-legislatifs",
         label: "Dossiers législatifs",
@@ -297,3 +402,18 @@ export const DEPUTE_SECTIONS: PageSection[] = [
         ],
     },
 ];
+
+/**
+ * Fiche député : un onglet par thème, chacun découpé en sections (ses
+ * sous-thèmes, listés dans la nav latérale de l'onglet dès qu'il y en a deux).
+ */
+export const DEPUTE_ONGLETS: TabDefinition<PageSection>[] = [
+    { id: "activite", label: "Activité", icon: CalendarDays, sections: ACTIVITE },
+    { id: "presence", label: "Présence", icon: Gauge, sections: PRESENCE },
+    { id: "votes", label: "Votes et amendements", icon: Vote, sections: VOTES },
+    { id: "historique", label: "Mandats", icon: History, sections: MANDATS },
+    { id: "dossiers", label: "Dossiers législatifs", icon: Landmark, sections: DOSSIERS },
+];
+
+/** Toutes les sections, à plat (chargement de la fiche : on attend chacune). */
+export const DEPUTE_SECTIONS: PageSection[] = DEPUTE_ONGLETS.flatMap((onglet) => onglet.sections);
