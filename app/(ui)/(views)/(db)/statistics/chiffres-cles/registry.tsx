@@ -94,7 +94,19 @@ export type ProfessionPopulationTableRow = { famille: string; pctAssemblee: numb
  * `groupes.presence-jours-par-mois` (volume), label = CODE, joints dans le
  * thème + `getGroupesCards` pour le libellé complet.
  */
-export type GroupePresenceTableRow = { groupeCode: string; groupeLabel: string; tauxPresence: number; joursParMois: number | null; rank: number };
+export type GroupePresenceTableRow = {
+    groupeCode: string;
+    groupeLabel: string;
+    tauxPresence: number;
+    /** Composantes (`groupes.presence-composantes`) — null si le groupe n'a pas de jour attendu pour cette composante. */
+    tauxSeance: number | null;
+    tauxCommission: number | null;
+    tauxScrutins: number | null;
+    joursParMois: number | null;
+    rank: number;
+};
+
+const pct = (v: number | null) => (v != null ? `${v}%` : "—");
 
 
 const KEY_FIGURES_CARDS: CardConfig[] = [
@@ -182,24 +194,44 @@ const KEY_FIGURES_CHARTS: ChartConfig[] = [
     },
     {
         id: "chart-presence-journaliere",
-        title: "Présence en séance, jour par jour (en %)",
+        title: "Taux de présence, jour par jour (en %)",
         subtitle: "Jours de séance avec au moins un scrutin public",
+        theme: "presence",
+        displayType: "line-multi",
+    },
+    {
+        id: "chart-presence-deputes-presents",
+        title: "Nombre de député·es présent·es, jour par jour",
+        subtitle: "Vote, prise de parole ou commission — sur 577 sièges",
         theme: "presence",
         displayType: "line",
     },
     {
         id: "chart-presence-annee-parlementaire",
-        title: "Jours de présence par mois, par année parlementaire",
-        subtitle: "Toutes législatures — octobre → septembre",
+        title: "Taux de présence moyen par année parlementaire (en %)",
+        subtitle: "Octobre → septembre, comme les sessions",
         theme: "presence",
         displayType: "line",
     },
     {
+        id: "chart-presence-annee-mandat",
+        title: "Taux de présence moyen par année de mandat (en %)",
+        subtitle: "Chaque député depuis sa propre prise de fonction",
+        theme: "presence",
+        displayType: "bar",
+    },
+    {
         id: "chart-presence-annee-civile",
-        title: "Jours de présence par mois, par année civile",
-        subtitle: "Toutes législatures — janvier → décembre",
+        title: "Jours de présence par mois, en moyenne, par année civile",
+        subtitle: "Janvier → décembre — une année entamée reste comparable",
         theme: "presence",
         displayType: "line",
+    },
+    {
+        id: "chart-presence-groupes-composantes",
+        title: "Présence en séance, en commission et aux scrutins, par groupe (en %)",
+        theme: "presence",
+        displayType: "bar-multi",
     },
     {
         id: "chart-presence-groupes-annee-parlementaire",
@@ -329,6 +361,9 @@ const KEY_FIGURES_TABLES: TableConfig<any>[] = [
             { id: "rank", header: "N°", align: "center", cell: (r: GroupePresenceTableRow) => r.rank, width: 48 },
             { id: "groupe", header: "Groupe", align: "left", cell: (r: GroupePresenceTableRow) => <GroupCell code={r.groupeCode} label={r.groupeLabel} /> },
             { id: "taux", header: "Taux de présence", align: "center", cell: (r: GroupePresenceTableRow) => `${r.tauxPresence}%` },
+            { id: "seance", header: "En séance", align: "center", cell: (r: GroupePresenceTableRow) => pct(r.tauxSeance) },
+            { id: "commission", header: "En commission", align: "center", cell: (r: GroupePresenceTableRow) => pct(r.tauxCommission) },
+            { id: "scrutins", header: "Scrutins", align: "center", cell: (r: GroupePresenceTableRow) => pct(r.tauxScrutins) },
             { id: "jours", header: "Jours de présence / mois", align: "center", cell: (r: GroupePresenceTableRow) => (r.joursParMois != null ? r.joursParMois : "—") },
         ],
         getRowKey: (r: GroupePresenceTableRow) => r.groupeCode,

@@ -6,6 +6,7 @@ import { groupesGateways } from "@/app/(ui)/gateways/groupes/groupes.gateway";
 import { statisticsGateway } from "@/app/(ui)/gateways/statistics/statistics.gateway";
 import { GroupeCardDTO } from "@/app/domains/groupes/dto/groupes-card.dto";
 import { card, chart, entityChart, table, GroupeParticipationTableRow } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/registry";
+import { F_PARTICIPATION_ASSEMBLEE, F_PARTICIPATION_GROUPE, F_PARTICIPATION_GROUPE_MOIS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/participation-presence.formules";
 
 function toGroupCardData(code: string, cards: GroupeCardDTO[], caption: string): GroupCardData {
     const found = cards.find((c) => c.groupeCode === code);
@@ -137,6 +138,7 @@ export const PARTICIPATION_PRESENCE_SECTIONS: PageSection[] = [
                 colSpan: 4,
                 ...table("table-participation-groupes"),
                 title: "Classement des groupes par taux de participation",
+                formulas: [F_PARTICIPATION_GROUPE],
                 export: {
                     filenameBase: "participation-presence-groupes",
                     csvColumns: [
@@ -170,7 +172,7 @@ export const PARTICIPATION_PRESENCE_SECTIONS: PageSection[] = [
             } as unknown as Record<string, BlockDataWrapper>;
         },
         blocks: [
-            { type: "chart" as const, colSpan: 4, config: chart("chart-participation-evolution-assemblee") },
+            { type: "chart" as const, colSpan: 4, config: chart("chart-participation-evolution-assemblee"), formulas: [F_PARTICIPATION_ASSEMBLEE] },
         ],
     },
     {
@@ -191,7 +193,7 @@ export const PARTICIPATION_PRESENCE_SECTIONS: PageSection[] = [
             } as unknown as Record<string, BlockDataWrapper>;
         },
         blocks: [
-            { type: "entity-chart" as const, colSpan: 4, config: entityChart("entity-chart-participation-groupe") },
+            { type: "entity-chart" as const, colSpan: 4, config: entityChart("entity-chart-participation-groupe"), formulas: [F_PARTICIPATION_GROUPE_MOIS] },
         ],
     },
 ];

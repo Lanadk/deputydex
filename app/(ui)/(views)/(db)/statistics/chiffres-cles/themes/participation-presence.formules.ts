@@ -1,0 +1,337 @@
+import { FormulaLegendItem, FormulaLibProps } from "@/app/(ui)/component-library/molecules/formula/formula-lib";
+
+/**
+ * Formules EXACTES des indicateurs du thème « Participation & présence »,
+ * une par graphique / tableau (champ `formulas` du bloc, affiché en
+ * accordéon juste sous lui), recopiées du SQL qui les calcule (deputydex-data) :
+ * - participation : agg_groupes_stats_participation_legislature / _mensuelle,
+ *   et la requête scrutins.participation (prisma-scrutins-stats.repository.ts) ;
+ * - présence : mv_deputes_presence_jour puis agg_assemblee_presence* et
+ *   agg_groupes_presence* (README : src/sql/scripts/presence/README.md).
+ * Toute évolution de ces vues doit se refléter ici.
+ *
+ * Chaque formule porte sa légende complète : elle se lit seule, sous son
+ * graphique. Notations : d un député, j un jour, m un mois, g un groupe,
+ * s un scrutin, 𝟙[…] vaut 1 si la condition est vraie, 0 sinon. Taux arrondis
+ * à 1 décimale (2 pour la participation par groupe).
+ */
+
+// ── Briques de la présence (mv_deputes_presence_jour) ────────────────────────
+
+const L_D_J: FormulaLegendItem = { symbol: "d, j", description: "un député et un jour de la législature choisie" };
+const L_M: FormulaLegendItem = { symbol: "M_{d,j}", description: "1 si d est en mandat le jour j (de sa prise de fonction à la fin de son mandat ; un député devenu ministre ne l'est plus)" };
+const L_S: FormulaLegendItem = { symbol: "S_{j}", description: "1 si j est un jour de séance observable : une séance s'est tenue (compte rendu publié ou scrutin) ET au moins un scrutin public a eu lieu" };
+const L_C: FormulaLegendItem = { symbol: "C_{d,j}", description: "1 si d est convoqué le jour j à une réunion à liste de présence d'un organe (commission…) dont il est membre" };
+const L_A: FormulaLegendItem = { symbol: "A_{d,j}", description: "jour attendu : (S_{j} ∧ M_{d,j}) ∨ C_{d,j}" };
+const L_PS: FormulaLegendItem = { symbol: "PS_{d,j}", description: "présent en séance : au moins un vote personnel (hors délégation), une prise de parole, une interruption ou une présidence de séance" };
+const L_PC: FormulaLegendItem = { symbol: "PC_{d,j}", description: "présent en commission : noté présent à une réunion ce jour-là, membre de l'organe ou non" };
+const L_P: FormulaLegendItem = { symbol: "P_{d,j}", description: "jour de présence : PS_{d,j} ∨ PC_{d,j}" };
+const mois = (symbol: string, periode: string): FormulaLegendItem => ({
+    symbol,
+    description: `mois actifs de d ${periode} : mois où il a au moins un jour attendu ou un jour de séance (août, sans séance ni réunion, n'en est pas un)`,
+});
+
+/** Légende du taux de présence (attendu / présent). */
+const BRIQUES = [L_D_J, L_M, L_S, L_C, L_A, L_PS, L_PC, L_P];
+/** Légende d'un volume de présence (pas d'attendu au numérateur). */
+const BRIQUES_VOLUME = [L_D_J, L_PS, L_PC, L_P];
+
+const NOTE_BORNE_BASSE =
+    "Borne basse : un député assis dans l'hémicycle qui ne vote ni ne parle n'est pas vu. Les séances sans aucun " +
+    "scrutin (questions au Gouvernement, semaines de contrôle) ne sont pas attendues — on n'y voit que les orateurs — " +
+    "mais y parler compte comme jour de présence (P_{d,j} sans A_{d,j}).";
+
+const NOTE_VOLUME = "Toutes sources, jours attendus ou non, un jour compté une fois même si le député a voté, parlé et siégé en commission.";
+
+// ── Participation aux scrutins ───────────────────────────────────────────────
+
+export const F_PARTICIPATION_GROUPE: FormulaLibProps = {
+    label: "taux de participation d'un groupe",
+    result: "τ_{g}",
+    numerator: "Σ_{d ∈ g} Σ_{s ∈ E_{d,g}} 𝟙[v_{d,s} ∈ {pour, contre, abstention}]",
+    denominator: "Σ_{d ∈ g} |E_{d,g}|",
+    factor: "× 100",
+    legend: [
+        { symbol: "d ∈ g", description: "un député ayant été membre du groupe g pendant la législature" },
+        { symbol: "E_{d,g}", description: "scrutins publics de la législature tenus pendant que d était membre de g (scrutins éligibles)" },
+        { symbol: "v_{d,s}", description: "position de d au scrutin s ; absente = non-votant" },
+    ],
+    note: "Pondéré par les scrutins éligibles : un député présent toute la législature pèse plus qu'un député resté deux mois. Taux d'absence = 100 − τ_{g}.",
+};
+
+export const F_PARTICIPATION_ASSEMBLEE: FormulaLibProps = {
+    label: "taux de participation mensuel",
+    result: "τ_{m}",
+    numerator: "1",
+    denominator: "|S_{m}|",
+    factor: "× Σ_{s ∈ S_{m}} V_{s} ÷ (V_{s} + NV_{s}) × 100",
+    legend: [
+        { symbol: "S_{m}", description: "scrutins publics du mois m (toutes législatures)" },
+        { symbol: "V_{s}", description: "votants du scrutin s (pour, contre ou abstention)" },
+        { symbol: "NV_{s}", description: "non-votants du scrutin s" },
+    ],
+    note: "Moyenne simple : chaque scrutin compte pour 1, qu'il ait réuni 30 ou 570 votants.",
+};
+
+export const F_PARTICIPATION_GROUPE_MOIS: FormulaLibProps = {
+    label: "taux de participation d'un groupe, par mois",
+    result: "τ_{g,m}",
+    numerator: "1",
+    denominator: "N_{g,m}",
+    factor: "× Σ_{d ∈ g} p_{d,m} ÷ e_{d,m} × 100",
+    legend: [
+        { symbol: "N_{g,m}", description: "députés membres de g ayant au moins un scrutin éligible dans le mois m" },
+        { symbol: "e_{d,m}", description: "scrutins du mois m tenus pendant que d était membre de g" },
+        { symbol: "p_{d,m}", description: "parmi eux, scrutins où d a voté pour, contre ou s'est abstenu" },
+    ],
+    note: "Moyenne des taux individuels du mois (chaque député pèse autant), contrairement au classement, pondéré par les scrutins.",
+};
+
+// ── Présence : vue d'ensemble ────────────────────────────────────────────────
+
+export const F_PRESENCE_TAUX: FormulaLibProps = {
+    label: "taux de présence",
+    result: "τ",
+    numerator: "Σ_{d,j} 𝟙[A_{d,j} ∧ P_{d,j}]",
+    denominator: "Σ_{d,j} 𝟙[A_{d,j}]",
+    factor: "× 100",
+    legend: BRIQUES,
+    note: "Somme sur tous les députés et tous les jours de la législature : un taux pondéré, pas la moyenne des taux individuels. " + NOTE_BORNE_BASSE,
+};
+
+export const F_PRESENCE_SEANCE: FormulaLibProps = {
+    label: "présence en séance",
+    result: "τ^{séance}",
+    numerator: "Σ_{d,j} 𝟙[S_{j} ∧ M_{d,j} ∧ PS_{d,j}]",
+    denominator: "Σ_{d,j} 𝟙[S_{j} ∧ M_{d,j}]",
+    factor: "× 100",
+    legend: [L_D_J, L_M, L_S, L_PS],
+};
+
+export const F_PRESENCE_COMMISSION: FormulaLibProps = {
+    label: "présence en commission (et excusés)",
+    result: "τ^{commission}",
+    numerator: "Σ_{d,r} 𝟙[présent_{d,r}]",
+    denominator: "Σ_{d,r} 𝟙[convoqué_{d,r}]",
+    factor: "× 100",
+    legend: [
+        { symbol: "r", description: "une réunion à liste de présence (commission, délégation…)" },
+        { symbol: "convoqué_{d,r}", description: "d est membre de l'organe à la date de la réunion r" },
+        { symbol: "présent_{d,r}", description: "d est noté présent à r ; même formule avec « excusé » pour le taux d'excusés" },
+    ],
+    note: "Compté en réunions, pas en jours : deux réunions le même jour comptent deux fois. Les présents non membres (« Assistaient également ») ne sont pas au numérateur.",
+};
+
+export const F_PRESENCE_SCRUTINS: FormulaLibProps = {
+    label: "participation aux scrutins",
+    result: "τ^{scrutins}",
+    numerator: "Σ_{d,j} VP_{d,j}",
+    denominator: "Σ_{d,j} 𝟙[M_{d,j}] · n_{j}",
+    factor: "× 100",
+    legend: [
+        L_D_J,
+        L_M,
+        { symbol: "VP_{d,j}", description: "votes personnels de d le jour j (hors délégation)" },
+        { symbol: "n_{j}", description: "scrutins publics du jour j (une journée peut en compter des centaines)" },
+    ],
+};
+
+export const F_PRESENCE_TAUX_MOIS: FormulaLibProps = {
+    ...F_PRESENCE_TAUX,
+    label: "taux de présence, par mois",
+    result: "τ_{m}",
+    numerator: "Σ_{d} Σ_{j ∈ m} 𝟙[A_{d,j} ∧ P_{d,j}]",
+    denominator: "Σ_{d} Σ_{j ∈ m} 𝟙[A_{d,j}]",
+    note: "Un mois sans séance avec scrutin (août) ne reflète que les commissions. " + NOTE_BORNE_BASSE,
+};
+
+export const F_PRESENCE_JOURS_MOIS: FormulaLibProps = {
+    label: "jours de présence d'un député, par mois",
+    result: "J_{m}",
+    numerator: "Σ_{d} Σ_{j ∈ m} 𝟙[P_{d,j}]",
+    denominator: "|D_{m}|",
+    legend: [
+        ...BRIQUES_VOLUME,
+        { symbol: "D_{m}", description: "députés ayant au moins un jour attendu ou un jour de séance dans le mois m" },
+    ],
+    note: NOTE_VOLUME + " Le chiffre clé « jours de présence par mois » est la moyenne simple des J_{m} de la législature.",
+};
+
+// ── Présence : rythme ────────────────────────────────────────────────────────
+
+export const F_PRESENCE_JOUR_SEMAINE: FormulaLibProps = {
+    label: "taux par jour de la semaine",
+    result: "τ_{w}",
+    numerator: "Σ_{j : jour(j) = w} Σ_{d} 𝟙[A_{d,j} ∧ P_{d,j}]",
+    denominator: "Σ_{j : jour(j) = w} Σ_{d} 𝟙[A_{d,j}]",
+    factor: "× 100",
+    legend: [{ symbol: "w", description: "un jour de la semaine (lundi … dimanche)" }, ...BRIQUES],
+    note: "Jours de séance et jours de commission seule confondus.",
+};
+
+export const F_PRESENCE_JOUR_SEANCE: FormulaLibProps = {
+    label: "courbe « en séance »",
+    result: "τ^{séance}_{j}",
+    numerator: "Σ_{d} 𝟙[M_{d,j} ∧ PS_{d,j}]",
+    denominator: "Σ_{d} 𝟙[M_{d,j}]",
+    factor: "× 100, pour S_{j} = 1",
+    legend: [L_D_J, L_M, L_S, L_PS],
+};
+
+export const F_PRESENCE_JOUR_TOUS_LIEUX: FormulaLibProps = {
+    label: "courbe « séance ou commission »",
+    result: "τ_{j}",
+    numerator: "Σ_{d} 𝟙[A_{d,j} ∧ P_{d,j}]",
+    denominator: "Σ_{d} 𝟙[A_{d,j}]",
+    factor: "× 100, pour S_{j} = 1",
+    legend: BRIQUES,
+    note: "Les jours de commission seule (S_{j} = 0) ne sont pas tracés : seuls les membres convoqués y sont attendus, leur taux ne se compare pas à celui d'une séance.",
+};
+
+export const F_PRESENCE_DEPUTES_PRESENTS: FormulaLibProps = {
+    label: "nombre de député·es présent·es",
+    result: "N_{j}",
+    numerator: "Σ_{d} 𝟙[P_{d,j}]",
+    legend: [...BRIQUES_VOLUME, L_S],
+    note: "Attendus ou non, chaque député compté une fois, pour S_{j} = 1.",
+};
+
+// ── Présence : groupes ───────────────────────────────────────────────────────
+
+const L_GROUPE: FormulaLegendItem = {
+    symbol: "g(d,j)",
+    description: "groupe politique de d le jour j (mandat de groupe en cours ce jour-là) : un député qui change de groupe compte pour chacun sur sa période",
+};
+
+export const F_PRESENCE_GROUPE: FormulaLibProps = {
+    label: "taux de présence d'un groupe",
+    result: "τ_{g}",
+    numerator: "Σ_{(d,j) : g(d,j) = g} 𝟙[A_{d,j} ∧ P_{d,j}]",
+    denominator: "Σ_{(d,j) : g(d,j) = g} 𝟙[A_{d,j}]",
+    factor: "× 100",
+    legend: [L_GROUPE, ...BRIQUES],
+    note: "Non inscrits exclus du classement.",
+};
+
+export const F_PRESENCE_GROUPE_SEANCE: FormulaLibProps = {
+    label: "présence en séance d'un groupe",
+    result: "τ^{séance}_{g}",
+    numerator: "Σ_{(d,j) : g(d,j) = g} 𝟙[S_{j} ∧ M_{d,j} ∧ PS_{d,j}]",
+    denominator: "Σ_{(d,j) : g(d,j) = g} 𝟙[S_{j} ∧ M_{d,j}]",
+    factor: "× 100",
+    legend: [L_GROUPE, L_D_J, L_M, L_S, L_PS],
+    note: "Les commissions ne comptent pas : seuls les jours de séance avec au moins un scrutin public.",
+};
+
+const L_REUNION: FormulaLegendItem = { symbol: "r", description: "une réunion à liste de présence (commission, délégation…)" };
+const L_CONVOQUE: FormulaLegendItem = { symbol: "convoqué_{d,r}", description: "d est membre de l'organe à la date de la réunion r" };
+const L_GROUPE_REUNION: FormulaLegendItem = { symbol: "g(d,r)", description: "groupe politique de d le jour de la réunion r" };
+
+export const F_PRESENCE_GROUPE_COMMISSION: FormulaLibProps = {
+    label: "présence en commission d'un groupe",
+    result: "τ^{commission}_{g}",
+    numerator: "Σ_{(d,r) : g(d,r) = g} 𝟙[présent_{d,r}]",
+    denominator: "Σ_{(d,r) : g(d,r) = g} 𝟙[convoqué_{d,r}]",
+    factor: "× 100",
+    legend: [L_GROUPE_REUNION, L_REUNION, L_CONVOQUE, { symbol: "présent_{d,r}", description: "d est noté présent à r" }],
+    note: "Compté en réunions, pas en jours. Les présents non membres (« Assistaient également ») ne sont pas au numérateur.",
+};
+
+export const F_PRESENCE_GROUPE_EXCUSES: FormulaLibProps = {
+    label: "excusés en commission d'un groupe",
+    result: "ε_{g}",
+    numerator: "Σ_{(d,r) : g(d,r) = g} 𝟙[excusé_{d,r}]",
+    denominator: "Σ_{(d,r) : g(d,r) = g} 𝟙[convoqué_{d,r}]",
+    factor: "× 100",
+    legend: [L_GROUPE_REUNION, L_REUNION, L_CONVOQUE, { symbol: "excusé_{d,r}", description: "d est noté excusé à r" }],
+    note: "Présents + excusés + absents = convoqués : un excusé compte comme non présent dans le taux de présence en commission.",
+};
+
+export const F_PRESENCE_GROUPE_SCRUTINS: FormulaLibProps = {
+    label: "participation aux scrutins d'un groupe",
+    result: "τ^{scrutins}_{g}",
+    numerator: "Σ_{(d,j) : g(d,j) = g} VP_{d,j}",
+    denominator: "Σ_{(d,j) : g(d,j) = g} 𝟙[M_{d,j}] · n_{j}",
+    factor: "× 100",
+    legend: [
+        L_GROUPE,
+        L_D_J,
+        L_M,
+        { symbol: "VP_{d,j}", description: "votes personnels de d le jour j (pour, contre, abstention, hors délégation)" },
+        { symbol: "n_{j}", description: "scrutins publics du jour j (une journée peut en compter des centaines)" },
+    ],
+    note: "Bien plus bas que la présence en séance : être là un jour ne veut pas dire voter chacun des scrutins du jour.",
+};
+
+export const F_PRESENCE_GROUPE_JOURS: FormulaLibProps = {
+    label: "jours de présence par mois d'un groupe",
+    result: "J_{g}",
+    numerator: "Σ_{(d,j) : g(d,j) = g} 𝟙[P_{d,j}]",
+    denominator: "Σ_{d} μ_{d,g}",
+    legend: [L_GROUPE, ...BRIQUES_VOLUME, mois("μ_{d,g}", "passés dans le groupe g")],
+    note: NOTE_VOLUME,
+};
+
+export const F_PRESENCE_GROUPE_MOIS: FormulaLibProps = {
+    ...F_PRESENCE_GROUPE,
+    label: "taux de présence d'un groupe, par mois",
+    result: "τ_{g,m}",
+    numerator: "Σ_{(d,j) : g(d,j) = g, j ∈ m} 𝟙[A_{d,j} ∧ P_{d,j}]",
+    denominator: "Σ_{(d,j) : g(d,j) = g, j ∈ m} 𝟙[A_{d,j}]",
+    note: "Un groupe renommé ou dissous en cours de législature a sa propre courbe, sur sa période.",
+};
+
+export const F_PRESENCE_GROUPE_ANNEE: FormulaLibProps = {
+    ...F_PRESENCE_GROUPE_JOURS,
+    label: "jours de présence par mois d'un groupe, par année parlementaire",
+    result: "J_{g,a}",
+    numerator: "Σ_{(d,j) : g(d,j) = g, j ∈ a} 𝟙[P_{d,j}]",
+    denominator: "Σ_{d} μ_{d,g,a}",
+    legend: [
+        { symbol: "a", description: "année parlementaire : 1er octobre → 30 septembre" },
+        L_GROUPE,
+        ...BRIQUES_VOLUME,
+        mois("μ_{d,g,a}", "passés dans le groupe g pendant l'année a"),
+    ],
+};
+
+// ── Présence : années ────────────────────────────────────────────────────────
+
+export const F_PRESENCE_ANNEE_PARLEMENTAIRE: FormulaLibProps = {
+    label: "taux par année parlementaire",
+    result: "τ_{a}",
+    numerator: "Σ_{d} Σ_{j ∈ a} 𝟙[A_{d,j} ∧ P_{d,j}]",
+    denominator: "Σ_{d} Σ_{j ∈ a} 𝟙[A_{d,j}]",
+    factor: "× 100",
+    legend: [
+        { symbol: "a", description: "année parlementaire : 1er octobre → 30 septembre (juillet–septembre 2024, début de la 17ᵉ, relève de 2023-2024)" },
+        ...BRIQUES,
+    ],
+};
+
+export const F_PRESENCE_ANNEE_MANDAT: FormulaLibProps = {
+    label: "taux par année de mandat",
+    result: "τ_{k}",
+    numerator: "Σ_{d} Σ_{j ∈ Y_{d,k}} 𝟙[A_{d,j} ∧ P_{d,j}]",
+    denominator: "Σ_{d} Σ_{j ∈ Y_{d,k}} 𝟙[A_{d,j}]",
+    factor: "× 100",
+    legend: [
+        { symbol: "Y_{d,k}", description: "k-ième année de mandat de d : [t_{d} + (k − 1) ans ; t_{d} + k ans[" },
+        { symbol: "t_{d}", description: "première prise de fonction de d dans la législature (un remplaçant a la sienne)" },
+        ...BRIQUES,
+    ],
+    note: "Regroupé par rang d'année, pas par date : « année 1 » rassemble les 12 premiers mois de chaque député.",
+};
+
+export const F_PRESENCE_ANNEE_CIVILE: FormulaLibProps = {
+    label: "jours de présence par mois, par année civile",
+    result: "J_{a}",
+    numerator: "Σ_{d} Σ_{j ∈ a} 𝟙[P_{d,j}]",
+    denominator: "Σ_{d} μ_{d,a}",
+    legend: [
+        { symbol: "a", description: "année civile : 1er janvier → 31 décembre" },
+        ...BRIQUES_VOLUME,
+        mois("μ_{d,a}", "dans l'année a"),
+    ],
+    note: NOTE_VOLUME + " Divisé par les mois actifs plutôt que par 12 : une année entamée (ou un député arrivé en cours d'année) reste comparable à une année complète.",
+};

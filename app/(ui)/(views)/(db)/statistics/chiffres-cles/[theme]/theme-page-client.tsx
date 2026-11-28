@@ -12,6 +12,7 @@ import { SpinnerLib } from "@/app/(ui)/component-library/molecules/spinner/spinn
 import { SectionBlockLoader } from "@/app/(ui)/component-library/template/sections/block-section/_loader/section-block-loader";
 import { useLegislature } from "@/app/(ui)/providers/legislature-provider";
 import { findKeyFigureTheme } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes.registry";
+import { CalloutLib } from "@/app/(ui)/component-library/molecules/callout/callout-lib";
 
 /**
  * Rendu d'UN thème "Chiffres clés". Reçoit `slug` (sérialisable), pas le
@@ -40,8 +41,14 @@ export default function ThemePageClient({ slug }: { slug: string }) {
         </div>
     );
 
-    const backLink = (
-        <Link href="/statistics/chiffres-cles" className="text-sm text-subtitle-accent hover:text-accent">
+    // Avertissements du thème (ex: indicateurs approximatifs), avant les sections.
+    const notices = (theme.notices ?? []).map((notice, i) => (
+        <CalloutLib key={i} variant={notice.variant} title={notice.title}>
+            {notice.paragraphs.map((p, j) => <p key={j} className="m-0">{p}</p>)}
+        </CalloutLib>
+    ));
+
+    const backLink = (        <Link href="/statistics/chiffres-cles" className="text-sm text-subtitle-accent hover:text-accent">
             ← Retour aux chiffres clés
         </Link>
     );
@@ -78,6 +85,7 @@ export default function ThemePageClient({ slug }: { slug: string }) {
                 sections={theme.sections}
             >
                 <PageContentLib>
+                    {notices}
                     {sectionsReady ? theme.sections.map((section) => (
                         <SectionBlockLoader key={section.id} section={section} params={params} onReady={() => {}} />
                     )) : sectionsSpinner}
@@ -94,6 +102,7 @@ export default function ThemePageClient({ slug }: { slug: string }) {
             </div>
 
             <PageContentLib>
+                {notices}
                 {sectionsReady ? theme.sections.map((section) => (
                     <SectionBlockLoader
                         key={section.id}
