@@ -5,7 +5,8 @@ const DOMAIN_AGGREGATE_LABELS: Record<StatDomain, string> = {
     groupes: "Tous les groupes",
     votes: "Tous les votes",
     scrutins: "Tous les scrutins",
-    legislatures: "Toutes les législatures",
+    // Préfixe de « — 17ᵉ législature » : la population, c'est l'Assemblée.
+    legislatures: "Assemblée nationale",
 };
 
 /**

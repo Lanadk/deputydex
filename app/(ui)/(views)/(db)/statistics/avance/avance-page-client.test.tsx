@@ -71,9 +71,9 @@ jest.mock("@/app/(ui)/_shared/statistics/catalog/stats-catalog", () => {
         dataShape: "timeseries",
     };
 
-    // "legislatures" reste le seul domaine du test qui n'a ni entité ni
-    // filtre législature (voir ENTITY_RESOLVERS) : sa seule stat est déjà
-    // une évolution toutes législatures confondues.
+    // Tous les domaines réels ont désormais un EntityResolver ; pour couvrir
+    // le cas « aucune entité ni filtre à faire varier », le registre est
+    // mocké plus bas sans celui de "legislatures".
     const LEGISLATURES_PARITE = {
         id: "legislatures.parite",
         slug: "parite",
@@ -107,6 +107,16 @@ jest.mock("@/app/(ui)/_shared/statistics/catalog/stats-catalog", () => {
             { id: "legislatures", label: "Législatures", icon: Users, stats: [LEGISLATURES_PARITE] },
         ],
     };
+});
+
+// Registre réel, moins "legislatures" : garde un domaine sans résolveur pour
+// le test « Comparaison indisponible » (LegislaturesEntityResolver lui-même
+// n'est que VotesEntityResolver, déjà couvert ici).
+jest.mock("@/app/(ui)/components/statistics/entity-resolvers/entity-resolvers.registry", () => {
+    const actual = jest.requireActual("@/app/(ui)/components/statistics/entity-resolvers/entity-resolvers.registry");
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { legislatures, ...rest } = actual.ENTITY_RESOLVERS;
+    return { ...actual, ENTITY_RESOLVERS: rest };
 });
 
 import AvancePageClient from "@/app/(ui)/(views)/(db)/statistics/avance/avance-page-client";

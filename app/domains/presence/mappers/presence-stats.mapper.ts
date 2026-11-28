@@ -9,6 +9,7 @@ import {
     GroupePresenceMoisRow,
     GroupePresenceRow,
     PresenceAnneeRow,
+    PresenceComposante,
     PresenceTypePeriode,
 } from "@/app/domains/presence/entities/presence-stats.entity";
 import {
@@ -62,6 +63,30 @@ export function mapAnneesToDTO(rows: PresenceAnneeRow[], type: PresenceTypePerio
 /** Taux de présence par groupe (label = CODE du groupe, convention des stats de groupes). */
 export function mapGroupesTauxToDTO(rows: GroupePresenceRow[]): PresenceStatItemsDTO {
     return { items: rows.flatMap((r) => item(r.groupe_code, r.taux_presence)) };
+}
+
+/** Colonne de `agg_groupes_presence` et libellé d'affichage de chaque composante (préfixe = ordre d'affichage). */
+export const COMPOSANTES: Record<PresenceComposante, { colonne: keyof GroupePresenceRow; libelle: string }> = {
+    seance: { colonne: "taux_presence_seance", libelle: "1 · En séance" },
+    commission: { colonne: "taux_presence_commission", libelle: "2 · En commission" },
+    excuses: { colonne: "taux_excuses_commission", libelle: "3 · Excusés en commission" },
+    scrutins: { colonne: "taux_participation_scrutins", libelle: "4 · Participation aux scrutins" },
+};
+
+/** Une composante du taux de présence, par groupe (label = CODE). */
+export function mapGroupesComposanteToDTO(rows: GroupePresenceRow[], composante: PresenceComposante): PresenceStatItemsDTO {
+    const { colonne } = COMPOSANTES[composante];
+    return { items: rows.flatMap((r) => item(r.groupe_code, r[colonne] as number | null)) };
+}
+
+/** Toutes les composantes côte à côte : une série par composante, un item par groupe (label = CODE). */
+export function mapGroupesComposantesToDTO(rows: GroupePresenceRow[]): PresenceStatSeriesDTO {
+    return {
+        series: (Object.keys(COMPOSANTES) as PresenceComposante[]).map((c) => ({
+            name: COMPOSANTES[c].libelle,
+            items: mapGroupesComposanteToDTO(rows, c).items,
+        })),
+    };
 }
 
 /** Jours de présence par mois et par député, par groupe. */
@@ -125,9 +150,24 @@ export function mapAssembleeMensuelleJoursToDTO(rows: AssembleePresenceMoisRow[]
     return { points: rows.flatMap((r) => item(moisLabel(r.mois), r.jours_presence_par_depute)) };
 }
 
-/** Présence en séance, jour par jour (libellé « AAAA-MM-JJ »). */
-export function mapAssembleeJournaliereToDTO(rows: AssembleePresenceJourRow[]): PresenceStatPointsDTO {
-    return { points: rows.flatMap((r) => item(jourLabel(r.jour), r.taux_presence_seance)) };
+/** Taux de présence par période annuelle (« 17ᵉ · 2025-2026 »). */
+export function mapAnneesTauxToDTO(rows: PresenceAnneeRow[], type: PresenceTypePeriode): PresenceStatItemsDTO {
+    return { items: rows.flatMap((r) => item(periodeLabel(r.legislature, r.periode, type), r.taux_presence)) };
+}
+
+/** Jour par jour (libellé « AAAA-MM-JJ ») : deux séries, présence en séance et présence tous lieux. */
+export function mapAssembleeJournaliereToDTO(rows: AssembleePresenceJourRow[]): PresenceStatSeriesDTO {
+    return {
+        series: [
+            { name: "En séance (députés en mandat)", items: rows.flatMap((r) => item(jourLabel(r.jour), r.taux_presence_seance)) },
+            { name: "Séance ou commission (députés attendus)", items: rows.flatMap((r) => item(jourLabel(r.jour), r.taux_presence)) },
+        ],
+    };
+}
+
+/** Nombre de députés présents, jour par jour. */
+export function mapAssembleeDeputesPresentsToDTO(rows: AssembleePresenceJourRow[]): PresenceStatPointsDTO {
+    return { points: rows.map((r) => ({ label: jourLabel(r.jour), value: r.deputes_presents_total })) };
 }
 
 /** Présence par jour de la semaine, une série par législature (« 1 · Lundi »…). */

@@ -4,14 +4,16 @@ import { GroupeEntityResolver } from "./groupes/groupe-entity-resolver";
 import { ActeurEntityResolver } from "./acteurs/acteur-entity-resolver";
 import { VotesEntityResolver } from "./votes/votes-entity-resolver";
 import { ScrutinsEntityResolver } from "./scrutins/scrutins-entity-resolver";
+import { LegislaturesEntityResolver } from "./legislatures/legislatures-entity-resolver";
 
 /**
  * Domaines exposant un choix "entité précise vs population" avant les
- * catégories — ou, pour "votes"/"scrutins" (pas d'entité, juste un filtre
- * législature à imposer, voir VotesEntityResolver/ScrutinsEntityResolver),
- * juste ce filtre. "legislatures" reste absent de ce registre : sa seule
- * stat (`legislatures.parite`) est une évolution volontairement toutes
- * législatures confondues, un filtre imposé n'aurait pas de sens.
+ * catégories — ou, pour "votes"/"scrutins"/"legislatures" (pas d'entité,
+ * juste un filtre législature à imposer, voir VotesEntityResolver /
+ * ScrutinsEntityResolver / LegislaturesEntityResolver), juste ce filtre.
+ * "legislatures" l'impose pour la présence moyenne d'une législature ;
+ * `legislatures.parite` et `legislatures.presence` (comparaisons entre
+ * législatures) l'ignorent — même effet de bord que ci-dessous.
  *
  * Effet de bord assumé sur "scrutins" : `scrutins.participation` (elle aussi
  * volontairement toutes législatures confondues, comme `legislatures.parite`)
@@ -26,4 +28,5 @@ export const ENTITY_RESOLVERS: Partial<Record<StatDomain, EntityResolver>> = {
     acteurs: ActeurEntityResolver,
     votes: VotesEntityResolver,
     scrutins: ScrutinsEntityResolver,
+    legislatures: LegislaturesEntityResolver,
 };

@@ -31,7 +31,8 @@ export interface IPresenceStatsRepository {
 
     getAssemblee(legislature?: number): Promise<AssembleePresenceLegislatureRow[]>;
     getAssembleeMensuelle(legislature?: number): Promise<AssembleePresenceMoisRow[]>;
-    getAssembleeAnnuelle(type: Exclude<PresenceTypePeriode, "mandat">, legislature?: number): Promise<PresenceAnneeRow[]>;
+    /** `mandat` : agrégé par rang d'année dans le mandat de chaque député (voir la vue). */
+    getAssembleeAnnuelle(type: PresenceTypePeriode, legislature?: number): Promise<PresenceAnneeRow[]>;
     getAssembleeJournaliere(legislature?: number): Promise<AssembleePresenceJourRow[]>;
     getAssembleeJourSemaine(legislature?: number): Promise<AssembleePresenceJourSemaineRow[]>;
 }

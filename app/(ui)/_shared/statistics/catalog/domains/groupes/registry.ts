@@ -13,6 +13,22 @@ const GROUPES_PRESENCE_METHODOLOGIE =
     "présents ÷ somme des jours attendus de tous les membres), pas la moyenne des taux individuels. Non inscrits " +
     "exclus du classement.";
 
+/** Classement des groupes sur UNE composante de la présence (même colonne que `agg_assemblee_presence`). */
+function presenceComposante(slug: string, title: string, description: string, calcul: string, keywords: string[]): StatDefinition {
+    return defineStat("groupes", slug, {
+        scope: "aggregate",
+        title,
+        category: "Présence",
+        keywords: ["présence", "tous les groupes", ...keywords],
+        description,
+        methodology: GROUPES_PRESENCE_METHODOLOGIE + " " + calcul,
+        dataShape: "distribution",
+        excludedDisplayTypes: ["pie", "donut"],
+        unit: "%",
+        chartVariant: "parliament-group",
+    });
+}
+
 export const GROUPES_STATS: StatDefinition[] = [
     defineStat("groupes", "parite", {
         scope: "entity",
@@ -166,6 +182,44 @@ export const GROUPES_STATS: StatDefinition[] = [
         excludedDisplayTypes: ["pie", "donut"],
         unit: "%",
         chartVariant: "parliament-group",
+    }),
+    presenceComposante(
+        "presence-seance",
+        "Présence en séance, par groupe",
+        "Compare, pour chaque groupe, la part des jours de séance avec scrutin où ses député·es en mandat ont été vu·es dans l'hémicycle.",
+        "Taux = jours de séance avec au moins un scrutin public où le député a voté personnellement, pris la parole, interrompu ou présidé ÷ jours de séance avec scrutin pendant son mandat. Les commissions ne comptent pas.",
+        ["séance", "hémicycle"],
+    ),
+    presenceComposante(
+        "presence-commission",
+        "Présence en commission, par groupe",
+        "Compare, pour chaque groupe, la part des réunions de commission où ses député·es membres ont été noté·es présent·es.",
+        "Taux = réunions où le député est noté présent ÷ réunions de ses organes (commissions, délégations…) auxquelles il était convoqué. Compté en réunions, pas en jours ; les présents non membres ne comptent pas.",
+        ["commission", "réunion"],
+    ),
+    presenceComposante(
+        "presence-excuses-commission",
+        "Excusés en commission, par groupe",
+        "Compare, pour chaque groupe, la part des réunions de commission où ses député·es membres se sont excusé·es.",
+        "Taux = réunions où le député est noté excusé ÷ réunions de ses organes auxquelles il était convoqué. Un excusé n'est pas présent : il est aussi au dénominateur du taux de présence en commission.",
+        ["commission", "excusé", "absence"],
+    ),
+    presenceComposante(
+        "presence-scrutins",
+        "Participation aux scrutins, par groupe",
+        "Compare, pour chaque groupe, la part des scrutins publics auxquels ses député·es ont pris part personnellement, pendant leur mandat.",
+        "Taux = votes personnels (pour, contre, abstention, hors délégation) ÷ scrutins publics tenus pendant le mandat. Une journée peut compter des centaines de scrutins : ce taux est bien plus bas que la présence en séance.",
+        ["scrutin", "vote", "participation"],
+    ),
+    defineStat("groupes", "presence-composantes", {
+        scope: "aggregate",
+        title: "Présence par groupe : séance, commission, scrutins",
+        category: "Présence",
+        keywords: ["présence", "séance", "commission", "scrutins", "excusés", "tous les groupes"],
+        description: "Met côte à côte, pour chaque groupe, la présence en séance, en commission, les excusés et la participation aux scrutins.",
+        methodology: GROUPES_PRESENCE_METHODOLOGIE + " Une série par composante (même calcul que les classements « Présence en séance / en commission / Excusés / Participation aux scrutins, par groupe »).",
+        dataShape: "multi-series",
+        unit: "%",
     }),
     defineStat("groupes", "presence-jours-par-mois", {
         scope: "aggregate",

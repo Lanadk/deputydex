@@ -65,7 +65,10 @@ export const prismaPresenceStatsRepository: IPresenceStatsRepository = {
     async getGroupes(legislature: number): Promise<GroupePresenceRow[]> {
         return prisma.$queryRaw<GroupePresenceRow[]>`
             SELECT rg.code AS groupe_code, rg.libelle AS groupe_label,
-                   g.taux_presence::float, g.jours_presence_par_mois::float
+                   g.taux_presence::float,
+                   g.taux_presence_seance::float, g.taux_presence_commission::float,
+                   g.taux_excuses_commission::float, g.taux_participation_scrutins::float,
+                   g.jours_presence_par_mois::float
             FROM agg_groupes_presence g
             JOIN ref_groupes rg
                 ON rg.groupe_id = g.groupe_uid
@@ -133,7 +136,7 @@ export const prismaPresenceStatsRepository: IPresenceStatsRepository = {
         `;
     },
 
-    async getAssembleeAnnuelle(type: Exclude<PresenceTypePeriode, "mandat">, legislature?: number): Promise<PresenceAnneeRow[]> {
+    async getAssembleeAnnuelle(type: PresenceTypePeriode, legislature?: number): Promise<PresenceAnneeRow[]> {
         return prisma.$queryRaw<PresenceAnneeRow[]>`
             SELECT legislature, periode, jours_presence_par_mois::float, taux_presence::float
             FROM agg_assemblee_presence_annuelle
@@ -146,7 +149,7 @@ export const prismaPresenceStatsRepository: IPresenceStatsRepository = {
         // Séances observables seulement : les jours de commission seule
         // n'attendent qu'une poignée de députés, leur taux n'est pas comparable.
         return prisma.$queryRaw<AssembleePresenceJourRow[]>`
-            SELECT jour, taux_presence_seance::float
+            SELECT jour, taux_presence_seance::float, taux_presence::float, deputes_presents_total
             FROM agg_assemblee_presence_jour
             WHERE seance_observable
               ${legislatureFiltre(Prisma.sql`legislature`, legislature)}

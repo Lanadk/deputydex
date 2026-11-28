@@ -1,18 +1,6 @@
 import { defineStat } from "@/app/(ui)/_shared/statistics/catalog/define-stat";
 import { StatDefinition } from "@/app/(ui)/_shared/statistics/catalog/stat-definition.types";
-
-/**
- * Méthodologie commune des stats de présence (vues `agg_*_presence*` de
- * deputydex-data — démarche complète dans
- * `deputydex-data/src/sql/scripts/presence/README.md`).
- */
-const PRESENCE_METHODOLOGIE =
-    "Un jour est « attendu » pendant le mandat quand une séance publique avec au moins un scrutin public " +
-    "s'est tenue, ou quand le député est convoqué à une réunion (commission…) d'un organe dont il est membre. " +
-    "Il est « présent » s'il a voté personnellement (les votes par délégation, émis par un collègue, ne comptent " +
-    "pas), pris la parole ou interrompu en séance, ou été noté présent en commission. Les séances sans aucun vote " +
-    "(questions au Gouvernement, semaines de contrôle) ne permettent de voir que les orateurs : elles ne sont pas " +
-    "attendues, mais y parler compte comme jour de présence. Borne basse : un député présent qui ne vote ni ne parle n'est pas vu.";
+import { PRESENCE_METHODOLOGIE, presenceMoyenneStats } from "@/app/(ui)/_shared/statistics/catalog/domains/presence-moyenne.stats";
 
 const PRESENCE_ANNEES =
     " Valeur = jours de présence (toutes sources, attendus ou non, un jour compté une fois) divisés par les mois " +
@@ -145,4 +133,7 @@ export const ACTEURS_STATS: StatDefinition[] = [
         unit: "jours / mois",
         entityIdLabel: "Choisir un député",
     }),
+
+    // ── Présence moyenne de tous les députés (« Tous les députés ») ──
+    ...presenceMoyenneStats("acteurs"),
 ];

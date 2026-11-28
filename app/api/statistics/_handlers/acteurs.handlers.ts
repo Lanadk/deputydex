@@ -14,6 +14,7 @@ import {
 } from "@/app/domains/presence/use-cases/get-presence-stats.use-cases";
 import { prismaPresenceStatsRepository } from "@/app/infrastructure/presence/repositories/prisma-presence-stats.repository";
 import { PresenceTypePeriode } from "@/app/domains/presence/entities/presence-stats.entity";
+import { PRESENCE_MOYENNE_STAT_HANDLERS } from "@/app/api/statistics/_handlers/presence-moyenne.handlers";
 
 /** Présence d'un député par type d'année (civile / parlementaire / mandat) — toutes ses législatures, en courbe. */
 function deputePresenceAnnuelle(type: PresenceTypePeriode): StatHandler {
@@ -91,4 +92,7 @@ export const ACTEURS_STAT_HANDLERS: Record<string, StatHandler> = {
     "presence-annee-civile": deputePresenceAnnuelle("civile"),
     "presence-annee-parlementaire": deputePresenceAnnuelle("parlementaire"),
     "presence-annee-mandat": deputePresenceAnnuelle("mandat"),
+
+    // ── Présence moyenne de tous les députés (une législature) ──
+    ...PRESENCE_MOYENNE_STAT_HANDLERS,
 };

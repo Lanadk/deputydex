@@ -43,8 +43,15 @@ export interface GroupePresenceRow {
     groupe_code: string;
     groupe_label: string | null;
     taux_presence: number | null;
+    taux_presence_seance: number | null;
+    taux_presence_commission: number | null;
+    taux_excuses_commission: number | null;
+    taux_participation_scrutins: number | null;
     jours_presence_par_mois: number | null;
 }
+
+/** Composantes du taux de présence, chacune une colonne des vues `agg_*_presence`. */
+export type PresenceComposante = "seance" | "commission" | "excuses" | "scrutins";
 
 /** Un mois d'un groupe (`agg_groupes_presence_mensuelle`). */
 export interface GroupePresenceMoisRow {
@@ -84,7 +91,12 @@ export interface AssembleePresenceMoisRow {
 /** Un jour de séance observable de l'Assemblée (`agg_assemblee_presence_jour`). */
 export interface AssembleePresenceJourRow {
     jour: Date;
+    /** Présents en séance ÷ députés en mandat. */
     taux_presence_seance: number | null;
+    /** Présents (séance ou commission) ÷ députés attendus ce jour-là. */
+    taux_presence: number | null;
+    /** Députés présents ce jour-là, toutes sources, attendus ou non. */
+    deputes_presents_total: number;
 }
 
 /** Un jour de la semaine de l'Assemblée (`agg_assemblee_presence_jour_semaine`). */

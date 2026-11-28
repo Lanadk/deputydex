@@ -1,11 +1,16 @@
 import { IPresenceStatsRepository } from "@/app/domains/presence/repositories/IPresenceStatsRepository";
 import {
     getAssembleePresenceComposantesUseCase,
+    getAssembleePresenceDeputesPresentsUseCase,
+    getAssembleePresenceJournaliereUseCase,
+    getAssembleePresenceTauxAnnuelUseCase,
     getAssembleePresenceJourSemaineUseCase,
     getAssembleePresenceParLegislatureUseCase,
     getDeputePresenceAnnuelleUseCase,
     getDeputePresenceEvolutionUseCase,
     getGroupesPresenceAnnuelleUseCase,
+    getGroupesPresenceComposantesUseCase,
+    getGroupesPresenceComposanteUseCase,
     getGroupesPresenceEvolutionUseCase,
     getGroupesPresenceUseCase,
     sortParValeurDecroissante,
@@ -201,6 +206,97 @@ describe("présence — Assemblée", () => {
                 ],
             },
         });
+    });
+});
+
+describe("présence moyenne — jour par jour et années", () => {
+    const jours = [
+        { jour: new Date("2025-01-15T00:00:00Z"), taux_presence_seance: 52.1, taux_presence: 61.4, deputes_presents_total: 330 },
+        { jour: new Date("2025-01-14T00:00:00Z"), taux_presence_seance: 70.2, taux_presence: 75, deputes_presents_total: 420 },
+    ];
+
+    it("journalière : deux séries (séance, séance ou commission), jours en ordre chronologique", async () => {
+        const repo = makeRepository({ getAssembleeJournaliere: jest.fn().mockResolvedValue(jours) });
+
+        const result = await getAssembleePresenceJournaliereUseCase(repo, 17);
+
+        expect(repo.getAssembleeJournaliere).toHaveBeenCalledWith(17);
+        expect(result).toEqual({
+            success: true,
+            data: {
+                series: [
+                    { name: "En séance (députés en mandat)", items: [{ label: "2025-01-14", value: 70.2 }, { label: "2025-01-15", value: 52.1 }] },
+                    { name: "Séance ou commission (députés attendus)", items: [{ label: "2025-01-14", value: 75 }, { label: "2025-01-15", value: 61.4 }] },
+                ],
+            },
+        });
+    });
+
+    it("députés présents : un point par jour", async () => {
+        const repo = makeRepository({ getAssembleeJournaliere: jest.fn().mockResolvedValue(jours) });
+
+        expect(await getAssembleePresenceDeputesPresentsUseCase(repo, 17)).toEqual({
+            success: true,
+            data: { points: [{ label: "2025-01-14", value: 420 }, { label: "2025-01-15", value: 330 }] },
+        });
+    });
+
+    it("taux par année de mandat : transmet le type, libellé « 17ᵉ · année N »", async () => {
+        const repo = makeRepository({
+            getAssembleeAnnuelle: jest.fn().mockResolvedValue([
+                { legislature: 17, periode: "2", jours_presence_par_mois: 6.6, taux_presence: 54.6 },
+                { legislature: 17, periode: "1", jours_presence_par_mois: 6.6, taux_presence: 60.1 },
+            ]),
+        });
+
+        const result = await getAssembleePresenceTauxAnnuelUseCase(repo, "mandat", 17);
+
+        expect(repo.getAssembleeAnnuelle).toHaveBeenCalledWith("mandat", 17);
+        expect(result).toEqual({
+            success: true,
+            data: { items: [{ label: "17ᵉ · année 1", value: 60.1 }, { label: "17ᵉ · année 2", value: 54.6 }] },
+        });
+    });
+});
+
+describe("présence par groupe — composantes", () => {
+    const groupe = (code: string, seance: number | null, commission: number | null, scrutins: number | null) => ({
+        groupe_code: code,
+        groupe_label: null,
+        taux_presence: 50,
+        taux_presence_seance: seance,
+        taux_presence_commission: commission,
+        taux_excuses_commission: 10,
+        taux_participation_scrutins: scrutins,
+        jours_presence_par_mois: 6,
+    });
+    const rows = [groupe("RN", 60.2, 40.1, 25.3), groupe("LFI", 71.5, null, 30.4), groupe("EPR", 55, 45.6, 18.2)];
+
+    it("classement sur une composante : taux décroissant, groupe sans valeur exclu", async () => {
+        const repo = makeRepository({ getGroupes: jest.fn().mockResolvedValue(rows) });
+
+        expect(await getGroupesPresenceComposanteUseCase(repo, 17, "commission")).toEqual({
+            success: true,
+            data: { items: [{ label: "EPR", value: 45.6 }, { label: "RN", value: 40.1 }] },
+        });
+        expect(await getGroupesPresenceComposanteUseCase(repo, 17, "scrutins")).toEqual({
+            success: true,
+            data: { items: [{ label: "LFI", value: 30.4 }, { label: "RN", value: 25.3 }, { label: "EPR", value: 18.2 }] },
+        });
+    });
+
+    it("toutes les composantes : une série par composante dans l'ordre d'affichage, groupes par code", async () => {
+        const repo = makeRepository({ getGroupes: jest.fn().mockResolvedValue(rows) });
+
+        const result = await getGroupesPresenceComposantesUseCase(repo, 17);
+
+        expect(result.success && result.data.series.map((s) => s.name)).toEqual([
+            "1 · En séance",
+            "2 · En commission",
+            "3 · Excusés en commission",
+            "4 · Participation aux scrutins",
+        ]);
+        expect(result.success && result.data.series[0].items.map((i) => i.label)).toEqual(["EPR", "LFI", "RN"]);
     });
 });
 

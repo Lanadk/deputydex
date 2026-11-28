@@ -1,7 +1,7 @@
 import { isErr, ok, Result } from "@/app/_shared/result-pattern/result";
 import { fromRepository } from "@/app/_shared/result-pattern/app-error";
 import { IPresenceStatsRepository } from "@/app/domains/presence/repositories/IPresenceStatsRepository";
-import { PresenceTypePeriode } from "@/app/domains/presence/entities/presence-stats.entity";
+import { PresenceComposante, PresenceTypePeriode } from "@/app/domains/presence/entities/presence-stats.entity";
 import {
     PresenceStatItemDTO,
     PresenceStatItemsDTO,
@@ -9,7 +9,9 @@ import {
     PresenceStatSeriesDTO,
 } from "@/app/domains/presence/dto/presence-stats.dto";
 import {
+    mapAnneesTauxToDTO,
     mapAnneesToDTO,
+    mapAssembleeDeputesPresentsToDTO,
     mapAssembleeComposantesToDTO,
     mapAssembleeJournaliereToDTO,
     mapAssembleeJourSemaineToDTO,
@@ -20,6 +22,8 @@ import {
     mapDeputeMensuelleTauxToDTO,
     mapDeputeSourcesToDTO,
     mapGroupeMensuelleToDTO,
+    mapGroupesComposantesToDTO,
+    mapGroupesComposanteToDTO,
     mapGroupesAnnuelleToDTO,
     mapGroupesJoursParMoisToDTO,
     mapGroupesMensuelleToDTO,
@@ -88,6 +92,15 @@ export function getGroupesPresenceUseCase(repo: IPresenceStatsRepository, legisl
     return lire(() => repo.getGroupes(legislature), (rows) => classement(mapGroupesTauxToDTO(rows)));
 }
 
+/** Classement des groupes sur UNE composante (séance, commission, excusés, scrutins), taux décroissant. */
+export function getGroupesPresenceComposanteUseCase(repo: IPresenceStatsRepository, legislature: number, composante: PresenceComposante): PresenceResult<PresenceStatItemsDTO> {
+    return lire(() => repo.getGroupes(legislature), (rows) => classement(mapGroupesComposanteToDTO(rows, composante)));
+}
+
+/** Toutes les composantes par groupe : une série par composante (ordre d'affichage), groupes par ordre alphabétique de code. */
+export function getGroupesPresenceComposantesUseCase(repo: IPresenceStatsRepository, legislature: number): PresenceResult<PresenceStatSeriesDTO> {
+    return lire(() => repo.getGroupes(legislature), (rows) => sortSeries(mapGroupesComposantesToDTO(rows)));
+}
 export function getGroupesPresenceJoursParMoisUseCase(repo: IPresenceStatsRepository, legislature: number): PresenceResult<PresenceStatItemsDTO> {
     return lire(() => repo.getGroupes(legislature), (rows) => classement(mapGroupesJoursParMoisToDTO(rows)));
 }
@@ -122,12 +135,24 @@ export function getAssembleePresenceJoursMensuelsUseCase(repo: IPresenceStatsRep
     return lire(() => repo.getAssembleeMensuelle(legislature), (rows) => points(mapAssembleeMensuelleJoursToDTO(rows)));
 }
 
-export function getAssembleePresenceAnnuelleUseCase(repo: IPresenceStatsRepository, type: Annee, legislature?: number): PresenceResult<PresenceStatItemsDTO> {
+/** Jours de présence par mois, par année (civile, parlementaire ou de mandat — cette dernière par rang). */
+export function getAssembleePresenceAnnuelleUseCase(repo: IPresenceStatsRepository, type: PresenceTypePeriode, legislature?: number): PresenceResult<PresenceStatItemsDTO> {
     return lire(() => repo.getAssembleeAnnuelle(type, legislature), (rows) => chronologie(mapAnneesToDTO(rows, type)));
 }
 
-export function getAssembleePresenceJournaliereUseCase(repo: IPresenceStatsRepository, legislature?: number): PresenceResult<PresenceStatPointsDTO> {
-    return lire(() => repo.getAssembleeJournaliere(legislature), (rows) => points(mapAssembleeJournaliereToDTO(rows)));
+/** Taux de présence, par année (civile, parlementaire ou de mandat). */
+export function getAssembleePresenceTauxAnnuelUseCase(repo: IPresenceStatsRepository, type: PresenceTypePeriode, legislature?: number): PresenceResult<PresenceStatItemsDTO> {
+    return lire(() => repo.getAssembleeAnnuelle(type, legislature), (rows) => chronologie(mapAnneesTauxToDTO(rows, type)));
+}
+
+/** Jour par jour : présence en séance et présence tous lieux (deux séries). */
+export function getAssembleePresenceJournaliereUseCase(repo: IPresenceStatsRepository, legislature?: number): PresenceResult<PresenceStatSeriesDTO> {
+    return lire(() => repo.getAssembleeJournaliere(legislature), (rows) => sortSeries(mapAssembleeJournaliereToDTO(rows)));
+}
+
+/** Nombre de députés présents, jour par jour. */
+export function getAssembleePresenceDeputesPresentsUseCase(repo: IPresenceStatsRepository, legislature?: number): PresenceResult<PresenceStatPointsDTO> {
+    return lire(() => repo.getAssembleeJournaliere(legislature), (rows) => points(mapAssembleeDeputesPresentsToDTO(rows)));
 }
 
 export function getAssembleePresenceJourSemaineUseCase(repo: IPresenceStatsRepository, legislature?: number): PresenceResult<PresenceStatSeriesDTO> {
