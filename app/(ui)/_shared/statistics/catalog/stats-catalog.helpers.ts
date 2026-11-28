@@ -1,6 +1,21 @@
 import { StatDomainModule } from "@/app/(ui)/_shared/statistics/catalog/stats-domain.types";
 import { StatDefinition } from "@/app/(ui)/_shared/statistics/catalog/stat-definition.types";
-import { StatDomain, StatScope } from "@/app/_shared/statistics/stat-scope.types";
+import { StatDomain, StatFetchParams, StatScope } from "@/app/_shared/statistics/stat-scope.types";
+import { estToutesLegislatures } from "@/app/_shared/statistics/perimetre-legislature";
+
+/**
+ * La stat peut-elle être affichée dans ce contexte ? Seul cas exclu : le
+ * périmètre « toutes législatures » sur une stat qui ne l'accepte pas
+ * (`allLegislatures`) — son handler attend une législature précise.
+ */
+export function supportsContext(definition: Pick<StatDefinition, "allLegislatures">, context: StatFetchParams): boolean {
+    return !estToutesLegislatures(context.filters?.legislature) || !!definition.allLegislatures;
+}
+
+/** Stats proposables dans ce contexte (voir `supportsContext`). */
+export function statsForContext(stats: StatDefinition[], context: StatFetchParams): StatDefinition[] {
+    return stats.filter((stat) => supportsContext(stat, context));
+}
 
 export function findStatDefinition(catalog: StatDomainModule[], id: string): StatDefinition | null {
     return catalog.flatMap((module) => module.stats).find((stat) => stat.id === id) ?? null;

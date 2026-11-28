@@ -107,7 +107,8 @@ export const RenderStatChart: React.FC<RenderStatChartProps> = ({ data, displayT
                 return <DashedLineChartLib title={title} loading={loading} data={data.points} variant={variant} groupLabel={groupLabel} />;
             }
             if (displayType === "line") {
-                return <LineChartLib title={title} loading={loading} data={data.points} variant={variant} groupLabel={groupLabel} />;
+                // `markers` : repères posés par le serveur (ex: début de chaque législature sur une courbe « toutes »).
+                return <LineChartLib title={title} loading={loading} data={data.points} variant={variant} groupLabel={groupLabel} markers={data.markers} />;
             }
             // Fallback bar : les labels sont des mois, pas des groupes — pas
             // de variant ici, `BarChartLib` chercherait un groupe par mois.
@@ -119,7 +120,7 @@ export const RenderStatChart: React.FC<RenderStatChartProps> = ({ data, displayT
             const dataset = toMultiSeriesDataset(data.series, stacked);
 
             if (displayType === "line-multi") {
-                return <LineChartLib title={title} loading={loading} data={dataset.data} series={dataset.series} variant={variant} />;
+                return <LineChartLib title={title} loading={loading} data={dataset.data} series={dataset.series} variant={variant} markers={data.markers} />;
             }
             if (displayType === "line-dashed-multi") {
                 return <DashedLineChartLib title={title} loading={loading} data={dataset.data} series={dataset.series} variant={variant} />;

@@ -54,6 +54,13 @@ export interface StatDefinition {
      * `compatibleDisplayTypesFor`.
      */
     excludedDisplayTypes?: ChartConfig["displayType"][];
+    /**
+     * La stat accepte le périmètre « toutes législatures confondues »
+     * (`filters.legislature = "toutes"`, voir perimetre-legislature.ts). Le
+     * sélecteur de législature ne propose ce choix que si le domaine a au
+     * moins une stat qui l'accepte, et seules celles-là sont alors listées.
+     */
+    allLegislatures?: boolean;
 
     /** scope === "aggregate" : filtres disponibles pour restreindre la population (réutilise FilterField de FilterBarLib) */
     populationFilters?: FilterField[];

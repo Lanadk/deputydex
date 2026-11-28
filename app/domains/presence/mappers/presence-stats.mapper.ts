@@ -181,7 +181,7 @@ export function mapAssembleeDeputesPresentsToDTO(rows: AssembleePresenceJourRow[
 
 /** Présence par jour de la semaine, une série par législature (« 1 · Lundi »…). */
 export function mapAssembleeJourSemaineToDTO(rows: AssembleePresenceJourSemaineRow[]): PresenceStatSeriesDTO {
-    const parLegislature = new Map<number, PresenceStatItemDTO[]>();
+    const parLegislature = new Map<number | null, PresenceStatItemDTO[]>();
     for (const r of rows) {
         if (!parLegislature.has(r.legislature)) parLegislature.set(r.legislature, []);
         parLegislature.get(r.legislature)!.push(...item(jourSemaineLabel(r.jour_semaine), r.taux_presence));

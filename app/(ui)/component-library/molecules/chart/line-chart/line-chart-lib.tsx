@@ -2,6 +2,7 @@
 
 import React from "react";
 import { LineChart } from "@mui/x-charts/LineChart";
+import { ChartsReferenceLine } from "@mui/x-charts/ChartsReferenceLine";
 import { ChartContainerLib } from "@/app/(ui)/component-library/molecules/chart/wrapper/chart-container-lib";
 import {
     type ChartColorVariant,
@@ -44,6 +45,12 @@ type LineChartLibProps = {
     variant?: ChartColorVariant;
     groupLabel?: string | null;
     series?: LineChartSeriesConfig[];
+    /**
+     * Repères verticaux : `at` = un libellé de l'axe des x (ex: « 2024-07 »),
+     * `label` = texte du repère (ex: « Début de la 17ᵉ législature »). Un
+     * repère dont `at` n'est pas sur l'axe est ignoré.
+     */
+    markers?: { at: string; label: string }[];
 };
 
 export const LineChartLib: React.FC<LineChartLibProps> = ({
@@ -56,8 +63,11 @@ export const LineChartLib: React.FC<LineChartLibProps> = ({
                                                               variant = "default",
                                                               groupLabel,
                                                               series,
+                                                              markers = [],
                                                           }) => {
     const empty = data.length === 0;
+    const libellesAxe = new Set(data.map((d) => d.label));
+    const reperes = markers.filter((m) => libellesAxe.has(m.at));
     const isMultiSeries = Array.isArray(series) && series.length > 0;
 
     const singleSeriesColor = getSingleSeriesGroupColor(variant, groupLabel);
@@ -139,7 +149,18 @@ export const LineChartLib: React.FC<LineChartLibProps> = ({
                         : singleSeries
                 }
                 sx={cartesianChartSx}
-            />
+            >
+                {reperes.map((m) => (
+                    <ChartsReferenceLine
+                        key={`${m.at}-${m.label}`}
+                        x={m.at}
+                        label={m.label}
+                        labelAlign="start"
+                        lineStyle={{ stroke: axisTextColor, strokeDasharray: "4 4" }}
+                        labelStyle={{ fill: axisTextColor, fontSize: 11 }}
+                    />
+                ))}
+            </LineChart>
         </ChartContainerLib>
     );
 };

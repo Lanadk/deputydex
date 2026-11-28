@@ -4,6 +4,7 @@ import { StatFetchParams } from "@/app/_shared/statistics/stat-scope.types";
 import { RawStatData } from "@/app/_shared/statistics/raw-stat-data.types";
 import { fetchStatData } from "@/app/(ui)/_shared/statistics/data/fetch-stat-data";
 import { isContextReady } from "@/app/(ui)/_shared/statistics/context/is-context-ready";
+import { supportsContext } from "@/app/(ui)/_shared/statistics/catalog/stats-catalog.helpers";
 
 type State = { data: RawStatData | null; loading: boolean; error: boolean };
 type Action =
@@ -46,7 +47,9 @@ export function useStatData(definition: StatDefinition, params: StatFetchParams)
     const [retryToken, setRetryToken] = useState(0);
     const retry = () => setRetryToken((n) => n + 1);
     const paramsKey = JSON.stringify(params);
-    const ready = isContextReady(definition.domain, definition.scope, params);
+    // Pas de fetch non plus pour une stat qui n'accepte pas le périmètre
+    // « toutes législatures » (son handler attend un numéro) — voir supportsContext.
+    const ready = isContextReady(definition.domain, definition.scope, params) && supportsContext(definition, params);
 
     useEffect(() => {
         if (!ready) return;

@@ -9,6 +9,7 @@ import {
     findStatDefinition,
     getComparableStats,
     groupStatsByCategory,
+    statsForContext,
 } from "@/app/(ui)/_shared/statistics/catalog/stats-catalog.helpers";
 import { StatDefinition } from "@/app/(ui)/_shared/statistics/catalog/stat-definition.types";
 import { StatDomain, StatFetchParams, StatScope } from "@/app/_shared/statistics/stat-scope.types";
@@ -142,6 +143,13 @@ export const StatPicker: React.FC<StatPickerProps> = ({
     const comparableInScope = activeDomain
         ? getComparableStats(STATS_CATALOG, { domain: activeDomain, scope: effectiveScope })
         : [];
+
+    // « Toutes les législatures » : proposé seulement si une stat du
+    // domaine/scope l'accepte ; une fois choisi, seules celles-là sont listées.
+    // Jamais en comparaison : « Toutes » réunit déjà toutes les législatures,
+    // il n'y aurait rien à mettre en face (voir canCompare, avance-page-client).
+    const allowAllLegislatures = !isComparing && comparableInScope.some((stat) => stat.allLegislatures);
+    const statsVisibles = statsForContext(comparableInScope, context);
 
     const EntityResolverComponent = activeDomain ? ENTITY_RESOLVERS[activeDomain] : undefined;
 
@@ -330,6 +338,7 @@ export const StatPicker: React.FC<StatPickerProps> = ({
                                 scope={effectiveScope}
                                 lockedScope={lockedScope}
                                 otherContext={isComparing ? otherContext : null}
+                                allowAllLegislatures={allowAllLegislatures}
                                 onChange={(newScope, params) => {
                                     if (!isComparing && rawConstraint && rawConstraint.scope !== newScope) {
                                         onClearSelection();
@@ -343,7 +352,7 @@ export const StatPicker: React.FC<StatPickerProps> = ({
 
                     {isReady ? (
                         <div className="flex flex-col gap-2" style={{ animation: "fadeIn 0.2s ease" }}>
-                            {groupStatsByCategory(comparableInScope).map((group) => (
+                            {groupStatsByCategory(statsVisibles).map((group) => (
                                 <details
                                     key={group.category}
                                     // Ouverte si l'utilisateur l'a ouverte (manuellement ou via
@@ -383,7 +392,7 @@ export const StatPicker: React.FC<StatPickerProps> = ({
                                     </div>
                                 </details>
                             ))}
-                            {comparableInScope.length === 0 && (
+                            {statsVisibles.length === 0 && (
                                 <p className="text-sm text-subtitle-accent">Aucune statistique disponible pour ce choix.</p>
                             )}
                         </div>

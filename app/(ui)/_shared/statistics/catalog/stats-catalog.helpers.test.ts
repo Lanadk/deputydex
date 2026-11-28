@@ -1,4 +1,4 @@
-import { findStatDefinition, getComparableStats, groupStatsByCategory, searchStats } from "@/app/(ui)/_shared/statistics/catalog/stats-catalog.helpers";
+import { findStatDefinition, getComparableStats, groupStatsByCategory, searchStats, statsForContext, supportsContext } from "@/app/(ui)/_shared/statistics/catalog/stats-catalog.helpers";
 import { StatDomainModule } from "@/app/(ui)/_shared/statistics/catalog/stats-domain.types";
 import { StatDefinition } from "@/app/(ui)/_shared/statistics/catalog/stat-definition.types";
 import { Users } from "lucide-react";
@@ -131,5 +131,23 @@ describe("groupStatsByCategory", () => {
 
     it("returns an empty array for an empty input", () => {
         expect(groupStatsByCategory([])).toEqual([]);
+    });
+});
+
+describe("supportsContext / statsForContext (périmètre « toutes législatures »)", () => {
+    const parLegislature = makeStat({ id: "acteurs.parite", slug: "parite" });
+    const toutes = makeStat({ id: "acteurs.presence-moyenne", slug: "presence-moyenne", allLegislatures: true });
+
+    it("une législature précise : toutes les stats", () => {
+        const ctx = { filters: { legislature: 17 } };
+        expect(supportsContext(parLegislature, ctx)).toBe(true);
+        expect(statsForContext([parLegislature, toutes], ctx)).toEqual([parLegislature, toutes]);
+    });
+
+    it("« toutes » : seulement les stats allLegislatures", () => {
+        const ctx = { filters: { legislature: "toutes" } };
+        expect(supportsContext(parLegislature, ctx)).toBe(false);
+        expect(supportsContext(toutes, ctx)).toBe(true);
+        expect(statsForContext([parLegislature, toutes], ctx)).toEqual([toutes]);
     });
 });

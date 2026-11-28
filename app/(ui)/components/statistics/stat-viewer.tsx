@@ -7,6 +7,7 @@ import { StatFetchParams } from "@/app/_shared/statistics/stat-scope.types";
 import { useStatData } from "@/app/(ui)/_shared/statistics/data/use-stat-data";
 import { useStatInsight } from "@/app/(ui)/_shared/statistics/insights/use-stat-insight";
 import { isContextReady } from "@/app/(ui)/_shared/statistics/context/is-context-ready";
+import { supportsContext } from "@/app/(ui)/_shared/statistics/catalog/stats-catalog.helpers";
 import { buildContextLabel } from "@/app/(ui)/_shared/statistics/context/build-context-label";
 import {
     compatibleDisplayTypesFor,
@@ -46,6 +47,8 @@ export const StatViewer: React.FC<StatViewerProps> = ({
     const { data, loading, error, retry } = useStatData(definition, context);
     const insight = useStatInsight(definition, context, data);
     const ready = isContextReady(definition.domain, definition.scope, context);
+    // Stat cochée avant de passer en « toutes législatures », sans le gérer.
+    const perimetreNonGere = ready && !supportsContext(definition, context);
 
     const compatibleDisplayTypes = compatibleDisplayTypesFor(definition);
     // Un format exclu (ex: camembert mémorisé avant l'exclusion) retombe sur le défaut.
@@ -115,7 +118,13 @@ export const StatViewer: React.FC<StatViewerProps> = ({
                 </p>
             )}
 
-            {!ready ? (
+            {perimetreNonGere ? (
+                <div className="flex items-center justify-center rounded-lg border border-dashed border-main bg-surface-2 p-8 text-center">
+                    <SpanLib className="text-subtitle-accent">
+                        Cette statistique se calcule législature par législature : choisis une législature ci-dessus.
+                    </SpanLib>
+                </div>
+            ) : !ready ? (
                 <div className="flex items-center justify-center rounded-lg border border-dashed border-main bg-surface-2 p-8 text-center">
                     <SpanLib className="text-subtitle-accent">
                         Complète les filtres ci-dessus (législature, entité...) pour afficher ce graphe.

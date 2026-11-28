@@ -6,10 +6,13 @@ export type MultiDatum = { label: string; [key: string]: string | number | null 
 export type SeriesConfig = { dataKey: string; label: string; stack?: string };
 export type ScatterSeries = { id: string; label: string; data: ScatterPoint[] };
 
+/** Repère vertical d'une courbe (voir LineChartLib.markers) : `at` = un libellé de l'axe des x. */
+export type ChartMarker = { at: string; label: string };
+
 export type ChartDataWrapper =
-    | { data: SimpleDatum[] }
-    | { data: MultiDatum[]; series: SeriesConfig[] }
-    | { data: SimpleDatum[]; groupLabel?: string }
+    | { data: SimpleDatum[]; markers?: ChartMarker[] }
+    | { data: MultiDatum[]; series: SeriesConfig[]; markers?: ChartMarker[] }
+    | { data: SimpleDatum[]; groupLabel?: string; markers?: ChartMarker[] }
     | { series: ScatterSeries[]; xLabel?: string; yLabel?: string }
 
 type ChartConfigBase = {

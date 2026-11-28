@@ -2,9 +2,7 @@
 
 import React from "react";
 import { EntityResolverProps } from "@/app/(ui)/components/statistics/entity-resolvers/entity-resolver.types";
-import { useLegislaturesList } from "@/app/(ui)/components/statistics/entity-resolvers/hook/use-legislatures-list";
-import { ButtonLib } from "@/app/(ui)/component-library/atoms/button/button-lib";
-import { FilterGroupLib } from "@/app/(ui)/component-library/molecules/filter-group/filter-group-lib";
+import { LegislatureChoiceButtons } from "@/app/(ui)/components/statistics/entity-resolvers/legislature-choice-buttons";
 
 /**
  * Le domaine "votes" n'a pas de notion d'entité précise (pas de "vote
@@ -14,31 +12,20 @@ import { FilterGroupLib } from "@/app/(ui)/component-library/molecules/filter-gr
  * Sans lui, `isContextReady` considérait ce domaine "toujours prêt" (aucun
  * resolver = rien à attendre) et les stats par-législature (positions,
  * total) fetchaient sans filtre — voir ENTITY_RESOLVERS.
+ *
+ * Réutilisé tel quel par LegislaturesEntityResolver ; « Toutes » n'y apparaît
+ * que si le domaine a des stats qui l'acceptent (`allowAllLegislatures`).
  */
-export const VotesEntityResolver: React.FC<EntityResolverProps> = ({ value, scope, onChange, otherContext }) => {
-    const legislatures = useLegislaturesList();
-
-    const selectedLegislature = (value.filters?.legislature as number | undefined) ?? null;
-
-    // Comparer "tous les votes" de la même législature des deux côtés
-    // reviendrait à comparer une population à elle-même — même règle que
-    // GroupeEntityResolver/ActeurEntityResolver en scope aggregate.
-    const otherLegislature = (otherContext?.filters?.legislature as number | undefined) ?? null;
-
-    return (
-        <div className="flex flex-col gap-3">
-            <FilterGroupLib label="Législature">
-                {legislatures.map((l) => (
-                    <ButtonLib
-                        key={l.id}
-                        text={`${l.number}ᵉ législature`}
-                        size="small"
-                        variant={selectedLegislature === l.number ? "primary" : "tertiary"}
-                        disabled={l.number === otherLegislature}
-                        onClick={() => onChange(scope, { filters: { ...value.filters, legislature: l.number } })}
-                    />
-                ))}
-            </FilterGroupLib>
-        </div>
-    );
-};
+export const VotesEntityResolver: React.FC<EntityResolverProps> = ({ value, scope, onChange, otherContext, allowAllLegislatures }) => (
+    <div className="flex flex-col gap-3">
+        {/* Comparer la même législature des deux côtés reviendrait à comparer
+            une population à elle-même — même règle que GroupeEntityResolver /
+            ActeurEntityResolver en scope aggregate. */}
+        <LegislatureChoiceButtons
+            value={value.filters?.legislature}
+            otherValue={otherContext?.filters?.legislature}
+            allowAll={allowAllLegislatures}
+            onSelect={(legislature) => onChange(scope, { filters: { ...value.filters, legislature } })}
+        />
+    </div>
+);

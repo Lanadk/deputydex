@@ -16,9 +16,12 @@ export const LEGISLATURES_STATS: StatDefinition[] = [
             "législature, du début de la Vᵉ République à aujourd'hui.",
         dataShape: "timeseries",
         unit: "%",
+        // Comparaison entre législatures : a du sens aussi en « Toutes ».
+        allLegislatures: true,
     }),
     defineStat("legislatures", "presence", {
         scope: "aggregate",
+        allLegislatures: true,
         title: "Taux de présence, législature par législature",
         category: "Présence",
         keywords: ["présence", "assiduité", "assemblée", "législatures"],
@@ -31,6 +34,6 @@ export const LEGISLATURES_STATS: StatDefinition[] = [
         unit: "%",
     }),
 
-    // ── Présence moyenne de la législature choisie ──
+    // ── Présence moyenne de la législature choisie (ou de toutes) ──
     ...presenceMoyenneStats("legislatures"),
 ];

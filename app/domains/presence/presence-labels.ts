@@ -12,19 +12,21 @@ export function jourSemaineLabel(isoDow: number): string {
     return `${isoDow} · ${JOURS_SEMAINE[isoDow - 1] ?? "?"}`;
 }
 
-/** « 17ᵉ législature » */
-export function legislatureLabel(legislature: number): string {
-    return `${legislature}ᵉ législature`;
+/** « 17ᵉ législature » ; null (ligne toutes législatures des vues) → « Toutes législatures ». */
+export function legislatureLabel(legislature: number | null): string {
+    return legislature == null ? "Toutes législatures" : `${legislature}ᵉ législature`;
 }
 
 /**
  * Libellé d'une période annuelle, préfixé par la législature pour qu'une même
  * année civile (2024 : fin de la 16ᵉ et début de la 17ᵉ) ou un même rang de
  * mandat n'apparaisse pas deux fois sous le même libellé : « 17ᵉ · 2025-2026 »,
- * « 17ᵉ · année 1 ».
+ * « 17ᵉ · année 1 ». Toutes législatures (legislature null) : une seule ligne
+ * par période, donc pas de préfixe — « 2023-2024 ».
  */
-export function periodeLabel(legislature: number, periode: string, type: "civile" | "parlementaire" | "mandat"): string {
-    return `${legislature}ᵉ · ${type === "mandat" ? `année ${periode}` : periode}`;
+export function periodeLabel(legislature: number | null, periode: string, type: "civile" | "parlementaire" | "mandat"): string {
+    const libelle = type === "mandat" ? `année ${periode}` : periode;
+    return legislature == null ? libelle : `${legislature}ᵉ · ${libelle}`;
 }
 
 /** Date → « 2025-10 » (mois) */

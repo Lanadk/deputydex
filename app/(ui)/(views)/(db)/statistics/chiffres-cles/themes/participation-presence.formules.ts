@@ -271,6 +271,17 @@ export const F_PRESENCE_GROUPE_ANNEE: FormulaLibProps = {
 
 // ── Présence : années ────────────────────────────────────────────────────────
 
+/** Années toutes législatures confondues (graphes « Présence par année » des Chiffres clés). */
+const L_TOUTES: FormulaLegendItem = {
+    symbol: "Σ_{d}",
+    description: "somme sur tous les députés de toutes les législatures (un député de deux législatures compte dans chacune)",
+};
+
+const NOTE_TOUTES =
+    "Toutes législatures confondues : une année coupée par un changement de législature est calculée sur l'année " +
+    "entière, en sommant les jours des deux — jamais en moyennant leurs taux. Le repère vertical marque le début " +
+    "de chaque législature.";
+
 export const F_PRESENCE_ANNEE_PARLEMENTAIRE: FormulaLibProps = {
     label: "taux par année parlementaire",
     result: "τ_{a}",
@@ -278,9 +289,11 @@ export const F_PRESENCE_ANNEE_PARLEMENTAIRE: FormulaLibProps = {
     denominator: "Σ_{d} Σ_{j ∈ a} 𝟙[A_{d,j}]",
     factor: "× 100",
     legend: [
-        { symbol: "a", description: "année parlementaire : 1er octobre → 30 septembre (juillet–septembre 2024, début de la 17ᵉ, relève de 2023-2024)" },
+        { symbol: "a", description: "année parlementaire : 1er octobre → 30 septembre" },
+        L_TOUTES,
         ...BRIQUES,
     ],
+    note: NOTE_TOUTES,
 };
 
 export const F_PRESENCE_ANNEE_MANDAT: FormulaLibProps = {
@@ -304,8 +317,9 @@ export const F_PRESENCE_ANNEE_CIVILE: FormulaLibProps = {
     denominator: "Σ_{d} μ_{d,a}",
     legend: [
         { symbol: "a", description: "année civile : 1er janvier → 31 décembre" },
+        L_TOUTES,
         ...BRIQUES_VOLUME,
         mois("μ_{d,a}", "dans l'année a"),
     ],
-    note: NOTE_VOLUME + " Divisé par les mois actifs plutôt que par 12 : une année entamée (ou un député arrivé en cours d'année) reste comparable à une année complète.",
+    note: NOTE_VOLUME + " Divisé par les mois actifs plutôt que par 12 : une année entamée (ou un député arrivé en cours d'année) reste comparable à une année complète. " + NOTE_TOUTES,
 };

@@ -209,7 +209,7 @@ const KEY_FIGURES_CHARTS: ChartConfig[] = [
     {
         id: "chart-presence-annee-parlementaire",
         title: "Taux de présence moyen par année parlementaire (en %)",
-        subtitle: "Octobre → septembre, comme les sessions",
+        subtitle: "Toutes législatures — octobre → septembre, comme les sessions",
         theme: "presence",
         displayType: "line",
     },
@@ -223,7 +223,7 @@ const KEY_FIGURES_CHARTS: ChartConfig[] = [
     {
         id: "chart-presence-annee-civile",
         title: "Jours de présence par mois, en moyenne, par année civile",
-        subtitle: "Janvier → décembre — une année entamée reste comparable",
+        subtitle: "Toutes législatures — janvier → décembre, une année entamée reste comparable",
         theme: "presence",
         displayType: "line",
     },

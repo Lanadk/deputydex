@@ -7,6 +7,7 @@ import { groupesGateways } from "@/app/(ui)/gateways/groupes/groupes.gateway";
 import { statisticsGateway } from "@/app/(ui)/gateways/statistics/statistics.gateway";
 import { GroupeCardDTO } from "@/app/domains/groupes/dto/groupes-card.dto";
 import { card, chart, entityChart, table, GroupePresenceTableRow } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/registry";
+import { TOUTES_LEGISLATURES } from "@/app/_shared/statistics/perimetre-legislature";
 import { F_PRESENCE_ANNEE_CIVILE, F_PRESENCE_ANNEE_MANDAT, F_PRESENCE_ANNEE_PARLEMENTAIRE, F_PRESENCE_COMMISSION, F_PRESENCE_DEPUTES_PRESENTS, F_PRESENCE_GROUPE, F_PRESENCE_GROUPE_ANNEE, F_PRESENCE_GROUPE_COMMISSION, F_PRESENCE_GROUPE_EXCUSES, F_PRESENCE_GROUPE_JOURS, F_PRESENCE_GROUPE_MOIS, F_PRESENCE_GROUPE_SCRUTINS, F_PRESENCE_GROUPE_SEANCE, F_PRESENCE_JOUR_SEANCE, F_PRESENCE_JOUR_SEMAINE, F_PRESENCE_JOUR_TOUS_LIEUX, F_PRESENCE_JOURS_MOIS, F_PRESENCE_SCRUTINS, F_PRESENCE_SEANCE, F_PRESENCE_TAUX, F_PRESENCE_TAUX_MOIS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/participation-presence.formules";
 
 type Item = { label: string; value: number };
@@ -240,23 +241,28 @@ export const PRESENCE_DEPUTES_SECTIONS: PageSection[] = [
         label: "Présence par année",
         icon: CalendarRange,
         description:
-            "Année parlementaire : 1er octobre → 30 septembre, comme les sessions (juillet–septembre 2024, début de " +
-            "la 17ᵉ, relève de « 2023-2024 »). Année de mandat : rang de l'année dans le mandat de chaque député, " +
-            "depuis sa propre prise de fonction. Année civile : jours de présence (toutes sources, attendus ou non) " +
-            "divisés par les mois actifs (août exclu), pour qu'une année entamée reste comparable à une année complète.",
+            "Années parlementaire (1er octobre → 30 septembre, comme les sessions) et civile : toutes législatures " +
+            "confondues, une seule courbe. Une année coupée par un changement de législature est calculée sur l'année " +
+            "entière (jours sommés), et un repère marque le début de chaque législature. Année de mandat : rang de " +
+            "l'année dans le mandat de chaque député, depuis sa propre prise de fonction, sur la législature affichée. " +
+            "Année civile : jours de présence (toutes sources, attendus ou non) divisés par les mois actifs (août exclu), " +
+            "pour qu'une année entamée reste comparable à une année complète.",
         cols: 4,
         lazy: false,
         gatewayFn: async ({ legislature }: Record<string, unknown>) => {
-            const filters = { filters: { legislature: legislature as number } };
+            // Parlementaire et civile : toutes législatures (une année peut chevaucher deux législatures).
+            // Mandat : par législature (pas de version combinée, voir la vue).
+            const toutes = { filters: { legislature: TOUTES_LEGISLATURES } };
+            const legislatureAffichee = { filters: { legislature: legislature as number } };
             const [parlementaire, mandat, civile] = await Promise.all([
-                statisticsGateway.fetchStat("acteurs", "presence-moyenne-taux-annee-parlementaire", filters),
-                statisticsGateway.fetchStat("acteurs", "presence-moyenne-taux-annee-mandat", filters),
-                statisticsGateway.fetchStat("acteurs", "presence-moyenne-jours-annee-civile", filters),
+                statisticsGateway.fetchStat("acteurs", "presence-moyenne-taux-annee-parlementaire", toutes),
+                statisticsGateway.fetchStat("acteurs", "presence-moyenne-taux-annee-mandat", legislatureAffichee),
+                statisticsGateway.fetchStat("acteurs", "presence-moyenne-jours-annee-civile", toutes),
             ]);
             return {
-                "chart-presence-annee-parlementaire": { data: pointsOf(parlementaire) },
+                "chart-presence-annee-parlementaire": { data: pointsOf(parlementaire), markers: parlementaire.markers },
                 "chart-presence-annee-mandat": { data: pointsOf(mandat) },
-                "chart-presence-annee-civile": { data: pointsOf(civile) },
+                "chart-presence-annee-civile": { data: pointsOf(civile), markers: civile.markers },
             } as unknown as Record<string, BlockDataWrapper>;
         },
         blocks: [

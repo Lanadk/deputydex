@@ -16,7 +16,9 @@ export const PRESENCE_METHODOLOGIE =
     "attendues, mais y parler compte comme jour de présence. Borne basse : un député présent qui ne vote ni ne parle n'est pas vu.";
 
 const MOYENNE_METHODOLOGIE =
-    PRESENCE_METHODOLOGIE + " Moyenne de tous les députés de la législature choisie : taux pondérés (somme des " +
+    PRESENCE_METHODOLOGIE + " Moyenne de tous les députés de la législature choisie, ou de toutes les législatures " +
+    "(« Toutes ») : jours sommés sur l'ensemble, une année coupée par un changement de législature est alors calculée " +
+    "sur l'année entière. Taux pondérés (somme des " +
     "jours présents ÷ somme des jours attendus de tous les députés), pas la moyenne des taux individuels.";
 
 const MOYENNE_ANNEES =
@@ -31,6 +33,8 @@ function annee(domain: StatDomain, type: TypeAnnee, mesure: "taux" | "jours"): S
     const libelle = { civile: "année civile", parlementaire: "année parlementaire", mandat: "année de mandat" }[type];
     return defineStat(domain, `presence-moyenne-${mesure}-annee-${type}`, {
         scope: "aggregate",
+        // Pas d'année de mandat toutes législatures confondues (voir agg_assemblee_presence_annuelle).
+        allLegislatures: type !== "mandat",
         title: mesure === "taux" ? `Taux de présence moyen par ${libelle}` : `Jours de présence par mois, par ${libelle}`,
         category: "Présence",
         keywords: ["présence", "moyenne", "année", type, mesure === "taux" ? "taux" : "jours", "députés"],
@@ -46,7 +50,8 @@ function annee(domain: StatDomain, type: TypeAnnee, mesure: "taux" | "jours"): S
 }
 
 /**
- * Présence moyenne de tous les députés d'UNE législature — mêmes stats dans
+ * Présence moyenne de tous les députés d'une législature, ou de toutes (« Toutes »,
+ * llLegislatures) sauf l'année de mandat — mêmes stats dans
  * deux domaines du mode avancé (`acteurs` → « Tous les députés », et
  * `legislatures`), mêmes handlers côté serveur
  * (`api/statistics/_handlers/presence-moyenne.handlers.ts`).
@@ -55,6 +60,7 @@ export function presenceMoyenneStats(domain: StatDomain): StatDefinition[] {
     return [
         defineStat(domain, "presence-moyenne", {
             scope: "aggregate",
+            allLegislatures: true,
             title: "Présence moyenne : séance, commission, scrutins",
             category: "Présence",
             keywords: ["présence", "moyenne", "séance", "commission", "scrutins", "excusés", "députés"],
@@ -65,6 +71,7 @@ export function presenceMoyenneStats(domain: StatDomain): StatDefinition[] {
         }),
         defineStat(domain, "presence-moyenne-evolution", {
             scope: "aggregate",
+            allLegislatures: true,
             title: "Taux de présence moyen, mois par mois",
             category: "Présence",
             keywords: ["présence", "moyenne", "évolution", "mensuel", "députés"],
@@ -75,6 +82,7 @@ export function presenceMoyenneStats(domain: StatDomain): StatDefinition[] {
         }),
         defineStat(domain, "presence-moyenne-jours-mensuels", {
             scope: "aggregate",
+            allLegislatures: true,
             title: "Jours de présence moyens, mois par mois",
             category: "Présence",
             keywords: ["présence", "moyenne", "jours", "volume", "mensuel", "députés"],
@@ -85,6 +93,7 @@ export function presenceMoyenneStats(domain: StatDomain): StatDefinition[] {
         }),
         defineStat(domain, "presence-moyenne-journaliere", {
             scope: "aggregate",
+            allLegislatures: true,
             title: "Taux de présence, jour par jour",
             category: "Présence",
             keywords: ["présence", "moyenne", "jour", "quotidien", "séance", "députés"],
@@ -95,6 +104,7 @@ export function presenceMoyenneStats(domain: StatDomain): StatDefinition[] {
         }),
         defineStat(domain, "presence-moyenne-deputes-presents", {
             scope: "aggregate",
+            allLegislatures: true,
             title: "Nombre de député·es présent·es, jour par jour",
             category: "Présence",
             keywords: ["présence", "nombre", "jour", "quotidien", "députés"],
@@ -105,6 +115,7 @@ export function presenceMoyenneStats(domain: StatDomain): StatDefinition[] {
         }),
         defineStat(domain, "presence-moyenne-jour-semaine", {
             scope: "aggregate",
+            allLegislatures: true,
             title: "Taux de présence moyen selon le jour de la semaine",
             category: "Présence",
             keywords: ["présence", "moyenne", "semaine", "lundi", "mardi", "mercredi", "jeudi", "vendredi", "députés"],

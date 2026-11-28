@@ -20,7 +20,17 @@ export type StatDataShape = "distribution" | "timeseries" | "multi-series" | "po
  */
 export type StatNote = { note?: string };
 
-export type RawStatData = StatNote & (
+/**
+ * Repère vertical sur l'axe des libellés d'une courbe (ex: « Début de la
+ * 17ᵉ législature » sur une courbe toutes législatures confondues). `at` est
+ * l'un des libellés de la série ; calculé côté serveur depuis les données
+ * (`param_legislatures`), jamais écrit en dur.
+ */
+export type StatMarker = { at: string; label: string };
+
+export type StatMarkers = { markers?: StatMarker[] };
+
+export type RawStatData = StatNote & StatMarkers & (
     | { shape: "distribution"; items: { label: string; value: number }[] }
     | { shape: "timeseries"; points: { label: string; value: number }[] }
     | { shape: "multi-series"; series: { name: string; items: { label: string; value: number }[] }[] }

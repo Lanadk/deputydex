@@ -3,7 +3,7 @@
 import React, { useEffect, useState } from "react";
 import {EntityResolverProps} from "@/app/(ui)/components/statistics/entity-resolvers/entity-resolver.types";
 import {ActeurDTO} from "@/app/domains/acteurs/dto/acteur.dto";
-import {useLegislaturesList} from "@/app/(ui)/components/statistics/entity-resolvers/hook/use-legislatures-list";
+import {LegislatureChoiceButtons} from "@/app/(ui)/components/statistics/entity-resolvers/legislature-choice-buttons";
 import {acteursGateway} from "@/app/(ui)/gateways/acteurs/acteurs.gateway";
 import {ButtonLib} from "@/app/(ui)/component-library/atoms/button/button-lib";
 import {InputLib} from "@/app/(ui)/component-library/molecules/input/input-lib";
@@ -22,20 +22,20 @@ import {FilterGroupLib} from "@/app/(ui)/component-library/molecules/filter-grou
  * législature). Avec une législature choisie, comparer 16ᵉ vs 17ᵉ redevient
  * pertinent.
  */
-export const ActeurEntityResolver: React.FC<EntityResolverProps> = ({ value, scope, onChange, lockedScope, otherContext }) => {
-    const legislatures = useLegislaturesList();
+export const ActeurEntityResolver: React.FC<EntityResolverProps> = ({ value, scope, onChange, lockedScope, otherContext, allowAllLegislatures }) => {
     const [search, setSearch] = useState("");
     const [acteurs, setActeurs] = useState<ActeurDTO[]>([]);
 
     const canPickEntity = lockedScope !== "aggregate";
     const canPickAggregate = lockedScope !== "entity";
 
-    const selectedLegislature = (value.filters?.legislature as number | undefined) ?? null;
+    // Une législature (numéro) ou « toutes » (voir perimetre-legislature.ts).
+    const selectedLegislature = value.filters?.legislature ?? null;
 
     // Valeur déjà prise par l'AUTRE colonne en comparaison — comparer une
     // législature ou un député à lui-même n'a pas de sens, ce choix est donc
     // grisé plutôt que laissé sélectionnable (voir EntityResolverProps).
-    const otherLegislature = (otherContext?.filters?.legislature as number | undefined) ?? null;
+    const otherLegislature = otherContext?.filters?.legislature ?? null;
     const otherEntityId = otherContext?.entityId ?? null;
 
     useEffect(() => {
@@ -134,18 +134,12 @@ export const ActeurEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
             )}
 
             {scope === "aggregate" && (
-                <FilterGroupLib label="Législature">
-                    {legislatures.map((l) => (
-                        <ButtonLib
-                            key={l.id}
-                            text={`${l.number}ᵉ législature`}
-                            size="small"
-                            variant={selectedLegislature === l.number ? "primary" : "tertiary"}
-                            disabled={l.number === otherLegislature}
-                            onClick={() => onChange("aggregate", { filters: { ...value.filters, legislature: l.number } })}
-                        />
-                    ))}
-                </FilterGroupLib>
+                <LegislatureChoiceButtons
+                    value={selectedLegislature}
+                    otherValue={otherLegislature}
+                    allowAll={allowAllLegislatures}
+                    onSelect={(legislature) => onChange("aggregate", { filters: { ...value.filters, legislature } })}
+                />
             )}
         </div>
     );

@@ -15,6 +15,7 @@ import {
     getGroupesPresenceComposanteUseCase,
     getGroupesPresenceEvolutionUseCase,
     getGroupesPresenceUseCase,
+    getReperesLegislaturesUseCase,
     sortParValeurDecroissante,
 } from "@/app/domains/presence/use-cases/get-presence-stats.use-cases";
 
@@ -33,6 +34,7 @@ function makeRepository(overrides: Partial<IPresenceStatsRepository> = {}): IPre
         getAssembleeAnnuelle: jest.fn().mockResolvedValue([]),
         getAssembleeJournaliere: jest.fn().mockResolvedValue([]),
         getAssembleeJourSemaine: jest.fn().mockResolvedValue([]),
+        getDebutsLegislatures: jest.fn().mockResolvedValue([]),
         ...overrides,
     };
 }
@@ -366,6 +368,42 @@ describe("présence par groupe — composantes", () => {
             "4 · Participation aux scrutins",
         ]);
         expect(result.success && result.data.series[0].items.map((i) => i.label)).toEqual(["EPR", "LFI", "RN"]);
+    });
+});
+
+describe("présence de l'Assemblée — toutes législatures", () => {
+    it("transmet le périmètre « toutes » ; une ligne null se libelle « Toutes législatures », une année sans préfixe", async () => {
+        const repo = makeRepository({
+            getAssemblee: jest.fn().mockResolvedValue([assemblee(16, 59.1), { ...assemblee(17, 56.4), legislature: null, taux_presence: 57.7 }]),
+            getAssembleeAnnuelle: jest.fn().mockResolvedValue([
+                { legislature: null, periode: "2023-2024", jours_presence_par_mois: 6.8, taux_presence: 55.5 },
+                { legislature: null, periode: "2022-2023", jours_presence_par_mois: 7.2, taux_presence: 60.4 },
+            ]),
+        });
+
+        const composantes = await getAssembleePresenceComposantesUseCase(repo, "toutes");
+        expect(repo.getAssemblee).toHaveBeenCalledWith("toutes");
+        expect(composantes.success && composantes.data.series.map((s) => s.name)).toEqual(["16ᵉ législature", "Toutes législatures"]);
+
+        expect(await getAssembleePresenceTauxAnnuelUseCase(repo, "parlementaire", "toutes")).toEqual({
+            success: true,
+            data: { items: [{ label: "2022-2023", value: 60.4 }, { label: "2023-2024", value: 55.5 }] },
+        });
+        expect(repo.getAssembleeAnnuelle).toHaveBeenCalledWith("parlementaire", "toutes");
+    });
+
+    it("repères : début de chaque législature dans l'échelle des libellés", async () => {
+        const repo = makeRepository({
+            getDebutsLegislatures: jest.fn().mockResolvedValue([
+                { legislature: 16, debut: new Date("2022-06-28T00:00:00Z") },
+                { legislature: 17, debut: new Date("2024-07-18T00:00:00Z") },
+            ]),
+        });
+
+        expect(await getReperesLegislaturesUseCase(repo, "parlementaire", ["2021-2022", "2022-2023", "2023-2024", "2024-2025"])).toEqual({
+            success: true,
+            data: [{ at: "2023-2024", label: "Début de la 17ᵉ législature" }],
+        });
     });
 });
 

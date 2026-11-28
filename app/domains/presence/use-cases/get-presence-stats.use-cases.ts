@@ -1,5 +1,8 @@
 import { isErr, ok, Result } from "@/app/_shared/result-pattern/result";
 import { fromRepository } from "@/app/_shared/result-pattern/app-error";
+import { PerimetreLegislature } from "@/app/_shared/statistics/perimetre-legislature";
+import { StatMarker } from "@/app/_shared/statistics/raw-stat-data.types";
+import { EchelleReperes, reperesLegislatures } from "@/app/domains/presence/presence-reperes";
 import { IPresenceStatsRepository } from "@/app/domains/presence/repositories/IPresenceStatsRepository";
 import { PresenceComposante, PresenceTypePeriode } from "@/app/domains/presence/entities/presence-stats.entity";
 import {
@@ -164,44 +167,52 @@ export function getGroupesPresenceAnnuelleUseCase(repo: IPresenceStatsRepository
     return lire(() => repo.getGroupesAnnuelle(legislature, type), (rows) => sortSeries(mapGroupesAnnuelleToDTO(rows)));
 }
 
-// ── Assemblée (législature optionnelle : absente = toutes) ───────────────────
+// ── Assemblée (périmètre : une législature, « toutes », ou absent = une ligne par législature) ──
 
-export function getAssembleePresenceParLegislatureUseCase(repo: IPresenceStatsRepository, legislature?: number): PresenceResult<PresenceStatItemsDTO> {
-    return lire(() => repo.getAssemblee(legislature), (rows) => chronologie(mapAssembleeTauxParLegislatureToDTO(rows)));
+export function getAssembleePresenceParLegislatureUseCase(repo: IPresenceStatsRepository, perimetre?: PerimetreLegislature): PresenceResult<PresenceStatItemsDTO> {
+    return lire(() => repo.getAssemblee(perimetre), (rows) => chronologie(mapAssembleeTauxParLegislatureToDTO(rows)));
 }
 
-export function getAssembleePresenceComposantesUseCase(repo: IPresenceStatsRepository, legislature?: number): PresenceResult<PresenceStatSeriesDTO> {
-    return lire(() => repo.getAssemblee(legislature), (rows) => sortSeries(mapAssembleeComposantesToDTO(rows)));
+export function getAssembleePresenceComposantesUseCase(repo: IPresenceStatsRepository, perimetre?: PerimetreLegislature): PresenceResult<PresenceStatSeriesDTO> {
+    return lire(() => repo.getAssemblee(perimetre), (rows) => sortSeries(mapAssembleeComposantesToDTO(rows)));
 }
 
-export function getAssembleePresenceEvolutionUseCase(repo: IPresenceStatsRepository, legislature?: number): PresenceResult<PresenceStatPointsDTO> {
-    return lire(() => repo.getAssembleeMensuelle(legislature), (rows) => points(mapAssembleeMensuelleTauxToDTO(rows)));
+export function getAssembleePresenceEvolutionUseCase(repo: IPresenceStatsRepository, perimetre?: PerimetreLegislature): PresenceResult<PresenceStatPointsDTO> {
+    return lire(() => repo.getAssembleeMensuelle(perimetre), (rows) => points(mapAssembleeMensuelleTauxToDTO(rows)));
 }
 
-export function getAssembleePresenceJoursMensuelsUseCase(repo: IPresenceStatsRepository, legislature?: number): PresenceResult<PresenceStatPointsDTO> {
-    return lire(() => repo.getAssembleeMensuelle(legislature), (rows) => points(mapAssembleeMensuelleJoursToDTO(rows)));
+export function getAssembleePresenceJoursMensuelsUseCase(repo: IPresenceStatsRepository, perimetre?: PerimetreLegislature): PresenceResult<PresenceStatPointsDTO> {
+    return lire(() => repo.getAssembleeMensuelle(perimetre), (rows) => points(mapAssembleeMensuelleJoursToDTO(rows)));
 }
 
 /** Jours de présence par mois, par année (civile, parlementaire ou de mandat — cette dernière par rang). */
-export function getAssembleePresenceAnnuelleUseCase(repo: IPresenceStatsRepository, type: PresenceTypePeriode, legislature?: number): PresenceResult<PresenceStatItemsDTO> {
-    return lire(() => repo.getAssembleeAnnuelle(type, legislature), (rows) => chronologie(mapAnneesToDTO(rows, type)));
+export function getAssembleePresenceAnnuelleUseCase(repo: IPresenceStatsRepository, type: PresenceTypePeriode, perimetre?: PerimetreLegislature): PresenceResult<PresenceStatItemsDTO> {
+    return lire(() => repo.getAssembleeAnnuelle(type, perimetre), (rows) => chronologie(mapAnneesToDTO(rows, type)));
 }
 
 /** Taux de présence, par année (civile, parlementaire ou de mandat). */
-export function getAssembleePresenceTauxAnnuelUseCase(repo: IPresenceStatsRepository, type: PresenceTypePeriode, legislature?: number): PresenceResult<PresenceStatItemsDTO> {
-    return lire(() => repo.getAssembleeAnnuelle(type, legislature), (rows) => chronologie(mapAnneesTauxToDTO(rows, type)));
+export function getAssembleePresenceTauxAnnuelUseCase(repo: IPresenceStatsRepository, type: PresenceTypePeriode, perimetre?: PerimetreLegislature): PresenceResult<PresenceStatItemsDTO> {
+    return lire(() => repo.getAssembleeAnnuelle(type, perimetre), (rows) => chronologie(mapAnneesTauxToDTO(rows, type)));
 }
 
 /** Jour par jour : présence en séance et présence tous lieux (deux séries). */
-export function getAssembleePresenceJournaliereUseCase(repo: IPresenceStatsRepository, legislature?: number): PresenceResult<PresenceStatSeriesDTO> {
-    return lire(() => repo.getAssembleeJournaliere(legislature), (rows) => sortSeries(mapAssembleeJournaliereToDTO(rows)));
+export function getAssembleePresenceJournaliereUseCase(repo: IPresenceStatsRepository, perimetre?: PerimetreLegislature): PresenceResult<PresenceStatSeriesDTO> {
+    return lire(() => repo.getAssembleeJournaliere(perimetre), (rows) => sortSeries(mapAssembleeJournaliereToDTO(rows)));
 }
 
 /** Nombre de députés présents, jour par jour. */
-export function getAssembleePresenceDeputesPresentsUseCase(repo: IPresenceStatsRepository, legislature?: number): PresenceResult<PresenceStatPointsDTO> {
-    return lire(() => repo.getAssembleeJournaliere(legislature), (rows) => points(mapAssembleeDeputesPresentsToDTO(rows)));
+export function getAssembleePresenceDeputesPresentsUseCase(repo: IPresenceStatsRepository, perimetre?: PerimetreLegislature): PresenceResult<PresenceStatPointsDTO> {
+    return lire(() => repo.getAssembleeJournaliere(perimetre), (rows) => points(mapAssembleeDeputesPresentsToDTO(rows)));
 }
 
-export function getAssembleePresenceJourSemaineUseCase(repo: IPresenceStatsRepository, legislature?: number): PresenceResult<PresenceStatSeriesDTO> {
-    return lire(() => repo.getAssembleeJourSemaine(legislature), (rows) => sortSeries(mapAssembleeJourSemaineToDTO(rows)));
+export function getAssembleePresenceJourSemaineUseCase(repo: IPresenceStatsRepository, perimetre?: PerimetreLegislature): PresenceResult<PresenceStatSeriesDTO> {
+    return lire(() => repo.getAssembleeJourSemaine(perimetre), (rows) => sortSeries(mapAssembleeJourSemaineToDTO(rows)));
+}
+
+/**
+ * Repères « Début de la Nᵉ législature » à poser sur une courbe toutes
+ * législatures, dans l'échelle de ses libellés (voir presence-reperes.ts).
+ */
+export function getReperesLegislaturesUseCase(repo: IPresenceStatsRepository, echelle: EchelleReperes, libelles: string[]): PresenceResult<StatMarker[]> {
+    return lire(() => repo.getDebutsLegislatures(), (debuts) => reperesLegislatures(debuts, echelle, libelles));
 }

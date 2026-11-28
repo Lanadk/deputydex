@@ -23,6 +23,12 @@ export interface EntityResolverProps {
      * coup (même principe que `lockedScope`/StatPicker).
      */
     otherContext?: StatFetchParams | null;
+    /**
+     * Proposer « Toutes les législatures » (`filters.legislature = "toutes"`) :
+     * vrai seulement si le domaine/scope a au moins une stat `allLegislatures`
+     * (calculé par StatPicker depuis le catalogue).
+     */
+    allowAllLegislatures?: boolean;
 }
 
 export type EntityResolver = React.FC<EntityResolverProps>;

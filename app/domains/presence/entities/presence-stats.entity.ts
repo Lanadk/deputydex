@@ -41,7 +41,8 @@ export interface DeputePresenceMoisRow {
 
 /** Une année d'un député (`agg_deputes_presence_annuelle`). */
 export interface PresenceAnneeRow {
-    legislature: number;
+    /** null = toutes législatures (Assemblée seulement). */
+    legislature: number | null;
     periode: string;
     jours_presence_par_mois: number | null;
     taux_presence: number | null;
@@ -77,9 +78,9 @@ export interface GroupePresenceAnneeRow {
     jours_presence_par_mois: number | null;
 }
 
-/** L'Assemblée sur une législature (`agg_assemblee_presence`). */
+/** L'Assemblée sur une législature (`agg_assemblee_presence`) ; `legislature` null = toutes législatures. */
 export interface AssembleePresenceLegislatureRow {
-    legislature: number;
+    legislature: number | null;
     taux_presence: number | null;
     taux_presence_seance: number | null;
     taux_presence_commission: number | null;
@@ -91,7 +92,8 @@ export interface AssembleePresenceLegislatureRow {
 
 /** Un mois de l'Assemblée (`agg_assemblee_presence_mensuelle`). */
 export interface AssembleePresenceMoisRow {
-    legislature: number;
+    /** null = toutes législatures. */
+    legislature: number | null;
     mois: Date;
     taux_presence: number | null;
     jours_presence_par_depute: number | null;
@@ -110,7 +112,14 @@ export interface AssembleePresenceJourRow {
 
 /** Un jour de la semaine de l'Assemblée (`agg_assemblee_presence_jour_semaine`). */
 export interface AssembleePresenceJourSemaineRow {
-    legislature: number;
+    /** null = toutes législatures. */
+    legislature: number | null;
     jour_semaine: number;
     taux_presence: number | null;
+}
+
+/** Début d'une législature (`param_legislatures`) : place les repères des courbes toutes législatures. */
+export interface DebutLegislatureRow {
+    legislature: number;
+    debut: Date;
 }

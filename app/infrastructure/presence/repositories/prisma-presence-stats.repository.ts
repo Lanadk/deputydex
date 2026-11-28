@@ -8,6 +8,7 @@ import {
     AssembleePresenceJourSemaineRow,
     AssembleePresenceLegislatureRow,
     AssembleePresenceMoisRow,
+    DebutLegislatureRow,
     DeputeDebutMandatRow,
     DeputePresenceLegislatureRow,
     DeputePresenceMoisRow,
@@ -17,6 +18,7 @@ import {
     PresenceAnneeRow,
     PresenceTypePeriode,
 } from "@/app/domains/presence/entities/presence-stats.entity";
+import { PerimetreLegislature, TOUTES_LEGISLATURES } from "@/app/_shared/statistics/perimetre-legislature";
 
 /**
  * Lookups sur les vues de présence de deputydex-data (`agg_*_presence*`). Les
@@ -32,6 +34,18 @@ import {
 
 const legislatureFiltre = (colonne: Prisma.Sql, legislature?: number) =>
     legislature == null ? Prisma.empty : Prisma.sql`AND ${colonne} = ${legislature}`;
+
+/**
+ * Vues de l'Assemblée, qui portent aussi des lignes legislature IS NULL
+ * (toutes législatures) : absent → une ligne par législature (IS NOT NULL) ;
+ * « toutes » → la ligne combinée (IS NULL) ; un numéro → cette législature.
+ */
+const perimetreFiltre = (perimetre?: PerimetreLegislature) =>
+    perimetre == null
+        ? Prisma.sql`AND legislature IS NOT NULL`
+        : perimetre === TOUTES_LEGISLATURES
+            ? Prisma.sql`AND legislature IS NULL`
+            : Prisma.sql`AND legislature = ${perimetre}`;
 
 export const prismaPresenceStatsRepository: IPresenceStatsRepository = {
     async getDeputeParLegislature(acteurUid: string, legislature?: number): Promise<DeputePresenceLegislatureRow[]> {
@@ -135,51 +149,59 @@ export const prismaPresenceStatsRepository: IPresenceStatsRepository = {
         `;
     },
 
-    async getAssemblee(legislature?: number): Promise<AssembleePresenceLegislatureRow[]> {
+    async getAssemblee(perimetre?: PerimetreLegislature): Promise<AssembleePresenceLegislatureRow[]> {
         return prisma.$queryRaw<AssembleePresenceLegislatureRow[]>`
             SELECT legislature,
                    taux_presence::float, taux_presence_seance::float, taux_presence_commission::float,
                    taux_excuses_commission::float, taux_participation_scrutins::float,
                    jours_presence_par_mois::float, effectif_moyen::float
             FROM agg_assemblee_presence
-            WHERE TRUE ${legislatureFiltre(Prisma.sql`legislature`, legislature)}
+            WHERE TRUE ${perimetreFiltre(perimetre)}
         `;
     },
 
-    async getAssembleeMensuelle(legislature?: number): Promise<AssembleePresenceMoisRow[]> {
+    async getAssembleeMensuelle(perimetre?: PerimetreLegislature): Promise<AssembleePresenceMoisRow[]> {
         return prisma.$queryRaw<AssembleePresenceMoisRow[]>`
             SELECT legislature, mois, taux_presence::float, jours_presence_par_depute::float
             FROM agg_assemblee_presence_mensuelle
-            WHERE TRUE ${legislatureFiltre(Prisma.sql`legislature`, legislature)}
+            WHERE TRUE ${perimetreFiltre(perimetre)}
         `;
     },
 
-    async getAssembleeAnnuelle(type: PresenceTypePeriode, legislature?: number): Promise<PresenceAnneeRow[]> {
+    async getAssembleeAnnuelle(type: PresenceTypePeriode, perimetre?: PerimetreLegislature): Promise<PresenceAnneeRow[]> {
         return prisma.$queryRaw<PresenceAnneeRow[]>`
             SELECT legislature, periode, jours_presence_par_mois::float, taux_presence::float
             FROM agg_assemblee_presence_annuelle
             WHERE type_periode = ${type}
-              ${legislatureFiltre(Prisma.sql`legislature`, legislature)}
+              ${perimetreFiltre(perimetre)}
         `;
     },
 
-    async getAssembleeJournaliere(legislature?: number): Promise<AssembleePresenceJourRow[]> {
+    async getAssembleeJournaliere(perimetre?: PerimetreLegislature): Promise<AssembleePresenceJourRow[]> {
         // Séances observables seulement : les jours de commission seule
         // n'attendent qu'une poignée de députés, leur taux n'est pas comparable.
         return prisma.$queryRaw<AssembleePresenceJourRow[]>`
             SELECT jour, taux_presence_seance::float, taux_presence::float, deputes_presents_total
             FROM agg_assemblee_presence_jour
             WHERE seance_observable
-              ${legislatureFiltre(Prisma.sql`legislature`, legislature)}
+              ${perimetreFiltre(perimetre)}
         `;
     },
 
-    async getAssembleeJourSemaine(legislature?: number): Promise<AssembleePresenceJourSemaineRow[]> {
+    async getAssembleeJourSemaine(perimetre?: PerimetreLegislature): Promise<AssembleePresenceJourSemaineRow[]> {
         return prisma.$queryRaw<AssembleePresenceJourSemaineRow[]>`
             SELECT legislature, jour_semaine, taux_presence::float
             FROM agg_assemblee_presence_jour_semaine
             WHERE jours > 0
-              ${legislatureFiltre(Prisma.sql`legislature`, legislature)}
+              ${perimetreFiltre(perimetre)}
+        `;
+    },
+
+    async getDebutsLegislatures(): Promise<DebutLegislatureRow[]> {
+        return prisma.$queryRaw<DebutLegislatureRow[]>`
+            SELECT number AS legislature, start_date AS debut
+            FROM param_legislatures
+            WHERE start_date IS NOT NULL
         `;
     },
 };
