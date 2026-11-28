@@ -8,6 +8,7 @@ import { GroupeAgeRowDTO } from "@/app/domains/groupes/dto/groupes-age.dto";
 import { GroupeCardDTO } from "@/app/domains/groupes/dto/groupes-card.dto";
 import { GroupeProximiteGouvernementDTO, GroupeProximitePaireDTO } from "@/app/domains/groupes/dto/groupes-proximite.dto";
 import { GroupCell } from "@/app/(ui)/components/groups/group-cell";
+import { pct } from "@/app/(ui)/_shared/statistics/presence/presence-section.helpers";
 
 /**
  * Registre commun card/chart/table pour TOUTES les pages "Chiffres clés"
@@ -105,8 +106,6 @@ export type GroupePresenceTableRow = {
     joursParMois: number | null;
     rank: number;
 };
-
-const pct = (v: number | null) => (v != null ? `${v}%` : "—");
 
 
 const KEY_FIGURES_CARDS: CardConfig[] = [

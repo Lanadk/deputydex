@@ -14,7 +14,7 @@ import {
     seriesOf,
     valeursComposantes,
     valeursGroupe,
-} from "@/app/(ui)/_shared/statistics/presence-section.helpers";
+} from "@/app/(ui)/_shared/statistics/presence/presence-section.helpers";
 import { formatDateOnlyFr } from "@/app/_shared/utils/date";
 import { DeputeMandatDTO } from "@/app/domains/deputes/dto/depute-mandat.dto";
 import { DeputeRecentVoteDTO } from "@/app/domains/deputes/dto/depute-recent-vote.dto";

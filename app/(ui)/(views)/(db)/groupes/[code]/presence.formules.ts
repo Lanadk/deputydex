@@ -1,20 +1,11 @@
 import { FormulaLibProps } from "@/app/(ui)/component-library/molecules/formula/formula-lib";
-import { L_A, L_P } from "@/app/(ui)/_shared/statistics/presence-legende";
+import { L_A, L_P } from "@/app/(ui)/_shared/statistics/presence/presence-legende";
 
 /**
- * Formules de la section « Présence » de la fiche groupe : celles des Chiffres
- * clés (`participation-presence.formules.ts`, g fixé = ce groupe), plus la
- * comparaison avec l'Assemblée.
+ * Formule propre à la section « Présence » de la fiche groupe : la comparaison
+ * avec l'Assemblée. Les autres (taux, composantes, mois, années d'un groupe) sont
+ * celles des Chiffres clés, g fixé = ce groupe (`_shared/statistics/presence/presence-formules.ts`).
  */
-export {
-    F_PRESENCE_GROUPE as F_GROUPE_TAUX,
-    F_PRESENCE_GROUPE_SEANCE as F_GROUPE_SEANCE,
-    F_PRESENCE_GROUPE_COMMISSION as F_GROUPE_COMMISSION,
-    F_PRESENCE_GROUPE_SCRUTINS as F_GROUPE_SCRUTINS,
-    F_PRESENCE_GROUPE_MOIS as F_GROUPE_TAUX_MOIS,
-    F_PRESENCE_GROUPE_ANNEE as F_GROUPE_ANNEE_PARLEMENTAIRE,
-} from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/participation-presence.formules";
-
 export const F_GROUPE_COMPARAISON: FormulaLibProps = {
     label: "comparaison avec l'Assemblée",
     result: "τ_{X}",

@@ -21,16 +21,16 @@ import {
     seriesOf,
     valeursComposantes,
     valeursGroupe,
-} from "@/app/(ui)/_shared/statistics/presence-section.helpers";
+} from "@/app/(ui)/_shared/statistics/presence/presence-section.helpers";
+import {F_GROUPE_COMPARAISON} from "@/app/(ui)/(views)/(db)/groupes/[code]/presence.formules";
 import {
-    F_GROUPE_ANNEE_PARLEMENTAIRE,
-    F_GROUPE_COMMISSION,
-    F_GROUPE_COMPARAISON,
-    F_GROUPE_SCRUTINS,
-    F_GROUPE_SEANCE,
-    F_GROUPE_TAUX,
-    F_GROUPE_TAUX_MOIS,
-} from "@/app/(ui)/(views)/(db)/groupes/[code]/presence.formules";
+    F_PRESENCE_GROUPE,
+    F_PRESENCE_GROUPE_ANNEE,
+    F_PRESENCE_GROUPE_COMMISSION,
+    F_PRESENCE_GROUPE_MOIS,
+    F_PRESENCE_GROUPE_SCRUTINS,
+    F_PRESENCE_GROUPE_SEANCE,
+} from "@/app/(ui)/_shared/statistics/presence/presence-formules";
 
 /**
  * Non-inscrits : pas un groupe politique, exclus des taux et du classement
@@ -280,10 +280,10 @@ export const GROUPES_SECTIONS: PageSection[] = [
             {type: 'card', colSpan: 1, config: card('kpi-presence-commission')},
             {type: 'card', colSpan: 1, config: card('kpi-presence-scrutins')},
             // Rangée de 4 KPI : un seul accordéon sur toute la largeur.
-            {type: 'formulas', colSpan: 4, formulas: [F_GROUPE_TAUX, F_GROUPE_SEANCE, F_GROUPE_COMMISSION, F_GROUPE_SCRUTINS]},
+            {type: 'formulas', colSpan: 4, formulas: [F_PRESENCE_GROUPE, F_PRESENCE_GROUPE_SEANCE, F_PRESENCE_GROUPE_COMMISSION, F_PRESENCE_GROUPE_SCRUTINS]},
             {type: 'chart', colSpan: 4, config: chart('chart-presence-comparaison'), formulas: [F_GROUPE_COMPARAISON]},
-            {type: 'chart', colSpan: 2, config: chart('chart-presence-evolution'), formulas: [F_GROUPE_TAUX_MOIS]},
-            {type: 'chart', colSpan: 2, config: chart('chart-presence-annee-parlementaire'), formulas: [F_GROUPE_ANNEE_PARLEMENTAIRE]},
+            {type: 'chart', colSpan: 2, config: chart('chart-presence-evolution'), formulas: [F_PRESENCE_GROUPE_MOIS]},
+            {type: 'chart', colSpan: 2, config: chart('chart-presence-annee-parlementaire'), formulas: [F_PRESENCE_GROUPE_ANNEE]},
         ],
     },
     {

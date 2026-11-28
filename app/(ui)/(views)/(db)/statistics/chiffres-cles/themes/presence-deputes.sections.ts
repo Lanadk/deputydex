@@ -2,44 +2,14 @@ import { CalendarDays, CalendarRange, Gauge, Users2 } from "lucide-react";
 import { PageSection } from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
 import { BlockDataWrapper, SectionBlock } from "@/app/(ui)/component-library/template/sections/block-section/block-section-renderer";
 import { GroupCardData } from "@/app/(ui)/component-library/template/sections/block-section/card-config.types";
-import { MultiDatum, SeriesConfig } from "@/app/(ui)/component-library/template/sections/block-section/chart-config.types";
+import { toMultiSeriesDataset } from "@/app/(ui)/_shared/statistics/data/multi-series-dataset";
+import { itemsOf, pct, pointsOf, sansPrefixe, seriesOf } from "@/app/(ui)/_shared/statistics/presence/presence-section.helpers";
 import { groupesGateways } from "@/app/(ui)/gateways/groupes/groupes.gateway";
 import { statisticsGateway } from "@/app/(ui)/gateways/statistics/statistics.gateway";
 import { GroupeCardDTO } from "@/app/domains/groupes/dto/groupes-card.dto";
 import { card, chart, entityChart, table, GroupePresenceTableRow } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/registry";
 import { TOUTES_LEGISLATURES } from "@/app/_shared/statistics/perimetre-legislature";
-import { F_PRESENCE_ANNEE_CIVILE, F_PRESENCE_ANNEE_MANDAT, F_PRESENCE_ANNEE_PARLEMENTAIRE, F_PRESENCE_COMMISSION, F_PRESENCE_DEPUTES_PRESENTS, F_PRESENCE_GROUPE, F_PRESENCE_GROUPE_ANNEE, F_PRESENCE_GROUPE_COMMISSION, F_PRESENCE_GROUPE_EXCUSES, F_PRESENCE_GROUPE_JOURS, F_PRESENCE_GROUPE_MOIS, F_PRESENCE_GROUPE_SCRUTINS, F_PRESENCE_GROUPE_SEANCE, F_PRESENCE_JOUR_SEANCE, F_PRESENCE_JOUR_SEMAINE, F_PRESENCE_JOUR_TOUS_LIEUX, F_PRESENCE_JOURS_MOIS, F_PRESENCE_SCRUTINS, F_PRESENCE_SEANCE, F_PRESENCE_TAUX, F_PRESENCE_TAUX_MOIS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/participation-presence.formules";
-
-type Item = { label: string; value: number };
-type Series = { name: string; items: Item[] };
-type StatData = Awaited<ReturnType<typeof statisticsGateway.fetchStat>>;
-
-const itemsOf = (stat: StatData): Item[] => (stat.shape === "distribution" ? stat.items : []);
-const pointsOf = (stat: StatData): Item[] => (stat.shape === "timeseries" ? stat.points : []);
-const seriesOf = (stat: StatData): Series[] => (stat.shape === "multi-series" ? stat.series : []);
-
-/**
- * Multi-séries du catalogue → données d'un graphique `bar-multi` : une ligne
- * par libellé, une colonne par série (même conversion que
- * `toMultiSeriesDataset` du mode avancé, libellés triés — d'où les préfixes
- * « 1 · Lundi », « 1 · Présence… » posés par les mappers du domaine presence).
- */
-export function seriesToMultiDatum(series: Series[]): { data: MultiDatum[]; series: SeriesConfig[] } {
-    const labels = Array.from(new Set(series.flatMap((s) => s.items.map((i) => i.label)))).sort((a, b) => a.localeCompare(b));
-    return {
-        series: series.map((s, i) => ({ dataKey: `s${i}`, label: s.name })),
-        data: labels.map((label) => {
-            const row: MultiDatum = { label };
-            series.forEach((s, i) => {
-                row[`s${i}`] = s.items.find((it) => it.label === label)?.value ?? null;
-            });
-            return row;
-        }),
-    };
-}
-
-/** « 1 · Présence (…) » → « Présence (…) » : le préfixe d'ordre n'a pas à s'afficher. */
-const sansPrefixe = (label: string) => label.replace(/^\d+ · /, "");
+import { F_PRESENCE_ANNEE_CIVILE, F_PRESENCE_ANNEE_MANDAT, F_PRESENCE_ANNEE_PARLEMENTAIRE, F_PRESENCE_COMMISSION, F_PRESENCE_DEPUTES_PRESENTS, F_PRESENCE_GROUPE, F_PRESENCE_GROUPE_ANNEE, F_PRESENCE_GROUPE_COMMISSION, F_PRESENCE_GROUPE_EXCUSES, F_PRESENCE_GROUPE_JOURS, F_PRESENCE_GROUPE_MOIS, F_PRESENCE_GROUPE_SCRUTINS, F_PRESENCE_GROUPE_SEANCE, F_PRESENCE_JOUR_SEANCE, F_PRESENCE_JOUR_SEMAINE, F_PRESENCE_JOUR_TOUS_LIEUX, F_PRESENCE_JOURS_MOIS, F_PRESENCE_SCRUTINS, F_PRESENCE_SEANCE, F_PRESENCE_TAUX, F_PRESENCE_TAUX_MOIS } from "@/app/(ui)/_shared/statistics/presence/presence-formules";
 
 function toGroupCardData(code: string, cards: GroupeCardDTO[], caption: string): GroupCardData {
     const found = cards.find((c) => c.groupeCode === code);
@@ -87,7 +57,6 @@ export const PRESENCE_DEPUTES_SECTIONS: PageSection[] = [
 
             const series = seriesOf(composantes).map((s) => ({ ...s, items: s.items.map((i) => ({ ...i, label: sansPrefixe(i.label) })) }));
             const valeur = (prefixe: string) => series[0]?.items.find((i) => i.label.startsWith(prefixe))?.value;
-            const pct = (v: number | undefined) => (v != null ? `${v}%` : "—");
             const joursPoints = pointsOf(jours);
             const moyenneJours = joursPoints.length > 0
                 ? Math.round((joursPoints.reduce((s, p) => s + p.value, 0) / joursPoints.length) * 10) / 10
@@ -98,7 +67,7 @@ export const PRESENCE_DEPUTES_SECTIONS: PageSection[] = [
                 "kpi-presence-seance": { data: { label: "présence en séance (jours avec scrutin)", value: pct(valeur("En séance")) } },
                 "kpi-presence-commission": { data: { label: "présence en commission (membres convoqués)", value: pct(valeur("En commission")) } },
                 "kpi-presence-jours-par-mois": { data: { label: "jours de présence par mois, en moyenne", value: moyenneJours ?? "—" } },
-                "chart-presence-composantes": seriesToMultiDatum(series),
+                "chart-presence-composantes": toMultiSeriesDataset(series),
                 "chart-presence-evolution": { data: pointsOf(evolution) },
                 "chart-presence-jours-mensuels": { data: joursPoints },
             } as unknown as Record<string, BlockDataWrapper>;
@@ -137,12 +106,12 @@ export const PRESENCE_DEPUTES_SECTIONS: PageSection[] = [
             // Après retrait du préfixe, l'ordre lundi → dimanche doit être
             // repris de la série d'origine (le tri alphabétique le casserait).
             const ordre = seriesOf(semaine)[0]?.items.map((i) => sansPrefixe(i.label)) ?? [];
-            const dataset = seriesToMultiDatum(series);
+            const dataset = toMultiSeriesDataset(series);
             dataset.data.sort((a, b) => ordre.indexOf(String(a.label)) - ordre.indexOf(String(b.label)));
 
             return {
                 "chart-presence-jour-semaine": dataset,
-                "chart-presence-journaliere": seriesToMultiDatum(seriesOf(journaliere)),
+                "chart-presence-journaliere": toMultiSeriesDataset(seriesOf(journaliere)),
                 "chart-presence-deputes-presents": { data: pointsOf(presents) },
             } as unknown as Record<string, BlockDataWrapper>;
         },
@@ -200,9 +169,9 @@ export const PRESENCE_DEPUTES_SECTIONS: PageSection[] = [
                 "card-groupes-presence-extremes": { data: { cards: extremes } },
                 "table-presence-groupes": rows,
                 // Mêmes groupes que le tableau (les vues ne renvoient pas les Non inscrits).
-                "chart-presence-groupes-composantes": seriesToMultiDatum(parComposante),
+                "chart-presence-groupes-composantes": toMultiSeriesDataset(parComposante),
                 "entity-chart-presence-groupe": { entities: groupes.map((g) => ({ code: g.code, label: g.label })) },
-                "chart-presence-groupes-annee-parlementaire": seriesToMultiDatum(seriesOf(annees)),
+                "chart-presence-groupes-annee-parlementaire": toMultiSeriesDataset(seriesOf(annees)),
             } as unknown as Record<string, BlockDataWrapper>;
         },
         blocks: [

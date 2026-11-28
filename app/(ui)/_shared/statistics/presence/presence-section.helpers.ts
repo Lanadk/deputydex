@@ -3,9 +3,9 @@ import { MultiDatum, SeriesConfig } from "@/app/(ui)/component-library/template/
 import { RawStatData } from "@/app/_shared/statistics/raw-stat-data.types";
 
 /**
- * Lecture des stats de présence du catalogue pour les sections « Présence »
- * des fiches (député, groupe) : mêmes stats que le mode avancé, remises en
- * forme pour les cartes et graphiques de la section.
+ * Lecture des stats de présence du catalogue pour les sections de page qui les
+ * affichent (fiches député et groupe, Chiffres clés) : mêmes stats que le mode
+ * avancé, remises en forme pour les cartes et graphiques de la section.
  */
 
 export type Item = { label: string; value: number };
@@ -63,7 +63,8 @@ export function comparaison(populations: { nom: string; valeurs: Map<string, num
     };
 }
 
-export const pct = (v: number | undefined) => (v != null ? `${v}%` : "—");
+/** Taux tel que l'API le donne (déjà arrondi) ; « — » sans valeur. */
+export const pct = (v: number | null | undefined) => (v != null ? `${v}%` : "—");
 
 export function avertissementPresence(note: string | undefined): ParagraphItem[] {
     return [

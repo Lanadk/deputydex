@@ -1,5 +1,5 @@
 import { FormulaLegendItem, FormulaLibProps } from "@/app/(ui)/component-library/molecules/formula/formula-lib";
-import { L_A, L_C, L_M, L_P, L_PC, L_PS, L_S, NOTE_BORNE_BASSE, NOTE_VOLUME } from "@/app/(ui)/_shared/statistics/presence-legende";
+import { L_A, L_C, L_M, L_P, L_PC, L_PS, L_S, NOTE_BORNE_BASSE, NOTE_VOLUME } from "@/app/(ui)/_shared/statistics/presence/presence-legende";
 
 /**
  * Formules de la section « Présence » de la fiche député : celles des

@@ -3,8 +3,8 @@ import { FormulaLegendItem } from "@/app/(ui)/component-library/molecules/formul
 /**
  * Légende commune des formules de présence (mv_deputes_presence_jour de
  * deputydex-data, README : src/sql/scripts/presence/README.md), partagée par
- * les Chiffres clés et la fiche député. Toute évolution des règles de la vue
- * doit se refléter ici.
+ * les formules de `presence-formules.ts` et celles des fiches député et groupe.
+ * Toute évolution des règles de la vue doit se refléter ici.
  */
 
 // ── Briques de la présence (mv_deputes_presence_jour) ────────────────────────

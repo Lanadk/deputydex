@@ -1,4 +1,3 @@
-import { err, isErr, ok, Result } from "@/app/_shared/result-pattern/result";
 import { StatHandler } from "@/app/api/statistics/_handlers/stat-handler.types";
 import {
     getAssembleePresenceAnnuelleUseCase,
@@ -10,13 +9,9 @@ import {
     getAssembleePresenceJourSemaineUseCase,
     getAssembleePresenceTauxAnnuelUseCase,
 } from "@/app/domains/presence/use-cases/get-presence-stats.use-cases";
-import { avecReperes } from "@/app/api/statistics/_handlers/presence-reperes";
+import { courbe, parPerimetre, sansToutes, series } from "@/app/api/statistics/_handlers/presence-handlers.helpers";
 import { prismaPresenceStatsRepository as repo } from "@/app/infrastructure/presence/repositories/prisma-presence-stats.repository";
 import { PresenceTypePeriode } from "@/app/domains/presence/entities/presence-stats.entity";
-import { PresenceStatItemDTO, PresenceStatSeriesDTO } from "@/app/domains/presence/dto/presence-stats.dto";
-import { EchelleReperes } from "@/app/domains/presence/presence-reperes";
-import { RawStatData } from "@/app/_shared/statistics/raw-stat-data.types";
-import { lirePerimetreLegislature, PerimetreLegislature, TOUTES_LEGISLATURES } from "@/app/_shared/statistics/perimetre-legislature";
 
 /**
  * Présence moyenne de TOUS les députés (vues `agg_assemblee_presence*`), sur une
@@ -24,49 +19,25 @@ import { lirePerimetreLegislature, PerimetreLegislature, TOUTES_LEGISLATURES } f
  * "toutes"`, lignes legislature IS NULL des vues). Branchée dans deux domaines
  * du mode avancé, mêmes slugs : `acteurs` (« Tous les députés ») et
  * `legislatures`. Voir `presence-moyenne.stats.ts` côté catalogue.
- *
- * En « toutes », les courbes reçoivent des repères « Début de la Nᵉ
- * législature » calculés depuis `param_legislatures` (`echelle` = format de
- * leurs libellés).
  */
-function presenceMoyenne<T>(
-    run: (perimetre: PerimetreLegislature) => Promise<Result<T, "DB_ERROR">>,
-    toRaw: (data: T) => RawStatData,
-    echelle?: EchelleReperes,
-): StatHandler {
-    return async (params) => {
-        const perimetre = lirePerimetreLegislature(params.filters?.legislature);
-        if (perimetre == null) return err("INVALID_INPUT");
-
-        const result = await run(perimetre);
-        if (isErr(result)) return result;
-        return ok(await avecReperes(toRaw(result.data), perimetre, echelle));
-    };
-}
-
-const courbe = (data: { items: PresenceStatItemDTO[] } | { points: PresenceStatItemDTO[] }): RawStatData =>
-    ({ shape: "timeseries", points: "items" in data ? data.items : data.points });
-const series = (data: PresenceStatSeriesDTO): RawStatData => ({ shape: "multi-series", series: data.series });
 
 function annuelle(type: PresenceTypePeriode, mesure: "jours" | "taux"): StatHandler {
-    const handler = presenceMoyenne(
+    const handler = parPerimetre(
         (p) => (mesure === "jours" ? getAssembleePresenceAnnuelleUseCase(repo, type, p) : getAssembleePresenceTauxAnnuelUseCase(repo, type, p)),
         courbe,
         type === "mandat" ? undefined : type,
     );
     // Pas d'année de mandat toutes législatures confondues (voir la vue) : refusé plutôt qu'une courbe vide.
-    return type === "mandat"
-        ? async (params) => (params.filters?.legislature === TOUTES_LEGISLATURES ? err("INVALID_INPUT") : handler(params))
-        : handler;
+    return type === "mandat" ? sansToutes(handler) : handler;
 }
 
 export const PRESENCE_MOYENNE_STAT_HANDLERS: Record<string, StatHandler> = {
-    "presence-moyenne": presenceMoyenne((p) => getAssembleePresenceComposantesUseCase(repo, p), series),
-    "presence-moyenne-evolution": presenceMoyenne((p) => getAssembleePresenceEvolutionUseCase(repo, p), courbe, "mois"),
-    "presence-moyenne-jours-mensuels": presenceMoyenne((p) => getAssembleePresenceJoursMensuelsUseCase(repo, p), courbe, "mois"),
-    "presence-moyenne-journaliere": presenceMoyenne((p) => getAssembleePresenceJournaliereUseCase(repo, p), series, "jour"),
-    "presence-moyenne-deputes-presents": presenceMoyenne((p) => getAssembleePresenceDeputesPresentsUseCase(repo, p), courbe, "jour"),
-    "presence-moyenne-jour-semaine": presenceMoyenne((p) => getAssembleePresenceJourSemaineUseCase(repo, p), series),
+    "presence-moyenne": parPerimetre((p) => getAssembleePresenceComposantesUseCase(repo, p), series),
+    "presence-moyenne-evolution": parPerimetre((p) => getAssembleePresenceEvolutionUseCase(repo, p), courbe, "mois"),
+    "presence-moyenne-jours-mensuels": parPerimetre((p) => getAssembleePresenceJoursMensuelsUseCase(repo, p), courbe, "mois"),
+    "presence-moyenne-journaliere": parPerimetre((p) => getAssembleePresenceJournaliereUseCase(repo, p), series, "jour"),
+    "presence-moyenne-deputes-presents": parPerimetre((p) => getAssembleePresenceDeputesPresentsUseCase(repo, p), courbe, "jour"),
+    "presence-moyenne-jour-semaine": parPerimetre((p) => getAssembleePresenceJourSemaineUseCase(repo, p), series),
     "presence-moyenne-taux-annee-civile": annuelle("civile", "taux"),
     "presence-moyenne-taux-annee-parlementaire": annuelle("parlementaire", "taux"),
     "presence-moyenne-taux-annee-mandat": annuelle("mandat", "taux"),

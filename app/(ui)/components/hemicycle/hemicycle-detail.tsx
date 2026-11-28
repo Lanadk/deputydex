@@ -7,7 +7,7 @@ import DeputyCard from "@/app/(ui)/components/deputy/deputy-card";
 import { GroupMiniCardLib } from "@/app/(ui)/component-library/molecules/group-mini-card/group-mini-card-lib";
 import { ButtonLib } from "@/app/(ui)/component-library/atoms/button/button-lib";
 import { getCanonicalGroupCode, getGroupCardTheme } from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
-import { majoriteAbsolue } from "@/app/(ui)/components/hemicycle/hemicycle-indicateurs";
+import { formatTaux, majoriteAbsolue } from "@/app/(ui)/components/hemicycle/hemicycle-indicateurs";
 
 type HemicycleDetailProps = {
     /** Groupes sélectionnés : aucun = total ; un = sa carte ; plusieurs = la coalition. */
@@ -15,9 +15,6 @@ type HemicycleDetailProps = {
     total: number;
     onClearAction?: () => void;
 };
-
-const formatPart = (part: number) =>
-    `${part.toLocaleString("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`;
 
 /**
  * Coalition : sièges cumulés, part de l'hémicycle et écart à la majorité
@@ -34,7 +31,7 @@ function Coalition({ groupes, total, onClearAction }: { groupes: HemicycleGroupe
         <div className="hemicycle-coalition">
             <span className="hemicycle-detail__big">{sieges} sièges</span>
             <span className="font-semibold">Coalition {groupes.map((g) => g.shortLabel).join(" + ")}</span>
-            <span className="text-sm text-subtitle-accent">{formatPart(part(sieges))} des {total} sièges pourvus</span>
+            <span className="text-sm text-subtitle-accent">{formatTaux(part(sieges))} des {total} sièges pourvus</span>
 
             <div className="hemicycle-coalition__barre" aria-hidden="true">
                 {groupes.map((g) => {
