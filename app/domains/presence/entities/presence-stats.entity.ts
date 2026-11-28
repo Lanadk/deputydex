@@ -11,6 +11,8 @@ export type PresenceTypePeriode = "civile" | "parlementaire" | "mandat";
 /** Taux et volume d'un député sur une législature (`agg_deputes_presence`). */
 export interface DeputePresenceLegislatureRow {
     legislature: number;
+    jours_attendus: number;
+    jours_presents: number;
     taux_presence: number | null;
     taux_presence_seance: number | null;
     taux_presence_commission: number | null;
@@ -20,6 +22,12 @@ export interface DeputePresenceLegislatureRow {
     jours_debat: number;
     jours_commission: number;
     jours_presence_par_mois: number | null;
+}
+
+/** Prise de fonction d'un député dans une législature (début de son « année de mandat 1 »). */
+export interface DeputeDebutMandatRow {
+    legislature: number;
+    debut_mandat: Date;
 }
 
 /** Un mois d'un député (`agg_deputes_presence_mensuelle`). */

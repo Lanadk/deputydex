@@ -86,6 +86,45 @@ export function getDeputePresenceAnnuelleUseCase(repo: IPresenceStatsRepository,
     return lire(() => repo.getDeputeAnnuelle(acteurUid, type), (rows) => chronologie(mapAnneesToDTO(rows, type)));
 }
 
+/** Date FR (JJ/MM/AAAA) d'une colonne DATE Postgres, renvoyée à minuit UTC par Prisma. */
+function dateFr(date: Date): string {
+    return date.toLocaleDateString("fr-FR", { timeZone: "UTC", day: "2-digit", month: "2-digit", year: "numeric" });
+}
+
+/** Accord : « attendu » / « attendus ». */
+const accord = (n: number, mot: string) => `${mot}${n > 1 ? "s" : ""}`;
+
+/**
+ * Contexte à afficher sous les graphes de présence d'un député, une mention
+ * par législature : prise de fonction et volume sur lequel portent les taux —
+ * « 17ᵉ législature : en fonction depuis le 26/07/2026 · 33 jours attendus,
+ * 7 présents ». Toujours affiché : un taux sur 33 jours ne se lit pas comme
+ * un taux sur 600. `null` si le député n'a aucun jour de mandat connu.
+ */
+export async function getDeputePresenceContexteUseCase(repo: IPresenceStatsRepository, acteurUid: string): PresenceResult<string | null> {
+    const result = await fromRepository(() => Promise.all([repo.getDeputeDebutsMandat(acteurUid), repo.getDeputeParLegislature(acteurUid)]));
+    if (isErr(result)) return result;
+    const [debuts, totaux] = result.data;
+
+    const legislatures = Array.from(new Set([...debuts, ...totaux].map((r) => r.legislature))).sort((a, b) => a - b);
+    if (legislatures.length === 0) return ok(null);
+
+    return ok(
+        legislatures
+            .map((leg) => {
+                const debut = debuts.find((d) => d.legislature === leg);
+                const total = totaux.find((t) => t.legislature === leg);
+                const parts = [
+                    debut && `en fonction depuis le ${dateFr(debut.debut_mandat)}`,
+                    total &&
+                        `${total.jours_attendus} ${accord(total.jours_attendus, "jour")} ${accord(total.jours_attendus, "attendu")}, ` +
+                        `${total.jours_presents} ${accord(total.jours_presents, "présent")}`,
+                ].filter(Boolean);
+                return `${leg}ᵉ législature : ${parts.join(" · ")}`;
+            })
+            .join(" — ")
+    );
+}
 // ── Groupes (une législature) ────────────────────────────────────────────────
 
 export function getGroupesPresenceUseCase(repo: IPresenceStatsRepository, legislature: number): PresenceResult<PresenceStatItemsDTO> {

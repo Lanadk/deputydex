@@ -12,9 +12,17 @@
  */
 export type StatDataShape = "distribution" | "timeseries" | "multi-series" | "points" | "scalar";
 
-export type RawStatData =
+/**
+ * Précision de contexte calculée côté serveur, affichée sous le libellé du
+ * graphe — ex: « En fonction depuis le 26/07/2026 (17ᵉ législature) » pour un
+ * député arrivé en cours de législature, afin qu'une courbe courte ne passe
+ * pas pour un trou dans les données.
+ */
+export type StatNote = { note?: string };
+
+export type RawStatData = StatNote & (
     | { shape: "distribution"; items: { label: string; value: number }[] }
     | { shape: "timeseries"; points: { label: string; value: number }[] }
     | { shape: "multi-series"; series: { name: string; items: { label: string; value: number }[] }[] }
     | { shape: "points"; points: { x: number; y: number; label?: string }[] }
-    | { shape: "scalar"; value: number | string; label?: string };
+    | { shape: "scalar"; value: number | string; label?: string });

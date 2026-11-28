@@ -3,6 +3,7 @@ import {
     AssembleePresenceJourSemaineRow,
     AssembleePresenceLegislatureRow,
     AssembleePresenceMoisRow,
+    DeputeDebutMandatRow,
     DeputePresenceLegislatureRow,
     DeputePresenceMoisRow,
     GroupePresenceAnneeRow,
@@ -23,6 +24,8 @@ export interface IPresenceStatsRepository {
     getDeputeParLegislature(acteurUid: string): Promise<DeputePresenceLegislatureRow[]>;
     getDeputeMensuelle(acteurUid: string): Promise<DeputePresenceMoisRow[]>;
     getDeputeAnnuelle(acteurUid: string, type: PresenceTypePeriode): Promise<PresenceAnneeRow[]>;
+    /** Prise de fonction du député, une ligne par législature où il a siégé. */
+    getDeputeDebutsMandat(acteurUid: string): Promise<DeputeDebutMandatRow[]>;
 
     getGroupes(legislature: number): Promise<GroupePresenceRow[]>;
     getGroupesMensuelle(legislature: number): Promise<GroupePresenceMoisRow[]>;

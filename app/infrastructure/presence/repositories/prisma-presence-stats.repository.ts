@@ -8,6 +8,7 @@ import {
     AssembleePresenceJourSemaineRow,
     AssembleePresenceLegislatureRow,
     AssembleePresenceMoisRow,
+    DeputeDebutMandatRow,
     DeputePresenceLegislatureRow,
     DeputePresenceMoisRow,
     GroupePresenceAnneeRow,
@@ -36,6 +37,7 @@ export const prismaPresenceStatsRepository: IPresenceStatsRepository = {
     async getDeputeParLegislature(acteurUid: string): Promise<DeputePresenceLegislatureRow[]> {
         return prisma.$queryRaw<DeputePresenceLegislatureRow[]>`
             SELECT legislature,
+                   jours_attendus, jours_presents,
                    taux_presence::float, taux_presence_seance::float, taux_presence_commission::float,
                    taux_participation_scrutins::float,
                    jours_presence, jours_vote, jours_debat, jours_commission,
@@ -59,6 +61,18 @@ export const prismaPresenceStatsRepository: IPresenceStatsRepository = {
             FROM agg_deputes_presence_annuelle
             WHERE acteur_uid = ${acteurUid}
               AND type_periode = ${type}
+        `;
+    },
+
+    async getDeputeDebutsMandat(acteurUid: string): Promise<DeputeDebutMandatRow[]> {
+        // « Année de mandat 1 » commence à la première prise de fonction du
+        // député dans la législature (debut_mandat de mv_deputes_presence_jour).
+        return prisma.$queryRaw<DeputeDebutMandatRow[]>`
+            SELECT legislature, periode_debut AS debut_mandat
+            FROM agg_deputes_presence_annuelle
+            WHERE acteur_uid = ${acteurUid}
+              AND type_periode = 'mandat'
+              AND periode = '1'
         `;
     },
 

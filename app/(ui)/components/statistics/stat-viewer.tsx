@@ -87,6 +87,10 @@ export const StatViewer: React.FC<StatViewerProps> = ({
                             {contextLabel}
                         </SpanLib>
                     )}
+                    {/* Précision calculée côté serveur (ex: prise de fonction, jours attendus) — voir RawStatData.note */}
+                    {ready && data?.note && (
+                        <SpanLib className="mt-1 block text-xs text-subtitle-accent">{data.note}</SpanLib>
+                    )}
                     {definition.description && (
                         <SpanLib className="mt-1 block text-sm leading-relaxed text-subtitle-accent">
                             {definition.description}

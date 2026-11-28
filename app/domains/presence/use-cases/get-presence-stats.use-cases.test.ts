@@ -7,6 +7,7 @@ import {
     getAssembleePresenceJourSemaineUseCase,
     getAssembleePresenceParLegislatureUseCase,
     getDeputePresenceAnnuelleUseCase,
+    getDeputePresenceContexteUseCase,
     getDeputePresenceEvolutionUseCase,
     getGroupesPresenceAnnuelleUseCase,
     getGroupesPresenceComposantesUseCase,
@@ -21,6 +22,7 @@ function makeRepository(overrides: Partial<IPresenceStatsRepository> = {}): IPre
         getDeputeParLegislature: jest.fn().mockResolvedValue([]),
         getDeputeMensuelle: jest.fn().mockResolvedValue([]),
         getDeputeAnnuelle: jest.fn().mockResolvedValue([]),
+        getDeputeDebutsMandat: jest.fn().mockResolvedValue([]),
         getGroupes: jest.fn().mockResolvedValue([]),
         getGroupesMensuelle: jest.fn().mockResolvedValue([]),
         getGroupeMensuelle: jest.fn().mockResolvedValue([]),
@@ -83,6 +85,30 @@ describe("présence — député", () => {
                 ],
             },
         });
+    });
+
+    it("contexte : prise de fonction et jours attendus / présents, une mention par législature", async () => {
+        const repo = makeRepository({
+            getDeputeDebutsMandat: jest.fn().mockResolvedValue([
+                { legislature: 17, debut_mandat: new Date("2026-07-26T00:00:00Z") },
+                { legislature: 16, debut_mandat: new Date("2022-06-22T00:00:00Z") },
+            ]),
+            getDeputeParLegislature: jest.fn().mockResolvedValue([
+                { legislature: 17, jours_attendus: 33, jours_presents: 7 },
+                { legislature: 16, jours_attendus: 1, jours_presents: 1 },
+            ]),
+        });
+
+        expect(await getDeputePresenceContexteUseCase(repo, "PA642734")).toEqual({
+            success: true,
+            data:
+                "16ᵉ législature : en fonction depuis le 22/06/2022 · 1 jour attendu, 1 présent — " +
+                "17ᵉ législature : en fonction depuis le 26/07/2026 · 33 jours attendus, 7 présents",
+        });
+    });
+
+    it("contexte : null pour un député sans jour de mandat connu", async () => {
+        expect(await getDeputePresenceContexteUseCase(makeRepository(), "PA0")).toEqual({ success: true, data: null });
     });
 
     it("panne du repository → DB_ERROR", async () => {
