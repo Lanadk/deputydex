@@ -72,6 +72,7 @@ const components: Record<string, ComponentTheme[]> = {
                 { name: 'PageState', description: '404, erreur, aucun résultat', path: '/component-library/molecules/page-state' },
                 { name: 'ErrorState', description: 'Erreur de chargement et « Réessayer »', path: '/component-library/molecules/error-state' },
                 { name: 'Callout', description: 'Encadré Remarque / Info / Attention', path: '/component-library/molecules/callout' },
+                { name: 'ComingSoon', description: 'Aperçu flouté « Disponible bientôt »', path: '/component-library/molecules/coming-soon' },
                 { name: 'InfoTip', description: "Icône « i » et bulle d'information", path: '/component-library/molecules/info-tip' },
                 { name: 'Tooltip', description: "Bulle d'aide au survol et au focus clavier", path: '/component-library/molecules/tooltip' },
                 { name: 'Notification', description: 'Notification temporaire (toast)', path: '/component-library/molecules/notification' },
@@ -112,6 +113,7 @@ const components: Record<string, ComponentTheme[]> = {
             items: [
                 { name: 'BlockSection', description: 'Sections de page pilotées par config', path: '/component-library/template/sections/block-section' },
                 { name: 'AnchorSection', description: 'Navigation par ancres et ses layouts', path: '/component-library/template/sections/anchor-section' },
+                { name: 'TabSection', description: 'Une section par onglet et son layout', path: '/component-library/template/sections/tab-section' },
             ],
         },
     ],

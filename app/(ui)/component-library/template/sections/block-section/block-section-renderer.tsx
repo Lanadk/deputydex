@@ -40,6 +40,7 @@ import {
 import {FormulaLib, FormulaLibProps} from "@/app/(ui)/component-library/molecules/formula/formula-lib";
 import {AccordionLib} from "@/app/(ui)/component-library/molecules/accordion/accordion-lib";
 import {CalloutVariant} from "@/app/(ui)/component-library/molecules/callout/callout-lib";
+import {ComingSoonLib} from "@/app/(ui)/component-library/molecules/coming-soon/coming-soon-lib";
 
 export type ColSpan = 1 | 2 | 3 | 4;
 export type ParagraphItem =
@@ -80,7 +81,21 @@ export type ParagraphSource =
  */
 export type BlockFormulas = { formulas?: FormulaLibProps[] };
 
-export type SectionBlock<TRow = unknown> = BlockFormulas & (
+/**
+ * Commun à tous les blocs : hauteur en rangées de grille, appliquée sur grand
+ * écran seulement (4 colonnes) — ex. une carte à gauche d'un calendrier ET du
+ * bloc placé dessous. Sur tablette / mobile, les blocs s'empilent.
+ */
+export type BlockRowSpan = { rowSpan?: 1 | 2 };
+
+/**
+ * Commun à tous les blocs : contenu à venir. Le bloc (et ses formules) est
+ * flouté sous une mention (ComingSoonLib) : `true` = « Disponible bientôt »,
+ * une chaîne = mention personnalisée.
+ */
+export type BlockBientot = { bientot?: boolean | string };
+
+export type SectionBlock<TRow = unknown> = BlockFormulas & BlockRowSpan & BlockBientot & (
     | {
     type: "chart";
     /** Occupe 2 colonnes dans la grille (défaut: 1) */
@@ -152,11 +167,13 @@ export const BlockSectionRenderer: React.FC<BlockSectionRendererProps> = ({
                                                                               params,
                                                                               actions
                                                                           }) => {
-    const colSpanClass =
+    const colSpanClass = [
         block.colSpan === 2 ? "sm:col-span-2" :
             block.colSpan === 3 ? "sm:col-span-2 xl:col-span-3" :
                 block.colSpan === 4 ? "sm:col-span-2 xl:col-span-4" :
-                    "";
+                    "",
+        block.rowSpan === 2 ? "xl:row-span-2" : "",
+    ].filter(Boolean).join(" ");
 
     const rendered = (() => {
         switch (block.type) {
@@ -242,8 +259,8 @@ export const BlockSectionRenderer: React.FC<BlockSectionRendererProps> = ({
     // tous la même hauteur (un en-tête), les deux colonnes restent alignées.
     const formulas = block.formulas ?? [];
 
-    return (
-        <div className={formulas.length > 0 ? `${colSpanClass} flex flex-col gap-2` : colSpanClass}>
+    const contenu = (
+        <>
             {/* Outil de perf (dev seulement) : temps de rendu React de chaque bloc. Sans l'outil, rendu direct. */}
             {rendered !== null && <DevPerfProfiler type={profiledBlockType(block)} id={profiledBlockId(block)}>{rendered}</DevPerfProfiler>}
             {formulas.length > 0 && (
@@ -255,8 +272,22 @@ export const BlockSectionRenderer: React.FC<BlockSectionRendererProps> = ({
                     }))}
                 />
             )}
-        </div>
+        </>
     );
+    const empile = formulas.length > 0 ? "flex flex-col gap-2" : "";
+
+    // Bloc à venir : le même contenu, flouté sous la mention, dans la même cellule de grille.
+    if (block.bientot) {
+        return (
+            <div className={colSpanClass}>
+                <ComingSoonLib label={typeof block.bientot === "string" ? block.bientot : undefined}>
+                    <div className={empile}>{contenu}</div>
+                </ComingSoonLib>
+            </div>
+        );
+    }
+
+    return <div className={[colSpanClass, empile].filter(Boolean).join(" ")}>{contenu}</div>;
 };
 
 /** Type de bloc pour l'outil de perf, précisé pour un graphique (« chart:bar »). */

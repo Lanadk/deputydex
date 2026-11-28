@@ -55,6 +55,41 @@ async function openDay(details: ActivityCalendarDetailItem[]) {
     await screen.findByText(/Activité du/);
 }
 
+describe("BlockActivityCalendarRenderer — en-tête", () => {
+    const deuxAnnees = { data: [{ date: "2025-11-18", count: 2, level: 2 }, { date: "2026-02-03", count: 1, level: 1 }] };
+
+    it("titre à gauche et choix de l'année à droite, sur la même ligne", () => {
+        render(
+            <BlockActivityCalendarRenderer
+                config={{ id: "cal", displayType: "tooltip-and-href", title: "Calendrier d'activité" }}
+                data={deuxAnnees}
+                loading={false}
+                params={{}}
+            />
+        );
+
+        const titre = screen.getByRole("heading", { name: "Calendrier d'activité" });
+        const annee = screen.getByRole("combobox");
+        expect(annee).toHaveValue("2026");
+        // Même ligne d'en-tête : le titre (dans son bloc) et le sélecteur (dans le sien) sont voisins.
+        expect(titre.parentElement!.parentElement).toBe(annee.closest(".w-32")!.parentElement);
+    });
+
+    it("sans titre et sur une seule année : pas d'en-tête", () => {
+        render(
+            <BlockActivityCalendarRenderer
+                config={{ id: "cal", displayType: "tooltip-and-href" }}
+                data={{ data: [{ date: "2025-11-18", count: 2, level: 2 }] }}
+                loading={false}
+                params={{}}
+            />
+        );
+
+        expect(screen.queryByRole("heading")).not.toBeInTheDocument();
+        expect(screen.queryByRole("combobox")).not.toBeInTheDocument();
+    });
+});
+
 describe("BlockActivityCalendarRenderer — activité d'un jour", () => {
     it("links each activity to its amendement or scrutin on the AN site", async () => {
         await openDay([AMENDEMENT, VOTE]);

@@ -88,8 +88,43 @@ export type DeputeCardPairData = {
     cards: DeputeCardData[];
 };
 
+/** Badge obtenu, listé sous le verdict d'une carte de score ; la description sert d'info-bulle. */
+export type ScoreCardBadge = { label: string; description?: string };
+
+/** Score sur `max` (défaut 100) : voir `ScoreCardLib`. */
+export type ScoreCardData = {
+    title: string;
+    score: number | null;
+    max?: number;
+    verdict?: string;
+    caption?: string;
+    /** Badge en tête de carte (ex. « Aperçu » pour des données fictives). */
+    badge?: string;
+    /** Badges obtenus, sous le verdict. */
+    badges?: ScoreCardBadge[];
+};
+
+/** Une composante d'un score : voir `ScoreBreakdownCardLib`. */
+export type ScoreBreakdownItem = {
+    label: string;
+    description?: string;
+    /** Poids dans le score, en % */
+    poids: number;
+    /** Sous-score sur 100 ; null = pas de donnée */
+    score: number | null;
+};
+
+/** Détail d'un score par composante : voir `ScoreBreakdownCardLib`. */
+export type ScoreBreakdownCardData = {
+    title?: string;
+    items: ScoreBreakdownItem[];
+    footer?: string;
+};
+
 export type CardDataWrapper =
     | { data: KpiCardData }
+    | { data: ScoreCardData }
+    | { data: ScoreBreakdownCardData }
     | { data: KpiBarCardData }
     | { data: SummaryListCardData }
     | { data: GroupCardData }
@@ -112,4 +147,6 @@ export type CardConfig =
     | CardConfigBase & { displayType: 'group-card' }
     | CardConfigBase & { displayType: 'group-card-pair' }
     | CardConfigBase & { displayType: 'depute-card' }
-    | CardConfigBase & { displayType: 'depute-card-pair' };
+    | CardConfigBase & { displayType: 'depute-card-pair' }
+    | CardConfigBase & { displayType: 'score-card' }
+    | CardConfigBase & { displayType: 'score-breakdown-card' };
