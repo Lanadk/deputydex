@@ -4,26 +4,47 @@ import { HemicycleGroupe, HemicyclePerchoir } from "@/app/(ui)/_shared/adapter/h
 import { HemicycleSeat } from "@/app/(ui)/components/hemicycle/hemicycle-seats";
 
 /**
- * Coloration des sièges de l'hémicycle par un indicateur agrégé par député.
- * Ajouter un indicateur = ajouter une entrée à `INDICATEURS_HEMICYCLE` : les
- * seuils de couleur sont les quartiles des valeurs affichées, calculés à la
- * volée (rien n'est propre à un indicateur ni à une législature).
+ * Coloration des sièges de l'hémicycle par un indicateur agrégé par député,
+ * rangé dans un thème (Présence : total, séance, commission, scrutins).
+ * Ajouter un indicateur = une entrée dans son thème ; un nouveau thème = une
+ * entrée de `THEMES_HEMICYCLE`. Les seuils de couleur sont les quartiles des
+ * valeurs affichées, calculés à la volée (rien n'est propre à un indicateur ni
+ * à une législature).
  */
 export type IndicateurHemicycle = {
     id: string;
-    /** Libellé du bouton de choix. */
+    /** Libellé du bouton de choix, dans son thème (ex. « Séance »). */
     label: string;
-    /** Libellé dans l'info-bulle et la légende (ex. « Taux de présence »). */
+    /** Libellé complet, dans l'info-bulle et la légende (ex. « Présence en séance »). */
     libelle: string;
     lire: (indicateurs: DeputeIndicateursDTO) => number | null;
 };
 
-export const INDICATEURS_HEMICYCLE: IndicateurHemicycle[] = [
-    { id: "presence", label: "Présence", libelle: "Taux de présence", lire: (d) => d.tauxPresence },
-    { id: "seance", label: "Séance", libelle: "Présence en séance", lire: (d) => d.tauxPresenceSeance },
-    { id: "commission", label: "Commission", libelle: "Présence en commission", lire: (d) => d.tauxPresenceCommission },
-    { id: "scrutins", label: "Scrutins", libelle: "Participation aux scrutins", lire: (d) => d.tauxParticipationScrutins },
+export type ThemeHemicycle = {
+    id: string;
+    label: string;
+    indicateurs: IndicateurHemicycle[];
+};
+
+export const THEMES_HEMICYCLE: ThemeHemicycle[] = [
+    {
+        id: "presence",
+        label: "Présence",
+        indicateurs: [
+            { id: "presence-total", label: "Total", libelle: "Taux de présence", lire: (d) => d.tauxPresence },
+            { id: "presence-seance", label: "Séance", libelle: "Présence en séance", lire: (d) => d.tauxPresenceSeance },
+            { id: "presence-commission", label: "Commission", libelle: "Présence en commission", lire: (d) => d.tauxPresenceCommission },
+            { id: "presence-scrutins", label: "Scrutins", libelle: "Participation aux scrutins", lire: (d) => d.tauxParticipationScrutins },
+        ],
+    },
 ];
+
+export const INDICATEURS_HEMICYCLE: IndicateurHemicycle[] = THEMES_HEMICYCLE.flatMap((t) => t.indicateurs);
+
+/** Thème d'un indicateur (le premier thème à défaut). */
+export function themeDe(indicateurId: string): ThemeHemicycle {
+    return THEMES_HEMICYCLE.find((t) => t.indicateurs.some((i) => i.id === indicateurId)) ?? THEMES_HEMICYCLE[0];
+}
 
 /** En dessous, le taux repose sur trop peu de jours : siège hachuré, mention dans l'info-bulle. */
 export const SEUIL_JOURS_FIABLES = 30;

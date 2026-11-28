@@ -7,35 +7,97 @@ import {
     COULEURS_TRANCHES,
     EchelleHemicycle,
     IndicateurHemicycle,
-    INDICATEURS_HEMICYCLE,
     NOMS_TRANCHES,
     RANGS_TRANCHES,
     SEUIL_JOURS_FIABLES,
+    themeDe,
+    THEMES_HEMICYCLE,
 } from "@/app/(ui)/components/hemicycle/hemicycle-indicateurs";
 
-/** Coloration par défaut : la couleur du groupe de chaque siège. */
-export const COLORATION_GROUPE = "groupe";
+/**
+ * Deux modes d'affichage distincts :
+ * - `coalition` : sièges aux couleurs des groupes, sélection de groupes et calcul de coalition ;
+ * - `stats` : sièges colorés par un indicateur de chaque député (la sélection de groupes
+ *   ne sert plus qu'à les mettre en relief).
+ */
+export type ModeHemicycle = "coalition" | "stats";
 
-const OPTIONS = [{ id: COLORATION_GROUPE, label: "Groupe" }, ...INDICATEURS_HEMICYCLE];
+const MODES: { id: ModeHemicycle; label: string }[] = [
+    { id: "coalition", label: "Groupes et coalitions" },
+    { id: "stats", label: "Statistiques par député" },
+];
 
-/** Choix de la couleur des sièges : groupe, ou un indicateur par député. */
-export function HemicycleColorationChoix({ valeur, onChangeAction }: { valeur: string; onChangeAction: (id: string) => void }) {
+/** Bascule entre les deux modes, puis, en mode statistiques, choix de l'indicateur. */
+export function HemicycleModeChoix({
+    mode,
+    indicateurId,
+    onModeChangeAction,
+    onIndicateurChangeAction,
+}: {
+    mode: ModeHemicycle;
+    indicateurId: string;
+    onModeChangeAction: (mode: ModeHemicycle) => void;
+    onIndicateurChangeAction: (id: string) => void;
+}) {
+    const theme = themeDe(indicateurId);
     return (
-        <div className="hemicycle-coloration" role="group" aria-label="Couleur des sièges">
-            <span className="hemicycle-coloration__titre">Couleur des sièges</span>
-            {OPTIONS.map((option) => (
-                <button
-                    key={option.id}
-                    type="button"
-                    className="hemicycle-legend__btn"
-                    aria-pressed={valeur === option.id}
-                    style={{ "--group-color": "var(--accent)" } as React.CSSProperties}
-                    onClick={() => onChangeAction(option.id)}
-                >
-                    {option.label}
-                </button>
-            ))}
+        <div className="hemicycle-coloration">
+            <div className="hemicycle-mode" role="group" aria-label="Affichage de l'hémicycle">
+                {MODES.map((m) => (
+                    <button
+                        key={m.id}
+                        type="button"
+                        className="hemicycle-mode__btn"
+                        aria-pressed={mode === m.id}
+                        onClick={() => onModeChangeAction(m.id)}
+                    >
+                        {m.label}
+                    </button>
+                ))}
+            </div>
+
+            {mode === "stats" && (
+                <>
+                    {/* Thème : choisir un thème affiche son premier indicateur. */}
+                    <div className="hemicycle-coloration__indicateurs" role="group" aria-label="Thème">
+                        <span className="hemicycle-coloration__titre">Thème</span>
+                        {THEMES_HEMICYCLE.map((t) => (
+                            <PuceChoix
+                                key={t.id}
+                                label={t.label}
+                                actif={t.id === theme.id}
+                                onClick={() => onIndicateurChangeAction(t.indicateurs[0].id)}
+                            />
+                        ))}
+                    </div>
+                    <div className="hemicycle-coloration__indicateurs" role="group" aria-label={`Indicateur : ${theme.label}`}>
+                        <span className="hemicycle-coloration__titre">{theme.label}</span>
+                        {theme.indicateurs.map((indicateur) => (
+                            <PuceChoix
+                                key={indicateur.id}
+                                label={indicateur.label}
+                                actif={indicateurId === indicateur.id}
+                                onClick={() => onIndicateurChangeAction(indicateur.id)}
+                            />
+                        ))}
+                    </div>
+                </>
+            )}
         </div>
+    );
+}
+
+function PuceChoix({ label, actif, onClick }: { label: string; actif: boolean; onClick: () => void }) {
+    return (
+        <button
+            type="button"
+            className="hemicycle-legend__btn"
+            aria-pressed={actif}
+            style={{ "--group-color": "var(--accent)" } as React.CSSProperties}
+            onClick={onClick}
+        >
+            {label}
+        </button>
     );
 }
 

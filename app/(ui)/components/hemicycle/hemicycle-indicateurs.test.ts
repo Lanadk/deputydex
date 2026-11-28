@@ -7,6 +7,8 @@ import {
     INDICATEURS_HEMICYCLE,
     majoriteAbsolue,
     quartiles,
+    themeDe,
+    THEMES_HEMICYCLE,
     trancheDe,
 } from "@/app/(ui)/components/hemicycle/hemicycle-indicateurs";
 import { computeHemicycleSeats } from "@/app/(ui)/components/hemicycle/hemicycle-seats";
@@ -24,7 +26,7 @@ const groupe = (code: string, membres: DeputesCardDTO[]): HemicycleGroupe => ({
 const indic = (uid: string, tauxPresence: number | null, joursAttendus: number | null = 100): DeputeIndicateursDTO => ({
     uid, joursAttendus, tauxPresence, tauxPresenceSeance: null, tauxPresenceCommission: null, tauxParticipationScrutins: null,
 });
-const PRESENCE = INDICATEURS_HEMICYCLE.find((i) => i.id === "presence")!;
+const PRESENCE = INDICATEURS_HEMICYCLE.find((i) => i.id === "presence-total")!;
 
 const A = carte("PA_A", "Alice", "G1");
 const B = carte("PA_B", "Bruno", "G1");
@@ -95,6 +97,14 @@ describe("habillerSieges", () => {
         expect(habillage.get(0)).toEqual({ background: COULEURS_TRANCHES[3], title: "Alice · G1\nTaux de présence : 80,0 % (sur 100 jours attendus)", peuFiable: false });
         expect(habillage.get(1)?.peuFiable).toBe(true);
         expect(habillage.get(3)).toEqual({ background: COULEUR_SANS_DONNEE, title: "David · G2\nTaux de présence : pas de donnée" });
+    });
+});
+
+describe("thèmes", () => {
+    it("Présence regroupe total, séance, commission et scrutins", () => {
+        expect(themeDe("presence-seance").label).toBe("Présence");
+        expect(themeDe("presence-seance").indicateurs.map((i) => i.label)).toEqual(["Total", "Séance", "Commission", "Scrutins"]);
+        expect(themeDe("inconnu")).toBe(THEMES_HEMICYCLE[0]);
     });
 });
 

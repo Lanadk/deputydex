@@ -18,7 +18,7 @@ import { HemicycleLegend } from "@/app/(ui)/components/hemicycle/hemicycle-legen
 import { HemicycleDetail } from "@/app/(ui)/components/hemicycle/hemicycle-detail";
 import { SpinnerLib } from "@/app/(ui)/component-library/molecules/spinner/spinner-lib";
 import { SpanLib } from "@/app/(ui)/component-library/atoms/span/span-lib";
-import { COLORATION_GROUPE, HemicycleColorationChoix, HemicycleEchelle } from "@/app/(ui)/components/hemicycle/hemicycle-coloration";
+import { HemicycleEchelle, HemicycleModeChoix, ModeHemicycle } from "@/app/(ui)/components/hemicycle/hemicycle-coloration";
 import { assignerDeputes, habillerSieges, INDICATEURS_HEMICYCLE } from "@/app/(ui)/components/hemicycle/hemicycle-indicateurs";
 import { DeputeIndicateursDTO } from "@/app/domains/presence/dto/depute-indicateurs.dto";
 
@@ -35,7 +35,8 @@ export default function HemicyclePageClient() {
 
     const [state, setState] = useState<LoadState | null>(null);
     const [selection, setSelection] = useState<{ legislature: number; codes: string[] } | null>(null);
-    const [coloration, setColoration] = useState<string>(COLORATION_GROUPE);
+    const [mode, setMode] = useState<ModeHemicycle>("coalition");
+    const [indicateurId, setIndicateurId] = useState<string>(INDICATEURS_HEMICYCLE[0].id);
     const [indicateurs, setIndicateurs] = useState<IndicateursCharges | null>(null);
 
     useEffect(() => {
@@ -71,7 +72,7 @@ export default function HemicyclePageClient() {
         };
     }, [legislatureNum, notify]);
 
-    const indicateur = INDICATEURS_HEMICYCLE.find((i) => i.id === coloration) ?? null;
+    const indicateur = mode === "stats" ? INDICATEURS_HEMICYCLE.find((i) => i.id === indicateurId) ?? null : null;
     const indicateursCourants = indicateurs && indicateurs.legislature === legislatureNum ? indicateurs.parUid : null;
 
     // Indicateurs par député : chargés au premier choix d'un indicateur, une fois par législature.
@@ -87,7 +88,7 @@ export default function HemicyclePageClient() {
                 console.error(e);
                 if (cancelled) return;
                 notify({ message: "Les indicateurs des députés n'ont pas pu être chargés.", variant: "warning" });
-                setColoration(COLORATION_GROUPE);
+                setMode("coalition");
             });
         return () => {
             cancelled = true;
@@ -157,10 +158,18 @@ export default function HemicyclePageClient() {
                         perchoir={perchoir}
                     />
                     <section className="hemicycle-panel">
-                        <HemicycleColorationChoix valeur={coloration} onChangeAction={setColoration} />
+                        <HemicycleModeChoix
+                            mode={mode}
+                            indicateurId={indicateurId}
+                            onModeChangeAction={setMode}
+                            onIndicateurChangeAction={setIndicateurId}
+                        />
                         {indicateur && <HemicycleEchelle indicateur={indicateur} echelle={echelle} chargement={!indicateursCourants} />}
                         <HemicycleLegend groupes={groupes} selectedCodes={selectedCodes} onToggleAction={toggle} />
-                        <HemicycleDetail groupes={selectedGroupes} total={seats.length} onClearAction={() => setSelection(null)} />
+                        {/* Coalition : en mode statistiques, la sélection ne fait que mettre des groupes en relief. */}
+                        {mode === "coalition" && (
+                            <HemicycleDetail groupes={selectedGroupes} total={seats.length} onClearAction={() => setSelection(null)} />
+                        )}
                     </section>
                 </>
             )}

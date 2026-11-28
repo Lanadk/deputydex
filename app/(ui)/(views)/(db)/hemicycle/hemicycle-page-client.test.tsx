@@ -106,23 +106,29 @@ describe("HemicyclePageClient — coalition et couleur des sièges", () => {
     const titres = (container: HTMLElement) =>
         Array.from(container.querySelectorAll(".hemicycle-seat")).map((s) => s.getAttribute("title"));
 
-    it("chaque siège nomme son député ; les indicateurs ne sont chargés qu'au choix d'un indicateur", async () => {
+    it("mode coalition par défaut : chaque siège nomme son député, pas d'indicateur chargé ni proposé", async () => {
         const { container } = renderPage();
 
         await waitFor(() => expect(titres(container)).toEqual(["Mathilde Panot · LFI-NFP", "Gabriel Attal · EPR", "Yaël Braun-Pivet · EPR"]));
+        expect(screen.getByRole("button", { name: "Groupes et coalitions" })).toHaveAttribute("aria-pressed", "true");
+        expect(screen.queryByRole("group", { name: "Thème" })).not.toBeInTheDocument();
         expect(getDeputesIndicateurs).not.toHaveBeenCalled();
     });
 
-    it("couleur par présence : quartiles, info-bulle avec la valeur, échelle", async () => {
+    it("mode statistiques : présence par défaut, quartiles, info-bulle avec la valeur, échelle", async () => {
         getDeputesIndicateurs.mockResolvedValue([indicateur("PA1", 80), indicateur("PA721908", 50, 12), indicateur("PA3", 20)]);
         const user = userEvent.setup();
         const { container } = renderPage();
 
-        await user.click(await screen.findByRole("button", { name: "Présence" }));
+        await user.click(await screen.findByRole("button", { name: "Statistiques par député" }));
 
         expect(getDeputesIndicateurs).toHaveBeenCalledWith(17);
         expect(await screen.findByRole("list", { name: "Échelle : Taux de présence" })).toBeInTheDocument();
+        // Thème Présence, indicateur Total par défaut ; séance, commission et scrutins dans le même thème.
         expect(screen.getByRole("button", { name: "Présence" })).toHaveAttribute("aria-pressed", "true");
+        const indicateursPresence = screen.getByRole("group", { name: "Indicateur : Présence" });
+        expect(Array.from(indicateursPresence.querySelectorAll("button")).map((b) => b.textContent)).toEqual(["Total", "Séance", "Commission", "Scrutins"]);
+        expect(screen.getByRole("button", { name: "Total" })).toHaveAttribute("aria-pressed", "true");
         expect(titres(container)).toContain("Mathilde Panot · LFI-NFP\nTaux de présence : 80,0 % (sur 100 jours attendus)");
         expect(container.querySelectorAll(".hemicycle-seat.hemicycle-seat--peu-fiable")).toHaveLength(1);
         expect(screen.getByText("Hachuré : moins de 30 jours attendus")).toBeInTheDocument();
@@ -134,18 +140,19 @@ describe("HemicyclePageClient — coalition et couleur des sièges", () => {
         expect(screen.getByText("Présence en séance : pas de donnée pour cette législature.")).toBeInTheDocument();
     });
 
-    it("échec des indicateurs : notification et retour à la couleur des groupes", async () => {
+    it("échec des indicateurs : notification et retour au mode coalition", async () => {
         getDeputesIndicateurs.mockRejectedValue(new Error("500"));
         const user = userEvent.setup();
         renderPage();
 
-        await user.click(await screen.findByRole("button", { name: "Présence" }));
+        await user.click(await screen.findByRole("button", { name: "Statistiques par député" }));
 
         expect(await screen.findByText("Les indicateurs des députés n'ont pas pu être chargés.")).toBeInTheDocument();
-        expect(screen.getByRole("button", { name: "Groupe" })).toHaveAttribute("aria-pressed", "true");
+        expect(screen.getByRole("button", { name: "Groupes et coalitions" })).toHaveAttribute("aria-pressed", "true");
     });
 
-    it("coalition de deux groupes : sièges cumulés et majorité absolue", async () => {
+    it("coalition de deux groupes : sièges cumulés et majorité absolue ; masquée en mode statistiques", async () => {
+        getDeputesIndicateurs.mockResolvedValue([]);
         const user = userEvent.setup();
         renderPage();
 
@@ -155,5 +162,13 @@ describe("HemicyclePageClient — coalition et couleur des sièges", () => {
 
         expect(screen.getByText("Coalition LFI-NFP + EPR")).toBeInTheDocument();
         expect(screen.getByText("Majorité absolue atteinte : 2 sièges requis, 1 de plus.")).toBeInTheDocument();
+
+        // Les statistiques gardent la mise en relief des groupes, sans calcul de coalition.
+        await user.click(screen.getByRole("button", { name: "Statistiques par député" }));
+        expect(screen.queryByText("Coalition LFI-NFP + EPR")).not.toBeInTheDocument();
+        expect(lfi).toHaveAttribute("aria-pressed", "true");
+
+        await user.click(screen.getByRole("button", { name: "Groupes et coalitions" }));
+        expect(screen.getByText("Coalition LFI-NFP + EPR")).toBeInTheDocument();
     });
 });
