@@ -13,6 +13,8 @@ type HemicycleDetailProps = {
     /** Groupes sélectionnés : aucun = total ; un = sa carte ; plusieurs = la coalition. */
     groupes: HemicycleGroupe[];
     total: number;
+    /** Mode coalition : panneau coalition dès le premier groupe, et invite tant qu'aucun n'est choisi. */
+    coalition?: boolean;
     onClearAction?: () => void;
 };
 
@@ -103,11 +105,19 @@ function GroupeCard({ groupe }: { groupe: HemicycleGroupe }) {
  * Panneau de détail (`aria-live`) : total sans sélection, carte + effectif +
  * présidence pour un groupe, coalition pour plusieurs.
  */
-export function HemicycleDetail({ groupes, total, onClearAction }: HemicycleDetailProps) {
+export function HemicycleDetail({ groupes, total, coalition = false, onClearAction }: HemicycleDetailProps) {
     const groupe = groupes.length === 1 ? groupes[0] : null;
     return (
         <div className="hemicycle-detail" aria-live="polite">
-            {groupes.length > 1 ? (
+            {coalition && groupes.length === 0 ? (
+                <div>
+                    <span className="hemicycle-detail__big">Mode coalition</span>
+                    <p className="text-subtitle-accent max-w-sm mt-2">
+                        Choisis les groupes de la coalition : leurs sièges s&apos;additionnent et se comparent à la
+                        majorité absolue ({majoriteAbsolue(total)} sièges sur {total}).
+                    </p>
+                </div>
+            ) : groupes.length > 1 || (coalition && groupes.length > 0) ? (
                 <Coalition groupes={groupes} total={total} onClearAction={onClearAction} />
             ) : groupe ? (
                 <>
@@ -128,7 +138,8 @@ export function HemicycleDetail({ groupes, total, onClearAction }: HemicycleDeta
                     <span className="hemicycle-detail__big">{total} sièges</span>
                     <p className="text-subtitle-accent max-w-sm mt-2">
                         Répartis entre les groupes parlementaires et les non-inscrits. Sélectionne un groupe pour
-                        voir sa carte, son effectif et sa présidence, ou plusieurs pour former une coalition.
+                        voir sa carte, son effectif et sa présidence, ou active le mode coalition pour en réunir
+                        plusieurs.
                     </p>
                 </div>
             )}

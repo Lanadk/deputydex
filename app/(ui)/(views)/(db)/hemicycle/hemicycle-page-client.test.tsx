@@ -106,11 +106,12 @@ describe("HemicyclePageClient — coalition et couleur des sièges", () => {
     const titres = (container: HTMLElement) =>
         Array.from(container.querySelectorAll(".hemicycle-seat")).map((s) => s.getAttribute("title"));
 
-    it("mode coalition par défaut : chaque siège nomme son député, pas d'indicateur chargé ni proposé", async () => {
+    it("mode groupes par défaut : chaque siège nomme son député, pas d'indicateur chargé ni proposé", async () => {
         const { container } = renderPage();
 
         await waitFor(() => expect(titres(container)).toEqual(["Mathilde Panot · LFI-NFP", "Gabriel Attal · EPR", "Yaël Braun-Pivet · EPR"]));
-        expect(screen.getByRole("button", { name: "Groupes et coalitions" })).toHaveAttribute("aria-pressed", "true");
+        expect(screen.getByRole("button", { name: "Groupes" })).toHaveAttribute("aria-pressed", "true");
+        expect(screen.getByRole("button", { name: "Mode coalition" })).toHaveAttribute("aria-pressed", "false");
         expect(screen.queryByRole("group", { name: "Thème" })).not.toBeInTheDocument();
         expect(getDeputesIndicateurs).not.toHaveBeenCalled();
     });
@@ -140,7 +141,7 @@ describe("HemicyclePageClient — coalition et couleur des sièges", () => {
         expect(screen.getByText("Présence en séance : pas de donnée pour cette législature.")).toBeInTheDocument();
     });
 
-    it("échec des indicateurs : notification et retour au mode coalition", async () => {
+    it("échec des indicateurs : notification et retour au mode groupes", async () => {
         getDeputesIndicateurs.mockRejectedValue(new Error("500"));
         const user = userEvent.setup();
         renderPage();
@@ -148,11 +149,10 @@ describe("HemicyclePageClient — coalition et couleur des sièges", () => {
         await user.click(await screen.findByRole("button", { name: "Statistiques par député" }));
 
         expect(await screen.findByText("Les indicateurs des députés n'ont pas pu être chargés.")).toBeInTheDocument();
-        expect(screen.getByRole("button", { name: "Groupes et coalitions" })).toHaveAttribute("aria-pressed", "true");
+        expect(screen.getByRole("button", { name: "Groupes" })).toHaveAttribute("aria-pressed", "true");
     });
 
-    it("coalition de deux groupes : sièges cumulés et majorité absolue ; masquée en mode statistiques", async () => {
-        getDeputesIndicateurs.mockResolvedValue([]);
+    it("sans mode coalition : un seul groupe à la fois, un clic remplace la sélection", async () => {
         const user = userEvent.setup();
         renderPage();
 
@@ -160,15 +160,40 @@ describe("HemicyclePageClient — coalition et couleur des sièges", () => {
         await user.click(lfi);
         await user.click(epr);
 
+        expect(epr).toHaveAttribute("aria-pressed", "true");
+        expect(lfi).toHaveAttribute("aria-pressed", "false");
+        expect(screen.queryByText(/^Coalition /)).not.toBeInTheDocument();
+    });
+
+    it("mode coalition : plusieurs groupes, majorité absolue ; on garde le dernier en le quittant", async () => {
+        getDeputesIndicateurs.mockResolvedValue([]);
+        const user = userEvent.setup();
+        renderPage();
+
+        await user.click(await screen.findByRole("button", { name: "Mode coalition" }));
+        expect(screen.getByRole("button", { name: "Mode coalition" })).toHaveAttribute("aria-pressed", "true");
+        expect(screen.getByText("Mode coalition", { selector: ".hemicycle-detail__big" })).toBeInTheDocument();
+
+        const [lfi, epr] = screen.getAllByRole("button", { name: /: \d+ sièges$/ });
+        await user.click(epr);
+        expect(screen.getByText("Coalition EPR")).toBeInTheDocument();
+        await user.click(lfi);
         expect(screen.getByText("Coalition LFI-NFP + EPR")).toBeInTheDocument();
         expect(screen.getByText("Majorité absolue atteinte : 2 sièges requis, 1 de plus.")).toBeInTheDocument();
 
-        // Les statistiques gardent la mise en relief des groupes, sans calcul de coalition.
+        // Statistiques : un seul groupe en relief (le dernier choisi), pas de coalition.
         await user.click(screen.getByRole("button", { name: "Statistiques par député" }));
-        expect(screen.queryByText("Coalition LFI-NFP + EPR")).not.toBeInTheDocument();
+        expect(screen.queryByText(/^Coalition /)).not.toBeInTheDocument();
         expect(lfi).toHaveAttribute("aria-pressed", "true");
+        expect(epr).toHaveAttribute("aria-pressed", "false");
 
-        await user.click(screen.getByRole("button", { name: "Groupes et coalitions" }));
-        expect(screen.getByText("Coalition LFI-NFP + EPR")).toBeInTheDocument();
+        // Retour aux groupes : le mode coalition est resté actif.
+        await user.click(screen.getByRole("button", { name: "Groupes" }));
+        expect(screen.getByText("Coalition LFI-NFP")).toBeInTheDocument();
+
+        // Mode coalition désactivé : retour à la carte du groupe.
+        await user.click(screen.getByRole("button", { name: "Mode coalition" }));
+        expect(screen.queryByText(/^Coalition /)).not.toBeInTheDocument();
+        expect(screen.getByRole("link", { name: "Voir les députés" })).toHaveAttribute("href", "/deputydex?groupe=LFI-NFP");
     });
 });

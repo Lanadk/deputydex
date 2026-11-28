@@ -2,6 +2,7 @@ import { DeputesCardDTO } from "@/app/domains/deputes/dto/deputes-card.dto";
 import { DeputeIndicateursDTO } from "@/app/domains/presence/dto/depute-indicateurs.dto";
 import { HemicycleGroupe, HemicyclePerchoir } from "@/app/(ui)/_shared/adapter/hemicycle.adapter";
 import { HemicycleSeat } from "@/app/(ui)/components/hemicycle/hemicycle-seats";
+import { formatNombreFr } from "@/app/_shared/utils/number";
 
 /**
  * Coloration des sièges de l'hémicycle par un indicateur agrégé par député,
@@ -92,7 +93,7 @@ export const NOMS_TRANCHES: Record<RangTranche, string> = {
 };
 
 export function formatTaux(valeur: number): string {
-    return `${valeur.toLocaleString("fr-FR", { minimumFractionDigits: 1, maximumFractionDigits: 1 })} %`;
+    return `${formatNombreFr(valeur, { min: 1, max: 1 })} %`;
 }
 
 export function bornesTranches(q: Quartiles): Record<RangTranche, string> {

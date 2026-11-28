@@ -35,7 +35,8 @@ export default function HemicyclePageClient() {
 
     const [state, setState] = useState<LoadState | null>(null);
     const [selection, setSelection] = useState<{ legislature: number; codes: string[] } | null>(null);
-    const [mode, setMode] = useState<ModeHemicycle>("coalition");
+    const [mode, setMode] = useState<ModeHemicycle>("groupes");
+    const [coalition, setCoalition] = useState(false);
     const [indicateurId, setIndicateurId] = useState<string>(INDICATEURS_HEMICYCLE[0].id);
     const [indicateurs, setIndicateurs] = useState<IndicateursCharges | null>(null);
 
@@ -88,7 +89,7 @@ export default function HemicyclePageClient() {
                 console.error(e);
                 if (cancelled) return;
                 notify({ message: "Les indicateurs des députés n'ont pas pu être chargés.", variant: "warning" });
-                setMode("coalition");
+                setMode("groupes");
             });
         return () => {
             cancelled = true;
@@ -122,10 +123,30 @@ export default function HemicyclePageClient() {
         return habillerSieges(assignerDeputes(seats, groupes, perchoir, valeur), groupes, actif, indicateursCourants);
     }, [seats, groupes, perchoir, indicateur, indicateursCourants]);
 
+    // Plusieurs groupes à la fois seulement en mode coalition ; sinon, un clic remplace la sélection.
+    const multi = mode === "groupes" && coalition;
+
     const toggle = (code: string) => {
         if (!legislatureNum) return;
-        const codes = selectedCodes.includes(code) ? selectedCodes.filter((c) => c !== code) : [...selectedCodes, code];
+        const dejaChoisi = selectedCodes.includes(code);
+        const codes = multi
+            ? (dejaChoisi ? selectedCodes.filter((c) => c !== code) : [...selectedCodes, code])
+            : (dejaChoisi ? [] : [code]);
         setSelection(codes.length > 0 ? { legislature: legislatureNum, codes } : null);
+    };
+
+    /** Sortie de la sélection multiple : on garde le dernier groupe choisi. */
+    const garderDernierGroupe = () =>
+        setSelection((s) => (s && s.codes.length > 1 ? { ...s, codes: s.codes.slice(-1) } : s));
+
+    const changerCoalition = (active: boolean) => {
+        setCoalition(active);
+        if (!active) garderDernierGroupe();
+    };
+
+    const changerMode = (nouveau: ModeHemicycle) => {
+        setMode(nouveau);
+        if (nouveau === "stats") garderDernierGroupe();
     };
 
     return (
@@ -134,9 +155,9 @@ export default function HemicyclePageClient() {
                 {legislatureNum && <span className="page-pill">{legislatureNum}ème législature</span>}
                 <h1>L&apos;hémicycle</h1>
                 <p className="subtitle">
-                    Chaque carte est un siège, regroupé par groupe parlementaire. Choisis un ou plusieurs groupes
-                    pour les mettre en relief et mesurer une coalition, ou colore les sièges selon la présence de
-                    chaque député.
+                    Chaque carte est un siège, regroupé par groupe parlementaire. Choisis un groupe pour le mettre
+                    en relief, active le mode coalition pour en additionner plusieurs, ou colore les sièges selon la
+                    présence de chaque député.
                 </p>
             </header>
 
@@ -160,15 +181,22 @@ export default function HemicyclePageClient() {
                     <section className="hemicycle-panel">
                         <HemicycleModeChoix
                             mode={mode}
+                            coalition={coalition}
                             indicateurId={indicateurId}
-                            onModeChangeAction={setMode}
+                            onModeChangeAction={changerMode}
+                            onCoalitionChangeAction={changerCoalition}
                             onIndicateurChangeAction={setIndicateurId}
                         />
                         {indicateur && <HemicycleEchelle indicateur={indicateur} echelle={echelle} chargement={!indicateursCourants} />}
                         <HemicycleLegend groupes={groupes} selectedCodes={selectedCodes} onToggleAction={toggle} />
-                        {/* Coalition : en mode statistiques, la sélection ne fait que mettre des groupes en relief. */}
-                        {mode === "coalition" && (
-                            <HemicycleDetail groupes={selectedGroupes} total={seats.length} onClearAction={() => setSelection(null)} />
+                        {/* En mode statistiques, la sélection ne fait que mettre un groupe en relief. */}
+                        {mode === "groupes" && (
+                            <HemicycleDetail
+                                groupes={selectedGroupes}
+                                total={seats.length}
+                                coalition={coalition}
+                                onClearAction={() => setSelection(null)}
+                            />
                         )}
                     </section>
                 </>

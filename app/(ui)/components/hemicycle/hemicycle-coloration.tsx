@@ -16,27 +16,35 @@ import {
 
 /**
  * Deux modes d'affichage distincts :
- * - `coalition` : sièges aux couleurs des groupes, sélection de groupes et calcul de coalition ;
- * - `stats` : sièges colorés par un indicateur de chaque député (la sélection de groupes
- *   ne sert plus qu'à les mettre en relief).
+ * - `groupes` : sièges aux couleurs des groupes ; un groupe sélectionné à la fois,
+ *   ou plusieurs en « mode coalition » (calcul de la coalition) ;
+ * - `stats` : sièges colorés par un indicateur de chaque député (la sélection d'un
+ *   groupe ne sert qu'à le mettre en relief).
  */
-export type ModeHemicycle = "coalition" | "stats";
+export type ModeHemicycle = "groupes" | "stats";
 
 const MODES: { id: ModeHemicycle; label: string }[] = [
-    { id: "coalition", label: "Groupes et coalitions" },
+    { id: "groupes", label: "Groupes" },
     { id: "stats", label: "Statistiques par député" },
 ];
 
-/** Bascule entre les deux modes, puis, en mode statistiques, choix de l'indicateur. */
+/**
+ * Bascule entre les deux modes ; en mode groupes, le bouton « Mode coalition »
+ * (sélection de plusieurs groupes) ; en mode statistiques, le choix de l'indicateur.
+ */
 export function HemicycleModeChoix({
     mode,
+    coalition,
     indicateurId,
     onModeChangeAction,
+    onCoalitionChangeAction,
     onIndicateurChangeAction,
 }: {
     mode: ModeHemicycle;
+    coalition: boolean;
     indicateurId: string;
     onModeChangeAction: (mode: ModeHemicycle) => void;
+    onCoalitionChangeAction: (coalition: boolean) => void;
     onIndicateurChangeAction: (id: string) => void;
 }) {
     const theme = themeDe(indicateurId);
@@ -55,6 +63,17 @@ export function HemicycleModeChoix({
                     </button>
                 ))}
             </div>
+
+            {mode === "groupes" && (
+                <div className="hemicycle-coloration__indicateurs">
+                    <PuceChoix label="Mode coalition" actif={coalition} onClick={() => onCoalitionChangeAction(!coalition)} />
+                    <span className="text-sm text-subtitle-accent">
+                        {coalition
+                            ? "Sélectionne plusieurs groupes : leurs sièges s'additionnent face à la majorité absolue."
+                            : "Active-le pour sélectionner plusieurs groupes et mesurer une coalition."}
+                    </span>
+                </div>
+            )}
 
             {mode === "stats" && (
                 <>
