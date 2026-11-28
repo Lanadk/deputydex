@@ -267,6 +267,10 @@ const DEPUTE_CARD_REGISTRY: CardConfig[] = [
         id: "kpi-vote-breakdown",
         displayType: "kpi-bar-card",
     },
+    { id: "kpi-presence-taux", displayType: "kpi-card" },
+    { id: "kpi-presence-seance", displayType: "kpi-card" },
+    { id: "kpi-presence-commission", displayType: "kpi-card" },
+    { id: "kpi-presence-scrutins", displayType: "kpi-card" },
 ];
 
 // ── Charts ───────────────────────────────────────────────────────────────────
@@ -278,6 +282,40 @@ const DEPUTE_CHART_REGISTRY: ChartConfig[] = [
         subtitle: "Pour / Contre / Abstention / Non-votant",
         theme: "vote-positions",
         displayType: "donut",
+    },
+    {
+        id: "chart-presence-comparaison",
+        title: "Comparé à son groupe et à l'Assemblée (en %)",
+        subtitle: "Taux de présence et ses composantes, sur la législature affichée",
+        theme: "presence",
+        displayType: "bar-multi",
+    },
+    {
+        id: "chart-presence-evolution",
+        title: "Taux de présence, mois par mois (en %)",
+        theme: "presence",
+        displayType: "line",
+    },
+    {
+        id: "chart-presence-jours-mensuels",
+        title: "Jours de présence par mois",
+        subtitle: "Toutes sources : vote, prise de parole, commission",
+        theme: "presence",
+        displayType: "bar",
+    },
+    {
+        id: "chart-presence-sources",
+        title: "Jours de présence par source",
+        subtitle: "Un même jour peut cumuler plusieurs sources",
+        theme: "presence",
+        displayType: "bar",
+    },
+    {
+        id: "chart-presence-annee-mandat",
+        title: "Jours de présence par mois, par année de mandat",
+        subtitle: "Depuis sa prise de fonction dans la législature",
+        theme: "presence",
+        displayType: "bar",
     },
 ];
 
