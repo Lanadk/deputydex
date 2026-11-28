@@ -1,11 +1,20 @@
 import { BookOpen, CalendarDays, Gauge, Landmark, Vote } from "lucide-react";
 import { activityCalendar, card, chart, dossierList, table } from "@/app/(ui)/(views)/(db)/deputes/[uid]/registry";
 import { PageSection } from "@/app/(ui)/component-library/template/sections/anchor-section/anchor.types";
-import { BlockDataWrapper, ParagraphItem, SectionBlock } from "@/app/(ui)/component-library/template/sections/block-section/block-section-renderer";
-import { MultiDatum, SeriesConfig } from "@/app/(ui)/component-library/template/sections/block-section/chart-config.types";
+import { BlockDataWrapper, SectionBlock } from "@/app/(ui)/component-library/template/sections/block-section/block-section-renderer";
 import { deputesGateway } from "@/app/(ui)/gateways/deputes/deputes.gateway";
 import { statisticsGateway } from "@/app/(ui)/gateways/statistics/statistics.gateway";
-import { RawStatData } from "@/app/_shared/statistics/raw-stat-data.types";
+import {
+    avertissementPresence,
+    comparaison,
+    lireStat,
+    pct,
+    pointsOf,
+    sansPrefixe,
+    seriesOf,
+    valeursComposantes,
+    valeursGroupe,
+} from "@/app/(ui)/_shared/statistics/presence-section.helpers";
 import { formatDateOnlyFr } from "@/app/_shared/utils/date";
 import { DeputeMandatDTO } from "@/app/domains/deputes/dto/depute-mandat.dto";
 import { DeputeRecentVoteDTO } from "@/app/domains/deputes/dto/depute-recent-vote.dto";
@@ -21,80 +30,6 @@ import {
     F_DEPUTE_TAUX,
     F_DEPUTE_TAUX_MOIS,
 } from "@/app/(ui)/(views)/(db)/deputes/[uid]/presence.formules";
-
-// ── Présence : lecture des stats catalogue ──────────────────────────────────
-
-type Item = { label: string; value: number };
-
-/** Une stat en échec ne fait pas tomber toute la section : elle s'affiche vide. */
-const lireStat = (p: Promise<RawStatData>): Promise<RawStatData | null> => p.catch(() => null);
-const pointsOf = (s: RawStatData | null): Item[] => (s?.shape === "timeseries" ? s.points : []);
-const seriesOf = (s: RawStatData | null) => (s?.shape === "multi-series" ? s.series : []);
-const itemsOf = (s: RawStatData | null): Item[] => (s?.shape === "distribution" ? s.items : []);
-
-/** « 1 · En séance » → « En séance » ; « 17ᵉ · année 1 » → « année 1 ». */
-const sansPrefixe = (label: string) => label.replace(/^(\d+ · |\d+ᵉ · )/, "");
-
-/** Composantes affichées, dans cet ordre ; clé = libellé sans préfixe des stats `*-composantes` / `presence-moyenne`. */
-const COMPOSANTES = [
-    { cle: "Présence (tous jours attendus)", libelle: "Taux de présence" },
-    { cle: "En séance", libelle: "En séance" },
-    { cle: "En commission", libelle: "En commission" },
-    { cle: "Excusés en commission", libelle: "Excusé en commission" },
-    { cle: "Participation aux scrutins", libelle: "Scrutins" },
-];
-
-/** Première série d'une stat composantes (une seule législature) → valeur par composante. */
-function valeursComposantes(stat: RawStatData | null): Map<string, number> {
-    return new Map((seriesOf(stat)[0]?.items ?? []).map((i) => [sansPrefixe(i.label), i.value]));
-}
-
-/** `groupes.presence-composantes` (une série par composante, un item par groupe) → valeurs du groupe `code`. */
-function valeursGroupe(composantes: RawStatData | null, global: RawStatData | null, code: string | null): Map<string, number> {
-    const valeurs = new Map<string, number>();
-    if (!code) return valeurs;
-    for (const s of seriesOf(composantes)) {
-        const v = s.items.find((i) => i.label === code)?.value;
-        if (v != null) valeurs.set(sansPrefixe(s.name), v);
-    }
-    const taux = itemsOf(global).find((i) => i.label === code)?.value;
-    if (taux != null) valeurs.set("Présence (tous jours attendus)", taux);
-    return valeurs;
-}
-
-/** Graphique de comparaison : une ligne par composante, une colonne par population (ordre fixe, pas de tri). */
-function comparaison(populations: { nom: string; valeurs: Map<string, number> }[]): { data: MultiDatum[]; series: SeriesConfig[] } {
-    const presentes = populations.filter((p) => p.valeurs.size > 0);
-    return {
-        series: presentes.map((p, i) => ({ dataKey: `s${i}`, label: p.nom })),
-        data: COMPOSANTES.map(({ cle, libelle }) => {
-            const row: MultiDatum = { label: libelle };
-            presentes.forEach((p, i) => {
-                row[`s${i}`] = p.valeurs.get(cle) ?? null;
-            });
-            return row;
-        }),
-    };
-}
-
-const pct = (v: number | undefined) => (v != null ? `${v}%` : "—");
-
-function avertissementPresence(note: string | undefined): ParagraphItem[] {
-    return [
-        {
-            type: "callout",
-            variant: "warning",
-            title: "Une estimation, pas un pointage",
-            paragraphs: [
-                ...(note ? [note + "."] : []),
-                "L'Assemblée ne publie pas de registre de présence : ces chiffres sont reconstitués à partir des votes, " +
-                    "des prises de parole en séance et des listes de présence des commissions. Ils sous-estiment la " +
-                    "présence (un député assis qui ne vote ni ne parle n'est pas vu) et ignorent le travail en " +
-                    "circonscription. Le calcul exact est sous chaque graphique.",
-            ],
-        },
-    ];
-}
 
 export const DEPUTE_SECTIONS: PageSection[] = [
     // ── Activité ────────────────────────────────────────────────────────────
