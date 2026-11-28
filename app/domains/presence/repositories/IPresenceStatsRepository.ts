@@ -21,11 +21,12 @@ import {
  * optionnelle (absente = toutes).
  */
 export interface IPresenceStatsRepository {
-    getDeputeParLegislature(acteurUid: string): Promise<DeputePresenceLegislatureRow[]>;
-    getDeputeMensuelle(acteurUid: string): Promise<DeputePresenceMoisRow[]>;
-    getDeputeAnnuelle(acteurUid: string, type: PresenceTypePeriode): Promise<PresenceAnneeRow[]>;
+    // Député : toutes ses législatures, ou une seule si `legislature` est donnée (fiche député).
+    getDeputeParLegislature(acteurUid: string, legislature?: number): Promise<DeputePresenceLegislatureRow[]>;
+    getDeputeMensuelle(acteurUid: string, legislature?: number): Promise<DeputePresenceMoisRow[]>;
+    getDeputeAnnuelle(acteurUid: string, type: PresenceTypePeriode, legislature?: number): Promise<PresenceAnneeRow[]>;
     /** Prise de fonction du député, une ligne par législature où il a siégé. */
-    getDeputeDebutsMandat(acteurUid: string): Promise<DeputeDebutMandatRow[]>;
+    getDeputeDebutsMandat(acteurUid: string, legislature?: number): Promise<DeputeDebutMandatRow[]>;
 
     getGroupes(legislature: number): Promise<GroupePresenceRow[]>;
     getGroupesMensuelle(legislature: number): Promise<GroupePresenceMoisRow[]>;

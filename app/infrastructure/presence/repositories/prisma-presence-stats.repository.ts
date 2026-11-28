@@ -34,37 +34,40 @@ const legislatureFiltre = (colonne: Prisma.Sql, legislature?: number) =>
     legislature == null ? Prisma.empty : Prisma.sql`AND ${colonne} = ${legislature}`;
 
 export const prismaPresenceStatsRepository: IPresenceStatsRepository = {
-    async getDeputeParLegislature(acteurUid: string): Promise<DeputePresenceLegislatureRow[]> {
+    async getDeputeParLegislature(acteurUid: string, legislature?: number): Promise<DeputePresenceLegislatureRow[]> {
         return prisma.$queryRaw<DeputePresenceLegislatureRow[]>`
             SELECT legislature,
                    jours_attendus, jours_presents,
                    taux_presence::float, taux_presence_seance::float, taux_presence_commission::float,
-                   taux_participation_scrutins::float,
+                   taux_excuses_commission::float, taux_participation_scrutins::float,
                    jours_presence, jours_vote, jours_debat, jours_commission,
                    jours_presence_par_mois::float
             FROM agg_deputes_presence
             WHERE acteur_uid = ${acteurUid}
+              ${legislatureFiltre(Prisma.sql`legislature`, legislature)}
         `;
     },
 
-    async getDeputeMensuelle(acteurUid: string): Promise<DeputePresenceMoisRow[]> {
+    async getDeputeMensuelle(acteurUid: string, legislature?: number): Promise<DeputePresenceMoisRow[]> {
         return prisma.$queryRaw<DeputePresenceMoisRow[]>`
             SELECT legislature, mois, taux_presence::float, jours_presence
             FROM agg_deputes_presence_mensuelle
             WHERE acteur_uid = ${acteurUid}
+              ${legislatureFiltre(Prisma.sql`legislature`, legislature)}
         `;
     },
 
-    async getDeputeAnnuelle(acteurUid: string, type: PresenceTypePeriode): Promise<PresenceAnneeRow[]> {
+    async getDeputeAnnuelle(acteurUid: string, type: PresenceTypePeriode, legislature?: number): Promise<PresenceAnneeRow[]> {
         return prisma.$queryRaw<PresenceAnneeRow[]>`
             SELECT legislature, periode, jours_presence_par_mois::float, taux_presence::float
             FROM agg_deputes_presence_annuelle
             WHERE acteur_uid = ${acteurUid}
               AND type_periode = ${type}
+              ${legislatureFiltre(Prisma.sql`legislature`, legislature)}
         `;
     },
 
-    async getDeputeDebutsMandat(acteurUid: string): Promise<DeputeDebutMandatRow[]> {
+    async getDeputeDebutsMandat(acteurUid: string, legislature?: number): Promise<DeputeDebutMandatRow[]> {
         // « Année de mandat 1 » commence à la première prise de fonction du
         // député dans la législature (debut_mandat de mv_deputes_presence_jour).
         return prisma.$queryRaw<DeputeDebutMandatRow[]>`
@@ -73,6 +76,7 @@ export const prismaPresenceStatsRepository: IPresenceStatsRepository = {
             WHERE acteur_uid = ${acteurUid}
               AND type_periode = 'mandat'
               AND periode = '1'
+              ${legislatureFiltre(Prisma.sql`legislature`, legislature)}
         `;
     },
 

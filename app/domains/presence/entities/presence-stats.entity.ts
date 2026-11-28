@@ -16,6 +16,7 @@ export interface DeputePresenceLegislatureRow {
     taux_presence: number | null;
     taux_presence_seance: number | null;
     taux_presence_commission: number | null;
+    taux_excuses_commission: number | null;
     taux_participation_scrutins: number | null;
     jours_presence: number;
     jours_vote: number;

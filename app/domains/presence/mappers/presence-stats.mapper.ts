@@ -124,8 +124,14 @@ export function mapAssembleeTauxParLegislatureToDTO(rows: AssembleePresenceLegis
     return { items: rows.flatMap((r) => item(legislatureLabel(r.legislature), r.taux_presence)) };
 }
 
-/** Composantes de la présence de l'Assemblée, une série par législature. */
-export function mapAssembleeComposantesToDTO(rows: AssembleePresenceLegislatureRow[]): PresenceStatSeriesDTO {
+/** Colonnes communes à `agg_deputes_presence` et `agg_assemblee_presence`. */
+type ComposantesRow = Pick<
+    AssembleePresenceLegislatureRow,
+    "legislature" | "taux_presence" | "taux_presence_seance" | "taux_presence_commission" | "taux_excuses_commission" | "taux_participation_scrutins"
+>;
+
+/** Composantes de la présence (député ou Assemblée), une série par législature. */
+export function mapComposantesToDTO(rows: ComposantesRow[]): PresenceStatSeriesDTO {
     return {
         series: rows.map((r) => ({
             name: legislatureLabel(r.legislature),
@@ -139,6 +145,9 @@ export function mapAssembleeComposantesToDTO(rows: AssembleePresenceLegislatureR
         })),
     };
 }
+
+/** Composantes de la présence de l'Assemblée, une série par législature. */
+export const mapAssembleeComposantesToDTO = (rows: AssembleePresenceLegislatureRow[]): PresenceStatSeriesDTO => mapComposantesToDTO(rows);
 
 /** Taux mensuel de l'Assemblée. */
 export function mapAssembleeMensuelleTauxToDTO(rows: AssembleePresenceMoisRow[]): PresenceStatPointsDTO {

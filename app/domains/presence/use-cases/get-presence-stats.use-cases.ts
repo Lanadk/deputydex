@@ -13,6 +13,7 @@ import {
     mapAnneesToDTO,
     mapAssembleeDeputesPresentsToDTO,
     mapAssembleeComposantesToDTO,
+    mapComposantesToDTO,
     mapAssembleeJournaliereToDTO,
     mapAssembleeJourSemaineToDTO,
     mapAssembleeMensuelleJoursToDTO,
@@ -68,22 +69,27 @@ const points = (dto: PresenceStatPointsDTO): PresenceStatPointsDTO => ({ points:
 const chronologie = (dto: PresenceStatItemsDTO): PresenceStatItemsDTO => ({ items: sortParLibelle(dto.items) });
 const classement = (dto: PresenceStatItemsDTO): PresenceStatItemsDTO => ({ items: sortParValeurDecroissante(dto.items) });
 
-// ── Député (toutes ses législatures) ─────────────────────────────────────────
+// ── Député (toutes ses législatures, ou une seule : fiche député) ───────────
 
-export function getDeputePresenceSourcesUseCase(repo: IPresenceStatsRepository, acteurUid: string): PresenceResult<PresenceStatSeriesDTO> {
-    return lire(() => repo.getDeputeParLegislature(acteurUid), (rows) => sortSeries(mapDeputeSourcesToDTO(rows)));
+export function getDeputePresenceSourcesUseCase(repo: IPresenceStatsRepository, acteurUid: string, legislature?: number): PresenceResult<PresenceStatSeriesDTO> {
+    return lire(() => repo.getDeputeParLegislature(acteurUid, legislature), (rows) => sortSeries(mapDeputeSourcesToDTO(rows)));
 }
 
-export function getDeputePresenceEvolutionUseCase(repo: IPresenceStatsRepository, acteurUid: string): PresenceResult<PresenceStatPointsDTO> {
-    return lire(() => repo.getDeputeMensuelle(acteurUid), (rows) => points(mapDeputeMensuelleTauxToDTO(rows)));
+/** Taux global et composantes (séance, commission, excusés, scrutins), une série par législature. */
+export function getDeputePresenceComposantesUseCase(repo: IPresenceStatsRepository, acteurUid: string, legislature?: number): PresenceResult<PresenceStatSeriesDTO> {
+    return lire(() => repo.getDeputeParLegislature(acteurUid, legislature), (rows) => sortSeries(mapComposantesToDTO(rows)));
 }
 
-export function getDeputePresenceJoursMensuelsUseCase(repo: IPresenceStatsRepository, acteurUid: string): PresenceResult<PresenceStatPointsDTO> {
-    return lire(() => repo.getDeputeMensuelle(acteurUid), (rows) => points(mapDeputeMensuelleJoursToDTO(rows)));
+export function getDeputePresenceEvolutionUseCase(repo: IPresenceStatsRepository, acteurUid: string, legislature?: number): PresenceResult<PresenceStatPointsDTO> {
+    return lire(() => repo.getDeputeMensuelle(acteurUid, legislature), (rows) => points(mapDeputeMensuelleTauxToDTO(rows)));
 }
 
-export function getDeputePresenceAnnuelleUseCase(repo: IPresenceStatsRepository, acteurUid: string, type: PresenceTypePeriode): PresenceResult<PresenceStatItemsDTO> {
-    return lire(() => repo.getDeputeAnnuelle(acteurUid, type), (rows) => chronologie(mapAnneesToDTO(rows, type)));
+export function getDeputePresenceJoursMensuelsUseCase(repo: IPresenceStatsRepository, acteurUid: string, legislature?: number): PresenceResult<PresenceStatPointsDTO> {
+    return lire(() => repo.getDeputeMensuelle(acteurUid, legislature), (rows) => points(mapDeputeMensuelleJoursToDTO(rows)));
+}
+
+export function getDeputePresenceAnnuelleUseCase(repo: IPresenceStatsRepository, acteurUid: string, type: PresenceTypePeriode, legislature?: number): PresenceResult<PresenceStatItemsDTO> {
+    return lire(() => repo.getDeputeAnnuelle(acteurUid, type, legislature), (rows) => chronologie(mapAnneesToDTO(rows, type)));
 }
 
 /** Date FR (JJ/MM/AAAA) d'une colonne DATE Postgres, renvoyée à minuit UTC par Prisma. */
@@ -101,8 +107,10 @@ const accord = (n: number, mot: string) => `${mot}${n > 1 ? "s" : ""}`;
  * 7 présents ». Toujours affiché : un taux sur 33 jours ne se lit pas comme
  * un taux sur 600. `null` si le député n'a aucun jour de mandat connu.
  */
-export async function getDeputePresenceContexteUseCase(repo: IPresenceStatsRepository, acteurUid: string): PresenceResult<string | null> {
-    const result = await fromRepository(() => Promise.all([repo.getDeputeDebutsMandat(acteurUid), repo.getDeputeParLegislature(acteurUid)]));
+export async function getDeputePresenceContexteUseCase(repo: IPresenceStatsRepository, acteurUid: string, legislature?: number): PresenceResult<string | null> {
+    const result = await fromRepository(() =>
+        Promise.all([repo.getDeputeDebutsMandat(acteurUid, legislature), repo.getDeputeParLegislature(acteurUid, legislature)])
+    );
     if (isErr(result)) return result;
     const [debuts, totaux] = result.data;
 

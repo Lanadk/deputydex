@@ -7,6 +7,7 @@ import {
     getAssembleePresenceJourSemaineUseCase,
     getAssembleePresenceParLegislatureUseCase,
     getDeputePresenceAnnuelleUseCase,
+    getDeputePresenceComposantesUseCase,
     getDeputePresenceContexteUseCase,
     getDeputePresenceEvolutionUseCase,
     getGroupesPresenceAnnuelleUseCase,
@@ -59,8 +60,50 @@ describe("présence — député", () => {
 
         const result = await getDeputePresenceEvolutionUseCase(repo, "PA1");
 
-        expect(repo.getDeputeMensuelle).toHaveBeenCalledWith("PA1");
+        // Sans législature (mode avancé) : toutes ses législatures.
+        expect(repo.getDeputeMensuelle).toHaveBeenCalledWith("PA1", undefined);
         expect(result).toEqual({ success: true, data: { points: [{ label: "2024-10", value: 70 }, { label: "2025-02", value: 60 }] } });
+    });
+
+    it("fiche député : la législature est transmise au repository", async () => {
+        const repo = makeRepository();
+
+        await getDeputePresenceEvolutionUseCase(repo, "PA1", 17);
+        await getDeputePresenceComposantesUseCase(repo, "PA1", 17);
+        await getDeputePresenceContexteUseCase(repo, "PA1", 17);
+
+        expect(repo.getDeputeMensuelle).toHaveBeenCalledWith("PA1", 17);
+        expect(repo.getDeputeParLegislature).toHaveBeenCalledWith("PA1", 17);
+        expect(repo.getDeputeDebutsMandat).toHaveBeenCalledWith("PA1", 17);
+    });
+
+    it("composantes du député : même série que l'Assemblée (taux, séance, commission, excusés, scrutins)", async () => {
+        const repo = makeRepository({
+            getDeputeParLegislature: jest.fn().mockResolvedValue([
+                {
+                    legislature: 17, jours_attendus: 33, jours_presents: 7, taux_presence: 21.2, taux_presence_seance: 18.5,
+                    taux_presence_commission: 40, taux_excuses_commission: 10, taux_participation_scrutins: null,
+                    jours_presence: 7, jours_vote: 3, jours_debat: 1, jours_commission: 4, jours_presence_par_mois: 2.3,
+                },
+            ]),
+        });
+
+        expect(await getDeputePresenceComposantesUseCase(repo, "PA1", 17)).toEqual({
+            success: true,
+            data: {
+                series: [
+                    {
+                        name: "17ᵉ législature",
+                        items: [
+                            { label: "1 · Présence (tous jours attendus)", value: 21.2 },
+                            { label: "2 · En séance", value: 18.5 },
+                            { label: "3 · En commission", value: 40 },
+                            { label: "4 · Excusés en commission", value: 10 },
+                        ],
+                    },
+                ],
+            },
+        });
     });
 
     it("année de mandat : libellé préfixé par la législature, ordre chronologique", async () => {
@@ -74,7 +117,7 @@ describe("présence — député", () => {
 
         const result = await getDeputePresenceAnnuelleUseCase(repo, "PA1", "mandat");
 
-        expect(repo.getDeputeAnnuelle).toHaveBeenCalledWith("PA1", "mandat");
+        expect(repo.getDeputeAnnuelle).toHaveBeenCalledWith("PA1", "mandat", undefined);
         expect(result).toEqual({
             success: true,
             data: {

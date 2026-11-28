@@ -100,6 +100,17 @@ export const ACTEURS_STATS: StatDefinition[] = [
         unit: "jours",
         entityIdLabel: "Choisir un député",
     }),
+    defineStat("acteurs", "presence-composantes", {
+        scope: "entity",
+        title: "Présence : séance, commission, scrutins",
+        category: "Présence",
+        keywords: ["présence", "séance", "commission", "scrutins", "excusé", "député"],
+        description: "Le taux de présence de ce député et ses composantes : présence en séance, en commission (et excusé), participation aux scrutins — une série par législature.",
+        methodology: PRESENCE_METHODOLOGIE + " Séance : jours de séance avec scrutin pendant le mandat. Commission : réunions où il est noté présent (ou excusé) parmi celles de ses organes. Scrutins : votes personnels parmi tous les scrutins publics de ses jours de mandat.",
+        dataShape: "multi-series",
+        unit: "%",
+        entityIdLabel: "Choisir un député",
+    }),
     defineStat("acteurs", "presence-annee-civile", {
         scope: "entity",
         title: "Présence par année civile",
