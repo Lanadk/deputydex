@@ -4,6 +4,15 @@ import { StatDefinition } from "@/app/(ui)/_shared/statistics/catalog/stat-defin
 // Branché sur de vraies tables agrégées (agg_groupes_stats_parite,
 // agg_groupes_effectifs_legislature, agg_groupes_stats_cohesion_mensuelle),
 // voir STAT_HANDLERS dans app/api/statistics/[domain]/[statId]/route.ts.
+
+/** Méthodologie commune des stats de présence des groupes (vues `agg_groupes_presence*` de deputydex-data). */
+const GROUPES_PRESENCE_METHODOLOGIE =
+    "Jour attendu : séance publique avec au moins un scrutin public, ou convocation en commission d'un organe dont " +
+    "le député est membre. Présent : vote personnel (hors délégation), prise de parole ou interruption en séance, " +
+    "présence en commission. Chaque jour compte pour le groupe du député CE JOUR-LÀ ; taux pondéré (somme des jours " +
+    "présents ÷ somme des jours attendus de tous les membres), pas la moyenne des taux individuels. Non inscrits " +
+    "exclus du classement.";
+
 export const GROUPES_STATS: StatDefinition[] = [
     defineStat("groupes", "parite", {
         scope: "entity",
@@ -41,6 +50,7 @@ export const GROUPES_STATS: StatDefinition[] = [
         description: "Compare, pour chaque groupe parlementaire, depuis combien d'années ses membres actuels siègent en moyenne à l'Assemblée.",
         methodology: "Pour chaque membre actuel du groupe : somme des durées de ses appartenances à un groupe parlementaire, sur toutes les législatures présentes dans la base (l'ancienneté est donc bornée par la profondeur historique des données) ; puis moyenne par groupe. Non inscrits et groupes sans membre actuel exclus.",
         dataShape: "distribution",
+        excludedDisplayTypes: ["pie", "donut"],
         unit: "ans",
         chartVariant: "parliament-group",
     }),
@@ -68,6 +78,7 @@ export const GROUPES_STATS: StatDefinition[] = [
         description: "Compare, pour chaque groupe parlementaire, à quel point ses membres votent dans le même sens.",
         methodology: "Score de cohésion moyen sur l'ensemble de la législature (moyenne non pondérée des taux de cohésion par scrutin, scrutins avec moins de 5 votants du groupe exclus), par groupe — les groupes sans membre actuel (renommés/dissous en cours de législature) sont exclus.",
         dataShape: "distribution",
+        excludedDisplayTypes: ["pie", "donut"],
         unit: "%",
         chartVariant: "parliament-group",
     }),
@@ -103,6 +114,7 @@ export const GROUPES_STATS: StatDefinition[] = [
         description: "\"S'exprimer\" = voter une position politique (pour, contre OU abstention), peu importe laquelle — à l'opposé d'être non-votant (absent, ou volontairement non-votant). Un groupe peut s'exprimer beaucoup tout en s'abstenant souvent : voter \"abstention\" compte comme s'exprimer, contrairement à ne pas voter du tout.",
         methodology: "Pour chaque groupe : (nombre de votes pour + contre + abstention) / (pour + contre + abstention + non-votants), sur l'ensemble des scrutins de la législature — les groupes sans membre actuel (renommés/dissous en cours de législature) sont exclus. Différent de \"Taux de participation\" (groupes.participation) : ici la base de calcul est le total des POSITIONS observées sur les scrutins couverts, pas l'éligibilité individuelle de chaque député·e reconstituée scrutin par scrutin.",
         dataShape: "distribution",
+        excludedDisplayTypes: ["pie", "donut"],
         unit: "%",
         chartVariant: "parliament-group",
     }),
@@ -114,6 +126,7 @@ export const GROUPES_STATS: StatDefinition[] = [
         description: "Compare, pour chaque groupe parlementaire, la part des scrutins auxquels ses membres ont effectivement pris part (pour, contre ou abstention) parmi ceux où ils étaient éligibles à voter.",
         methodology: "Moyenne pondérée par le nombre de scrutins éligibles (pas une moyenne simple des mois), par groupe, sur la législature — les groupes sans membre actuel (renommés/dissous en cours de législature) sont exclus.",
         dataShape: "distribution",
+        excludedDisplayTypes: ["pie", "donut"],
         unit: "%",
         chartVariant: "parliament-group",
     }),
@@ -138,6 +151,77 @@ export const GROUPES_STATS: StatDefinition[] = [
         methodology: "Taux de participation moyen des député·es, calculé mois par mois pour chaque groupe. Un groupe renommé/dissous en cours de législature (ex: SOC-NUPES → SOC) apparaît comme deux séries distinctes, chacune sur sa propre période.",
         dataShape: "multi-series",
         unit: "%",
+        chartVariant: "parliament-group",
+    }),
+
+    // ── Présence ──────────────────────────────────────────────────────────
+    defineStat("groupes", "presence", {
+        scope: "aggregate",
+        title: "Taux de présence par groupe",
+        category: "Présence",
+        keywords: ["présence", "assiduité", "absence", "tous les groupes"],
+        description: "Compare, pour chaque groupe, la part des jours où ses député·es étaient attendu·es (séance avec vote, convocation en commission) où ils ont effectivement été présents.",
+        methodology: GROUPES_PRESENCE_METHODOLOGIE,
+        dataShape: "distribution",
+        excludedDisplayTypes: ["pie", "donut"],
+        unit: "%",
+        chartVariant: "parliament-group",
+    }),
+    defineStat("groupes", "presence-jours-par-mois", {
+        scope: "aggregate",
+        title: "Jours de présence par mois, par groupe",
+        category: "Présence",
+        keywords: ["présence", "jours", "volume", "tous les groupes"],
+        description: "Combien de jours par mois, en moyenne, un·e député·e de chaque groupe est présent·e — toutes sources confondues (vote, prise de parole, commission).",
+        methodology: GROUPES_PRESENCE_METHODOLOGIE + " Volume : jours de présence (attendus ou non, un jour compté une fois) ÷ mois-députés actifs (mois avec une séance ou un jour attendu).",
+        dataShape: "distribution",
+        excludedDisplayTypes: ["pie", "donut"],
+        unit: "jours / mois",
+        chartVariant: "parliament-group",
+    }),
+    defineStat("groupes", "presence-evolution", {
+        scope: "entity",
+        title: "Évolution de la présence",
+        category: "Présence",
+        keywords: ["présence", "évolution", "mensuel", "groupe"],
+        description: "Mois par mois, la part des jours attendus où les député·es de ce groupe ont été présent·es.",
+        methodology: GROUPES_PRESENCE_METHODOLOGIE,
+        dataShape: "timeseries",
+        unit: "%",
+        entityIdLabel: "Choisir un groupe",
+        chartVariant: "parliament-group",
+    }),
+    defineStat("groupes", "presence-evolution-groupes", {
+        scope: "aggregate",
+        title: "Évolution de la présence, tous groupes",
+        category: "Présence",
+        keywords: ["présence", "évolution", "mensuel", "tous les groupes"],
+        description: "Compare, mois par mois, le taux de présence de tous les groupes de la législature.",
+        methodology: GROUPES_PRESENCE_METHODOLOGIE + " Un groupe renommé/dissous en cours de législature apparaît comme plusieurs séries, chacune sur sa période.",
+        dataShape: "multi-series",
+        unit: "%",
+        chartVariant: "parliament-group",
+    }),
+    defineStat("groupes", "presence-annee-civile", {
+        scope: "aggregate",
+        title: "Présence par année civile, par groupe",
+        category: "Présence",
+        keywords: ["présence", "année", "civile", "jours", "tous les groupes"],
+        description: "Jours de présence par mois d'un·e député·e, en moyenne, pour chaque groupe et chaque année civile (janvier → décembre).",
+        methodology: GROUPES_PRESENCE_METHODOLOGIE + " Valeur = jours de présence ÷ mois-députés actifs de l'année.",
+        dataShape: "multi-series",
+        unit: "jours / mois",
+        chartVariant: "parliament-group",
+    }),
+    defineStat("groupes", "presence-annee-parlementaire", {
+        scope: "aggregate",
+        title: "Présence par année parlementaire, par groupe",
+        category: "Présence",
+        keywords: ["présence", "année", "parlementaire", "session", "jours", "tous les groupes"],
+        description: "Jours de présence par mois d'un·e député·e, en moyenne, pour chaque groupe et chaque année parlementaire (1er octobre → 30 septembre).",
+        methodology: GROUPES_PRESENCE_METHODOLOGIE + " Valeur = jours de présence ÷ mois-députés actifs de l'année.",
+        dataShape: "multi-series",
+        unit: "jours / mois",
         chartVariant: "parliament-group",
     }),
 ];

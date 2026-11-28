@@ -12,6 +12,7 @@ import { PARTICIPATION_PRESENCE_SECTIONS } from "@/app/(ui)/(views)/(db)/statist
 import { COHESION_GROUPES_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/cohesion-groupes.sections";
 import { CUMUL_MANDATS_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/cumul-mandats.sections";
 import { PROXIMITE_ENTRE_GROUPES_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/proximite-entre-groupes.sections";
+import { PRESENCE_DEPUTES_SECTIONS } from "@/app/(ui)/(views)/(db)/statistics/chiffres-cles/themes/presence-deputes.sections";
 
 /**
  * Regroupement thématique du hub (`chiffres-cles-page-client.tsx`) — "humain"
@@ -210,6 +211,15 @@ export const KEY_FIGURE_THEMES: KeyFigureTheme[] = [
         icon: Vote,
         category: "votes",
         sections: PARTICIPATION_PRESENCE_SECTIONS,
+    },
+    {
+        slug: "presence-deputes",
+        color: "rouge",
+        title: "La présence des député·es",
+        teaser: "En séance, en commission, aux scrutins : qui est là, quels jours, et comment ça évolue d'année en année.",
+        icon: Gauge,
+        category: "votes",
+        sections: PRESENCE_DEPUTES_SECTIONS,
     },
     {
         slug: "positions-de-vote",

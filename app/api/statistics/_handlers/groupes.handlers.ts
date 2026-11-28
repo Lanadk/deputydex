@@ -13,6 +13,26 @@ import { getGroupeStatParticipationEvolutionUseCase } from "@/app/domains/groupe
 import { getGroupeStatParticipationEvolutionTousUseCase } from "@/app/domains/groupes/use-cases/get-groupe-stat-participation-evolution-tous.use-case";
 import { prismaGroupesStatsRepository } from "@/app/infrastructure/groupes/repositories/prisma-groupes-stats.repository";
 import { StatHandler } from "@/app/api/statistics/_handlers/stat-handler.types";
+import {
+    getGroupePresenceEvolutionUseCase,
+    getGroupesPresenceAnnuelleUseCase,
+    getGroupesPresenceEvolutionUseCase,
+    getGroupesPresenceJoursParMoisUseCase,
+    getGroupesPresenceUseCase,
+} from "@/app/domains/presence/use-cases/get-presence-stats.use-cases";
+import { prismaPresenceStatsRepository } from "@/app/infrastructure/presence/repositories/prisma-presence-stats.repository";
+
+/** Présence de tous les groupes par type d'année (civile / parlementaire) — une série par groupe. */
+function groupesPresenceAnnuelle(type: "civile" | "parlementaire"): StatHandler {
+    return async (params) => {
+        const legislature = params.filters?.legislature as number | undefined;
+        if (!legislature) return err("INVALID_INPUT");
+
+        const result = await getGroupesPresenceAnnuelleUseCase(prismaPresenceStatsRepository, legislature, type);
+        if (isErr(result)) return result;
+        return ok({ shape: "multi-series", series: result.data.series });
+    };
+}
 
 /**
  * Le cache est géré une seule fois, de façon générique, par `route.ts`
@@ -124,4 +144,41 @@ export const GROUPES_STAT_HANDLERS: Record<string, StatHandler> = {
         if (isErr(result)) return result;
         return ok({ shape: "multi-series", series: result.data.series });
     },
+
+    // ── Présence des groupes (domaine presence) ──
+    presence: async (params) => {
+        const legislature = params.filters?.legislature as number | undefined;
+        if (!legislature) return err("INVALID_INPUT");
+
+        const result = await getGroupesPresenceUseCase(prismaPresenceStatsRepository, legislature);
+        if (isErr(result)) return result;
+        return ok({ shape: "distribution", items: result.data.items });
+    },
+    "presence-jours-par-mois": async (params) => {
+        const legislature = params.filters?.legislature as number | undefined;
+        if (!legislature) return err("INVALID_INPUT");
+
+        const result = await getGroupesPresenceJoursParMoisUseCase(prismaPresenceStatsRepository, legislature);
+        if (isErr(result)) return result;
+        return ok({ shape: "distribution", items: result.data.items });
+    },
+    "presence-evolution-groupes": async (params) => {
+        const legislature = params.filters?.legislature as number | undefined;
+        if (!legislature) return err("INVALID_INPUT");
+
+        const result = await getGroupesPresenceEvolutionUseCase(prismaPresenceStatsRepository, legislature);
+        if (isErr(result)) return result;
+        return ok({ shape: "multi-series", series: result.data.series });
+    },
+    "presence-evolution": async (params) => {
+        const code = params.entityId;
+        const legislature = params.filters?.legislature as number | undefined;
+        if (!code || !legislature) return err("INVALID_INPUT");
+
+        const result = await getGroupePresenceEvolutionUseCase(prismaPresenceStatsRepository, code, legislature);
+        if (isErr(result)) return result;
+        return ok({ shape: "timeseries", points: result.data.points });
+    },
+    "presence-annee-civile": groupesPresenceAnnuelle("civile"),
+    "presence-annee-parlementaire": groupesPresenceAnnuelle("parlementaire"),
 };

@@ -1,6 +1,24 @@
 import { defineStat } from "@/app/(ui)/_shared/statistics/catalog/define-stat";
 import { StatDefinition } from "@/app/(ui)/_shared/statistics/catalog/stat-definition.types";
 
+/**
+ * Méthodologie commune des stats de présence (vues `agg_*_presence*` de
+ * deputydex-data — démarche complète dans
+ * `deputydex-data/src/sql/scripts/presence/README.md`).
+ */
+const PRESENCE_METHODOLOGIE =
+    "Un jour est « attendu » pendant le mandat quand une séance publique avec au moins un scrutin public " +
+    "s'est tenue, ou quand le député est convoqué à une réunion (commission…) d'un organe dont il est membre. " +
+    "Il est « présent » s'il a voté personnellement (les votes par délégation, émis par un collègue, ne comptent " +
+    "pas), pris la parole ou interrompu en séance, ou été noté présent en commission. Les séances sans aucun vote " +
+    "(questions au Gouvernement, semaines de contrôle) ne permettent de voir que les orateurs : elles ne sont pas " +
+    "attendues, mais y parler compte comme jour de présence. Borne basse : un député présent qui ne vote ni ne parle n'est pas vu.";
+
+const PRESENCE_ANNEES =
+    " Valeur = jours de présence (toutes sources, attendus ou non, un jour compté une fois) divisés par les mois " +
+    "actifs de la période (mois avec une séance ou un jour attendu : août exclu) — comparable d'une année complète " +
+    "à une année entamée. Libellé préfixé par la législature (2024 relève de la 16ᵉ puis de la 17ᵉ).";
+
 export const ACTEURS_STATS: StatDefinition[] = [
     defineStat("acteurs", "age-distribution", {
         scope: "aggregate",
@@ -58,5 +76,73 @@ export const ACTEURS_STATS: StatDefinition[] = [
         methodology: "Famille socio-professionnelle INSEE déclarée, sur l'ensemble des député·es actuellement en mandat à l'Assemblée (législature sélectionnée) — regroupement plus large que « Catégories socio-professionnelles » (acteurs.professions).",
         dataShape: "distribution",
         unit: "députés",
+    }),
+
+    // ── Présence ──────────────────────────────────────────────────────────
+    defineStat("acteurs", "presence", {
+        scope: "entity",
+        title: "Taux de présence",
+        category: "Présence",
+        keywords: ["présence", "assiduité", "absence", "évolution", "mensuel", "député"],
+        description: "Mois par mois, la part des jours où ce député était attendu (séance avec vote, convocation en commission) où il a effectivement été présent.",
+        methodology: PRESENCE_METHODOLOGIE + " Taux = jours présents ÷ jours attendus du mois ; un mois sans jour attendu (vacances) n'a pas de point.",
+        dataShape: "timeseries",
+        unit: "%",
+        entityIdLabel: "Choisir un député",
+    }),
+    defineStat("acteurs", "presence-jours-mensuels", {
+        scope: "entity",
+        title: "Jours de présence par mois",
+        category: "Présence",
+        keywords: ["présence", "jours", "volume", "mensuel", "député"],
+        description: "Combien de jours, chaque mois, ce député a été présent — toutes sources confondues : vote, prise de parole, commission.",
+        methodology: PRESENCE_METHODOLOGIE + " Volume : tout jour de présence, attendu ou non, compté une fois même si le député a voté, parlé et siégé en commission le même jour.",
+        dataShape: "timeseries",
+        unit: "jours",
+        entityIdLabel: "Choisir un député",
+    }),
+    defineStat("acteurs", "presence-sources", {
+        scope: "entity",
+        title: "Jours de présence par source",
+        category: "Présence",
+        keywords: ["présence", "vote", "débat", "commission", "député"],
+        description: "D'où viennent les jours de présence de ce député : jours avec un vote, avec une prise de parole, en commission (un même jour peut cumuler plusieurs sources).",
+        methodology: PRESENCE_METHODOLOGIE + " Une série par législature.",
+        dataShape: "multi-series",
+        unit: "jours",
+        entityIdLabel: "Choisir un député",
+    }),
+    defineStat("acteurs", "presence-annee-civile", {
+        scope: "entity",
+        title: "Présence par année civile",
+        category: "Présence",
+        keywords: ["présence", "année", "civile", "jours", "député"],
+        description: "Jours de présence par mois, en moyenne, année civile par année civile (janvier → décembre).",
+        methodology: PRESENCE_METHODOLOGIE + PRESENCE_ANNEES,
+        dataShape: "timeseries",
+        unit: "jours / mois",
+        entityIdLabel: "Choisir un député",
+    }),
+    defineStat("acteurs", "presence-annee-parlementaire", {
+        scope: "entity",
+        title: "Présence par année parlementaire",
+        category: "Présence",
+        keywords: ["présence", "année", "parlementaire", "session", "jours", "député"],
+        description: "Jours de présence par mois, en moyenne, par année parlementaire (1er octobre → 30 septembre, comme les sessions de l'Assemblée).",
+        methodology: PRESENCE_METHODOLOGIE + PRESENCE_ANNEES,
+        dataShape: "timeseries",
+        unit: "jours / mois",
+        entityIdLabel: "Choisir un député",
+    }),
+    defineStat("acteurs", "presence-annee-mandat", {
+        scope: "entity",
+        title: "Présence par année de mandat",
+        category: "Présence",
+        keywords: ["présence", "année", "mandat", "jours", "député"],
+        description: "Jours de présence par mois, en moyenne, année de mandat par année de mandat (à partir de sa prise de fonction dans la législature).",
+        methodology: PRESENCE_METHODOLOGIE + PRESENCE_ANNEES,
+        dataShape: "timeseries",
+        unit: "jours / mois",
+        entityIdLabel: "Choisir un député",
     }),
 ];
