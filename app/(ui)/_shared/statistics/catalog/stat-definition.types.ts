@@ -2,6 +2,7 @@ import { StatDataShape } from "@/app/_shared/statistics/raw-stat-data.types";
 import { StatDomain, StatScope } from "@/app/_shared/statistics/stat-scope.types";
 import { FilterField } from "@/app/_shared/filtering/filter-bar.types";
 import { ChartColorVariant } from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
+import { ChartConfig } from "@/app/(ui)/component-library/template/sections/block-section/chart-config.types";
 
 /**
  * Descripteur d'UNE stat du catalogue Statistiques. Volontairement sans
@@ -45,6 +46,14 @@ export interface StatDefinition {
      * couleur par défaut pour les deux, ce qui est pire que sans variant).
      */
     chartVariant?: ChartColorVariant;
+    /**
+     * Formats retirés du format-switcher pour cette stat, parmi ceux de sa
+     * forme de donnée (`DISPLAY_TYPE_COMPATIBILITY`) — ex: `["pie", "donut"]`
+     * pour une distribution dont les valeurs ne sont pas les parts d'un tout
+     * (taux par groupe : un camembert de taux n'a pas de sens). Voir
+     * `compatibleDisplayTypesFor`.
+     */
+    excludedDisplayTypes?: ChartConfig["displayType"][];
 
     /** scope === "aggregate" : filtres disponibles pour restreindre la population (réutilise FilterField de FilterBarLib) */
     populationFilters?: FilterField[];

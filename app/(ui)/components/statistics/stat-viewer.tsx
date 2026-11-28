@@ -9,7 +9,7 @@ import { useStatInsight } from "@/app/(ui)/_shared/statistics/insights/use-stat-
 import { isContextReady } from "@/app/(ui)/_shared/statistics/context/is-context-ready";
 import { buildContextLabel } from "@/app/(ui)/_shared/statistics/context/build-context-label";
 import {
-    DISPLAY_TYPE_COMPATIBILITY,
+    compatibleDisplayTypesFor,
     DISPLAY_TYPE_LABELS,
 } from "@/app/(ui)/_shared/statistics/data/display-type-compatibility";
 import { RenderStatChart } from "@/app/(ui)/components/statistics/render-stat-chart";
@@ -47,8 +47,10 @@ export const StatViewer: React.FC<StatViewerProps> = ({
     const insight = useStatInsight(definition, context, data);
     const ready = isContextReady(definition.domain, definition.scope, context);
 
-    const compatibleDisplayTypes = DISPLAY_TYPE_COMPATIBILITY[definition.dataShape];
-    const resolvedDisplayType = displayType ?? compatibleDisplayTypes[0] ?? null;
+    const compatibleDisplayTypes = compatibleDisplayTypesFor(definition);
+    // Un format exclu (ex: camembert mémorisé avant l'exclusion) retombe sur le défaut.
+    const resolvedDisplayType =
+        (displayType && compatibleDisplayTypes.includes(displayType) ? displayType : null) ?? compatibleDisplayTypes[0] ?? null;
 
     // "Tous les groupes — 17ᵉ législature", "RN — 17ᵉ législature",
     // "Amélie Durand"... — vide si le domaine n'a ni entité ni législature à
