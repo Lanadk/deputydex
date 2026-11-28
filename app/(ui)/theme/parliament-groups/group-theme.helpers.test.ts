@@ -1,4 +1,4 @@
-import { getGroupCardTheme } from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
+import { getCanonicalGroupChartColor, getGroupCardTheme } from "@/app/(ui)/theme/parliament-groups/group-theme.helpers";
 
 describe("getGroupCardTheme — normalisation du nom de groupe", () => {
     it("reconnaît un libellé complet (accents, ponctuation, espaces)", () => {
@@ -14,5 +14,13 @@ describe("getGroupCardTheme — normalisation du nom de groupe", () => {
         expect(getGroupCardTheme("")).toBe(getGroupCardTheme(null));
         expect(getGroupCardTheme("___")).toBe(getGroupCardTheme(null));
         expect(getGroupCardTheme("Groupe inconnu")).toBe(getGroupCardTheme(null));
+    });
+});
+
+describe("getCanonicalGroupChartColor — groupe d'une législature (« RN · 16ᵉ »)", () => {
+    it("garde la couleur du sigle, quelle que soit la législature", () => {
+        expect(getCanonicalGroupChartColor("RN · 16ᵉ")).toBe(getCanonicalGroupChartColor("RN"));
+        expect(getCanonicalGroupChartColor("LFI-NFP · 17ᵉ")).toBe(getCanonicalGroupChartColor("LFI-NFP"));
+        expect(getCanonicalGroupChartColor("HOR · 18ᵉ")).toBe(getCanonicalGroupChartColor("HOR"));
     });
 });

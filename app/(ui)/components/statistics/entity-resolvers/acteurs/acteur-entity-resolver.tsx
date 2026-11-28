@@ -133,6 +133,25 @@ export const ActeurEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
                 </FilterGroupLib>
             )}
 
+            {/* Un député précis : par défaut une série par législature ; on peut aussi
+                n'en garder qu'une, ou les combiner (« Toutes » : un député réélu a ses
+                jours sommés sur ses mandats successifs). */}
+            {scope === "entity" && value.entityId && (
+                <LegislatureChoiceButtons
+                    value={selectedLegislature}
+                    allowAll={allowAllLegislatures}
+                    sansFiltre="Chaque législature"
+                    onSelect={(legislature) => {
+                        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+                        const { legislature: _ancienne, ...filtres } = value.filters ?? {};
+                        onChange("entity", {
+                            entityId: value.entityId,
+                            filters: legislature == null ? filtres : { ...filtres, legislature },
+                        });
+                    }}
+                />
+            )}
+
             {scope === "aggregate" && (
                 <LegislatureChoiceButtons
                     value={selectedLegislature}

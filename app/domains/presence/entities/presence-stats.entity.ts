@@ -8,9 +8,9 @@
 /** Type d'année des vues `agg_*_presence_annuelle`. */
 export type PresenceTypePeriode = "civile" | "parlementaire" | "mandat";
 
-/** Taux et volume d'un député sur une législature (`agg_deputes_presence`). */
+/** Taux et volume d'un député sur une législature (`agg_deputes_presence`) ; `legislature` null = toutes ses législatures. */
 export interface DeputePresenceLegislatureRow {
-    legislature: number;
+    legislature: number | null;
     jours_attendus: number;
     jours_presents: number;
     taux_presence: number | null;
@@ -33,7 +33,8 @@ export interface DeputeDebutMandatRow {
 
 /** Un mois d'un député (`agg_deputes_presence_mensuelle`). */
 export interface DeputePresenceMoisRow {
-    legislature: number;
+    /** null = toutes ses législatures. */
+    legislature: number | null;
     mois: Date;
     taux_presence: number | null;
     jours_presence: number;
@@ -41,7 +42,7 @@ export interface DeputePresenceMoisRow {
 
 /** Une année d'un député (`agg_deputes_presence_annuelle`). */
 export interface PresenceAnneeRow {
-    /** null = toutes législatures (Assemblée seulement). */
+    /** null = toutes législatures (Assemblée, ou toutes celles du député). */
     legislature: number | null;
     periode: string;
     jours_presence_par_mois: number | null;
@@ -50,6 +51,7 @@ export interface PresenceAnneeRow {
 
 /** Un groupe sur une législature (`agg_groupes_presence`, code via `ref_groupes`). */
 export interface GroupePresenceRow {
+    legislature: number;
     groupe_code: string;
     groupe_label: string | null;
     taux_presence: number | null;
@@ -65,6 +67,7 @@ export type PresenceComposante = "seance" | "commission" | "excuses" | "scrutins
 
 /** Un mois d'un groupe (`agg_groupes_presence_mensuelle`). */
 export interface GroupePresenceMoisRow {
+    legislature: number;
     groupe_code: string;
     groupe_label: string | null;
     mois: Date;
@@ -73,6 +76,7 @@ export interface GroupePresenceMoisRow {
 
 /** Une année d'un groupe (`agg_groupes_presence_annuelle`). */
 export interface GroupePresenceAnneeRow {
+    legislature: number;
     groupe_code: string;
     periode: string;
     jours_presence_par_mois: number | null;

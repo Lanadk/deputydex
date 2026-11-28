@@ -18,7 +18,15 @@ import {
     PresenceStatPointsDTO,
     PresenceStatSeriesDTO,
 } from "@/app/domains/presence/dto/presence-stats.dto";
-import { jourLabel, jourSemaineLabel, legislatureLabel, moisLabel, periodeLabel } from "@/app/domains/presence/presence-labels";
+import { groupeLegislatureLabel, jourLabel, jourSemaineLabel, legislatureLabel, moisLabel, periodeLabel } from "@/app/domains/presence/presence-labels";
+
+/**
+ * Libellé d'un groupe : son CODE (convention des stats de groupes), ou « CODE · Nᵉ »
+ * en périmètre « toutes législatures » (`distinguer`), où chaque groupe de chaque
+ * législature est une ligne à part.
+ */
+const etiquetteGroupe = (r: { groupe_code: string; legislature: number }, distinguer: boolean) =>
+    distinguer ? groupeLegislatureLabel(r.groupe_code, r.legislature) : r.groupe_code;
 
 /**
  * Conversions entité → DTO des statistiques de présence. Aucun tri ni filtre
@@ -61,8 +69,8 @@ export function mapAnneesToDTO(rows: PresenceAnneeRow[], type: PresenceTypePerio
 }
 
 /** Taux de présence par groupe (label = CODE du groupe, convention des stats de groupes). */
-export function mapGroupesTauxToDTO(rows: GroupePresenceRow[]): PresenceStatItemsDTO {
-    return { items: rows.flatMap((r) => item(r.groupe_code, r.taux_presence)) };
+export function mapGroupesTauxToDTO(rows: GroupePresenceRow[], distinguer = false): PresenceStatItemsDTO {
+    return { items: rows.flatMap((r) => item(etiquetteGroupe(r, distinguer), r.taux_presence)) };
 }
 
 /** Colonne de `agg_groupes_presence` et libellé d'affichage de chaque composante (préfixe = ordre d'affichage). */
@@ -74,24 +82,24 @@ export const COMPOSANTES: Record<PresenceComposante, { colonne: keyof GroupePres
 };
 
 /** Une composante du taux de présence, par groupe (label = CODE). */
-export function mapGroupesComposanteToDTO(rows: GroupePresenceRow[], composante: PresenceComposante): PresenceStatItemsDTO {
+export function mapGroupesComposanteToDTO(rows: GroupePresenceRow[], composante: PresenceComposante, distinguer = false): PresenceStatItemsDTO {
     const { colonne } = COMPOSANTES[composante];
-    return { items: rows.flatMap((r) => item(r.groupe_code, r[colonne] as number | null)) };
+    return { items: rows.flatMap((r) => item(etiquetteGroupe(r, distinguer), r[colonne] as number | null)) };
 }
 
 /** Toutes les composantes côte à côte : une série par composante, un item par groupe (label = CODE). */
-export function mapGroupesComposantesToDTO(rows: GroupePresenceRow[]): PresenceStatSeriesDTO {
+export function mapGroupesComposantesToDTO(rows: GroupePresenceRow[], distinguer = false): PresenceStatSeriesDTO {
     return {
         series: (Object.keys(COMPOSANTES) as PresenceComposante[]).map((c) => ({
             name: COMPOSANTES[c].libelle,
-            items: mapGroupesComposanteToDTO(rows, c).items,
+            items: mapGroupesComposanteToDTO(rows, c, distinguer).items,
         })),
     };
 }
 
 /** Jours de présence par mois et par député, par groupe. */
-export function mapGroupesJoursParMoisToDTO(rows: GroupePresenceRow[]): PresenceStatItemsDTO {
-    return { items: rows.flatMap((r) => item(r.groupe_code, r.jours_presence_par_mois)) };
+export function mapGroupesJoursParMoisToDTO(rows: GroupePresenceRow[], distinguer = false): PresenceStatItemsDTO {
+    return { items: rows.flatMap((r) => item(etiquetteGroupe(r, distinguer), r.jours_presence_par_mois)) };
 }
 
 /** Taux mensuel d'un groupe. */
@@ -100,21 +108,23 @@ export function mapGroupeMensuelleToDTO(rows: GroupePresenceMoisRow[]): Presence
 }
 
 /** Une série par groupe (nom = CODE), un item par mois. */
-export function mapGroupesMensuelleToDTO(rows: GroupePresenceMoisRow[]): PresenceStatSeriesDTO {
+export function mapGroupesMensuelleToDTO(rows: GroupePresenceMoisRow[], distinguer = false): PresenceStatSeriesDTO {
     const parGroupe = new Map<string, PresenceStatItemDTO[]>();
     for (const r of rows) {
-        if (!parGroupe.has(r.groupe_code)) parGroupe.set(r.groupe_code, []);
-        parGroupe.get(r.groupe_code)!.push(...item(moisLabel(r.mois), r.taux_presence));
+        const nom = etiquetteGroupe(r, distinguer);
+        if (!parGroupe.has(nom)) parGroupe.set(nom, []);
+        parGroupe.get(nom)!.push(...item(moisLabel(r.mois), r.taux_presence));
     }
     return { series: Array.from(parGroupe, ([name, items]) => ({ name, items })) };
 }
 
 /** Une série par groupe (nom = CODE), un item par période annuelle. */
-export function mapGroupesAnnuelleToDTO(rows: GroupePresenceAnneeRow[]): PresenceStatSeriesDTO {
+export function mapGroupesAnnuelleToDTO(rows: GroupePresenceAnneeRow[], distinguer = false): PresenceStatSeriesDTO {
     const parGroupe = new Map<string, PresenceStatItemDTO[]>();
     for (const r of rows) {
-        if (!parGroupe.has(r.groupe_code)) parGroupe.set(r.groupe_code, []);
-        parGroupe.get(r.groupe_code)!.push(...item(r.periode, r.jours_presence_par_mois));
+        const nom = etiquetteGroupe(r, distinguer);
+        if (!parGroupe.has(nom)) parGroupe.set(nom, []);
+        parGroupe.get(nom)!.push(...item(r.periode, r.jours_presence_par_mois));
     }
     return { series: Array.from(parGroupe, ([name, items]) => ({ name, items })) };
 }

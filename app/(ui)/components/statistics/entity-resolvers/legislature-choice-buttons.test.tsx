@@ -24,6 +24,13 @@ describe("LegislatureChoiceButtons", () => {
         expect(screen.queryByRole("button", { name: /Toutes/ })).not.toBeInTheDocument();
     });
 
+    it("sansFiltre : un premier bouton qui retire le filtre de législature", () => {
+        const onSelect = jest.fn();
+        render(<LegislatureChoiceButtons value={17} onSelect={onSelect} sansFiltre="Chaque législature" />);
+        fireEvent.click(screen.getByRole("button", { name: "Chaque législature" }));
+        expect(onSelect).toHaveBeenCalledWith(undefined);
+    });
+
     it("avec allowAll : « Toutes (16ᵉ + 17ᵉ) » pose le périmètre « toutes »", () => {
         const onSelect = jest.fn();
         render(<LegislatureChoiceButtons value={17} onSelect={onSelect} allowAll />);

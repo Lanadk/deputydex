@@ -67,6 +67,7 @@ export const ACTEURS_STATS: StatDefinition[] = [
     // ── Présence ──────────────────────────────────────────────────────────
     defineStat("acteurs", "presence", {
         scope: "entity",
+        allLegislatures: true,
         title: "Taux de présence",
         category: "Présence",
         keywords: ["présence", "assiduité", "absence", "évolution", "mensuel", "député"],
@@ -78,6 +79,7 @@ export const ACTEURS_STATS: StatDefinition[] = [
     }),
     defineStat("acteurs", "presence-jours-mensuels", {
         scope: "entity",
+        allLegislatures: true,
         title: "Jours de présence par mois",
         category: "Présence",
         keywords: ["présence", "jours", "volume", "mensuel", "député"],
@@ -89,6 +91,7 @@ export const ACTEURS_STATS: StatDefinition[] = [
     }),
     defineStat("acteurs", "presence-sources", {
         scope: "entity",
+        allLegislatures: true,
         title: "Jours de présence par source",
         category: "Présence",
         keywords: ["présence", "vote", "débat", "commission", "député"],
@@ -100,6 +103,7 @@ export const ACTEURS_STATS: StatDefinition[] = [
     }),
     defineStat("acteurs", "presence-composantes", {
         scope: "entity",
+        allLegislatures: true,
         title: "Présence : séance, commission, scrutins",
         category: "Présence",
         keywords: ["présence", "séance", "commission", "scrutins", "excusé", "député"],
@@ -111,6 +115,7 @@ export const ACTEURS_STATS: StatDefinition[] = [
     }),
     defineStat("acteurs", "presence-annee-civile", {
         scope: "entity",
+        allLegislatures: true,
         title: "Présence par année civile",
         category: "Présence",
         keywords: ["présence", "année", "civile", "jours", "député"],
@@ -122,6 +127,7 @@ export const ACTEURS_STATS: StatDefinition[] = [
     }),
     defineStat("acteurs", "presence-annee-parlementaire", {
         scope: "entity",
+        allLegislatures: true,
         title: "Présence par année parlementaire",
         category: "Présence",
         keywords: ["présence", "année", "parlementaire", "session", "jours", "député"],

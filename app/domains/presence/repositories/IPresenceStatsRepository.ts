@@ -24,17 +24,20 @@ import { PerimetreLegislature } from "@/app/_shared/statistics/perimetre-legisla
  * absent = une ligne par législature (pour les comparer).
  */
 export interface IPresenceStatsRepository {
-    // Député : toutes ses législatures, ou une seule si `legislature` est donnée (fiche député).
-    getDeputeParLegislature(acteurUid: string, legislature?: number): Promise<DeputePresenceLegislatureRow[]>;
-    getDeputeMensuelle(acteurUid: string, legislature?: number): Promise<DeputePresenceMoisRow[]>;
-    getDeputeAnnuelle(acteurUid: string, type: PresenceTypePeriode, legislature?: number): Promise<PresenceAnneeRow[]>;
+    // Député, `perimetre` : absent = une ligne par législature ; un numéro = cette législature
+    // (fiche député) ; « toutes » = ses législatures confondues (lignes legislature IS NULL).
+    getDeputeParLegislature(acteurUid: string, perimetre?: PerimetreLegislature): Promise<DeputePresenceLegislatureRow[]>;
+    getDeputeMensuelle(acteurUid: string, perimetre?: PerimetreLegislature): Promise<DeputePresenceMoisRow[]>;
+    getDeputeAnnuelle(acteurUid: string, type: PresenceTypePeriode, perimetre?: PerimetreLegislature): Promise<PresenceAnneeRow[]>;
     /** Prise de fonction du député, une ligne par législature où il a siégé. */
     getDeputeDebutsMandat(acteurUid: string, legislature?: number): Promise<DeputeDebutMandatRow[]>;
 
-    getGroupes(legislature: number): Promise<GroupePresenceRow[]>;
-    getGroupesMensuelle(legislature: number): Promise<GroupePresenceMoisRow[]>;
+    // Groupes, `perimetre` : un numéro = cette législature ; « toutes » = les groupes de chaque
+    // législature, côte à côte (pas de fusion : un groupe n'est pas identifiable d'une législature à l'autre).
+    getGroupes(perimetre: PerimetreLegislature): Promise<GroupePresenceRow[]>;
+    getGroupesMensuelle(perimetre: PerimetreLegislature): Promise<GroupePresenceMoisRow[]>;
     getGroupeMensuelle(code: string, legislature: number): Promise<GroupePresenceMoisRow[]>;
-    getGroupesAnnuelle(legislature: number, type: Exclude<PresenceTypePeriode, "mandat">): Promise<GroupePresenceAnneeRow[]>;
+    getGroupesAnnuelle(perimetre: PerimetreLegislature, type: Exclude<PresenceTypePeriode, "mandat">): Promise<GroupePresenceAnneeRow[]>;
 
     getAssemblee(perimetre?: PerimetreLegislature): Promise<AssembleePresenceLegislatureRow[]>;
     getAssembleeMensuelle(perimetre?: PerimetreLegislature): Promise<AssembleePresenceMoisRow[]>;

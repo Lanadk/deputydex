@@ -17,9 +17,16 @@ interface LegislatureChoiceButtonsProps {
     value: unknown;
     /** Périmètre déjà pris par l'autre colonne en comparaison : grisé. */
     otherValue?: unknown;
-    onSelect: (perimetre: PerimetreLegislature) => void;
+    /** `undefined` = aucun filtre (bouton `sansFiltre`). */
+    onSelect: (perimetre: PerimetreLegislature | undefined) => void;
     /** Ajoute le bouton « Toutes (…) » — voir EntityResolverProps.allowAllLegislatures. */
     allowAll?: boolean;
+    /**
+     * Libellé d'un premier bouton « sans filtre de législature » (ex: « Chaque
+     * législature » pour un député : une série par législature). Absent = pas de
+     * bouton, une législature est alors obligatoire.
+     */
+    sansFiltre?: string;
 }
 
 /**
@@ -28,11 +35,19 @@ interface LegislatureChoiceButtonsProps {
  * La liste vient de `useLegislaturesList` : une nouvelle législature y
  * apparaît, et entre dans « Toutes », sans rien changer ici.
  */
-export const LegislatureChoiceButtons: React.FC<LegislatureChoiceButtonsProps> = ({ value, otherValue, onSelect, allowAll = false }) => {
+export const LegislatureChoiceButtons: React.FC<LegislatureChoiceButtonsProps> = ({ value, otherValue, onSelect, allowAll = false, sansFiltre }) => {
     const legislatures = useLegislaturesList();
 
     return (
         <FilterGroupLib label="Législature">
+            {sansFiltre && (
+                <ButtonLib
+                    text={sansFiltre}
+                    size="small"
+                    variant={value == null ? "primary" : "tertiary"}
+                    onClick={() => onSelect(undefined)}
+                />
+            )}
             {legislatures.map((l) => (
                 <ButtonLib
                     key={l.id}

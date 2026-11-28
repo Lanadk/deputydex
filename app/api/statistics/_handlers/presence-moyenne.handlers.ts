@@ -9,8 +9,8 @@ import {
     getAssembleePresenceJoursMensuelsUseCase,
     getAssembleePresenceJourSemaineUseCase,
     getAssembleePresenceTauxAnnuelUseCase,
-    getReperesLegislaturesUseCase,
 } from "@/app/domains/presence/use-cases/get-presence-stats.use-cases";
+import { avecReperes } from "@/app/api/statistics/_handlers/presence-reperes";
 import { prismaPresenceStatsRepository as repo } from "@/app/infrastructure/presence/repositories/prisma-presence-stats.repository";
 import { PresenceTypePeriode } from "@/app/domains/presence/entities/presence-stats.entity";
 import { PresenceStatItemDTO, PresenceStatSeriesDTO } from "@/app/domains/presence/dto/presence-stats.dto";
@@ -40,20 +40,8 @@ function presenceMoyenne<T>(
 
         const result = await run(perimetre);
         if (isErr(result)) return result;
-        const raw = toRaw(result.data);
-        if (perimetre !== TOUTES_LEGISLATURES || !echelle) return ok(raw);
-
-        // Repères : une panne ne bloque pas la courbe, elle s'affiche sans.
-        const reperes = await getReperesLegislaturesUseCase(repo, echelle, libellesDe(raw));
-        return ok(isErr(reperes) || reperes.data.length === 0 ? raw : { ...raw, markers: reperes.data });
+        return ok(await avecReperes(toRaw(result.data), perimetre, echelle));
     };
-}
-
-/** Libellés de l'axe d'une donnée (points ou items de toutes les séries). */
-function libellesDe(raw: RawStatData): string[] {
-    if (raw.shape === "timeseries") return raw.points.map((p) => p.label);
-    if (raw.shape === "multi-series") return Array.from(new Set(raw.series.flatMap((s) => s.items.map((i) => i.label))));
-    return [];
 }
 
 const courbe = (data: { items: PresenceStatItemDTO[] } | { points: PresenceStatItemDTO[] }): RawStatData =>

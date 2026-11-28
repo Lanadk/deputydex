@@ -47,8 +47,16 @@ const perimetreFiltre = (perimetre?: PerimetreLegislature) =>
             ? Prisma.sql`AND legislature IS NULL`
             : Prisma.sql`AND legislature = ${perimetre}`;
 
+/**
+ * Vues des groupes (pas de lignes « toutes ») : un numéro → cette législature ;
+ * « toutes » → les lignes de toutes les législatures, chaque groupe de chaque
+ * législature à part.
+ */
+const groupesFiltre = (perimetre: PerimetreLegislature) =>
+    perimetre === TOUTES_LEGISLATURES ? Prisma.empty : Prisma.sql`AND g.legislature = ${perimetre}`;
+
 export const prismaPresenceStatsRepository: IPresenceStatsRepository = {
-    async getDeputeParLegislature(acteurUid: string, legislature?: number): Promise<DeputePresenceLegislatureRow[]> {
+    async getDeputeParLegislature(acteurUid: string, perimetre?: PerimetreLegislature): Promise<DeputePresenceLegislatureRow[]> {
         return prisma.$queryRaw<DeputePresenceLegislatureRow[]>`
             SELECT legislature,
                    jours_attendus, jours_presents,
@@ -58,26 +66,26 @@ export const prismaPresenceStatsRepository: IPresenceStatsRepository = {
                    jours_presence_par_mois::float
             FROM agg_deputes_presence
             WHERE acteur_uid = ${acteurUid}
-              ${legislatureFiltre(Prisma.sql`legislature`, legislature)}
+              ${perimetreFiltre(perimetre)}
         `;
     },
 
-    async getDeputeMensuelle(acteurUid: string, legislature?: number): Promise<DeputePresenceMoisRow[]> {
+    async getDeputeMensuelle(acteurUid: string, perimetre?: PerimetreLegislature): Promise<DeputePresenceMoisRow[]> {
         return prisma.$queryRaw<DeputePresenceMoisRow[]>`
             SELECT legislature, mois, taux_presence::float, jours_presence
             FROM agg_deputes_presence_mensuelle
             WHERE acteur_uid = ${acteurUid}
-              ${legislatureFiltre(Prisma.sql`legislature`, legislature)}
+              ${perimetreFiltre(perimetre)}
         `;
     },
 
-    async getDeputeAnnuelle(acteurUid: string, type: PresenceTypePeriode, legislature?: number): Promise<PresenceAnneeRow[]> {
+    async getDeputeAnnuelle(acteurUid: string, type: PresenceTypePeriode, perimetre?: PerimetreLegislature): Promise<PresenceAnneeRow[]> {
         return prisma.$queryRaw<PresenceAnneeRow[]>`
             SELECT legislature, periode, jours_presence_par_mois::float, taux_presence::float
             FROM agg_deputes_presence_annuelle
             WHERE acteur_uid = ${acteurUid}
               AND type_periode = ${type}
-              ${legislatureFiltre(Prisma.sql`legislature`, legislature)}
+              ${perimetreFiltre(perimetre)}
         `;
     },
 
@@ -94,9 +102,9 @@ export const prismaPresenceStatsRepository: IPresenceStatsRepository = {
         `;
     },
 
-    async getGroupes(legislature: number): Promise<GroupePresenceRow[]> {
+    async getGroupes(perimetre: PerimetreLegislature): Promise<GroupePresenceRow[]> {
         return prisma.$queryRaw<GroupePresenceRow[]>`
-            SELECT rg.code AS groupe_code, rg.libelle AS groupe_label,
+            SELECT g.legislature, rg.code AS groupe_code, rg.libelle AS groupe_label,
                    g.taux_presence::float,
                    g.taux_presence_seance::float, g.taux_presence_commission::float,
                    g.taux_excuses_commission::float, g.taux_participation_scrutins::float,
@@ -105,27 +113,27 @@ export const prismaPresenceStatsRepository: IPresenceStatsRepository = {
             JOIN ref_groupes rg
                 ON rg.groupe_id = g.groupe_uid
                AND rg.groupe_legislature = g.legislature
-            WHERE g.legislature = ${legislature}
-              AND rg.code <> 'TBD'
+            WHERE rg.code <> 'TBD'
               AND rg.code NOT LIKE 'NI%'
+              ${groupesFiltre(perimetre)}
         `;
     },
 
-    async getGroupesMensuelle(legislature: number): Promise<GroupePresenceMoisRow[]> {
+    async getGroupesMensuelle(perimetre: PerimetreLegislature): Promise<GroupePresenceMoisRow[]> {
         return prisma.$queryRaw<GroupePresenceMoisRow[]>`
-            SELECT rg.code AS groupe_code, rg.libelle AS groupe_label, g.mois, g.taux_presence::float
+            SELECT g.legislature, rg.code AS groupe_code, rg.libelle AS groupe_label, g.mois, g.taux_presence::float
             FROM agg_groupes_presence_mensuelle g
             JOIN ref_groupes rg
                 ON rg.groupe_id = g.groupe_uid
                AND rg.groupe_legislature = g.legislature
-            WHERE g.legislature = ${legislature}
-              AND rg.code <> 'TBD'
+            WHERE rg.code <> 'TBD'
+              ${groupesFiltre(perimetre)}
         `;
     },
 
     async getGroupeMensuelle(code: string, legislature: number): Promise<GroupePresenceMoisRow[]> {
         return prisma.$queryRaw<GroupePresenceMoisRow[]>`
-            SELECT rg.code AS groupe_code, rg.libelle AS groupe_label, g.mois, g.taux_presence::float
+            SELECT g.legislature, rg.code AS groupe_code, rg.libelle AS groupe_label, g.mois, g.taux_presence::float
             FROM agg_groupes_presence_mensuelle g
             JOIN ref_groupes rg
                 ON rg.groupe_id = g.groupe_uid
@@ -135,17 +143,17 @@ export const prismaPresenceStatsRepository: IPresenceStatsRepository = {
         `;
     },
 
-    async getGroupesAnnuelle(legislature: number, type: Exclude<PresenceTypePeriode, "mandat">): Promise<GroupePresenceAnneeRow[]> {
+    async getGroupesAnnuelle(perimetre: PerimetreLegislature, type: Exclude<PresenceTypePeriode, "mandat">): Promise<GroupePresenceAnneeRow[]> {
         return prisma.$queryRaw<GroupePresenceAnneeRow[]>`
-            SELECT rg.code AS groupe_code, g.periode, g.jours_presence_par_mois::float
+            SELECT g.legislature, rg.code AS groupe_code, g.periode, g.jours_presence_par_mois::float
             FROM agg_groupes_presence_annuelle g
             JOIN ref_groupes rg
                 ON rg.groupe_id = g.groupe_uid
                AND rg.groupe_legislature = g.legislature
-            WHERE g.legislature = ${legislature}
-              AND g.type_periode = ${type}
+            WHERE g.type_periode = ${type}
               AND rg.code <> 'TBD'
               AND rg.code NOT LIKE 'NI%'
+              ${groupesFiltre(perimetre)}
         `;
     },
 

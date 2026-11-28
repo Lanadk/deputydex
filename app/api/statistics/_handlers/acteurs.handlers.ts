@@ -17,6 +17,8 @@ import {
 import { prismaPresenceStatsRepository } from "@/app/infrastructure/presence/repositories/prisma-presence-stats.repository";
 import { PresenceTypePeriode } from "@/app/domains/presence/entities/presence-stats.entity";
 import { PRESENCE_MOYENNE_STAT_HANDLERS } from "@/app/api/statistics/_handlers/presence-moyenne.handlers";
+import { avecReperes } from "@/app/api/statistics/_handlers/presence-reperes";
+import { lirePerimetreLegislature, TOUTES_LEGISLATURES } from "@/app/_shared/statistics/perimetre-legislature";
 
 /**
  * Ajoute aux stats de présence d'un député la note de contexte (prise de
@@ -36,19 +38,23 @@ function avecContexteDepute(handler: StatHandler): StatHandler {
 }
 
 /**
- * Législature optionnelle des stats de présence d'un député : absente en
- * mode avancé (toutes ses législatures), posée par la fiche député (celle du
- * sélecteur global).
+ * Périmètre des stats de présence d'un député : absent = une série par
+ * législature (mode avancé par défaut) ; un numéro = cette législature (fiche
+ * député, ou choix en mode avancé) ; « toutes » = ses législatures confondues
+ * (lignes legislature IS NULL : un député réélu y a ses jours sommés).
  */
-const legislatureDepute = (params: Parameters<StatHandler>[0]) => params.filters?.legislature as number | undefined;
+const legislatureDepute = (params: Parameters<StatHandler>[0]) => lirePerimetreLegislature(params.filters?.legislature);
 
 /** Présence d'un député par type d'année (civile / parlementaire / mandat), en courbe. */
 function deputePresenceAnnuelle(type: PresenceTypePeriode): StatHandler {
     return avecContexteDepute(async (params) => {
         if (!params.entityId) return err("INVALID_INPUT");
-        const result = await getDeputePresenceAnnuelleUseCase(prismaPresenceStatsRepository, params.entityId, type, legislatureDepute(params));
+        const perimetre = legislatureDepute(params);
+        // Pas d'année de mandat combinée (voir agg_deputes_presence_annuelle).
+        if (type === "mandat" && perimetre === TOUTES_LEGISLATURES) return err("INVALID_INPUT");
+        const result = await getDeputePresenceAnnuelleUseCase(prismaPresenceStatsRepository, params.entityId, type, perimetre);
         if (isErr(result)) return result;
-        return ok({ shape: "timeseries", points: result.data.items });
+        return ok(await avecReperes({ shape: "timeseries", points: result.data.items }, perimetre, type === "mandat" ? undefined : type));
     });
 }
 
@@ -113,13 +119,13 @@ export const ACTEURS_STAT_HANDLERS: Record<string, StatHandler> = {
         if (!params.entityId) return err("INVALID_INPUT");
         const result = await getDeputePresenceEvolutionUseCase(prismaPresenceStatsRepository, params.entityId, legislatureDepute(params));
         if (isErr(result)) return result;
-        return ok({ shape: "timeseries", points: result.data.points });
+        return ok(await avecReperes({ shape: "timeseries", points: result.data.points }, legislatureDepute(params), "mois"));
     }),
     "presence-jours-mensuels": avecContexteDepute(async (params) => {
         if (!params.entityId) return err("INVALID_INPUT");
         const result = await getDeputePresenceJoursMensuelsUseCase(prismaPresenceStatsRepository, params.entityId, legislatureDepute(params));
         if (isErr(result)) return result;
-        return ok({ shape: "timeseries", points: result.data.points });
+        return ok(await avecReperes({ shape: "timeseries", points: result.data.points }, legislatureDepute(params), "mois"));
     }),
     "presence-annee-civile": deputePresenceAnnuelle("civile"),
     "presence-annee-parlementaire": deputePresenceAnnuelle("parlementaire"),

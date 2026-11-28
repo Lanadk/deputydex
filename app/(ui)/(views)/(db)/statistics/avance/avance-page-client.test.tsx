@@ -44,6 +44,21 @@ jest.mock("@/app/(ui)/_shared/statistics/catalog/stats-catalog", () => {
         dataShape: "distribution",
     };
 
+    // Accepte le périmètre « toutes législatures » (allLegislatures) — pour le
+    // bouton « Toutes (16ᵉ + 17ᵉ) » et le blocage de la comparaison.
+    const PRESENCE_MOYENNE = {
+        id: "acteurs.presence-moyenne-evolution",
+        slug: "presence-moyenne-evolution",
+        domain: "acteurs",
+        scope: "aggregate",
+        title: "Taux de présence moyen, mois par mois",
+        category: "Présence",
+        keywords: [],
+        methodology: "",
+        dataShape: "timeseries",
+        allLegislatures: true,
+    };
+
     const VOTE_POSITIONS = {
         id: "votes.positions",
         slug: "positions",
@@ -100,7 +115,7 @@ jest.mock("@/app/(ui)/_shared/statistics/catalog/stats-catalog", () => {
 
     return {
         STATS_CATALOG: [
-            { id: "acteurs", label: "Députés", icon: Users, stats: [AGE_DISTRIBUTION] },
+            { id: "acteurs", label: "Députés", icon: Users, stats: [AGE_DISTRIBUTION, PRESENCE_MOYENNE] },
             { id: "groupes", label: "Groupes", icon: Users, stats: [GROUPES_EFFECTIFS] },
             { id: "votes", label: "Votes", icon: Users, stats: [VOTE_POSITIONS] },
             { id: "scrutins", label: "Scrutins", icon: Users, stats: [SCRUTINS_PARTICIPATION] },
@@ -266,6 +281,47 @@ describe("AvancePageClient", () => {
         expect(
             screen.getByText("Comparaison indisponible : ce domaine n'a pas d'entité ni de filtre à faire varier.")
         ).toBeInTheDocument();
+    });
+
+    describe("« Toutes les législatures » : pas de comparaison possible", () => {
+        it("« Toutes » : seules les stats compatibles sont listées, et Comparer est désactivé avec son explication", async () => {
+            render(<AvancePageClient />);
+
+            fireEvent.click(screen.getAllByText("Députés")[0]);
+            fireEvent.click(await screen.findByRole("button", { name: "Toutes (16ᵉ + 17ᵉ)" }));
+
+            // La stat par législature n'est pas proposée en « Toutes ».
+            fireEvent.click(await screen.findByText("Présence"));
+            expect(screen.queryByText("Répartition par âge")).not.toBeInTheDocument();
+            fireEvent.click(screen.getByText("Taux de présence moyen, mois par mois"));
+
+            const comparer = screen.getByRole("button", { name: "Comparer" });
+            expect(comparer).toBeDisabled();
+            expect(
+                screen.getByText("Comparaison indisponible : « Toutes » réunit déjà toutes les législatures. Choisis une législature pour comparer.")
+            ).toBeInTheDocument();
+
+            // Revenir à une législature précise réactive la comparaison.
+            fireEvent.click(screen.getByRole("button", { name: "17ᵉ législature" }));
+            expect(screen.getByRole("button", { name: "Comparer" })).not.toBeDisabled();
+        });
+
+        it("en comparaison, « Toutes » n'est proposé dans aucune des deux colonnes", async () => {
+            render(<AvancePageClient />);
+
+            fireEvent.click(screen.getAllByText("Députés")[0]);
+            // Proposé hors comparaison…
+            expect(await screen.findByRole("button", { name: "Toutes (16ᵉ + 17ᵉ)" })).toBeInTheDocument();
+
+            fireEvent.click(screen.getByRole("button", { name: "17ᵉ législature" }));
+            fireEvent.click(await screen.findByText("Présence"));
+            fireEvent.click(screen.getByText("Taux de présence moyen, mois par mois"));
+            fireEvent.click(screen.getByRole("button", { name: "Comparer" }));
+
+            // …plus du tout une fois la comparaison ouverte.
+            await waitFor(() => expect(screen.getAllByRole("button", { name: "16ᵉ législature" })).toHaveLength(2));
+            expect(screen.queryByRole("button", { name: /Toutes/ })).not.toBeInTheDocument();
+        });
     });
 
     it("requires a legislature for 'votes' (VotesEntityResolver, filtre législature seul — pas de portée entité/population)", async () => {

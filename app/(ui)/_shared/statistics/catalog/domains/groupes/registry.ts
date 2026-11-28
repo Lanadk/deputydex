@@ -10,7 +10,9 @@ const GROUPES_PRESENCE_METHODOLOGIE =
     "Jour attendu : séance publique avec au moins un scrutin public, ou convocation en commission d'un organe dont " +
     "le député est membre. Présent : vote personnel (hors délégation), prise de parole ou interruption en séance, " +
     "présence en commission. Chaque jour compte pour le groupe du député CE JOUR-LÀ ; taux pondéré (somme des jours " +
-    "présents ÷ somme des jours attendus de tous les membres), pas la moyenne des taux individuels. Non inscrits " +
+    "présents ÷ somme des jours attendus de tous les membres), pas la moyenne des taux individuels. « Toutes » : " +
+    "chaque groupe de chaque législature à part (« RN · 16ᵉ »), sans fusion — un groupe n'est pas identifiable " +
+    "d'une législature à l'autre (identifiants et sigles qui changent). Non inscrits " +
     "exclus du classement.";
 
 /** Classement des groupes sur UNE composante de la présence (même colonne que `agg_assemblee_presence`). */
@@ -26,6 +28,7 @@ function presenceComposante(slug: string, title: string, description: string, ca
         excludedDisplayTypes: ["pie", "donut"],
         unit: "%",
         chartVariant: "parliament-group",
+        allLegislatures: true,
     });
 }
 
@@ -173,6 +176,7 @@ export const GROUPES_STATS: StatDefinition[] = [
     // ── Présence ──────────────────────────────────────────────────────────
     defineStat("groupes", "presence", {
         scope: "aggregate",
+        allLegislatures: true,
         title: "Taux de présence par groupe",
         category: "Présence",
         keywords: ["présence", "assiduité", "absence", "tous les groupes"],
@@ -213,6 +217,7 @@ export const GROUPES_STATS: StatDefinition[] = [
     ),
     defineStat("groupes", "presence-composantes", {
         scope: "aggregate",
+        allLegislatures: true,
         title: "Présence par groupe : séance, commission, scrutins",
         category: "Présence",
         keywords: ["présence", "séance", "commission", "scrutins", "excusés", "tous les groupes"],
@@ -223,6 +228,7 @@ export const GROUPES_STATS: StatDefinition[] = [
     }),
     defineStat("groupes", "presence-jours-par-mois", {
         scope: "aggregate",
+        allLegislatures: true,
         title: "Jours de présence par mois, par groupe",
         category: "Présence",
         keywords: ["présence", "jours", "volume", "tous les groupes"],
@@ -247,6 +253,7 @@ export const GROUPES_STATS: StatDefinition[] = [
     }),
     defineStat("groupes", "presence-evolution-groupes", {
         scope: "aggregate",
+        allLegislatures: true,
         title: "Évolution de la présence, tous groupes",
         category: "Présence",
         keywords: ["présence", "évolution", "mensuel", "tous les groupes"],
@@ -258,6 +265,7 @@ export const GROUPES_STATS: StatDefinition[] = [
     }),
     defineStat("groupes", "presence-annee-civile", {
         scope: "aggregate",
+        allLegislatures: true,
         title: "Présence par année civile, par groupe",
         category: "Présence",
         keywords: ["présence", "année", "civile", "jours", "tous les groupes"],
@@ -269,6 +277,7 @@ export const GROUPES_STATS: StatDefinition[] = [
     }),
     defineStat("groupes", "presence-annee-parlementaire", {
         scope: "aggregate",
+        allLegislatures: true,
         title: "Présence par année parlementaire, par groupe",
         category: "Présence",
         keywords: ["présence", "année", "parlementaire", "session", "jours", "tous les groupes"],

@@ -29,6 +29,20 @@ export function periodeLabel(legislature: number | null, periode: string, type: 
     return legislature == null ? libelle : `${legislature}ᵉ · ${libelle}`;
 }
 
+/**
+ * Groupe d'une législature donnée, en périmètre « toutes législatures » :
+ * « RN · 16ᵉ ». Les groupes ne se fusionnent pas d'une législature à l'autre
+ * (identifiants et sigles qui changent) : chacun garde sa série.
+ */
+export function groupeLegislatureLabel(code: string, legislature: number): string {
+    return `${code} · ${legislature}ᵉ`;
+}
+
+/** Inverse de `groupeLegislatureLabel` : « RN · 16ᵉ » → « RN » ; un sigle seul est rendu tel quel. */
+export function codeDeGroupeLabel(label: string): string {
+    return label.replace(/ · \d+ᵉ$/, "");
+}
+
 /** Date → « 2025-10 » (mois) */
 export function moisLabel(mois: Date): string {
     return mois.toISOString().slice(0, 7);

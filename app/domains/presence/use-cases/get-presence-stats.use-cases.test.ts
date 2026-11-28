@@ -371,6 +371,49 @@ describe("présence par groupe — composantes", () => {
     });
 });
 
+describe("groupes et député — toutes législatures", () => {
+    const groupe = (legislature: number, code: string, taux: number) => ({
+        legislature, groupe_code: code, groupe_label: null, taux_presence: taux, taux_presence_seance: null,
+        taux_presence_commission: null, taux_excuses_commission: null, taux_participation_scrutins: null, jours_presence_par_mois: null,
+    });
+
+    it("groupes : chaque groupe de chaque législature à part, « CODE · Nᵉ » (pas de fusion)", async () => {
+        const repo = makeRepository({ getGroupes: jest.fn().mockResolvedValue([groupe(16, "RN", 60), groupe(17, "RN", 58.7), groupe(16, "LFI-NUPES", 65)]) });
+
+        expect(await getGroupesPresenceUseCase(repo, "toutes")).toEqual({
+            success: true,
+            data: { items: [{ label: "LFI-NUPES · 16ᵉ", value: 65 }, { label: "RN · 16ᵉ", value: 60 }, { label: "RN · 17ᵉ", value: 58.7 }] },
+        });
+        expect(repo.getGroupes).toHaveBeenCalledWith("toutes");
+
+        // Une législature précise : le sigle seul, comme avant.
+        expect(await getGroupesPresenceUseCase(repo, 17)).toEqual(expect.objectContaining({ success: true }));
+        expect(repo.getGroupes).toHaveBeenLastCalledWith(17);
+    });
+
+    it("groupes : évolution mensuelle, une série par groupe et par législature", async () => {
+        const repo = makeRepository({
+            getGroupesMensuelle: jest.fn().mockResolvedValue([
+                { legislature: 16, groupe_code: "RN", groupe_label: null, mois: new Date("2024-05-01T00:00:00Z"), taux_presence: 55 },
+                { legislature: 17, groupe_code: "RN", groupe_label: null, mois: new Date("2024-10-01T00:00:00Z"), taux_presence: 60 },
+            ]),
+        });
+
+        const result = await getGroupesPresenceEvolutionUseCase(repo, "toutes");
+        expect(result.success && result.data.series.map((s) => s.name)).toEqual(["RN · 16ᵉ", "RN · 17ᵉ"]);
+    });
+
+    it("député : « toutes » transmis au repository (lignes combinées de ses législatures)", async () => {
+        const repo = makeRepository();
+
+        await getDeputePresenceEvolutionUseCase(repo, "PA1", "toutes");
+        await getDeputePresenceComposantesUseCase(repo, "PA1", "toutes");
+
+        expect(repo.getDeputeMensuelle).toHaveBeenCalledWith("PA1", "toutes");
+        expect(repo.getDeputeParLegislature).toHaveBeenCalledWith("PA1", "toutes");
+    });
+});
+
 describe("présence de l'Assemblée — toutes législatures", () => {
     it("transmet le périmètre « toutes » ; une ligne null se libelle « Toutes législatures », une année sans préfixe", async () => {
         const repo = makeRepository({

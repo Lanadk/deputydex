@@ -3,23 +3,25 @@
 import React, { useEffect, useState } from "react";
 import {groupesGateways} from "@/app/(ui)/gateways/groupes/groupes.gateway";
 import {EntityResolverProps} from "@/app/(ui)/components/statistics/entity-resolvers/entity-resolver.types";
-import {useLegislaturesList} from "@/app/(ui)/components/statistics/entity-resolvers/hook/use-legislatures-list";
+import {LegislatureChoiceButtons} from "@/app/(ui)/components/statistics/entity-resolvers/legislature-choice-buttons";
+import {estToutesLegislatures, PerimetreLegislature} from "@/app/_shared/statistics/perimetre-legislature";
 import {ButtonLib} from "@/app/(ui)/component-library/atoms/button/button-lib";
 import {FilterGroupLib} from "@/app/(ui)/component-library/molecules/filter-group/filter-group-lib";
 
-export const GroupeEntityResolver: React.FC<EntityResolverProps> = ({ value, scope, onChange, lockedScope, otherContext }) => {
-    const legislatures = useLegislaturesList();
+export const GroupeEntityResolver: React.FC<EntityResolverProps> = ({ value, scope, onChange, lockedScope, otherContext, allowAllLegislatures }) => {
     const [groupes, setGroupes] = useState<{ code: string; label: string }[]>([]);
 
     const canPickEntity = lockedScope !== "aggregate";
     const canPickAggregate = lockedScope !== "entity";
 
-    const selectedLegislature = (value.filters?.legislature as number | undefined) ?? null;
+    // Une législature (numéro) ou « toutes » (vue d'ensemble seulement).
+    const selectedLegislature = value.filters?.legislature ?? null;
+    const legislatureNumber = typeof selectedLegislature === "number" ? selectedLegislature : null;
 
     // Valeur déjà prise par l'AUTRE colonne en comparaison — comparer une
     // législature ou un groupe à lui-même n'a pas de sens, ce choix est donc
     // grisé plutôt que laissé sélectionnable (voir EntityResolverProps).
-    const otherLegislature = (otherContext?.filters?.legislature as number | undefined) ?? null;
+    const otherLegislature = otherContext?.filters?.legislature ?? null;
     const otherEntityId = otherContext?.entityId ?? null;
 
     // La législature elle-même n'est "prise" par l'autre contexte qu'en scope
@@ -35,12 +37,12 @@ export const GroupeEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
         // Rien à faire tant qu'aucune législature n'est choisie — le bloc
         // liste est de toute façon masqué dans ce cas (voir le rendu
         // conditionnel plus bas), inutile de vider `groupes` ici.
-        if (selectedLegislature == null) return;
+        if (legislatureNumber == null) return;
 
         let cancelled = false;
 
         groupesGateways
-            .getGroupesCards(selectedLegislature)
+            .getGroupesCards(legislatureNumber)
             .then((cards) => {
                 if (!cancelled) setGroupes(cards.map((c) => ({ code: c.groupeCode, label: c.groupeLabel })));
             })
@@ -51,10 +53,19 @@ export const GroupeEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
         return () => {
             cancelled = true;
         };
-    }, [selectedLegislature]);
+    }, [legislatureNumber]);
 
-    const setLegislatureNumber = (n: number) => {
-        onChange(scope, { entityId: value.entityId, filters: { ...value.filters, legislature: n } });
+    // Pas de bouton « sans filtre » ici : `legislature` n'est jamais undefined.
+    const setLegislature = (legislature: PerimetreLegislature | undefined) => {
+        onChange(scope, { entityId: value.entityId, filters: { ...value.filters, legislature } });
+    };
+
+    // « Toutes » n'existe pas pour un groupe précis : il est retiré en passant en scope entity.
+    const filtresPourEntite = () => {
+        if (!estToutesLegislatures(value.filters?.legislature)) return value.filters;
+        // eslint-disable-next-line @typescript-eslint/no-unused-vars
+        const { legislature, ...reste } = value.filters ?? {};
+        return reste;
     };
 
     return (
@@ -65,7 +76,7 @@ export const GroupeEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
                     size="small"
                     variant={scope === "entity" ? "primary" : "secondary"}
                     disabled={!canPickEntity}
-                    onClick={() => onChange("entity", { filters: value.filters })}
+                    onClick={() => onChange("entity", { filters: filtresPourEntite() })}
                 />
                 <ButtonLib
                     text="Tous les groupes"
@@ -76,20 +87,15 @@ export const GroupeEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
                 />
             </FilterGroupLib>
 
-            <FilterGroupLib label="Législature">
-                {legislatures.map((l) => (
-                    <ButtonLib
-                        key={l.id}
-                        text={`${l.number}ᵉ législature`}
-                        size="small"
-                        variant={selectedLegislature === l.number ? "primary" : "tertiary"}
-                        disabled={l.number === legislatureTaken}
-                        onClick={() => setLegislatureNumber(l.number)}
-                    />
-                ))}
-            </FilterGroupLib>
+            <LegislatureChoiceButtons
+                value={selectedLegislature}
+                otherValue={legislatureTaken}
+                // « Toutes » (vue d'ensemble seulement) : chaque groupe de chaque législature à part.
+                allowAll={allowAllLegislatures && scope === "aggregate"}
+                onSelect={setLegislature}
+            />
 
-            {scope === "entity" && selectedLegislature != null && (
+            {scope === "entity" && legislatureNumber != null && (
                 <FilterGroupLib label="Groupe">
                     {groupes.length === 0 && (
                         <span className="text-sm text-subtitle-accent">Aucun groupe trouvé pour cette législature.</span>
@@ -105,7 +111,7 @@ export const GroupeEntityResolver: React.FC<EntityResolverProps> = ({ value, sco
                             // donc pas à identifier "le même groupe qu'en face" : il faut AUSSI
                             // que la législature choisie soit la même, sinon on bloquerait à
                             // tort une comparaison temporelle légitime (HOR16 vs HOR17).
-                            disabled={groupe.code === otherEntityId && selectedLegislature === otherLegislature}
+                            disabled={groupe.code === otherEntityId && legislatureNumber === otherLegislature}
                             onClick={() =>
                                 onChange("entity", {
                                     entityId: groupe.code,
